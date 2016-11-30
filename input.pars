@@ -12,8 +12,8 @@ plot
 
 # Load spectra:
 #      filename           spectral resolution in km/s
-data  '1313_UVB_1d.spec' 37.4
-data  '1313_VIS_1d.spec' 25.4
+data  'data/Q1313+1441/1313_UVB_1d.spec' 37.4
+data  'data/Q1313+1441/1313_VIS_1d.spec' 25.4
 
 lines FeII_2374 velspan=500
 lines FeII_2260 #FeII_2249
