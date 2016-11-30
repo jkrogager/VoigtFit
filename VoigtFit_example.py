@@ -13,9 +13,9 @@ logNHI = 21.3, 0.1		# value, uncertainty
 #logNHI = None
 
 #### Load UVB and VIS data:
-UVB_fname = 'test_UVB_1d.spec'
+UVB_fname = 'data/test_UVB_1d.spec'
 res_UVB = 8000
-VIS_fname = 'test_VIS_1d.spec'
+VIS_fname = 'data/test_VIS_1d.spec'
 res_VIS = 11800
 
 wl_uvb, spec_uvb, err_uvb = np.loadtxt(UVB_fname, unpack=True)

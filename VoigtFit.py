@@ -36,7 +36,9 @@ if os.environ.has_key('ATOMPATH'):
 	atomfile = os.environ['ATOMPATH']
 
 else:
-	atomfile = raw_input("No atomic database was found!\nSpecify filename here:")
+	print("No ATOMPATH in environment ... Using static provided atomic database ...")
+	atomfile = "static/atomdata_updated.dat"
+	# atomfile = raw_input("No atomic database was found!\nSpecify filename here:")
 
 lineList = np.loadtxt(atomfile, dtype=[('trans','S13'), ('ion','S6'), ('l0','f4'), ('f','f4'), ('gam','f4')])
 
