@@ -1,0 +1,22 @@
+Python requirements:
+
+ * LmFit * 
+https://lmfit.github.io/lmfit-py/
+
+If you have pip installed, you can install lmfit with:
+
+pip install lmfit
+or you can download the source kit, unpack it and install with:
+
+python setup.py install
+
+
+- Numpy
+- Matplotlib
+- Scipy
+- Pickle
+
+ * Add the ATOMPATH variable in .bashrc *
+export ATOMPATH='path/to/atomdata_updated.dat'
+  or in .cshrc
+setenv ATOMPATH path/to/atomdata_updated.dat

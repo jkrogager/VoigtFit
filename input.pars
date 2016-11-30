@@ -1,0 +1,38 @@
+# Input parameter file for VoigtFit
+
+name :  test_dataset
+z_sys:  1.7941
+
+norm_method:  linear
+nomask
+print metallicity logNHI = 21.3 +/- 0.1
+# or:
+#Calculate metallicity based on logNHI  21.3   0.1
+plot
+
+# Load spectra:
+#      filename           spectral resolution in km/s
+data  '1313_UVB_1d.spec' 37.4
+data  '1313_VIS_1d.spec' 25.4
+
+lines FeII_2374 velspan=500
+lines FeII_2260 #FeII_2249
+lines CrII_2026 ZnII_2026
+#lines CrII_2062 ZnII_2062
+lines CrII_2056 CrII_2066
+lines MgI_2852 MgI_2026
+
+# Define components:
+#         ion  z        b   logN
+component FeII 1.793532 20. 14.3
+component FeII 1.794060 20. 15.0
+component FeII 1.794282 20. 14.3
+component FeII 1.794722 20. 14.3
+component FeII 1.795121 15. 14.5
+
+copy components to ZnII from FeII scale logN=12.9 of comp 1
+copy components to CrII from FeII scale logN=13.6 of component 1
+copy components from FeII to MgI and scale logN=12.4 of component 1
+
+#delete component 3 from CrII
+#delete component 3 from ZnII
