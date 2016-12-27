@@ -20,3 +20,7 @@ python setup.py install
 export ATOMPATH='path/to/atomdata_updated.dat'
   or in .cshrc
 setenv ATOMPATH path/to/atomdata_updated.dat
+
+## To Do
+
+ - Show sky-lines/telluric in mask
