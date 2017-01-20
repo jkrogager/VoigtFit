@@ -28,6 +28,7 @@ from voigt import evaluate_profile
 from regions import Region
 import output
 from parse_input import parse_parameters
+from line_complexes import fine_structure_complexes
 
 
 options = {'nsamp': 1,
@@ -194,6 +195,11 @@ class DataSet(object):
             print ""
             print " The line is not defined. Nothing to remove."
 
+    def normalize_line(self, line_tag):
+        """ normalize or re-normalize a given line """
+        region = self.find_line(line_tag)
+        region.normalize(norm_method=2)
+
     def find_line(self, tag):
         if tag in self.all_lines:
             for region in self.regions:
@@ -348,7 +354,7 @@ class DataSet(object):
     def add_line(self, tag, velspan=500., active=True, norm_method=1):
         self.ready2fit = False
         if tag in self.all_lines:
-            print " [WARNING] - Line is already defined."
+            print " [WARNING] - %s is already defined." % tag
             return False
 
         if tag in lineList['trans']:
@@ -430,7 +436,34 @@ class DataSet(object):
             for tag in tags:
                 self.add_line(tag, velspan)
 
-    def prepare_dataset(self, verbose=True):
+    def add_fine_lines(self, line_tag, levels=None):
+        """
+        Add fine-structure line complexes by providing only the main transition.
+        The exact fine-structure leves to include is controlled by *levels*.
+        By default all levels are included.
+        Valid entries are:
+            levels='a', levels='b', levels='c'...
+        for first, second, and third levels.
+        Several levels can be included at once:
+            levels=['a','b']
+        """
+        if hasattr(levels, '__iter__'):
+            for fineline in fine_structure_complexes[line_tag]:
+                ion = fineline.split('_')[0]
+                if ion[-1] in levels:
+                    self.add_line(fineline, self.velspan)
+
+        elif levels is None:
+            for fineline in fine_structure_complexes[line_tag]:
+                self.add_line(fineline, self.velspan)
+
+        else:
+            for fineline in fine_structure_complexes[line_tag]:
+                ion = fineline.split('_')[0]
+                if ion[-1] in levels:
+                    self.add_line(fineline, self.velspan)
+
+    def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
         # --- normalize spectral region
 
@@ -448,13 +481,14 @@ class DataSet(object):
             print ""
 
         # --- mask spectral regions that should not be fitted
-        for region in self.regions:
-            if region.new_mask:
-                region.define_mask()
-        if verbose:
-            print ""
-            print " [DONE] - Spectral masks successfully created."
-            print ""
+        if mask:
+            for region in self.regions:
+                if region.new_mask:
+                    region.define_mask()
+            if verbose:
+                print ""
+                print " [DONE] - Spectral masks successfully created."
+                print ""
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
