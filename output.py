@@ -272,6 +272,9 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     for ref_line in dataset.lines.values():
         if ref_line.tag in included_lines:
             pass
+        elif ref_line.ion[-1].islower():
+            # do not plot individual figures for fine-structure lines
+            included_lines.append(ref_line)
         else:
             region = dataset.find_line(ref_line.tag)
             lines_to_plot.append(ref_line.tag)
@@ -499,7 +502,15 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     ax.axhline(1. + cont_err, ls=':', color='gray')
     ax.axhline(1. - cont_err, ls=':', color='gray')
 
-    title_string = ", ".join(lines_in_view)
+    transition_lines = list()
+    for line_tag in lines_in_view:
+        ion = line_tag.split('_')[0]
+        if ion[-1].islower():
+            pass
+        else:
+            transition_lines.append(line_tag)
+
+    title_string = ", ".join(transition_lines)
     line_string = "${\\rm %s}$" % title_string.replace('_', '\ ')
 
     if loc == 'right':
