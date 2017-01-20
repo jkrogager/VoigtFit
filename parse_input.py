@@ -51,7 +51,7 @@ def parse_parameters(fname):
 					velspan = [float(v1), float(v2)]
 				else:
 					velspan = float(value)
-				
+
 				linelist = line.split()
 				linelist = linelist[1:-1]
 				all_lines = [ [l,velspan] for l in linelist]
@@ -201,4 +201,3 @@ def parse_parameters(fname):
 	parameters['components_to_delete'] = components_to_delete
 
 	return parameters
-

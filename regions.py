@@ -1,10 +1,12 @@
-import numpy as np, matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 
 def linfunc(x, a, b):
 	# Linear fitting function
 	return a*x + b
+
 
 class Region():
 	def __init__(self, v, line):
@@ -20,7 +22,7 @@ class Region():
 		self.cont_err	= 0.
 		self.mask		= np.ones_like(self.wl, dtype=bool)
 		self.new_mask   = True
-	
+
 	def has_line(self, tag):
 		for line in self.lines:
 			if line.tag == tag:
@@ -41,7 +43,7 @@ class Region():
 				if line.tag == tag:
 					num_to_remove = num
 			self.lines.pop(num_to_remove)
-										
+
 	def normalize(self, plot=True, norm_method=1):
 		"""
 		Normalize the region if the data were not normalized.
@@ -75,7 +77,7 @@ class Region():
 
 			print "\n\n  Mark continuum region 1, left and right boundary."
 
-			bounds = plt.ginput(2)
+			bounds = plt.ginput(2, -1)
 			left_bound = min(bounds[0][0], bounds[1][0])
 			right_bound = max(bounds[0][0], bounds[1][0])
 			region1 = (self.wl >= left_bound)*(self.wl <= right_bound)
@@ -118,7 +120,7 @@ class Region():
 
 
 		if plot:
-			plt.cla()	
+			plt.cla()
 			plt.plot(self.wl, self.flux/continuum, color='k', drawstyle='steps-mid')
 			plt.xlabel("Wavelength  [${\\rm \AA}$]")
 			plt.title("Normalized")
@@ -126,7 +128,7 @@ class Region():
 			plt.axhline(1.+e_continuum/np.mean(continuum), ls=':', color='gray')
 			plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
 			plt.show(block=False)
-			
+
 			prompt = raw_input(" Is normalization correct?  (yes/no)")
 			if prompt.lower() in ['', 'y','yes']:
 				self.flux = self.flux/continuum
@@ -134,7 +136,7 @@ class Region():
 				self.cont_err = e_continuum/np.mean(continuum)
 				self.normalized = True
 				return 1
-			
+
 			else:
 				return 0
 
@@ -144,7 +146,7 @@ class Region():
 			self.cont_err = e_continuum/np.mean(continuum)
 			self.normalized = True
 			return 1
-		
+
 
 	def define_mask(self):
 		plt.close('all')
@@ -183,7 +185,7 @@ class Region():
 
 				else:
 					ok += 1
-			
+
 			elif len(sel)==0:
 				print "\nNo masks were defined."
 				prompt = raw_input("Continue? (yes/no)")
