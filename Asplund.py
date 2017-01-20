@@ -8,8 +8,8 @@ photosphere = dict()
 meteorite = dict()
 
 for element, N_phot, N_phot_err, N_met, N_met_err in data:
-	photosphere[element] = [N_phot, N_phot_err]
-	meteorite[element] = [N_met, N_met_err]
+    photosphere[element] = [N_phot, N_phot_err]
+    meteorite[element] = [N_met, N_met_err]
 
 print " Loaded Solar abundances from Asplund et al. 2009"
 print bold+"    The Chemical Composition of the Sun"+reset

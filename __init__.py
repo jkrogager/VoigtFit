@@ -1,4 +1,3 @@
-#import lineFit
 print "\n"
 print "    VoigtFit v.1.0"
 print ""

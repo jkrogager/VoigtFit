@@ -14,11 +14,9 @@
 #    version 1.4
 #    added subpixel profile fitting
 
-import numpy as np, matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 import pyfits as pf
-from scipy import ndimage
-import scipy.signal as signal
-from scipy.optimize import curve_fit
 import pickle
 import os
 import copy
@@ -32,11 +30,11 @@ import output
 from parse_input import parse_parameters
 
 
-options = {'nsamp':1,
-           'npad':20}
+options = {'nsamp': 1,
+           'npad': 20}
 myfloat = np.float64
 
-if os.environ.has_key('ATOMPATH'):
+if 'ATOMPATH' in os.environ.keys():
     atomfile = os.environ['ATOMPATH']
 
 else:
@@ -44,19 +42,23 @@ else:
     atomfile = "static/atomdata_updated.dat"
     # atomfile = raw_input("No atomic database was found!\nSpecify filename here:")
 
-lineList = np.loadtxt(atomfile, dtype=[('trans','S13'), ('ion','S6'), ('l0','f4'), ('f','f4'), ('gam','f4')])
+lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
+                                       ('ion', 'S6'),
+                                       ('l0', 'f4'),
+                                       ('f', 'f4'),
+                                       ('gam', 'f4')])
 
 
 def air2vac(air):
-    ### From Donald Morton 1991, ApJS 77,119
-    if type(air) == float or type(air)==int:
+    # From Donald Morton 1991, ApJS 77,119
+    if type(air) == float or type(air) == int:
         air = np.array(air)
     air = np.array(air)
     ij = (np.array(air) >= 2000)
     out = np.array(air).copy()
     sigma2 = (1.e4/air)**2
-    #fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/( 41.0 - sigma2)
-    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/( 41.0 - sigma2)
+    # fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/( 41.0 - sigma2)
+    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/(41.0 - sigma2)
     out[ij] = air[ij]*fact[ij]
     return out
 
@@ -112,7 +114,7 @@ class Line(object):
         self.active = True
 
 
-
+# --- Definition of main class *DataSet*:
 class DataSet(object):
     def __init__(self, z):
         # Define the systemic redshift
@@ -122,10 +124,11 @@ class DataSet(object):
         # data should be added by calling method 'add_data'
         self.data = []
 
-        # container for absorption lines
-        # each line is defined as a class 'Line'
-        self.lines  = dict()        # a dictionary containing a Line class for each line-tag key
-        self.all_lines  = list()    # a list containing all the line-tags defined. The same as lines.keys()
+        # container for absorption lines. Each line is defined as a class 'Line'.
+        # a dictionary containing a Line class for each line-tag key:
+        self.lines = dict()
+        # a list containing all the line-tags defined. The same as lines.keys()
+        self.all_lines = list()
 
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
@@ -135,12 +138,11 @@ class DataSet(object):
         self.components = dict()
 
         # Define default velocity span for fitting region
-        self.velspan = 500.  # km/s
+        self.velspan = 300.  # km/s
 
         self.ready2fit = False
         self.best_fit = None
         self.pars = None
-
 
     def add_data(self, wl, flux, res, err=None, normalized=False):
         """
@@ -157,8 +159,8 @@ class DataSet(object):
         if err is None:
             err = np.ones_like(flux)
 
-        self.data.append({'wl':wl, 'flux':flux,
-            'error':err, 'res':res, 'norm':normalized})
+        self.data.append({'wl': wl, 'flux': flux,
+                          'error': err, 'res': res, 'norm': normalized})
 
     def remove_line(self, tag):
         if tag in self.all_lines:
@@ -166,14 +168,14 @@ class DataSet(object):
             if tag in self.lines.keys():
                 self.lines.pop(tag)
 
-        ### Check if the ion has transistions defined in other regions
+        # --- Check if the ion has transistions defined in other regions
         ion = tag.split('_')[0]
         ion_defined_elsewhere = False
         for line_tag in self.all_lines:
-            if line_tag.find(ion)>=0:
+            if line_tag.find(ion) >= 0:
                 ion_defined_elsewhere = True
 
-        ### If it is not defined elsewhere, remove it from components
+        # --- If it is not defined elsewhere, remove it from components
         if not ion_defined_elsewhere:
             self.components.pop(ion)
 
@@ -182,11 +184,12 @@ class DataSet(object):
             if region.has_line(tag):
                 remove_this = num
 
-        if remove_this>=0:
-            if len(self.regions[remove_this].lines)==1:
+        if remove_this >= 0:
+            if len(self.regions[remove_this].lines) == 1:
                 self.regions.pop(remove_this)
             else:
                 self.regions[remove_this].remove_line(tag)
+
         else:
             print ""
             print " The line is not defined. Nothing to remove."
@@ -198,10 +201,9 @@ class DataSet(object):
                     return region
 
         else:
-            print "\n The line (%s) is not defined."%tag
+            print "\n The line (%s) is not defined." % tag
 
         return None
-
 
     def activate_line(self, line_tag):
         if line_tag in self.lines.keys():
@@ -233,7 +235,6 @@ class DataSet(object):
         for line_tag in self.all_lines:
             self.activate_line(line_tag)
 
-
     def reset_components(self, element=None):
         """    Reset components dictionary.
             If an element is given, only this element is reset.
@@ -250,11 +251,11 @@ class DataSet(object):
 
     def add_component(self, element, z, b, logN,
                       var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None):
-        options = {'var_z':var_z, 'var_b':var_b, 'var_N':var_N, 'tie_z':tie_z, 'tie_b':tie_b}
-        if self.components.has_key(element):
+        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b}
+        if element in self.components.keys():
             self.components[element].append([z, b, logN, options])
         else:
-            self.components[element]=[ [z, b, logN, options] ]
+            self.components[element] = [[z, b, logN, options]]
 
     def interactive_components(self, line_tag):
         region = self.find_line(line_tag)
@@ -305,12 +306,11 @@ class DataSet(object):
         else:
             self.reset_components(line.element)
 
-
     def delete_component(self, element, index):
         """
         Remove component with the given `index'.
         """
-        if self.components.has_key(element):
+        if element in self.components.keys():
             self.components[element].pop(index)
 
         else:
@@ -339,12 +339,11 @@ class DataSet(object):
             if logN:
                 new_comp[2] += offset_N
             if tie_z:
-                new_comp[3]['tie_z'] = 'z%i_%s'%(num, anchor)
+                new_comp[3]['tie_z'] = 'z%i_%s' % (num, anchor)
             if tie_b:
-                new_comp[3]['tie_b'] = 'b%i_%s'%(num, anchor)
+                new_comp[3]['tie_b'] = 'b%i_%s' % (num, anchor)
 
             self.components[element].append(new_comp)
-
 
     def add_line(self, tag, velspan=500., active=True, norm_method=1):
         self.ready2fit = False
@@ -355,43 +354,43 @@ class DataSet(object):
         if tag in lineList['trans']:
             new_line = Line(tag)
         else:
-            print "\nThe transition (%s) not found in line list!"%tag
+            print "\nThe transition (%s) not found in line list!" % tag
             return False
 
-        if not self.components.has_key(new_line.element):
+        if new_line.element not in self.components.keys():
             # Initiate component list if ion has not been defined before:
             self.components[new_line.element] = list()
 
         l_center = new_line.l0*(self.redshift + 1.)
 
-        ### Initiate new Region:
+        # Initiate new Region:
         new_region = Region(velspan, new_line)
 
         if self.data:
             success = False
             for chunk in self.data:
                 if chunk['wl'].min() < l_center < chunk['wl'].max():
-                    wl     = chunk['wl']
-                    vel  = (wl-l_center)/l_center*299792.
+                    wl = chunk['wl']
+                    vel = (wl-l_center)/l_center*299792.
                     span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
                     new_wavelength = wl[span]
 
                     # check if the line overlaps with another already defined region
-                    if len(self.regions)>0:
+                    if len(self.regions) > 0:
                         merge = -1
                         for num, region in enumerate(self.regions):
                             if np.intersect1d(new_wavelength, region.wl).any():
                                 merge = num
 
                         if merge >= 0:
-                            #if the regions overlap with another:
-                            #    merge the list of lines in the region
+                            # If the regions overlap with another:
+                            # merge the list of lines in the region
                             new_region.lines += self.regions[merge].lines
 
-                            #    merge the wavelength region
+                            # merge the wavelength region
                             region_wl = np.union1d(new_wavelength, self.regions[merge].wl)
 
-                            #    and remove the overlapping region from the dataset
+                            # and remove the overlapping region from the dataset
                             self.regions.pop(merge)
 
                         else:
@@ -400,9 +399,9 @@ class DataSet(object):
                     else:
                         region_wl = new_wavelength
 
-                    ### wavelength has now been defined and merged
-                    ### Cutout spectral chunks and add them to the Region
-                    cutout = (wl>=region_wl.min())*(wl<=region_wl.max())
+                    # Wavelength has now been defined and merged
+                    # Cutout spectral chunks and add them to the Region
+                    cutout = (wl >= region_wl.min()) * (wl <= region_wl.max())
 
                     new_region.add_data_to_region(chunk, cutout)
 
@@ -412,34 +411,35 @@ class DataSet(object):
                     success = True
 
             if not success:
-                print "\n [ERROR] - The given line is not covered by the spectral data: "+tag
+                print "\n [ERROR] - The given line is not covered by the spectral data: " + tag
                 print ""
                 return False
 
         else:
             print " [ERROR]  No data is loaded. Run method 'add_data' to add spectral data."
 
-    def add_many_lines(self, tags, velspans=None):
+    def add_many_lines(self, tags, velspan=None):
         self.ready2fit = False
-        if velspans:
-            assert len(tags)==len(velspans)
-            for tag, velspan in zip(tags, velspans):
-                self.add_line(tag, velspan)
-
-        else:
+        if hasattr(velspan, '__iter__'):
+            for tag, v in zip(tags, velspan):
+                self.add_line(tag, v)
+        elif velspan is None:
             for tag in tags:
                 self.add_line(tag, self.velspan)
+        else:
+            for tag in tags:
+                self.add_line(tag, velspan)
 
     def prepare_dataset(self, verbose=True):
         # Prepare fitting regions to be fit:
-        #    normalize spectral region
+        # --- normalize spectral region
 
         plt.close('all')
         for region in self.regions:
             if not region.normalized:
 
                 go_on = 0
-                while go_on==0:
+                while go_on == 0:
                     go_on = region.normalize()
                     # region.normalize returns 1 when continuum is fitted
         if verbose:
@@ -447,7 +447,7 @@ class DataSet(object):
             print " [DONE] - Continuum fitting successfully finished."
             print ""
 
-        #    mask spectral regions that should not be fitted
+        # --- mask spectral regions that should not be fitted
         for region in self.regions:
             if region.new_mask:
                 region.define_mask()
@@ -456,10 +456,9 @@ class DataSet(object):
             print " [DONE] - Spectral masks successfully created."
             print ""
 
-
-        # Prepare fit parameters  [class: lmfit.Parameters]
+        # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
-        # First setup parameters with values only:
+        # - First setup parameters with values only:
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
@@ -472,7 +471,7 @@ class DataSet(object):
                 self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0.)
                 self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0.)
 
-        # Then setup parameter links:
+        # - Then setup parameter links:
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
@@ -487,11 +486,11 @@ class DataSet(object):
 
         self.ready2fit = True
 
-        ### Check that all active elements have components defined:
+        # --- Check that all active elements have components defined:
         for line_tag in self.all_lines:
             ion = line_tag.split('_')[0]
             line = self.lines[line_tag]
-            if not ion in self.components.keys() and line.active:
+            if ion not in self.components.keys() and line.active:
                 print ""
                 print " [ERROR] - Components are not defined for element: "+ion
                 print ""
@@ -499,7 +498,7 @@ class DataSet(object):
 
                 return False
 
-        ### Check that no components for inactive elements are defined:
+        # --- Check that no components for inactive elements are defined:
         for this_ion in self.components.keys():
             lines_for_this_ion = list()
             for region in self.regions:
@@ -512,13 +511,11 @@ class DataSet(object):
             else:
                 print "\n [WARNING] - Components defined for inactive element: %s\n" % this_ion
 
-
         if self.ready2fit:
             if verbose:
                 print "\n  Dataset is ready to be fitted."
                 print ""
             return True
-
 
     def fit(self, verbose=True):
         """
@@ -536,16 +533,16 @@ class DataSet(object):
         npad = options['npad']
 
         def chi(pars):
-            model = []
-            data  = []
-            error = []
+            model = list()
+            data = list()
+            error = list()
 
             for region in self.regions:
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     res = region.res
 
-                    ### Generate line profile
+                    # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    region.lines, self.components,
                                                    res, npad, nsamp)
@@ -555,17 +552,16 @@ class DataSet(object):
                     error.append(np.array(err[mask], dtype=myfloat))
 
             model_spectrum = np.concatenate(model)
-            data_spectrum  = np.concatenate(data)
-            error_spectrum  = np.concatenate(error)
+            data_spectrum = np.concatenate(data)
+            error_spectrum = np.concatenate(error)
 
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-
-        #popt = minimize(chi, self.pars, ftol=1.49e-10)
+        # popt = minimize(chi, self.pars, ftol=1.49e-10)
         popt = minimize(chi, self.pars, ftol=0.01)
         self.best_fit = popt.params
-        #popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
+        # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
 
         if verbose:
@@ -610,16 +606,19 @@ class DataSet(object):
         import sys
 
         def chi(pars):
-            model = []
-            data  = []
-            error = []
+            model = list()
+            data = list()
+            error = list()
 
             for region in self.regions:
                 x, y, err, mask = region.unpack()
-                ### randomize the data within the errors:
-                #y += err*np.random.normal(0, 1, size=len(y))
+                res = region.res
+                npad = 50
+                nsamp = 1
+                # randomize the data within the errors:
+                # y += err*np.random.normal(0, 1, size=len(y))
 
-                ### Generate line profile
+                # Generate line profile
                 profile_obs = evaluate_profile(x, pars, self.redshift,
                                                region.lines, self.components,
                                                res, npad, nsamp)
@@ -629,32 +628,31 @@ class DataSet(object):
                 error.append(np.array(err[mask], dtype=myfloat))
 
             model_spectrum = np.concatenate(model)
-            data_spectrum  = np.concatenate(data)
-            error_spectrum  = np.concatenate(error)
+            data_spectrum = np.concatenate(data)
+            error_spectrum = np.concatenate(error)
 
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-
-        allPars = {}
+        allPars = dict()
         for param in self.pars.keys():
-            allPars[param] = []
+            allPars[param] = list()
 
-        allChi = []
+        allChi = list()
         print "\n  Error Estimation in Progress:"
         print ""
         pars_original = self.pars.copy()
 
         for sim in range(nsim):
             for key in self.pars.keys():
-                if key.find('z')==0:
-                    self.pars[key].value = pars_original[key].value + 0.5e-5*np.random.normal(0,1)
+                if key.find('z') == 0:
+                    self.pars[key].value = pars_original[key].value + 0.5e-5*np.random.normal(0, 1)
 
-                #elif key.find('logN')==0:
-                #    self.pars[key].value = pars_original[key].value + 0.01*np.random.normal(0,1)
+                # elif key.find('logN')==0:
+                #     self.pars[key].value = pars_original[key].value + 0.01*np.random.normal(0,1)
 
                 else:
-                    self.pars[key].value = pars_original[key].value + 0.2*np.random.normal(0,1)
+                    self.pars[key].value = pars_original[key].value + 0.2*np.random.normal(0, 1)
 
             popt = minimize(chi, self.pars, maxfev=50000, ftol=1.49012e-11, factor=1)
 
@@ -664,7 +662,7 @@ class DataSet(object):
 
                 allChi.append(popt.chisqr)
 
-            sys.stdout.write("\r%6.2f%%" %(100.*(sim+1)/nsim))
+            sys.stdout.write("\r%6.2f%%" % (100. * (sim + 1) / nsim))
             sys.stdout.flush()
 
         print ""
@@ -679,7 +677,7 @@ class DataSet(object):
 def main():
     parser = ArgumentParser()
     parser.add_argument("input", type=str,
-            help="VoigtFit input parameter file.")
+                        help="VoigtFit input parameter file.")
 
     args = parser.parse_args()
     parfile = args.input
@@ -716,7 +714,7 @@ def main():
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                    tie_z=tie_z, tie_b=tie_b)
 
         for component in parameters['components_to_delete']:
             dataset.delete_component(*component)
@@ -726,7 +724,7 @@ def main():
 
         # Setup data:
         for fname, res, norm, airORvac in parameters['data']:
-            if fname[-5:]=='.fits':
+            if fname[-5:] == '.fits':
                 spec = pf.getdata(fname)
                 hdr = pf.getheader(fname)
                 wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
@@ -735,13 +733,13 @@ def main():
 
             else:
                 data = np.loadtxt(fname)
-                if data.shape[1]==2:
+                if data.shape[1] == 2:
                     wl, spec = data.T
                     N = len(spec)
-                    err = np.std(spec[N/2-N/20:N/2+N/20])*np.ones_like(spec)
-                elif data.shape[1]==3:
+                    err = np.std(spec[N/2-N/20:N/2+N/20]) * np.ones_like(spec)
+                elif data.shape[1] == 3:
                     wl, spec, err = data.T
-                elif data.shape[1]==4:
+                elif data.shape[1] == 4:
                     wl, spec, err, mask = data.T
 
             if airORvac == 'air':
@@ -750,10 +748,10 @@ def main():
             dataset.add_data(wl, spec, res, err=err, normalized=norm)
 
         # Define normalization method:
-        #dataset.norm_method = 1
+        # dataset.norm_method = 1
 
         # Toggle nomask:
-        #dataset.interactive_mask = True
+        # dataset.interactive_mask = True
 
         # Define lines:
         for tag, velspan in parameters['lines']:
@@ -769,7 +767,7 @@ def main():
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                    tie_z=tie_z, tie_b=tie_b)
 
         for component in parameters['components_to_delete']:
             dataset.delete_component(*component)
@@ -793,5 +791,5 @@ def main():
     SaveDataSet(name+'.dataset', dataset)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
