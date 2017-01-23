@@ -185,27 +185,22 @@ class DataSet(object):
 
             return resolution
 
-    # def set_resolution(self, line_tag=None, verbose=False):
-    #     if line_tag:
-    #         region = self.find_line(line_tag)
-    #         if verbose:
-    #             output_msg = " Spectral resolution in the region around %s is %.1 km/s."
-    #             print output_msg % (line_tag, region.res)
-    #         return region.res
-    #
-    #     else:
-    #         resolution = list()
-    #         for region in self.regions:
-    #             if verbose:
-    #                 print " Spectral Resolution:"
-    #             if region.has_active_lines():
-    #                 res = region.res
-    #                 ref_line = region.lines[0]
-    #                 if verbose:
-    #                     print "   For %s :  %.1f" % (ref_line.tag, res)
-    #                 resolution.append(res)
-    #
-    #         return resolution
+    def set_resolution(self, res, line_tag=None):
+        """
+        Set the spectral resolution for a given region containing *line_tag*.
+        If not *line_tag* is given, the resolution will be set for *all* regions,
+        including the raw data chunks!
+        """
+        if line_tag:
+            region = self.find_line(line_tag)
+            region.res = res
+
+        else:
+            for region in self.regions:
+                region.res = res
+
+            for chunk in self.data:
+                chunk['res'] = res
 
     def remove_line(self, tag):
         if tag in self.all_lines:
