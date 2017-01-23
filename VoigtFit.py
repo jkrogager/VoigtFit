@@ -190,6 +190,9 @@ class DataSet(object):
         Set the spectral resolution for a given region containing *line_tag*.
         If not *line_tag* is given, the resolution will be set for *all* regions,
         including the raw data chunks!
+
+        WARNING: If not all data chunks have the same resolution, then this method
+        should be used with caution!
         """
         if line_tag:
             region = self.find_line(line_tag)
