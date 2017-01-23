@@ -163,6 +163,28 @@ class DataSet(object):
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res, 'norm': normalized})
 
+    def get_resolution(self, line_tag=None, verbose=False):
+        if line_tag:
+            region = self.find_line(line_tag)
+            if verbose:
+                output_msg = " Spectral resolution in the region around %s is %.1 km/s."
+                print output_msg % (line_tag, region.res)
+            return region.res
+
+        else:
+            resolution = list()
+            for region in self.regions:
+                if verbose:
+                    print " Spectral Resolution:"
+                if region.has_active_lines():
+                    res = region.res
+                    ref_line = region.lines[0]
+                    if verbose:
+                        print "   For %s :  %.1f" % (ref_line.tag, res)
+                    resolution.append(res)
+
+            return resolution
+
     def remove_line(self, tag):
         if tag in self.all_lines:
             self.all_lines.remove(tag)
@@ -551,11 +573,14 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, verbose=True):
+    def fit(self, rebin=1, verbose=True, plot=True):
         """
         Fit the absorption lines using chi-square minimization.
         Returns the best fitting parameters for each component
         of each line.
+
+        rebin : integer   [default = 1]
+            Rebin data by a factor *rebin* before fitting.
         """
 
         if not self.ready2fit:
@@ -563,7 +588,6 @@ class DataSet(object):
             print "            Run '.prepare_dataset()' before fitting."
             return False
 
-        nsamp = options['nsamp']
         npad = options['npad']
 
         def chi(pars):
@@ -574,12 +598,16 @@ class DataSet(object):
             for region in self.regions:
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
+                    if rebin > 1:
+                        x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                        mask = output.rebin_bool_array(mask, rebin)
+
                     res = region.res
 
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    region.lines, self.components,
-                                                   res, npad, nsamp)
+                                                   res, npad)
 
                     model.append(profile_obs[mask])
                     data.append(np.array(y[mask], dtype=myfloat))
@@ -600,6 +628,9 @@ class DataSet(object):
 
         if verbose:
             output.print_results(self, self.best_fit, velocity=False)
+
+        if plot:
+            self.plot_fit(rebin=rebin, subsample_profile=rebin)
 
         chi2 = popt.chisqr
         return popt, chi2

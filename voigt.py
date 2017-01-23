@@ -41,7 +41,7 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     return tau
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, res, npad, nsamp=1):
+def evaluate_profile(x, pars, z_sys, lines, components, res, npad):
     """
     Function to evaluate Voigt profile for a fitting `Region'.
 
@@ -67,11 +67,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad, nsamp=1):
         Spectral resolution of the region in km/s.
 
     npad : integer
-        number of pixels added before and after the wavelength array
-
-    >>nsamp : integer<< not active
-        Resampling factor. If different from 1 the input array `x'
-        will be resampled by this factor.
+        Number of pixels added before and after the wavelength array
 
     Returns
     -------
@@ -81,7 +77,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad, nsamp=1):
     """
 
     profile_wl = x
-    pxs = np.diff(x)[0]
+    pxs = np.mean(np.diff(x))
 
     # Add padding on each side of the evaluated profile
     # to avoid boundary artefacts during convolution.
@@ -113,10 +109,6 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad, nsamp=1):
     LSF = gaussian(len(profile_wl), sigma_instrumental)
     LSF = LSF/LSF.sum()
     profile_broad = fftconvolve(profile, LSF, 'same')
-
-    # Rebin back to spectral pixel size:
-    # if nsamp>1:
-    #    profile_obs = np.interp(x, profile_wl, profile_broad)
 
     # Remove padding which includes the boundary effects of convolution:
     profile_obs = profile_broad[npad:-npad]

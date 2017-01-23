@@ -6,13 +6,52 @@ import itertools
 
 import voigt
 import Asplund
-import spex
 
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
+
+def rebin_spectrum(wl, spec, err, n, method='mean'):
+    """
+    Rebin input spectrum (wl, spec) by a factor of *n*.
+    Method is either *mean* or *median*, default is mean.
+    """
+    if method.lower() == 'mean':
+        combine = np.mean
+    elif method.lower() == 'median':
+        combine = np.median
+    else:
+        combine = np.mean
+    spec_chunks = list(chunks(spec, n))
+    err_chunks = list(chunks(err, n))
+    wl_chunks = list(chunks(wl, n))
+
+    spec_r = np.zeros(len(spec_chunks))
+    err_r = np.zeros(len(spec_chunks))
+    wl_r = np.zeros(len(spec_chunks))
+    for num in range(len(spec_chunks)):
+        spec_r[num] = combine(spec_chunks[num])
+        err_r[num] = np.sqrt(np.mean(err_chunks[num]**2)/n)
+        wl_r[num] = combine(wl_chunks[num])
+
+    return wl_r, spec_r, err_r
+
+
+def rebin_bool_array(x, n):
+    """
+    Rebin input boolean array *x* by an integer factor of *n*.
+    """
+
+    array_chunks = list(chunks(x, n))
+
+    x_r = np.zeros(len(array_chunks))
+    for num in range(len(array_chunks)):
+        x_r[num] = np.prod(array_chunks[num], dtype=bool)
+
+    return np.array(x_r, dtype=bool)
 
 
 # ===================================================================================
@@ -69,8 +108,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                     delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
                     if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
                         included_lines.append(line.tag)
-            l0 = line.l0
-            delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
+            # l0 = line.l0
+            # delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
 
     # --- If *filename* is given, set up a PDF container for saving to file:
     if filename:
@@ -157,8 +196,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     res = region.res
 
     if rebin > 1:
-        x, y, err = spex.rebin_spectrum(x, y, err, rebin)
-        mask = spex.rebin_bool_array(mask, rebin)
+        x, y, err = rebin_spectrum(x, y, err, rebin)
+        mask = rebin_bool_array(mask, rebin)
 
     ref_line = dataset.lines[line_tag]
     l0, f, gam = ref_line.get_properties()
