@@ -167,23 +167,45 @@ class DataSet(object):
         if line_tag:
             region = self.find_line(line_tag)
             if verbose:
-                output_msg = " Spectral resolution in the region around %s is %.1 km/s."
+                output_msg = " Spectral resolution in the region around %s is %.1f km/s."
                 print output_msg % (line_tag, region.res)
             return region.res
 
         else:
             resolution = list()
+            if verbose:
+                print " Spectral Resolution:"
             for region in self.regions:
-                if verbose:
-                    print " Spectral Resolution:"
                 if region.has_active_lines():
                     res = region.res
                     ref_line = region.lines[0]
                     if verbose:
-                        print "   For %s :  %.1f" % (ref_line.tag, res)
+                        print "   For %-13s :  %.1f" % (ref_line.tag, res)
                     resolution.append(res)
 
             return resolution
+
+    # def set_resolution(self, line_tag=None, verbose=False):
+    #     if line_tag:
+    #         region = self.find_line(line_tag)
+    #         if verbose:
+    #             output_msg = " Spectral resolution in the region around %s is %.1 km/s."
+    #             print output_msg % (line_tag, region.res)
+    #         return region.res
+    #
+    #     else:
+    #         resolution = list()
+    #         for region in self.regions:
+    #             if verbose:
+    #                 print " Spectral Resolution:"
+    #             if region.has_active_lines():
+    #                 res = region.res
+    #                 ref_line = region.lines[0]
+    #                 if verbose:
+    #                     print "   For %s :  %.1f" % (ref_line.tag, res)
+    #                 resolution.append(res)
+    #
+    #         return resolution
 
     def remove_line(self, tag):
         if tag in self.all_lines:
