@@ -59,7 +59,7 @@ class Region():
         plt.close('all')
 
         plt.figure()
-        plt.xlim(self.wl.min()-10, self.wl.max()+10)
+        plt.xlim(self.wl.min(), self.wl.max())
         plt.ylim(0.8*self.flux.min(), 1.2*self.flux.max())
         plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid')
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
