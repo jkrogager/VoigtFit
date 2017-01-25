@@ -28,6 +28,7 @@ from voigt import evaluate_profile
 from regions import Region
 import output
 from parse_input import parse_parameters
+import line_complexes
 from line_complexes import fine_structure_complexes
 
 
@@ -504,6 +505,18 @@ class DataSet(object):
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels:
                     self.add_line(fineline, self.velspan)
+
+    def add_molecule(self, element, nu=0, J=0, velspan=None):
+        """
+        Add molecular lines
+        Vibrational lines up to and including *nu* will be included.
+        All rotational levels up to and including *J* for each vibrational level
+        will be included.
+        """
+        if element == 'CO':
+            for nu_level in line_complexes.CO[:nu+1]:
+                for transitions in nu_level[:J+1]:
+                    self.add_many_lines(transitions, velspan=velspan)
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
