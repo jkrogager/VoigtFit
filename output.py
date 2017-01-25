@@ -350,6 +350,134 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     return (ax, lines_in_view)
 
 
+def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
+    """
+    Plot residuals for best-fit to absorption line.
+
+      INPUT:
+    dataset:  VoigtFit.DataSet instance containing the line regions
+    line_tag: The line tag of the line to show, e.g., 'FeII_2374'
+
+    rebin: integer factor for rebinning the spectrum
+
+    xmin and xmax define the plotting range.
+    """
+
+    if line_tag not in dataset.all_lines:
+        dataset.add_line(line_tag, active=False)
+        dataset.prepare_dataset()
+
+    region = dataset.find_line(line_tag)
+
+    x, y, err, mask = region.unpack()
+    # cont_err = region.cont_err
+    res = region.res
+
+    if rebin > 1:
+        x, y, err = rebin_spectrum(x, y, err, rebin)
+        mask = rebin_bool_array(mask, rebin)
+
+    ref_line = dataset.lines[line_tag]
+    l0, f, gam = ref_line.get_properties()
+    l_ref = l0*(dataset.redshift + 1)
+
+    # - Check if lines are separated by more than 200 km/s
+    #   if so, then remove the line from the view.
+    lines_in_view = list()
+    for line in region.lines:
+        l0 = line.l0
+        delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
+        if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
+            lines_in_view.append(line.tag)
+
+    if axis:
+        ax = axis
+    else:
+        plt.close('all')
+        fig = plt.figure(figsize=(6, 3.5))
+        ax = fig.add_subplot(111)
+        fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
+
+    if (isinstance(dataset.best_fit, dict) or isinstance(dataset.pars, dict)):
+        npad = 50
+        wl_line = x
+        pxs = np.mean(np.diff(wl_line))
+        ref_line = dataset.lines[line_tag]
+        l0, f, gam = ref_line.get_properties()
+        l_ref = l0*(dataset.redshift + 1)
+
+        front_padding = np.linspace(wl_line.min()-npad*pxs, wl_line.min(), npad, endpoint=False)
+        end_padding = np.linspace(wl_line.max()+pxs, wl_line.max()+npad*pxs, npad)
+        wl_line = np.concatenate([front_padding, wl_line, end_padding])
+        tau = np.zeros_like(wl_line)
+
+        if isinstance(dataset.best_fit, dict):
+            params = dataset.best_fit
+        else:
+            params = dataset.pars
+
+        for line in region.lines:
+            # Load line properties
+            l0, f, gam = line.get_properties()
+            ion = line.ion
+            n_comp = len(dataset.components[ion])
+
+            ion = ion.replace('*', 'x')
+            if line.active:
+                for n in range(n_comp):
+                    z = params['z%i_%s' % (n, ion)].value
+                    b = params['b%i_%s' % (n, ion)].value
+                    logN = params['logN%i_%s' % (n, ion)].value
+                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+
+        profile_int = np.exp(-tau)
+        fwhm_instrumental = res/299792.*l_ref
+        sigma_instrumental = fwhm_instrumental/2.35482/pxs
+        LSF = gaussian(len(wl_line), sigma_instrumental)
+        LSF = LSF/LSF.sum()
+        profile_broad = fftconvolve(profile_int, LSF, 'same')
+        profile = profile_broad[npad:-npad]
+        wl_line = wl_line[npad:-npad]
+
+    vel = (x - l_ref) / l_ref * 299792.
+    y = y - profile
+
+    if not xmin:
+        xmin = -region.velocity_span
+
+    if not xmax:
+        xmax = region.velocity_span
+    ax.set_xlim(xmin, xmax)
+
+    view_part = (vel > xmin) * (vel < xmax)
+
+    ymin = y[view_part].min() - 1.5*err.mean()
+    ymax = (y*mask)[view_part].max() + 2*err.mean()
+    ax.set_ylim(ymin, ymax)
+
+    # Expand mask by 1 pixel around each masked range
+    # to draw the lines correctly
+    mask_idx = np.where(mask == 0)[0]
+    big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    big_mask = np.ones_like(mask, dtype=bool)
+    big_mask[big_mask_idx] = False
+    masked_range = np.ma.masked_where(big_mask, y)
+    ax.plot(vel, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
+
+    spectrum = np.ma.masked_where(~mask, y)
+    # error = np.ma.masked_where(~mask, err)
+    ax.plot(vel, spectrum, color='0.4', drawstyle='steps-mid')
+    ax.axhline(0., ls='--', color='0.7', lw=0.7)
+
+    ax.axhline(0., ls='--', color='k')
+    ax.plot(vel, err, ls=':', color='b')
+    ax.plot(vel, -err, ls=':', color='b')
+
+    if not axis:
+        plt.show()
+
+    return (ax, lines_in_view)
+
 # ===================================================================================
 #
 #   Text output functions:
@@ -516,7 +644,7 @@ def print_abundance(dataset):
             for par in params.keys():
                 if par.find('logN') >= 0 and par.find(ion) >= 0:
                     N_tot.append(params[par].value)
-                    if params[par].stderr < 0.9:
+                    if params[par].stderr < 0.5:
                         logN.append(params[par].value)
                         if params[par].stderr < 0.01:
                             logN_err.append(0.01)
