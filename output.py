@@ -319,6 +319,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         ax.set_xlabel("${\\rm Velocity}\ \ [{\\rm km\,s^{-1}}]$")
         ax.set_ylabel("${\\rm Normalized\ flux}$")
+    ax.minorticks_on()
     ax.axhline(1., ls='--', color='k')
     ax.axhline(1. + cont_err, ls=':', color='gray')
     ax.axhline(1. - cont_err, ls=':', color='gray')
