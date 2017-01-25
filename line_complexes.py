@@ -6,7 +6,8 @@ fine_structure_complexes['CI_1656'] = ['CIa_1656',
                                        'CI_1656',
                                        'CIb_1657',
                                        'CIa_1657',
-                                       'CIa_1657.9']
+                                       'CIa_1657.9',
+                                       'CIb_1658']
 
 # - CI 1560 complex
 fine_structure_complexes['CI_1560'] = ['CI_1560',
