@@ -123,13 +123,13 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     for contents in pages:
         # --- Determine figure size:
         if len(contents) > 1:
-            width = 7
+            width = 10.5
             columns = 2
         else:
-            width = 3.5
+            width = 5.25
             columns = 1
 
-        heigth = (len(contents) + 1) / 2 * 9.899/max_rows
+        heigth = (len(contents) + 1) / 2 * 14.85/max_rows
         rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(width, heigth))
