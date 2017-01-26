@@ -399,7 +399,7 @@ class DataSet(object):
 
             self.components[element].append(new_comp)
 
-    def add_line(self, tag, velspan=500., active=True, norm_method=1):
+    def add_line(self, tag, velspan=None, active=True, norm_method=1):
         self.ready2fit = False
         if tag in self.all_lines:
             print " [WARNING] - %s is already defined." % tag
@@ -410,6 +410,9 @@ class DataSet(object):
         else:
             print "\nThe transition (%s) not found in line list!" % tag
             return False
+
+        if velspan is None:
+            velspan = self.velspan
 
         if new_line.element not in self.components.keys():
             # Initiate component list if ion has not been defined before:
