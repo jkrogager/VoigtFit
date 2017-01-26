@@ -243,9 +243,11 @@ class DataSet(object):
         region = self.find_line(line_tag)
         region.normalize(norm_method=2)
 
-    def mask_line(self, line_tag):
+    def mask_line(self, line_tag, reset=True):
         """ define masked regions for a given line """
         region = self.find_line(line_tag)
+        if reset:
+            region.clear_mask()
         region.define_mask()
 
     def find_line(self, tag):
