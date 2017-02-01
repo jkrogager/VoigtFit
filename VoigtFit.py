@@ -306,8 +306,9 @@ class DataSet(object):
             self.components = dict()
 
     def add_component(self, element, z, b, logN,
-                      var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None):
-        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b}
+                      var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
+        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
+                   'tie_N': tie_N}
         if element in self.components.keys():
             self.components[element].append([z, b, logN, options])
         else:
@@ -577,11 +578,14 @@ class DataSet(object):
                 z, b, logN, opts = comp
                 z_name = 'z%i_%s' % (n, ion)
                 b_name = 'b%i_%s' % (n, ion)
+                N_name = 'logN%i_%s' % (n, ion)
 
                 if opts['tie_z']:
                     self.pars[z_name].expr = opts['tie_z']
                 if opts['tie_b']:
                     self.pars[b_name].expr = opts['tie_b']
+                if opts['tie_N']:
+                    self.pars[N_name].expr = opts['tie_N']
 
         self.ready2fit = True
 
