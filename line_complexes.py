@@ -1,3 +1,5 @@
+import numpy as np
+
 # module to define line-complexes which should be defined simulatneously
 
 fine_structure_complexes = dict()
@@ -128,3 +130,31 @@ CO = [
      ['COJ4_1263.83', 'COJ4_1263.66', 'COJ4_1263.44'],
      ['COJ5_1263.96', 'COJ5_1263.75', 'COJ5_1263.49']]
 ]
+
+# --- Rotatinal Constants in units of cm^-1
+#     E = hc * B * J(J + 1)
+rotational_constant = {'H2': 60.853,
+                       'CO': 1.9313,
+                       'HD': 45.655}
+
+hc = 1.2398e-4         # eV.cm
+k_B = 8.6173e-5        # eV/K
+
+
+def population_of_level(element, T, J):
+    """
+    Calculate the population of the Jth level relative to the J=0 level.
+    The distribution is assumed to be an isothermal Boltzmann distribution:
+
+    n(J) \propto g(J) e^(-E(J) / kT)
+    """
+    if element not in rotational_constant.keys():
+        print " Element is not in database! "
+        print " All elements in database are: " + ", ".join(rotational_constant.keys())
+        return -1
+    else:
+        # convert rotational constant to units of Kelvin:
+        B = rotational_constant[element]
+        B = B * hc / k_B
+        n_J = (2*J + 1) * np.exp(-B*J*(J+1)/T)
+        return n_J
