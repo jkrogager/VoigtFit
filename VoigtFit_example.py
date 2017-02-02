@@ -102,6 +102,7 @@ popt, chi2 = dataset.fit(verbose=True)
 dataset.plot_fit()
 if logNHI:
 	dataset.print_metallicity(*logNHI)
+dataset.print_abundance()
 
 
 #### Remove parameter links
