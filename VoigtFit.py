@@ -529,6 +529,12 @@ class DataSet(object):
                 for transitions in nu_level[:J+1]:
                     self.add_many_lines(transitions, velspan=velspan)
 
+            for n in range(nu+1):
+                ref_J0 = line_complexes.CO[n][0][0]
+                region = self.find_line(ref_J0)
+                label = line_complexes.CO_labels[ref_J0]
+                region.label = "${\\rm CO\ %s}$" % label
+
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
         # --- normalize spectral region
@@ -715,6 +721,7 @@ class DataSet(object):
         output.print_abundance(self)
 
     def conf_interval(self, nsim=10):
+        """ The method is deprecated and has not been carefully tested!"""
         import sys
 
         def chi(pars):
