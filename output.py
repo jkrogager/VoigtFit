@@ -133,7 +133,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(width, heigth))
-        fig.subplots_adjust(left=0.08, right=0.98, top=0.98, hspace=0.03)
+        fig.subplots_adjust(left=0.08, right=0.98, top=0.98, hspace=0.03, bottom=0.12)
 
         num = 1
         for line_tag in contents:
@@ -154,7 +154,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                 # LIV is a shorthand for 'lines_in_view'
         fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
                  ha='center', va='bottom', transform=fig.transFigure,
-                 fontsize=18)
+                 fontsize=20)
         if filename:
             pdf.savefig(fig)
 
