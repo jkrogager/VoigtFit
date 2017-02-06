@@ -329,17 +329,18 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     ax.axhline(1. + cont_err, ls=':', color='gray')
     ax.axhline(1. - cont_err, ls=':', color='gray')
 
-    transition_lines = list()
-    for line_tag in lines_in_view:
-        ion = line_tag.split('_')[0]
-        if ion[-1].islower():
-            pass
-        else:
-            transition_lines.append(line_tag)
+    # Check if the region has a predefined label or not:
+    if hasattr(region, 'label'):
+        if region.label == '':
+            region.generate_label()
+        line_string = region.label
 
-    all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
-    line_string = "\n".join(all_trans_str)
-    # line_string = "${\\rm %s}$" % title_string.replace('_', '\ ')
+    else:
+        transition_lines = list()
+        for line in region.lines:
+            transition_lines.append(line.tag)
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+        line_string = "\n".join(all_trans_str)
 
     if loc == 'right':
         label_x = 0.97
