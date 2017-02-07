@@ -517,6 +517,10 @@ class DataSet(object):
                 if ion[-1] in levels:
                     self.add_line(fineline, self.velspan)
 
+        # Set label:
+        reg = self.find_line(line_tag)
+        reg.label = line_complexes.CI_labels[line_tag]
+
     def add_molecule(self, element, nu=0, J=0, velspan=None):
         """
         Add molecular lines

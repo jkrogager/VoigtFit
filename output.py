@@ -349,8 +349,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.05, line_string, va='bottom', ha=loc,
-            transform=ax.transAxes, fontsize=fontsize)
+    ax.text(label_x, 0.04, line_string, va='bottom', ha=loc,
+            transform=ax.transAxes, fontsize=fontsize,
+            bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
     if show:
         plt.show()

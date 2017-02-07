@@ -210,13 +210,13 @@ class Region():
             for line in self.lines:
                 if line.active is True:
                     transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
             line_string = "\n".join(all_trans_str)
 
         else:
             for line in self.lines:
                 transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
             line_string = "\n".join(all_trans_str)
 
         self.label = line_string
