@@ -133,7 +133,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(width, heigth))
-        fig.subplots_adjust(left=0.08, right=0.98, top=0.98)
+        fig.subplots_adjust(left=0.08, right=0.98, top=0.98, hspace=0.03, bottom=0.12)
 
         num = 1
         for line_tag in contents:
@@ -147,9 +147,14 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           fontsize=fontsize, xmin=xmin, xmax=xmax, show=show,
                                           subsample_profile=subsample_profile, npad=npad)
                 lines_in_figure += LIV
+                ax.tick_params(length=7)
+                if num < len(contents)-1:
+                    ax.set_xticklabels([''])
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
-
+        fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
+                 ha='center', va='bottom', transform=fig.transFigure,
+                 fontsize=20)
         if filename:
             pdf.savefig(fig)
 
@@ -244,17 +249,18 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             params = dataset.pars
 
         for line in region.lines:
-            # Reset line properties for each element
-            component_prop = itertools.product(linestyles, colors)
-            component_prop = itertools.cycle(component_prop)
-
-            # Load line properties
-            l0, f, gam = line.get_properties()
-            ion = line.ion
-            n_comp = len(dataset.components[ion])
-
-            ion = ion.replace('*', 'x')
             if line.active:
+                # Reset line properties for each element
+                component_prop = itertools.product(linestyles, colors)
+                component_prop = itertools.cycle(component_prop)
+
+                # Load line properties
+                l0, f, gam = line.get_properties()
+                ion = line.ion
+                n_comp = len(dataset.components[ion])
+
+                ion = ion.replace('*', 'x')
+
                 for n in range(n_comp):
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
@@ -263,8 +269,6 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
                     ls, color = component_prop.next()
                     ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls=ls, color=color)
-            else:
-                ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls=ls, color='0.5')
 
         profile_int = np.exp(-tau)
         fwhm_instrumental = res/299792.*l_ref
@@ -319,21 +323,24 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         ax.set_xlabel("${\\rm Velocity}\ \ [{\\rm km\,s^{-1}}]$")
         ax.set_ylabel("${\\rm Normalized\ flux}$")
+
     ax.minorticks_on()
     ax.axhline(1., ls='--', color='k')
     ax.axhline(1. + cont_err, ls=':', color='gray')
     ax.axhline(1. - cont_err, ls=':', color='gray')
 
-    transition_lines = list()
-    for line_tag in lines_in_view:
-        ion = line_tag.split('_')[0]
-        if ion[-1].islower():
-            pass
-        else:
-            transition_lines.append(line_tag)
+    # Check if the region has a predefined label or not:
+    if hasattr(region, 'label'):
+        if region.label == '':
+            region.generate_label()
+        line_string = region.label
 
-    title_string = ", ".join(transition_lines)
-    line_string = "${\\rm %s}$" % title_string.replace('_', '\ ')
+    else:
+        transition_lines = list()
+        for line in region.lines:
+            transition_lines.append(line.tag)
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+        line_string = "\n".join(all_trans_str)
 
     if loc == 'right':
         label_x = 0.97
@@ -342,8 +349,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.05, line_string, va='bottom', ha=loc,
-            transform=ax.transAxes, fontsize=fontsize)
+    ax.text(label_x, 0.04, line_string, va='bottom', ha=loc,
+            transform=ax.transAxes, fontsize=fontsize,
+            bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
     if show:
         plt.show()

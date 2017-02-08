@@ -13,6 +13,7 @@ class Region():
     def __init__(self, v, line):
         self.velocity_span = v
         self.lines = [line]
+        self.label = ''
 
     def add_data_to_region(self, data_chunk, cutout):
         self.res = data_chunk['res']
@@ -199,3 +200,23 @@ class Region():
 
     def unpack(self):
         return (self.wl, self.flux, self.err, self.mask)
+
+    def set_label(self, text):
+        self.label = text
+
+    def generate_label(self, active_only=True):
+        transition_lines = list()
+        if active_only:
+            for line in self.lines:
+                if line.active is True:
+                    transition_lines.append(line.tag)
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
+            line_string = "\n".join(all_trans_str)
+
+        else:
+            for line in self.lines:
+                transition_lines.append(line.tag)
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
+            line_string = "\n".join(all_trans_str)
+
+        self.label = line_string

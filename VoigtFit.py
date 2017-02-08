@@ -490,7 +490,7 @@ class DataSet(object):
             for tag in tags:
                 self.add_line(tag, velspan)
 
-    def add_fine_lines(self, line_tag, levels=None):
+    def add_fine_lines(self, line_tag, levels=None, full_label=False):
         """
         Add fine-structure line complexes by providing only the main transition.
         The exact fine-structure leves to include is controlled by *levels*.
@@ -517,17 +517,46 @@ class DataSet(object):
                 if ion[-1] in levels:
                     self.add_line(fineline, self.velspan)
 
-    def add_molecule(self, element, nu=0, J=0, velspan=None):
+        # Set label:
+        reg = self.find_line(line_tag)
+        if full_label:
+            reg.label = line_complexes.CI_full_labels[line_tag]
+        else:
+            reg.label = line_complexes.CI_labels[line_tag]
+
+    def remove_fine_lines(self, line_tag):
+        """Remove all lines associated to a given fine-structure complex."""
+        for fineline in fine_structure_complexes[line_tag]:
+            if fineline in self.all_lines:
+                self.remove_line(line_tag)
+
+    def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
-        Add molecular lines
-        Vibrational lines up to and including *nu* will be included.
-        All rotational levels up to and including *J* for each vibrational level
-        will be included.
+        Add molecular lines for a given band, e.g., AX(0-0).
+        All rotational levels up to and including *J* will be included.
         """
-        if element == 'CO':
-            for nu_level in line_complexes.CO[:nu+1]:
-                for transitions in nu_level[:J+1]:
-                    self.add_many_lines(transitions, velspan=velspan)
+        if molecule == 'CO':
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level[:J+1]:
+                self.add_many_lines(transitions, velspan=velspan)
+
+            ref_J0 = line_complexes.CO[band][0][0]
+            region = self.find_line(ref_J0)
+            if full_label:
+                label = line_complexes.CO_full_labels[band]
+                region.label = label
+
+            else:
+                region.label = "${\\rm CO\ %s}$" % band
+
+    def remove_molecule(self, molecule, band):
+        """Remove all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.remove_line(line_tag)
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
@@ -668,7 +697,7 @@ class DataSet(object):
             return residual/error_spectrum
 
         # popt = minimize(chi, self.pars, ftol=1.49e-10)
-        popt = minimize(chi, self.pars, ftol=0.01)
+        popt = minimize(chi, self.pars, ftol=0.001)
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
@@ -715,6 +744,7 @@ class DataSet(object):
         output.print_abundance(self)
 
     def conf_interval(self, nsim=10):
+        """ The method is deprecated and has not been carefully tested!"""
         import sys
 
         def chi(pars):
