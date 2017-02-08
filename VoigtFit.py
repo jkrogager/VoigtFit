@@ -524,6 +524,12 @@ class DataSet(object):
         else:
             reg.label = line_complexes.CI_labels[line_tag]
 
+    def remove_fine_lines(self, line_tag):
+        """Remove all lines associated to a given fine-structure complex."""
+        for fineline in fine_structure_complexes[line_tag]:
+            if fineline in self.all_lines:
+                self.remove_line(line_tag)
+
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
         Add molecular lines for a given band, e.g., AX(0-0).
