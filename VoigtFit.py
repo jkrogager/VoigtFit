@@ -131,6 +131,9 @@ class DataSet(object):
         self.lines = dict()
         # a list containing all the line-tags defined. The same as lines.keys()
         self.all_lines = list()
+        # a dictionary conatining a list of bands defined for each molecule:
+        # Ex: self.molecules = {'CO': ['AX(0-0)', 'AX(1-0)']}
+        self.molecules = dict()
 
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
@@ -549,14 +552,27 @@ class DataSet(object):
             else:
                 region.label = "${\\rm CO\ %s}$" % band
 
+        if molecule in self.molecules.keys():
+            self.molecules[molecule].append(band)
+        else:
+            self.molecules[molecule] = [band]
+
     def remove_molecule(self, molecule, band):
         """Remove all lines for the given band of the given molecule."""
         if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
             nu_level = line_complexes.CO[band]
             for transitions in nu_level:
                 for line_tag in transitions:
                     if line_tag in self.all_lines:
                         self.remove_line(line_tag)
+
+            self.molecules['CO'].remove(band)
+            if len(self.molecules['CO']) == 0:
+                self.molecules.pop('CO')
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
