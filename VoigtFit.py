@@ -490,7 +490,7 @@ class DataSet(object):
             for tag in tags:
                 self.add_line(tag, velspan)
 
-    def add_fine_lines(self, line_tag, levels=None):
+    def add_fine_lines(self, line_tag, levels=None, full_label=False):
         """
         Add fine-structure line complexes by providing only the main transition.
         The exact fine-structure leves to include is controlled by *levels*.
@@ -519,9 +519,12 @@ class DataSet(object):
 
         # Set label:
         reg = self.find_line(line_tag)
-        reg.label = line_complexes.CI_labels[line_tag]
+        if full_label:
+            reg.label = line_complexes.CI_full_labels[line_tag]
+        else:
+            reg.label = line_complexes.CI_labels[line_tag]
 
-    def add_molecule(self, element, nu=0, J=0, velspan=None):
+    def add_molecule(self, element, nu=0, J=0, velspan=None, full_label=False):
         """
         Add molecular lines
         Vibrational lines up to and including *nu* will be included.
@@ -536,8 +539,12 @@ class DataSet(object):
             for n in range(nu+1):
                 ref_J0 = line_complexes.CO[n][0][0]
                 region = self.find_line(ref_J0)
-                label = line_complexes.CO_labels[ref_J0]
-                region.label = "${\\rm CO\ %s}$" % label
+                if full_label:
+                    label = line_complexes.CO_full_labels[ref_J0]
+                    region.label = label
+                else:
+                    label = line_complexes.CO_labels[ref_J0]
+                    region.label = "${\\rm CO\ %s}$" % label
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
@@ -678,7 +685,7 @@ class DataSet(object):
             return residual/error_spectrum
 
         # popt = minimize(chi, self.pars, ftol=1.49e-10)
-        popt = minimize(chi, self.pars, ftol=0.01)
+        popt = minimize(chi, self.pars, ftol=0.001)
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')

@@ -4,12 +4,14 @@ import numpy as np
 
 fine_structure_complexes = dict()
 
-CI_full_labels = {'CI_1656': '$^3{\\rm P} \\rightarrow 2s^22p3s\ ^3{\\rm P}$',
-                  'CI_1560': '$^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm D}$',
-                  'CI_1328': '$^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm P}$',
-                  'CI_1280': '$^3{\\rm P} \\rightarrow 2s^22p4s\ ^3{\\rm P}$',
-                  'CI_1277': '$^3{\\rm P} \\rightarrow 2s^22s3d\ ^3{\\rm D}$',
-                  'CI_1276': '$^3{\\rm P} \\rightarrow 2s^22p4s\ ^1{\\rm P}$'}
+CI_full_labels = {
+    'CI_1656': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p3s\ ^3{\\rm P}\ (\\lambda1656)$',
+    'CI_1560': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm D}\ (\\lambda1560)$',
+    'CI_1328': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm P}\ (\\lambda1328)$',
+    'CI_1280': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p4s\ ^3{\\rm P}\ (\\lambda1280)$',
+    'CI_1277': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22s3d\ ^3{\\rm D}\ (\\lambda1277)$',
+    'CI_1276': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p4s\ ^1{\\rm P}\ (\\lambda1276)$'
+}
 
 CI_labels = {'CI_1656': '${\\rm CI\ \\lambda1656}$',
              'CI_1560': '${\\rm CI\ \\lambda1650}$',
@@ -67,6 +69,21 @@ fine_structure_complexes['CI_1276'] = ['CI_1276',
                                        'CIb_1277.2']
 
 # ---
+CO_full_labels = {
+    'COJ0_1544.44': "${\\rm CO\ A}^1\\Pi(0) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1509.74': "${\\rm CO\ A}^1\\Pi(1) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1477.56': "${\\rm CO\ A}^1\\Pi(2) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1447.35': "${\\rm CO\ A}^1\\Pi(3) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1419.04': "${\\rm CO\ A}^1\\Pi(4) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1392.52': "${\\rm CO\ A}^1\\Pi(5) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1367.62': "${\\rm CO\ A}^1\\Pi(6) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1344.18': "${\\rm CO\ A}^1\\Pi(7) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1322.15': "${\\rm CO\ A}^1\\Pi(8) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1301.40': "${\\rm CO\ A}^1\\Pi(9) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1281.86': "${\\rm CO\ A}^1\\Pi(10) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
+    'COJ0_1263.43': "${\\rm CO\ A}^1\\Pi(11) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$"
+}
+
 CO_labels = {'COJ0_1544.44': 'AX(0-0)',
              'COJ0_1509.74': 'AX(1-0)',
              'COJ0_1477.56': 'AX(2-0)',
