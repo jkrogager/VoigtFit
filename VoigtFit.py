@@ -524,14 +524,12 @@ class DataSet(object):
         else:
             reg.label = line_complexes.CI_labels[line_tag]
 
-    def add_molecule(self, element, band, J=0, velspan=None, full_label=False):
+    def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
-        Add molecular lines
-        Vibrational lines up to and including *nu* will be included.
-        All rotational levels up to and including *J* for each vibrational level
-        will be included.
+        Add molecular lines for a given band, e.g., AX(0-0).
+        All rotational levels up to and including *J* will be included.
         """
-        if element == 'CO':
+        if molecule == 'CO':
             nu_level = line_complexes.CO[band]
             for transitions in nu_level[:J+1]:
                 self.add_many_lines(transitions, velspan=velspan)
@@ -544,6 +542,15 @@ class DataSet(object):
 
             else:
                 region.label = "${\\rm CO\ %s}$" % band
+
+    def remove_molecule(self, molecule, band):
+        """Remove all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.remove_line(line_tag)
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
