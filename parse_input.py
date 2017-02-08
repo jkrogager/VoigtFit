@@ -15,7 +15,7 @@ def parse_parameters(fname):
     components_to_delete = list()
     lines = list()
     molecules = dict()
-    fine_lines = list()
+    # fine_lines = list()
 
     for line in par_file.readlines():
         if line[0] == '#':
@@ -68,7 +68,7 @@ def parse_parameters(fname):
             lines += all_lines
 
         if 'molecule' in line:
-            velspan = 150.
+            velspan = None
             Jmax = 0
             # Ex.  add molecule CO AX(1-0), AX(0-0) [J=0 velspan=150]
             # strip comments:
@@ -90,12 +90,16 @@ def parse_parameters(fname):
                 band_string = line[CO_begin:].replace(',', '')
                 bands = band_string.split()[1:]
                 if 'CO' in molecules.keys():
-                    molecules['CO'] += [bands, Jmax, velspan]
+                    for band in bands:
+                        molecules['CO'] += [band, Jmax, velspan]
                 else:
-                    molecules['CO'] = [bands, Jmax, velspan]
+                    molecules['CO'] = list()
+                    for band in bands:
+                        molecules['CO'] += [band, Jmax, velspan]
 
             elif 'H2' in line:
                 print " Molecule H2 is not defined yet..."
+
             else:
                 print "\n [ERROR] - Could not detect any molecular species to add!\n"
 

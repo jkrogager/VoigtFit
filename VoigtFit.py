@@ -574,6 +574,32 @@ class DataSet(object):
             if len(self.molecules['CO']) == 0:
                 self.molecules.pop('CO')
 
+    def deactivate_molecule(self, molecule, band):
+        """Deactivate all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.deactivate_line(line_tag)
+
+    def activate_molecule(self, molecule, band):
+        """Deactivate all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.activate_line(line_tag)
+
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
         # --- normalize spectral region
@@ -862,6 +888,34 @@ def main():
             if tag not in defined_tags:
                 dataset.deactivate_line(tag)
 
+        # Add new molecules that were not defined before:
+        new_molecules = dict()
+        if len(parameters['molecules'].items()) > 0:
+            for molecule, bands in parameters['molecules'].items():
+                if molecule not in new_molecules.keys():
+                    new_molecules[molecule] = list()
+
+                if molecule in dataset.molecules.keys():
+                    for band, Jmax, velspan in bands:
+                        if band not in dataset.molecules[molecule]:
+                            new_molecules[molecule].append([band, Jmax, velspan])
+
+        if len(new_molecules.items()) > 0:
+            for molecule, bands in new_molecules.items():
+                for band, Jmax, velspan in bands:
+                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
+
+        # Remove old molecules which should not be fitted:
+        defined_molecular_bands = list()
+        for molecule, bands in parameters['molecules']:
+            for band, Jmax, velspan in bands:
+                defined_molecular_bands.append(band)
+
+        for molecule, bands in dataset.molecules.items():
+            for band in bands:
+                if band not in defined_tags:
+                    dataset.deactivate_molecule(molecule, band)
+
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
@@ -911,6 +965,12 @@ def main():
         # Define lines:
         for tag, velspan in parameters['lines']:
             dataset.add_line(tag, velspan)
+
+        # Define molecules:
+        if len(parameters['molecules'].items()) > 0:
+            for molecule, bands in parameters['molecules'].items():
+                for band, Jmax, velspan in bands:
+                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
 
         # Define Components:
         dataset.reset_components()
