@@ -849,9 +849,9 @@ def main():
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b = component
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -892,9 +892,6 @@ def main():
         # Define normalization method:
         # dataset.norm_method = 1
 
-        # Toggle nomask:
-        # dataset.interactive_mask = True
-
         # Define lines:
         for tag, velspan in parameters['lines']:
             dataset.add_line(tag, velspan)
@@ -902,9 +899,9 @@ def main():
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b = component
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -915,22 +912,37 @@ def main():
             dataset.delete_component(*component)
 
     # prepare_dataset
-    dataset.prepare_dataset()
+    if parameters['nomask']:
+        dataset.prepare_dataset(mask=False)
+    else:
+        dataset.prepare_dataset(mask=True)
 
     # fit
     dataset.fit()
 
-    # print
+    # print metallicity
     dataset.print_results()
     logNHI = parameters['logNHI']
     if logNHI:
         dataset.print_metallicity(*logNHI)
 
-    # plot
-    dataset.plot_fit()
+    # print abundance
+    if parameters['show_abundance']:
+        dataset.print_abundance()
 
     # save
     SaveDataSet(name+'.dataset', dataset)
+    if parameters['save']:
+        filename = parameters['filename']
+        if not filename:
+            filename = name
+        if filename.split('.')[-1] in ['pdf', 'txt', 'dat']:
+            filename = filename[:-4]
+        # plot and save
+        dataset.plot_fit(filename=filename)
+
+    else:
+        dataset.plot_fit()
 
 
 if __name__ == '__main__':
