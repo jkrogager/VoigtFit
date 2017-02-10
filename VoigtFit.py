@@ -1017,6 +1017,8 @@ def main():
         # plot and save
         dataset.plot_fit(filename=filename)
 
+        output.save_parameters_to_file(dataset, filename)
+
     else:
         dataset.plot_fit()
 
