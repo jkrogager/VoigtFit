@@ -674,6 +674,8 @@ def print_abundance(dataset):
 def save_parameters_to_file(dataset, filename):
     """ Function to save parameters to file. """
     with open(filename, 'w') as output:
+        header = "#comp   ion   redshift             log(N/cm^-2)           b (km/s)"
+        output.write(header + "\n")
         for ion in dataset.components.keys():
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
