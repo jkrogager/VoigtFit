@@ -669,3 +669,20 @@ def print_abundance(dataset):
 
     else:
         print "\n [ERROR] - The dataset has not yet been fitted. No parameters found!"
+
+
+def save_parameters_to_file(dataset, filename):
+    """ Function to save parameters to file. """
+    with open(filename, 'w') as output:
+        for ion in dataset.components.keys():
+            for i in range(len(dataset.components[ion])):
+                z = dataset.best_fit['z%i_%s' % (i, ion)]
+                logN = dataset.best_fit['logN%i_%s' % (i, ion)]
+                b = dataset.best_fit['b%i_%s' % (i, ion)]
+
+                line = "%3i  %7s  %.6f %.6f    %.6f %.6f    %.6f %.6f" % (i, ion,
+                                                                          z.value, z.stderr,
+                                                                          logN.value, logN.stderr,
+                                                                          b.value, b.stderr)
+                output.write(line + "\n")
+            output.write("\n")
