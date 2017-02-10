@@ -67,7 +67,7 @@ def parse_parameters(fname):
 
             lines += all_lines
 
-        if 'molecule' in line:
+        elif 'molecule' in line:
             velspan = None
             Jmax = 0
             # Ex.  add molecule CO AX(1-0), AX(0-0) [J=0 velspan=150]
