@@ -333,14 +333,14 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if hasattr(region, 'label'):
         if region.label == '':
             region.generate_label()
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
+        region.label = "\n".join(all_trans_str)
         line_string = region.label
 
     else:
-        transition_lines = list()
-        for line in region.lines:
-            transition_lines.append(line.tag)
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
         line_string = "\n".join(all_trans_str)
+        region.label = line_string
 
     if loc == 'right':
         label_x = 0.97
