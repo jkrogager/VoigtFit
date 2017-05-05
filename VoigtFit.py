@@ -691,7 +691,7 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, rebin=1, verbose=True, plot=True):
+    def fit(self, rebin=1, verbose=True, plot=True, ftol=0.01):
         """
         Fit the absorption lines using chi-square minimization.
         Returns the best fitting parameters for each component
@@ -738,8 +738,7 @@ class DataSet(object):
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-        # popt = minimize(chi, self.pars, ftol=1.49e-10)
-        popt = minimize(chi, self.pars, ftol=0.001)
+        popt = minimize(chi, self.pars, ftol=ftol, maxfev=5000)
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
