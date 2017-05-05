@@ -7,6 +7,8 @@ import itertools
 import voigt
 import Asplund
 
+plt.rcParams['lines.linewidth'] = 1.0
+
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -60,6 +62,99 @@ def rebin_bool_array(x, n):
 # ------------------------------
 #  A4 figuse size:
 #  fig = plt.figure(figsize=(7, 9.899))
+
+
+def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_columns=2,
+                  rebin=1, fontsize=12, subsample_profile=1, npad=50, ymin=None):
+    # --- First figure out which lines to plot to avoid overlap
+    #     of several lines defined in the same region.
+    included_lines = list()
+    lines_to_plot = list()
+    vrange = (vmax - vmin)/4.
+    for ref_line in dataset.lines.values():
+        if ref_line.tag in included_lines:
+            pass
+        elif ref_line.ion[-1].islower():
+            # do not plot individual figures for fine-structure lines
+            included_lines.append(ref_line)
+        else:
+            region = dataset.find_line(ref_line.tag)
+            lines_to_plot.append(ref_line.tag)
+            if len(region.lines) == 1:
+                included_lines.append(ref_line.tag)
+            else:
+                l_ref = ref_line.l0*(dataset.redshift + 1)
+                for line in region.lines:
+                    l0 = line.l0
+                    delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
+                    if np.abs(delta_v) <= vrange or line.ion[-1].islower() is True:
+                        included_lines.append(line.tag)
+
+    # --- If a filename is given, set up a PDF container for saving to file:
+    if filename:
+        if '.pdf' not in filename:
+            filename += '.pdf'
+        pdf = matplotlib.backends.backend_pdf.PdfPages(filename)
+
+    # --- Determine number of pages to create:
+    pages = list(chunks(lines_to_plot, 2*max_rows))
+    lines_in_figure = list()
+    for contents in pages:
+        # --- Determine figure size:
+        # if len(contents) > 1:
+        #     width = 10.5
+        #     columns = 2
+        # else:
+        #     width = 5.25
+        #     columns = 1
+        #
+        # heigth = (len(contents) + 1) / 2 * 15./max_rows
+        # rows = (len(contents) + 1) / 2
+
+        fig = plt.figure(figsize=(7, 9.899))
+        # fig = plt.figure(figsize=(width, heigth))
+        # fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
+
+        num = 1
+        for line_tag in contents:
+            if line_tag in lines_in_figure:
+                pass
+            else:
+                ax = fig.add_subplot(max_rows, max_columns, num)
+                _, LIV = plot_single_line(dataset, line_tag,
+                                          plot_fit=False, linestyles=['--'],
+                                          colors=['RoyalBlue'], rebin=rebin, nolabels=True,
+                                          axis=ax, fontsize=fontsize, xmin=vmin, xmax=vmax,
+                                          subsample_profile=subsample_profile, ymin=ymin)
+                lines_in_figure += LIV
+                ax.tick_params(length=7, labelsize=fontsize)
+                ax.grid(True, color='0.6', ls='--', lw=0.5)
+                if num < len(contents)-1:
+                    ax.set_xticklabels([''])
+                else:
+                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=14)
+
+                if num % max_columns == 1:
+                    ax.set_ylabel("Normalized Flux", fontsize=14)
+                num += 1
+                # LIV is a shorthand for 'lines_in_view'
+        # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
+        #          ha='center', va='bottom', transform=fig.transFigure,
+        #          fontsize=14)
+        # fig.text(0.01, 0.5, "Normalized flux",
+        #          ha='left', va='center', transform=fig.transFigure,
+        #          fontsize=14, rotation=90)
+
+        plt.tight_layout()
+
+        if filename:
+            pdf.savefig(fig)
+
+    if filename:
+        pdf.close()
+        print "\n  Output saved to PDF file:  " + filename
+
+    plt.show()
 
 
 def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
@@ -129,11 +224,11 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             width = 5.25
             columns = 1
 
-        heigth = (len(contents) + 1) / 2 * 14.85/max_rows
+        heigth = (len(contents) + 1) / 2 * 15./max_rows
         rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(width, heigth))
-        fig.subplots_adjust(left=0.08, right=0.98, top=0.98, hspace=0.03, bottom=0.12)
+        fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
 
         num = 1
         for line_tag in contents:
@@ -147,14 +242,17 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           fontsize=fontsize, xmin=xmin, xmax=xmax, show=show,
                                           subsample_profile=subsample_profile, npad=npad)
                 lines_in_figure += LIV
-                ax.tick_params(length=7)
+                ax.tick_params(length=7, labelsize=fontsize)
                 if num < len(contents)-1:
                     ax.set_xticklabels([''])
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
         fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
                  ha='center', va='bottom', transform=fig.transFigure,
-                 fontsize=20)
+                 fontsize=22)
+        fig.text(0.01, 0.5, "Normalized flux",
+                 ha='left', va='center', transform=fig.transFigure,
+                 fontsize=22, rotation=90)
         if filename:
             pdf.savefig(fig)
 
@@ -292,7 +390,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     view_part = (vel > xmin) * (vel < xmax)
 
     if not ymin:
-        ymin = y[view_part].min() - 1.5*err.mean()
+        ymin = y[view_part].min() - 3.5*err.mean()
     ymax = (y*mask)[view_part].max() + 2*err.mean()
     ax.set_ylim(ymin, ymax)
 
@@ -333,14 +431,14 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if hasattr(region, 'label'):
         if region.label == '':
             region.generate_label()
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
+        region.label = "\n".join(all_trans_str)
         line_string = region.label
 
     else:
-        transition_lines = list()
-        for line in region.lines:
-            transition_lines.append(line.tag)
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in transition_lines]
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
         line_string = "\n".join(all_trans_str)
+        region.label = line_string
 
     if loc == 'right':
         label_x = 0.97
@@ -349,7 +447,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.04, line_string, va='bottom', ha=loc,
+    ax.text(label_x, 0.05, line_string, va='bottom', ha=loc,
             transform=ax.transAxes, fontsize=fontsize,
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
@@ -669,3 +767,22 @@ def print_abundance(dataset):
 
     else:
         print "\n [ERROR] - The dataset has not yet been fitted. No parameters found!"
+
+
+def save_parameters_to_file(dataset, filename):
+    """ Function to save parameters to file. """
+    with open(filename, 'w') as output:
+        header = "#comp   ion   redshift             log(N/cm^-2)           b (km/s)"
+        output.write(header + "\n")
+        for ion in dataset.components.keys():
+            for i in range(len(dataset.components[ion])):
+                z = dataset.best_fit['z%i_%s' % (i, ion)]
+                logN = dataset.best_fit['logN%i_%s' % (i, ion)]
+                b = dataset.best_fit['b%i_%s' % (i, ion)]
+
+                line = "%3i  %7s  %.6f %.6f    %.6f %.6f    %.6f %.6f" % (i, ion,
+                                                                          z.value, z.stderr,
+                                                                          logN.value, logN.stderr,
+                                                                          b.value, b.stderr)
+                output.write(line + "\n")
+            output.write("\n")

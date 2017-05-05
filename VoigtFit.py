@@ -131,6 +131,9 @@ class DataSet(object):
         self.lines = dict()
         # a list containing all the line-tags defined. The same as lines.keys()
         self.all_lines = list()
+        # a dictionary conatining a list of bands defined for each molecule:
+        # Ex: self.molecules = {'CO': ['AX(0-0)', 'AX(1-0)']}
+        self.molecules = dict()
 
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
@@ -549,14 +552,53 @@ class DataSet(object):
             else:
                 region.label = "${\\rm CO\ %s}$" % band
 
+        if molecule in self.molecules.keys():
+            self.molecules[molecule].append(band)
+        else:
+            self.molecules[molecule] = [band]
+
     def remove_molecule(self, molecule, band):
         """Remove all lines for the given band of the given molecule."""
         if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
             nu_level = line_complexes.CO[band]
             for transitions in nu_level:
                 for line_tag in transitions:
                     if line_tag in self.all_lines:
                         self.remove_line(line_tag)
+
+            self.molecules['CO'].remove(band)
+            if len(self.molecules['CO']) == 0:
+                self.molecules.pop('CO')
+
+    def deactivate_molecule(self, molecule, band):
+        """Deactivate all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.deactivate_line(line_tag)
+
+    def activate_molecule(self, molecule, band):
+        """Deactivate all lines for the given band of the given molecule."""
+        if molecule == 'CO':
+            if band not in self.molecules['CO']:
+                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                return None
+
+            nu_level = line_complexes.CO[band]
+            for transitions in nu_level:
+                for line_tag in transitions:
+                    if line_tag in self.all_lines:
+                        self.activate_line(line_tag)
 
     def prepare_dataset(self, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
@@ -649,7 +691,7 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, rebin=1, verbose=True, plot=True):
+    def fit(self, rebin=1, verbose=True, plot=True, ftol=0.01):
         """
         Fit the absorption lines using chi-square minimization.
         Returns the best fitting parameters for each component
@@ -696,8 +738,7 @@ class DataSet(object):
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-        # popt = minimize(chi, self.pars, ftol=1.49e-10)
-        popt = minimize(chi, self.pars, ftol=0.001)
+        popt = minimize(chi, self.pars, ftol=ftol, maxfev=5000)
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
@@ -846,12 +887,40 @@ def main():
             if tag not in defined_tags:
                 dataset.deactivate_line(tag)
 
+        # Add new molecules that were not defined before:
+        new_molecules = dict()
+        if len(parameters['molecules'].items()) > 0:
+            for molecule, bands in parameters['molecules'].items():
+                if molecule not in new_molecules.keys():
+                    new_molecules[molecule] = list()
+
+                if molecule in dataset.molecules.keys():
+                    for band, Jmax, velspan in bands:
+                        if band not in dataset.molecules[molecule]:
+                            new_molecules[molecule].append([band, Jmax, velspan])
+
+        if len(new_molecules.items()) > 0:
+            for molecule, bands in new_molecules.items():
+                for band, Jmax, velspan in bands:
+                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
+
+        # Remove old molecules which should not be fitted:
+        defined_molecular_bands = list()
+        for molecule, bands in parameters['molecules']:
+            for band, Jmax, velspan in bands:
+                defined_molecular_bands.append(band)
+
+        for molecule, bands in dataset.molecules.items():
+            for band in bands:
+                if band not in defined_tags:
+                    dataset.deactivate_molecule(molecule, band)
+
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b = component
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -892,19 +961,22 @@ def main():
         # Define normalization method:
         # dataset.norm_method = 1
 
-        # Toggle nomask:
-        # dataset.interactive_mask = True
-
         # Define lines:
         for tag, velspan in parameters['lines']:
             dataset.add_line(tag, velspan)
 
+        # Define molecules:
+        if len(parameters['molecules'].items()) > 0:
+            for molecule, bands in parameters['molecules'].items():
+                for band, Jmax, velspan in bands:
+                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
+
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b = component
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b)
+                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -915,22 +987,39 @@ def main():
             dataset.delete_component(*component)
 
     # prepare_dataset
-    dataset.prepare_dataset()
+    if parameters['nomask']:
+        dataset.prepare_dataset(mask=False)
+    else:
+        dataset.prepare_dataset(mask=True)
 
     # fit
     dataset.fit()
 
-    # print
+    # print metallicity
     dataset.print_results()
     logNHI = parameters['logNHI']
     if logNHI:
         dataset.print_metallicity(*logNHI)
 
-    # plot
-    dataset.plot_fit()
+    # print abundance
+    if parameters['show_abundance']:
+        dataset.print_abundance()
 
     # save
     SaveDataSet(name+'.dataset', dataset)
+    if parameters['save']:
+        filename = parameters['filename']
+        if not filename:
+            filename = name
+        if filename.split('.')[-1] in ['pdf', 'txt', 'dat']:
+            filename = filename[:-4]
+        # plot and save
+        dataset.plot_fit(filename=filename)
+
+        output.save_parameters_to_file(dataset, filename)
+
+    else:
+        dataset.plot_fit()
 
 
 if __name__ == '__main__':
