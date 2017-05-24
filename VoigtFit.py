@@ -455,8 +455,8 @@ class DataSet(object):
                 pars = line.split()
                 ion = pars[1]
                 z = float(pars[2])
-                logN = float(pars[4])
-                b = float(pars[6])
+                b = float(pars[4])
+                logN = float(pars[6])
                 components_to_add.append([ion, z, b, logN])
                 if ion not in all_ions_in_file:
                     all_ions_in_file.append(ion)

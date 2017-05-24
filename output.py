@@ -649,7 +649,8 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
         z_sys = dataset.redshift
 
     print "\n  Best fit parameters\n"
-    print "\t\t\t\tlog(N)\t\t\tb"
+    # print "\t\t\t\tlog(N)\t\t\tb"
+    print "\t\t\t\tb\t\t\tlog(N)"
     if elements == 'all':
         for ion in dataset.components.keys():
             lines_for_this_ion = []
@@ -685,9 +686,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                     z_val = z
                     z_format = "z = %.6f +/- %.6f"
 
-                output_string = z_format % (z_val, z_std) + "\t\t"
-                output_string += "%.2f +/- %.2f\t\t" % (logN, logN_err)
-                output_string += "%.1f +/- %.1f" % (b, b_err)
+                output_string = z_format % (z_val, z_std) + "\t"
+                output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
+                output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
                 print output_string
 
@@ -718,9 +719,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                     z_val = z
                     z_format = "z = %.6f"
 
-                output_string = z_format % (z_val, z_std)+"\t\t"
-                output_string += "%.2f +/- %.2f\t\t" % (logN, logN_err)
-                output_string += "%.1f +/- %.1f" % (b, b_err)
+                output_string = z_format % (z_val, z_std) + "\t"
+                output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
+                output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
                 print output_string
 
@@ -808,17 +809,16 @@ def print_abundance(dataset):
 def save_parameters_to_file(dataset, filename):
     """ Function to save parameters to file. """
     with open(filename, 'w') as output:
-        header = "#comp   ion   redshift             log(N/cm^-2)     b (km/s)"
+        header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
         output.write(header + "\n")
         for ion in dataset.components.keys():
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
                 b = dataset.best_fit['b%i_%s' % (i, ion)]
-
-                line = "%3i  %7s  %.6f %.6f    %.3f %.3f    %6.2f %6.2f" % (i, ion,
+                line = "%3i  %7s  %.6f %.6f    %6.2f %6.2f    %.3f %.3f" % (i, ion,
                                                                             z.value, z.stderr,
-                                                                            logN.value, logN.stderr,
-                                                                            b.value, b.stderr)
+                                                                            b.value, b.stderr,
+                                                                            logN.value, logN.stderr)
                 output.write(line + "\n")
             output.write("\n")
