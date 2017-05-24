@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.signal import fftconvolve, gaussian
 import numpy as np
 import itertools
@@ -245,17 +246,22 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num < len(contents)-1:
                     ax.set_xticklabels([''])
+                else:
+                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=14)
+                if num % 2 == 1:
+                    ax.set_ylabel("Normalized Flux", fontsize=14)
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
-        fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
-                 ha='center', va='bottom', transform=fig.transFigure,
-                 fontsize=22)
-        fig.text(0.01, 0.5, "Normalized flux",
-                 ha='left', va='center', transform=fig.transFigure,
-                 fontsize=22, rotation=90)
+        # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
+        #          ha='center', va='bottom', transform=fig.transFigure,
+        #          fontsize=22)
+        # fig.text(0.01, 0.5, "Normalized flux",
+        #          ha='left', va='center', transform=fig.transFigure,
+        #          fontsize=22, rotation=90)
         if filename:
             pdf.savefig(fig)
 
+    plt.tight_layout()
     if filename:
         pdf.close()
         print "\n  Output saved to PDF file:  " + filename
@@ -266,7 +272,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
 
 def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
-                     xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50):
+                     xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
+                     residuals=False, highlight=[]):
     """
     Plot absorption line.
 
@@ -326,6 +333,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
 
+        if residuals:
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('top', size='20%', pad=0.)
+
         if subsample_profile > 1:
             N_pix = len(x)*subsample_profile
             wl_line = np.logspace(np.log10(x.min()), np.log10(x.max()), N_pix)
@@ -340,6 +351,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         end_padding = np.linspace(wl_line.max()+pxs, wl_line.max()+npad*pxs, npad)
         wl_line = np.concatenate([front_padding, wl_line, end_padding])
         tau = np.zeros_like(wl_line)
+        tau_hl = np.zeros_like(wl_line)
+        N_highlight = 0
 
         if isinstance(dataset.best_fit, dict):
             params = dataset.best_fit
@@ -364,17 +377,24 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    if ion in highlight:
+                        tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls='-', color='r')
+                        N_highlight += 1
 
                     ls, color = component_prop.next()
                     ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls=ls, color=color)
 
         profile_int = np.exp(-tau)
+        profile_int_hl = np.exp(-tau_hl)
         fwhm_instrumental = res/299792.*l_ref
         sigma_instrumental = fwhm_instrumental/2.35482/pxs
         LSF = gaussian(len(wl_line), sigma_instrumental)
         LSF = LSF/LSF.sum()
         profile_broad = fftconvolve(profile_int, LSF, 'same')
+        profile_broad_hl = fftconvolve(profile_int_hl, LSF, 'same')
         profile = profile_broad[npad:-npad]
+        profile_hl = profile_broad_hl[npad:-npad]
         wl_line = wl_line[npad:-npad]
         vel_profile = (wl_line - l_ref)/l_ref*299792.
 
@@ -386,6 +406,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if not xmax:
         xmax = region.velocity_span
     ax.set_xlim(xmin, xmax)
+
+    if residuals and plot_fit:
+        cax.set_xlim(xmin, xmax)
 
     view_part = (vel > xmin) * (vel < xmax)
 
@@ -405,13 +428,25 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     spectrum = np.ma.masked_where(~mask, y)
     # error = np.ma.masked_where(~mask, err)
-    ax.errorbar(vel, spectrum, err, ls='', color='gray')
-    ax.plot(vel, spectrum, color='k', drawstyle='steps-mid')
+    ax.errorbar(vel, spectrum, err, ls='', color='gray', lw=1.)
+    ax.plot(vel, spectrum, color='k', drawstyle='steps-mid', lw=1.)
     ax.axhline(0., ls='--', color='0.7', lw=0.7)
 
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
         ax.plot(vel_profile, profile, color='r', lw=1.5)
+        if N_highlight > 0:
+            ax.plot(vel_profile, profile_hl, color='orange', lw=1.5, ls='--')
+
+        if residuals:
+            p_data = np.interp(vel, vel_profile, profile)
+            cax.plot(vel, masked_range - p_data, color='0.7', drawstyle='steps-mid', lw=0.9)
+            cax.errorbar(vel, spectrum-p_data, err, ls='', color='gray', lw=1.)
+            cax.plot(vel, spectrum-p_data, color='k', drawstyle='steps-mid', lw=1.)
+            cax.axhline(0., ls='--', color='0.7', lw=0.7)
+            cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
+            cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
+            cax.set_xticklabels([''])
 
     if nolabels:
         if axis:
@@ -451,6 +486,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             transform=ax.transAxes, fontsize=fontsize,
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
+    plt.tight_layout()
     if show:
         plt.show()
 
@@ -772,7 +808,7 @@ def print_abundance(dataset):
 def save_parameters_to_file(dataset, filename):
     """ Function to save parameters to file. """
     with open(filename, 'w') as output:
-        header = "#comp   ion   redshift             log(N/cm^-2)           b (km/s)"
+        header = "#comp   ion   redshift             log(N/cm^-2)     b (km/s)"
         output.write(header + "\n")
         for ion in dataset.components.keys():
             for i in range(len(dataset.components[ion])):
@@ -780,9 +816,9 @@ def save_parameters_to_file(dataset, filename):
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
                 b = dataset.best_fit['b%i_%s' % (i, ion)]
 
-                line = "%3i  %7s  %.6f %.6f    %.6f %.6f    %.6f %.6f" % (i, ion,
-                                                                          z.value, z.stderr,
-                                                                          logN.value, logN.stderr,
-                                                                          b.value, b.stderr)
+                line = "%3i  %7s  %.6f %.6f    %.3f %.3f    %6.2f %6.2f" % (i, ion,
+                                                                            z.value, z.stderr,
+                                                                            logN.value, logN.stderr,
+                                                                            b.value, b.stderr)
                 output.write(line + "\n")
             output.write("\n")
