@@ -51,6 +51,30 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('gam', 'f4')])
 
 
+def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
+    all_lines = list()
+    if upper is None:
+        upper = max(lineList['l0'])
+        if len(ion) == 0:
+            print " [WARNING] - No element nor upper limit on wavelength is given!"
+            print "             This will return %i lines." % len(lineList)
+            proceed = raw_input("Continue? (yes/NO)  > ")
+            if proceed.lower() in ['y', 'yes']:
+                return lineList
+            else:
+                return None
+
+    if len(ion) > 0:
+        for trans in lineList:
+            if trans['ion'] == ion:
+                if trans['l0'] > lower and trans['l0'] < upper:
+                    all_lines.append(trans)
+            elif trans['ion'][:-1] == ion and fine_lines is True:
+                if trans['l0'] > lower and trans['l0'] < upper:
+                    all_lines.append(trans)
+    return all_lines
+
+
 def air2vac(air):
     # From Donald Morton 1991, ApJS 77,119
     if type(air) == float or type(air) == int:
