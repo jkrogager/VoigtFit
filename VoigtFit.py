@@ -246,12 +246,17 @@ class DataSet(object):
         region = self.find_line(line_tag)
         region.normalize(norm_method=2)
 
-    def mask_line(self, line_tag, reset=True):
+    def mask_line(self, line_tag, reset=True, mask=None):
         """ define masked regions for a given line """
         region = self.find_line(line_tag)
         if reset:
             region.clear_mask()
-        region.define_mask()
+
+        if hasattr(mask, '__iter__'):
+            region.mask = mask
+            region.new_mask = False
+        else:
+            region.define_mask()
 
     def find_line(self, tag):
         if tag in self.all_lines:
@@ -293,6 +298,13 @@ class DataSet(object):
     def activate_all(self):
         for line_tag in self.all_lines:
             self.activate_line(line_tag)
+
+    def all_active_lines(self):
+        act_lines = list()
+        for line_tag, line in self.lines.items():
+            if line.active:
+                act_lines.append(line_tag)
+        return act_lines
 
     def reset_components(self, element=None):
         """    Reset components dictionary.
@@ -404,6 +416,46 @@ class DataSet(object):
                 new_comp[3]['tie_b'] = 'b%i_%s' % (num, anchor)
 
             self.components[element].append(new_comp)
+
+    def load_components_from_file(self, fname):
+        parameters = open(fname)
+        components_to_add = list()
+        all_ions_in_file = list()
+        for line in parameters.readlines():
+            line = line.strip()
+            if len(line) == 0:
+                pass
+            elif line[0] == '#':
+                pass
+            else:
+                pars = line.split()
+                ion = pars[1]
+                z = float(pars[2])
+                logN = float(pars[4])
+                b = float(pars[6])
+                components_to_add.append([ion, z, b, logN])
+                if ion not in all_ions_in_file:
+                    all_ions_in_file.append(ion)
+
+        for ion in all_ions_in_file:
+            if ion in self.components.keys():
+                self.reset_components(ion)
+
+        for comp_pars in components_to_add:
+            ion, z, b, logN = comp_pars
+            self.add_component(ion, z, b, logN)
+        parameters.close()
+
+    def fix_structure(self, element=''):
+        if element:
+            for comp in self.components[element]:
+                comp[3]['var_b'] = False
+                comp[3]['var_z'] = False
+        else:
+            for ion in self.components.keys():
+                for comp in self.components[ion]:
+                    comp[3]['var_b'] = False
+                    comp[3]['var_z'] = False
 
     def add_line(self, tag, velspan=None, active=True, norm_method=1):
         self.ready2fit = False
@@ -638,9 +690,9 @@ class DataSet(object):
                 b_name = 'b%i_%s' % (n, ion)
                 N_name = 'logN%i_%s' % (n, ion)
 
-                self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'], min=0.)
-                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0.)
-                self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0.)
+                self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'])
+                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=500.)
+                self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0., max=40.)
 
         # - Then setup parameter links:
         for ion in self.components.keys():
@@ -766,14 +818,15 @@ class DataSet(object):
     def plot_line(self, line_tag, plot_fit=False, linestyles=['--'], colors=['RoyalBlue'],
                   loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                   xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1,
-                  npad=50):
+                  npad=50, highlight=[], residuals=True):
 
         output.plot_single_line(self, line_tag, plot_fit=plot_fit,
                                 linestyles=linestyles, colors=colors,
                                 loc=loc, rebin=rebin, nolabels=nolabels,
                                 axis=axis, fontsize=fontsize,
                                 xmin=xmin, xmax=xmax, ymin=ymin, show=show,
-                                subsample_profile=subsample_profile, npad=npad)
+                                subsample_profile=subsample_profile, npad=npad,
+                                highlight=highlight, residuals=residuals)
 
     def print_results(self, velocity=True, elements='all', systemic=0):
         output.print_results(self, self.best_fit, elements, velocity, systemic)
