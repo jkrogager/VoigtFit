@@ -215,7 +215,7 @@ class DataSet(object):
 
     def set_resolution(self, res, line_tag=None):
         """
-        Set the spectral resolution for a given region containing *line_tag*.
+        Set the spectral resolution in km/s for a given region containing *line_tag*.
         If not *line_tag* is given, the resolution will be set for *all* regions,
         including the raw data chunks!
 
