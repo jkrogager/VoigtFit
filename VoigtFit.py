@@ -815,6 +815,16 @@ class DataSet(object):
                               subsample_profile=subsample_profile, npad=npad)
         plt.show()
 
+    def velocity_plot(self, **kwargs):
+        """
+        Parameters
+        vmin=-400, vmax=400
+        filename=None, max_rows=6, max_columns=2,
+        rebin=1, fontsize=12,
+        subsample_profile=1, npad=50, ymin=None
+        """
+        output.velocity_plot(self, **kwargs)
+
     def plot_line(self, line_tag, plot_fit=False, linestyles=['--'], colors=['RoyalBlue'],
                   loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                   xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1,

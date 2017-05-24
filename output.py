@@ -112,7 +112,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
         # heigth = (len(contents) + 1) / 2 * 15./max_rows
         # rows = (len(contents) + 1) / 2
 
-        fig = plt.figure(figsize=(7, 9.899))
+        fig = plt.figure(figsize=(7, 8))
         # fig = plt.figure(figsize=(width, heigth))
         # fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
 
@@ -133,10 +133,10 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
                 if num < len(contents)-1:
                     ax.set_xticklabels([''])
                 else:
-                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=14)
+                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=12)
 
                 if num % max_columns == 1:
-                    ax.set_ylabel("Normalized Flux", fontsize=14)
+                    ax.set_ylabel("Norm. flux", fontsize=12)
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
         # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
@@ -325,7 +325,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if axis:
         ax = axis
     else:
-        plt.close('all')
+        # plt.close('all')
         fig = plt.figure(figsize=(6, 3.5))
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
@@ -536,7 +536,7 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     if axis:
         ax = axis
     else:
-        plt.close('all')
+        # plt.close('all')
         fig = plt.figure(figsize=(6, 3.5))
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)

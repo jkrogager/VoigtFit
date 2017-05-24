@@ -60,7 +60,8 @@ class Region():
         plt.close('all')
 
         plt.figure()
-        plt.xlim(self.wl.min(), self.wl.max())
+        dx = 0.1*(self.wl.max() - self.wl.min())
+        plt.xlim(self.wl.min()-dx, self.wl.max()+dx)
         plt.ylim(0.8*self.flux.min(), 1.2*self.flux.max())
         plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid')
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
@@ -120,8 +121,10 @@ class Region():
             e_continuum = np.sqrt(np.mean(self.err**2))
 
         if plot:
+            new_flux = self.flux/continuum
+            new_err = self.err/continuum
             plt.cla()
-            plt.plot(self.wl, self.flux/continuum, color='k', drawstyle='steps-mid')
+            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid')
             plt.xlabel("Wavelength  [${\\rm \AA}$]")
             plt.title("Normalized")
             plt.axhline(1., ls='--', color='k')
@@ -131,9 +134,9 @@ class Region():
 
             prompt = raw_input(" Is normalization correct?  (YES/no)")
             if prompt.lower() in ['', 'y', 'yes']:
-                self.flux = self.flux/continuum
-                self.err = self.err/continuum
-                self.cont_err = e_continuum/np.mean(continuum)
+                self.flux = new_flux
+                self.err = new_err
+                self.cont_err = e_continuum/np.median(continuum)
                 self.normalized = True
                 return 1
 
