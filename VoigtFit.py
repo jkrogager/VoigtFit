@@ -150,6 +150,8 @@ class DataSet(object):
         # data should be added by calling method 'add_data'
         self.data = []
 
+        self.verbose = True
+
         # container for absorption lines. Each line is defined as a class 'Line'.
         # a dictionary containing a Line class for each line-tag key:
         self.lines = dict()
@@ -194,20 +196,20 @@ class DataSet(object):
     def get_resolution(self, line_tag=None, verbose=False):
         if line_tag:
             region = self.find_line(line_tag)
-            if verbose:
+            if verbose and self.verbose:
                 output_msg = " Spectral resolution in the region around %s is %.1f km/s."
                 print output_msg % (line_tag, region.res)
             return region.res
 
         else:
             resolution = list()
-            if verbose:
+            if verbose and self.verbose:
                 print " Spectral Resolution:"
             for region in self.regions:
                 if region.has_active_lines():
                     res = region.res
                     ref_line = region.lines[0]
-                    if verbose:
+                    if verbose and self.verbose:
                         print "   For %-13s :  %.1f" % (ref_line.tag, res)
                     resolution.append(res)
 
@@ -262,8 +264,9 @@ class DataSet(object):
                 self.regions[remove_this].remove_line(tag)
 
         else:
-            print ""
-            print " The line is not defined. Nothing to remove."
+            if self.verbose:
+                print ""
+                print " The line is not defined. Nothing to remove."
 
     def normalize_line(self, line_tag):
         """ normalize or re-normalize a given line """
@@ -289,7 +292,8 @@ class DataSet(object):
                     return region
 
         else:
-            print "\n The line (%s) is not defined." % tag
+            if self.verbose:
+                print "\n The line (%s) is not defined." % tag
 
         return None
 
@@ -339,7 +343,8 @@ class DataSet(object):
             if element in self.components.keys():
                 self.components.pop(element)
             else:
-                print " [ERROR] - No components defined for element: %s" % element
+                if self.verbose:
+                    print " [ERROR] - No components defined for element: %s" % element
 
         else:
             self.components = dict()
@@ -410,7 +415,8 @@ class DataSet(object):
             self.components[element].pop(index)
 
         else:
-            print " [ERROR] - No components defined for ion: "+element
+            if self.verbose:
+                print " [ERROR] - No components defined for ion: "+element
 
     def copy_components(self, element, anchor, logN=0, ref_comp=0, tie_z=True, tie_b=True):
         """
@@ -484,13 +490,15 @@ class DataSet(object):
     def add_line(self, tag, velspan=None, active=True, norm_method=1):
         self.ready2fit = False
         if tag in self.all_lines:
-            print " [WARNING] - %s is already defined." % tag
+            if self.verbose:
+                print " [WARNING] - %s is already defined." % tag
             return False
 
         if tag in lineList['trans']:
             new_line = Line(tag)
         else:
-            print "\nThe transition (%s) not found in line list!" % tag
+            if self.verbose:
+                print "\nThe transition (%s) not found in line list!" % tag
             return False
 
         if velspan is None:
@@ -550,12 +558,14 @@ class DataSet(object):
                     success = True
 
             if not success:
-                print "\n [ERROR] - The given line is not covered by the spectral data: " + tag
-                print ""
+                if self.verbose:
+                    print "\n [ERROR] - The given line is not covered by the spectral data: " + tag
+                    print ""
                 return False
 
         else:
-            print " [ERROR]  No data is loaded. Run method 'add_data' to add spectral data."
+            if self.verbose:
+                print " [ERROR]  No data is loaded. Run method 'add_data' to add spectral data."
 
     def add_many_lines(self, tags, velspan=None):
         self.ready2fit = False
@@ -637,7 +647,8 @@ class DataSet(object):
         """Remove all lines for the given band of the given molecule."""
         if molecule == 'CO':
             if band not in self.molecules['CO']:
-                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                if self.verbose:
+                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
                 return None
 
             nu_level = line_complexes.CO[band]
@@ -654,7 +665,8 @@ class DataSet(object):
         """Deactivate all lines for the given band of the given molecule."""
         if molecule == 'CO':
             if band not in self.molecules['CO']:
-                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                if self.verbose:
+                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
                 return None
 
             nu_level = line_complexes.CO[band]
@@ -667,7 +679,8 @@ class DataSet(object):
         """Deactivate all lines for the given band of the given molecule."""
         if molecule == 'CO':
             if band not in self.molecules['CO']:
-                print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
+                if self.verbose:
+                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
                 return None
 
             nu_level = line_complexes.CO[band]
@@ -688,7 +701,7 @@ class DataSet(object):
                 while go_on == 0:
                     go_on = region.normalize()
                     # region.normalize returns 1 when continuum is fitted
-        if verbose:
+        if verbose and self.verbose:
             print ""
             print " [DONE] - Continuum fitting successfully finished."
             print ""
@@ -698,7 +711,7 @@ class DataSet(object):
             for region in self.regions:
                 if region.new_mask:
                     region.define_mask()
-            if verbose:
+            if verbose and self.verbose:
                 print ""
                 print " [DONE] - Spectral masks successfully created."
                 print ""
@@ -741,9 +754,10 @@ class DataSet(object):
             ion = line_tag.split('_')[0]
             line = self.lines[line_tag]
             if ion not in self.components.keys() and line.active:
-                print ""
-                print " [ERROR] - Components are not defined for element: "+ion
-                print ""
+                if self.verbose:
+                    print ""
+                    print " [ERROR] - Components are not defined for element: "+ion
+                    print ""
                 self.ready2fit = False
 
                 return False
@@ -759,10 +773,11 @@ class DataSet(object):
             if np.any(lines_for_this_ion):
                 pass
             else:
-                print "\n [WARNING] - Components defined for inactive element: %s\n" % this_ion
+                if self.verbose:
+                    print "\n [WARNING] - Components defined for inactive element: %s\n" % this_ion
 
         if self.ready2fit:
-            if verbose:
+            if verbose and self.verbose:
                 print "\n  Dataset is ready to be fitted."
                 print ""
             return True
@@ -778,8 +793,9 @@ class DataSet(object):
         """
 
         if not self.ready2fit:
-            print " [Error]  - Dataset is not ready to be fit."
-            print "            Run '.prepare_dataset()' before fitting."
+            if self.verbose:
+                print " [Error]  - Dataset is not ready to be fit."
+                print "            Run '.prepare_dataset()' before fitting."
             return False
 
         npad = options['npad']
@@ -819,7 +835,7 @@ class DataSet(object):
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
 
-        if verbose:
+        if verbose and self.verbose:
             output.print_results(self, self.best_fit, velocity=False)
 
         if plot:
