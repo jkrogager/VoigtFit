@@ -817,7 +817,7 @@ class DataSet(object):
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    region.lines, self.components,
-                                                   res, npad)
+                                                   res, dv=0.5)
 
                     model.append(profile_obs[mask])
                     data.append(np.array(y[mask], dtype=myfloat))
@@ -899,15 +899,13 @@ class DataSet(object):
             for region in self.regions:
                 x, y, err, mask = region.unpack()
                 res = region.res
-                npad = 50
-                nsamp = 1
                 # randomize the data within the errors:
                 # y += err*np.random.normal(0, 1, size=len(y))
 
                 # Generate line profile
                 profile_obs = evaluate_profile(x, pars, self.redshift,
                                                region.lines, self.components,
-                                               res, npad, nsamp)
+                                               res, dv=0.1)
 
                 model.append(profile_obs[mask])
                 data.append(np.array(y[mask], dtype=myfloat))
