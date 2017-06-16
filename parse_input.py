@@ -8,6 +8,7 @@ def parse_parameters(fname):
     parameters['nomask'] = False
     parameters['show_abundance'] = False
     parameters['plot'] = False
+    parameters['resolution'] = list()
     par_file = open(fname)
     data = list()
     components = list()
@@ -223,6 +224,18 @@ def parse_parameters(fname):
 
         elif 'nomask' in line and 'name' not in line:
             parameters['nomask'] = True
+
+        elif 'resolution' in line and 'name' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()
+            if len(items) == 3 and items[0] == 'resolution':
+                res = items[1]
+                line = items[2]
+            elif len(items) == 2 and items[0] == 'resolution':
+                res = items[1]
+                line = None
+            parameters['resolution'].append([res, line])
 
         elif 'metallicity' in line and 'name' not in line:
             numbers = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)

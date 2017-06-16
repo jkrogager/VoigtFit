@@ -837,13 +837,15 @@ class DataSet(object):
 
     def plot_fit(self, linestyles=['--', ':'], colors=['RoyalBlue', 'Crimson'],
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=5,
-                 filename=None, show=True, subsample_profile=1, npad=50):
+                 filename=None, show=True, subsample_profile=1, npad=50,
+                 highlight=[], residuals=True):
 
         output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
                               colors=colors, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
                               filename=filename, show=show,
-                              subsample_profile=subsample_profile, npad=npad)
+                              subsample_profile=subsample_profile, npad=npad,
+                              highlight=highlight, residuals=residuals)
         plt.show()
 
     def velocity_plot(self, **kwargs):
@@ -1083,6 +1085,11 @@ def main():
         dataset.prepare_dataset(mask=False)
     else:
         dataset.prepare_dataset(mask=True)
+
+    # update resolution:
+    if len(parameters['resolution']) > 0:
+        for item in parameters['resolution']:
+            dataset.set_resolution(item[0], item[1])
 
     # fit
     dataset.fit()
