@@ -1,5 +1,5 @@
 print "\n"
-print "    VoigtFit v.1.1"
+print "    VoigtFit v.1.2"
 print ""
 print "    by Jens-Kristian Krogager"
 print ""

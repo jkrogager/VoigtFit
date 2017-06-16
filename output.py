@@ -337,19 +337,14 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('top', size='20%', pad=0.)
 
-        if subsample_profile > 1:
-            N_pix = len(x)*subsample_profile
-            wl_line = np.logspace(np.log10(x.min()), np.log10(x.max()), N_pix)
-        else:
-            wl_line = x
-        pxs = np.mean(np.diff(wl_line))
+        N_pix = len(x)*3
+        dx = np.diff(x)[0]
+        wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
+        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
 
-        front_padding = np.linspace(wl_line.min()-npad*pxs, wl_line.min(), npad, endpoint=False)
-        end_padding = np.linspace(wl_line.max()+pxs, wl_line.max()+npad*pxs, npad)
-        wl_line = np.concatenate([front_padding, wl_line, end_padding])
         tau = np.zeros_like(wl_line)
         tau_hl = np.zeros_like(wl_line)
         N_highlight = 0
@@ -379,26 +374,26 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
                         tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
-                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls='-', color='r')
+                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
                         N_highlight += 1
 
                     ls, color = component_prop.next()
-                    ax.axvline((l0*(z+1) - l_ref)/l_ref*299792., ls=ls, color=color)
+                    ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls=ls, color=color)
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
-        fwhm_instrumental = res/299792.*l_ref
-        sigma_instrumental = fwhm_instrumental/2.35482/pxs
+        fwhm_instrumental = res
+        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
         LSF = gaussian(len(wl_line), sigma_instrumental)
         LSF = LSF/LSF.sum()
         profile_broad = fftconvolve(profile_int, LSF, 'same')
         profile_broad_hl = fftconvolve(profile_int_hl, LSF, 'same')
-        profile = profile_broad[npad:-npad]
-        profile_hl = profile_broad_hl[npad:-npad]
-        wl_line = wl_line[npad:-npad]
-        vel_profile = (wl_line - l_ref)/l_ref*299792.
+        profile = profile_broad[50:-50]
+        profile_hl = profile_broad_hl[50:-50]
+        wl_line = wl_line[50:-50]
+        vel_profile = (wl_line - l_ref)/l_ref*299792.458
 
-    vel = (x - l_ref) / l_ref * 299792.
+    vel = (x - l_ref) / l_ref * 299792.458
 
     if not xmin:
         xmin = -region.velocity_span
@@ -529,7 +524,7 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     lines_in_view = list()
     for line in region.lines:
         l0 = line.l0
-        delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
+        delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.458
         if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
             lines_in_view.append(line.tag)
 
@@ -543,15 +538,14 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
 
     if (isinstance(dataset.best_fit, dict) or isinstance(dataset.pars, dict)):
         npad = 50
-        wl_line = x
-        pxs = np.mean(np.diff(wl_line))
+        N_pix = len(x)*3
+        dx = np.diff(x)[0]
+        wl_line = np.logspace(np.log10(x.min() - npad*dx), np.log10(x.max() + npad*dx), N_pix)
+        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
 
-        front_padding = np.linspace(wl_line.min()-npad*pxs, wl_line.min(), npad, endpoint=False)
-        end_padding = np.linspace(wl_line.max()+pxs, wl_line.max()+npad*pxs, npad)
-        wl_line = np.concatenate([front_padding, wl_line, end_padding])
         tau = np.zeros_like(wl_line)
 
         if isinstance(dataset.best_fit, dict):
@@ -574,15 +568,15 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
 
         profile_int = np.exp(-tau)
-        fwhm_instrumental = res/299792.*l_ref
-        sigma_instrumental = fwhm_instrumental/2.35482/pxs
+        fwhm_instrumental = res
+        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
         LSF = gaussian(len(wl_line), sigma_instrumental)
         LSF = LSF/LSF.sum()
         profile_broad = fftconvolve(profile_int, LSF, 'same')
         profile = profile_broad[npad:-npad]
         wl_line = wl_line[npad:-npad]
 
-    vel = (x - l_ref) / l_ref * 299792.
+    vel = (x - l_ref) / l_ref * 299792.458
     y = y - profile
 
     if not xmin:
@@ -678,8 +672,8 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
 
                 if velocity:
-                    z_std = z_err/(z_sys+1)*299792.
-                    z_val = (z-z_sys)/(z_sys+1)*299792.
+                    z_std = z_err/(z_sys+1)*299792.458
+                    z_val = (z-z_sys)/(z_sys+1)*299792.458
                     z_format = "v = %5.1f +/- %.1f\t"
                 else:
                     z_std = z_err
@@ -713,7 +707,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
 
                 if velocity:
-                    z_val = (z-z_sys)/(z_sys+1)*299792.
+                    z_val = (z-z_sys)/(z_sys+1)*299792.458
                     z_format = "v = %5.1f\t"
                 else:
                     z_val = z

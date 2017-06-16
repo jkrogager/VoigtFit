@@ -41,7 +41,7 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     return tau
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, res, npad):
+def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     """
     Function to evaluate Voigt profile for a fitting `Region'.
 
@@ -53,9 +53,6 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad):
     pars : dictionary
         Dictionary containing fit parameters from `lmfit'
 
-    z_sys : float
-        Systemic redshift, as defined in DataSet.redshift
-
     lines : list
         List of lines in the region to evaluate.
         Should be a list of `Line' instances.
@@ -66,8 +63,8 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad):
     res : float
         Spectral resolution of the region in km/s.
 
-    npad : integer
-        Number of pixels added before and after the wavelength array
+    dv : float  [default=0.1]
+        Desired pixel size of profile evaluation in km/s.
 
     Returns
     -------
@@ -76,41 +73,51 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, npad):
         convolved with the instrument Line Spread Function.
     """
 
-    profile_wl = x
-    pxs = np.mean(np.diff(x))
+    dx = np.mean(np.diff(x))
+    xmin = np.log10(x.min() - 50*dx)
+    xmax = np.log10(x.max() + 50*dx)
+    N = int((x.max() - x.min())/(0.5*x.max() + 0.5*x.min())*299792.458 / dv)
 
-    # Add padding on each side of the evaluated profile
-    # to avoid boundary artefacts during convolution.
-    front_padding = np.linspace(x.min()-npad*pxs, x.min(), npad, endpoint=False)
-    end_padding = np.linspace(x.max()+pxs, x.max()+npad*pxs, npad)
-    profile_wl = np.concatenate([front_padding, profile_wl, end_padding])
+    # Calculate logarithmically binned wavelength grid:
+    profile_wl = np.logspace(xmin, xmax, N)
     tau = np.zeros_like(profile_wl)
+
+    # Calculate actual pixel size in km/s:
+    pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
+
+    # Determine range in which to evaluate the profile:
+    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
+    if max_logN > 19.0:
+        velspan = 20000.*(1. + 1.0*(max_logN-19.))
+    else:
+        velspan = 20000.
 
     for line in lines:
         if line.active:
             l0, f, gam = line.get_properties()
-            l_center = l0*(z_sys + 1.)
             ion = line.ion
             n_comp = len(components[ion])
-
+            l_center = l0*(z_sys + 1.)
+            vel = (profile_wl - l_center)/l_center*299792.
+            span = (vel >= -velspan)*(vel <= velspan)
             ion = ion.replace('*', 'x')
             for n in range(n_comp):
                 z = pars['z%i_%s' % (n, ion)].value
                 b = pars['b%i_%s' % (n, ion)].value
                 logN = pars['logN%i_%s' % (n, ion)].value
-                tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
 
     profile = np.exp(-tau)
     # Calculate Line Spread Function, i.e., instrumental broadening:
-    # The resolution FWHM is converted into gaussian sigma in units
-    # of number of pixels
-    fwhm_instrumental = res/299792.*l_center        # in units of wavelength
-    sigma_instrumental = fwhm_instrumental/2.35482/pxs    # in units of pixels
+    # Since the wavelength grid is logarithmically binned,
+    # the kernel is constant in velocity-space:
+    fwhm_instrumental = res                                   # in units of km/s
+    sigma_instrumental = fwhm_instrumental / 2.35482 / pxs    # in units of pixels
     LSF = gaussian(len(profile_wl), sigma_instrumental)
     LSF = LSF/LSF.sum()
     profile_broad = fftconvolve(profile, LSF, 'same')
 
-    # Remove padding which includes the boundary effects of convolution:
-    profile_obs = profile_broad[npad:-npad]
+    # Interpolate onto the data grid:
+    profile_obs = np.interp(x, profile_wl, profile_broad)
 
     return profile_obs
