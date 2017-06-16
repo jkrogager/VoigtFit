@@ -150,13 +150,28 @@ class Region():
             self.normalized = True
             return 1
 
-    def define_mask(self):
+    def define_mask(self, z=None, dataset=None):
         plt.close('all')
 
         plt.xlim(self.wl.min(), self.wl.max())
         plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid')
+        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
+
+        if z is not None:
+            for line in self.lines:
+                # Load line properties
+                l0, f, gam = line.get_properties()
+                if dataset is not None:
+                    ion = line.ion
+                    n_comp = len(dataset.components[ion])
+                    ion = ion.replace('*', 'x')
+                    for n in range(n_comp):
+                        z = dataset.pars['z%i_%s' % (n, ion)].value
+                        plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+                else:
+                    plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+
         lines_title = ", ".join([line.tag for line in self.lines])
         plt.title(lines_title)
         print "\n\n  Mark regions to mask, left and right boundary."
