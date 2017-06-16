@@ -4,15 +4,6 @@
 #    PhD Student, Dark Cosmology Centre, Niels Bohr Institute
 #    University of Copenhagen
 #
-#    version 1.6
-#    added smooth continuum definition
-#
-#    version 1.5
-#    added 'copy_velocity_structure'
-#    to anchor the line structure to a given ion
-#
-#    version 1.4
-#    added subpixel profile fitting
 
 import numpy as np
 import matplotlib.pyplot as plt
