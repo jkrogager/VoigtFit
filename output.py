@@ -146,7 +146,8 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
         #          ha='left', va='center', transform=fig.transFigure,
         #          fontsize=14, rotation=90)
 
-        plt.tight_layout()
+        # plt.tight_layout()
+        fig.set_tight_layout(True)
 
         if filename:
             pdf.savefig(fig)
@@ -261,7 +262,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         if filename:
             pdf.savefig(fig)
 
-    plt.tight_layout()
+    # plt.tight_layout()
+    fig.set_tight_layout(True)
     if filename:
         pdf.close()
         print "\n  Output saved to PDF file:  " + filename
@@ -481,7 +483,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             transform=ax.transAxes, fontsize=fontsize,
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
-    plt.tight_layout()
+    # plt.tight_layout()
+    fig.set_tight_layout(True)
     if show:
         plt.show()
 
