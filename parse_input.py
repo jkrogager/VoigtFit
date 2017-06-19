@@ -8,6 +8,8 @@ def parse_parameters(fname):
     parameters['nomask'] = False
     parameters['show_abundance'] = False
     parameters['plot'] = False
+    parameters['resolution'] = list()
+    parameters['save'] = False
     par_file = open(fname)
     data = list()
     components = list()
@@ -49,13 +51,7 @@ def parse_parameters(fname):
             if 'span' in line:
                 idx = line.find('span')
                 value = line[idx:].split('=')[1]
-                if ',' in value:
-                    value = value.replace('[', '').replace(']', '')
-                    value = value.replace('(', '').replace(')', '')
-                    v1, v2 = value.split(',')
-                    velspan = [float(v1), float(v2)]
-                else:
-                    velspan = float(value)
+                velspan = float(value)
 
                 linelist = line.split()
                 linelist = linelist[1:-1]
@@ -116,7 +112,7 @@ def parse_parameters(fname):
             var_z, var_b, var_N = True, True, True
             tie_z, tie_b, tie_N = None, None, None
             if '=' in line:
-                for val in parlist[1:]:
+                for num, val in enumerate(parlist[1:]):
                     if 'z=' in val and '_' not in val:
                         par, value = val.split('=')
                         z = float(value)
@@ -144,6 +140,13 @@ def parse_parameters(fname):
                     elif 'tie_N=' in val:
                         par, value = val.split('=')
                         tie_N = value
+                    elif '=' not in val:
+                        if num == 0:
+                            z = float(val)
+                        elif num == 1:
+                            b = float(val)
+                        elif num == 2:
+                            logN = float(val)
 
             else:
                 z = float(parlist[1])
@@ -223,6 +226,18 @@ def parse_parameters(fname):
 
         elif 'nomask' in line and 'name' not in line:
             parameters['nomask'] = True
+
+        elif 'resolution' in line and 'name' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()
+            if len(items) == 3 and items[0] == 'resolution':
+                res = items[1]
+                line = items[2]
+            elif len(items) == 2 and items[0] == 'resolution':
+                res = items[1]
+                line = None
+            parameters['resolution'].append([res, line])
 
         elif 'metallicity' in line and 'name' not in line:
             numbers = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)

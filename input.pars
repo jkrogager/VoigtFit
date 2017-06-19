@@ -2,18 +2,30 @@
 
 name :  test_dataset
 z_sys:  1.7941
+norm_method:  linear    # or spline
 
-norm_method:  linear
+# Skip interactive masking:
 nomask
+
 print metallicity logNHI = 21.3 +/- 0.1
-# or:
-#Calculate metallicity based on logNHI  21.3   0.1
-plot
+# The mini-language is flexible and accepts words
+# between the keywords, so the following works just
+# as well as the line above:
+#calculate metallicity based on logNHI  21.3   0.1
+
+# Print total abundances for each ion:
+#abundance
 
 # Load spectra:
-#      filename           spectral resolution in km/s
-data  'data/Q1313+1441/1313_UVB_1d.spec' 37.4
+#      filename                          spectral resolution in km/s
+# add the keyword 'norm' at the end of the line if the spectrum is normalized
+# add the keyword 'air' at the end of the line if the wavelength are air wavelengths
 data  'data/Q1313+1441/1313_VIS_1d.spec' 25.4
+
+# Update the spectral resolution
+# Warning: if more than one spectrum is loaded and they do not have the same resolution
+# be careful with this function, and use it for each line separately.
+#set resolution  22.4
 
 lines FeII_2374 velspan=500
 lines FeII_2260 #FeII_2249
@@ -30,9 +42,12 @@ component FeII 1.794282 20. 14.3
 component FeII 1.794722 20. 14.3
 component FeII 1.795121 15. 14.5
 
+# The mini-language is flexible, so all of the following are accepted:
 copy components to ZnII from FeII scale logN=12.9 of comp 1
 copy components to CrII from FeII scale logN=13.6 of component 1
 copy components from FeII to MgI and scale logN=12.4 of component 1
 
+# In order to remove components from a copied structure do the following
+# The component numbers start from 0
 #delete component 3 from CrII
 #delete component 3 from ZnII

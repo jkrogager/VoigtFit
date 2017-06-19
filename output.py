@@ -161,7 +161,8 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
 
 def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                    rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=5,
-                   filename=None, show=True, subsample_profile=1, npad=50):
+                   filename=None, show=True, subsample_profile=1, npad=50,
+                   highlight=[], residuals=True):
     """
     Plot absorption line.
 
@@ -220,13 +221,13 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     for contents in pages:
         # --- Determine figure size:
         if len(contents) > 1:
-            width = 10.5
+            width = 8.5
             columns = 2
         else:
-            width = 5.25
-            columns = 1
+            width = 8.5
+            columns = 2
 
-        heigth = (len(contents) + 1) / 2 * 15./max_rows
+        heigth = (len(contents) + 1) / 2 * 8./max_rows
         rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(width, heigth))
@@ -242,23 +243,25 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           plot_fit=plot_fit, linestyles=linestyles,
                                           colors=colors, rebin=rebin, nolabels=True, axis=ax,
                                           fontsize=fontsize, xmin=xmin, xmax=xmax, show=show,
-                                          subsample_profile=subsample_profile, npad=npad)
+                                          subsample_profile=subsample_profile, npad=npad,
+                                          highlight=highlight, residuals=residuals)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num < len(contents)-1:
                     ax.set_xticklabels([''])
                 else:
-                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=14)
+                    ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
+
                 if num % 2 == 1:
-                    ax.set_ylabel("Normalized Flux", fontsize=14)
+                    ax.set_ylabel("Normalized Flux", fontsize=12)
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
         # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
         #          ha='center', va='bottom', transform=fig.transFigure,
-        #          fontsize=22)
+        #          fontsize=16)
         # fig.text(0.01, 0.5, "Normalized flux",
         #          ha='left', va='center', transform=fig.transFigure,
-        #          fontsize=22, rotation=90)
+        #          fontsize=16, rotation=90)
         if filename:
             pdf.savefig(fig)
 
@@ -410,8 +413,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     view_part = (vel > xmin) * (vel < xmax)
 
     if not ymin:
-        ymin = y[view_part].min() - 3.5*err.mean()
-    ymax = (y*mask)[view_part].max() + 2*err.mean()
+        ymin = y[view_part].min() - 3.5*err[view_part].mean()
+    ymax = max(1. + 2*err[view_part].mean(), 1.08)
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range
@@ -444,6 +447,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
             cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
             cax.set_xticklabels([''])
+            cax.set_yticklabels([''])
+            res_min = np.max(4*err)
+            res_max = np.min(-4*err)
+            cax.set_ylim(res_min, res_max)
 
     if nolabels:
         if axis:
@@ -451,7 +458,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             fig.subplots_adjust(bottom=0.07, right=0.98, left=0.08, top=0.98)
     else:
-        ax.set_xlabel("${\\rm Velocity}\ \ [{\\rm km\,s^{-1}}]$")
+        ax.set_xlabel("${\\rm Rel. velocity}\ \ [{\\rm km\,s^{-1}}]$")
         ax.set_ylabel("${\\rm Normalized\ flux}$")
 
     ax.minorticks_on()
@@ -484,7 +491,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
     # plt.tight_layout()
-    fig.set_tight_layout(True)
+    if axis:
+        pass
+    else:
+        fig.set_tight_layout(True)
+
     if show:
         plt.show()
 
