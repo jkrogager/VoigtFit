@@ -51,13 +51,7 @@ def parse_parameters(fname):
             if 'span' in line:
                 idx = line.find('span')
                 value = line[idx:].split('=')[1]
-                if ',' in value:
-                    value = value.replace('[', '').replace(']', '')
-                    value = value.replace('(', '').replace(')', '')
-                    v1, v2 = value.split(',')
-                    velspan = [float(v1), float(v2)]
-                else:
-                    velspan = float(value)
+                velspan = float(value)
 
                 linelist = line.split()
                 linelist = linelist[1:-1]
@@ -118,7 +112,7 @@ def parse_parameters(fname):
             var_z, var_b, var_N = True, True, True
             tie_z, tie_b, tie_N = None, None, None
             if '=' in line:
-                for val in parlist[1:]:
+                for num, val in enumerate(parlist[1:]):
                     if 'z=' in val and '_' not in val:
                         par, value = val.split('=')
                         z = float(value)
@@ -146,6 +140,13 @@ def parse_parameters(fname):
                     elif 'tie_N=' in val:
                         par, value = val.split('=')
                         tie_N = value
+                    elif '=' not in val:
+                        if num == 0:
+                            z = float(val)
+                        elif num == 1:
+                            b = float(val)
+                        elif num == 2:
+                            logN = float(val)
 
             else:
                 z = float(parlist[1])
