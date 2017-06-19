@@ -9,6 +9,7 @@ def parse_parameters(fname):
     parameters['show_abundance'] = False
     parameters['plot'] = False
     parameters['resolution'] = list()
+    parameters['save'] = False
     par_file = open(fname)
     data = list()
     components = list()
