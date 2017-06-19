@@ -340,9 +340,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
         if residuals:
             divider = make_axes_locatable(ax)
-            cax = divider.append_axes('top', size='20%', pad=0.)
+            cax = divider.append_axes('top', size='20%', pad=0., sharex=ax)
 
-        N_pix = len(x)*3
+        N_pix = len(x)*2
         dx = np.diff(x)[0]
         wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
         pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
@@ -402,7 +402,6 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     if not xmin:
         xmin = -region.velocity_span
-
     if not xmax:
         xmax = region.velocity_span
     ax.set_xlim(xmin, xmax)
