@@ -31,6 +31,11 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('gam', 'f4')])
 
 
+def calculate_velocity_bin_size(x):
+    log_x = np.logspace(np.log10(x.min()), np.log10(x.max()), len(x))
+    return np.diff(log_x)[0] / log_x[0] * 299792.458
+
+
 class Line(object):
     def __init__(self, tag, active=True):
         self.tag = tag
@@ -729,10 +734,12 @@ class DataSet(object):
 
                     res = region.res
 
+                    # Define flexible subsampling:
+                    dv_pix = calculate_velocity_bin_size(x)
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    region.lines, self.components,
-                                                   res, dv=0.5)
+                                                   res, dv=dv_pix/3.)
 
                     model.append(profile_obs[mask])
                     data.append(np.array(y[mask], dtype=myfloat))
