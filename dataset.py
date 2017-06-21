@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import copy
 from lmfit import Parameters, minimize, Minimizer
 import os
+import pickle
 
 # from VoigtFit import Line
 from voigt import evaluate_profile
@@ -878,3 +879,22 @@ class DataSet(object):
         print ""
 
         return allPars, allChi
+
+    def save(self, fname):
+        f = open(fname, 'wb')
+        # Strip parameter ties before saving.
+        # They often cause problems when loading datasets.
+        try:
+            for par in self.best_fit.values():
+                par.expr = None
+        except:
+            pass
+
+        try:
+            for par in self.pars.values():
+                par.expr = None
+        except:
+            pass
+
+        pickle.dump(self, f)
+        f.close()

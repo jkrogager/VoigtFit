@@ -344,8 +344,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
         N_pix = len(x)*2
         dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
+        wl_line = np.logspace(np.log10(x.min()), np.log10(x.max()), N_pix)
         pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        front_pad = np.arange(x.min()-50*dx, x.min(), dx)
+        end_pad = np.arange(x.max(), x.max()+50*dx, dx)
+        wl_line = np.concatenate([front_pad, wl_line, end_pad])
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
@@ -359,6 +362,13 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             params = dataset.pars
 
+        # Determine range in which to evaluate the profile:
+        max_logN = max([val.value for key, val in params.items() if 'logN' in key])
+        if max_logN > 19.0:
+            velspan = 20000.*(1. + 1.0*(max_logN-19.))
+        else:
+            velspan = 20000.
+
         for line in region.lines:
             if line.active:
                 # Reset line properties for each element
@@ -369,16 +379,18 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                 l0, f, gam = line.get_properties()
                 ion = line.ion
                 n_comp = len(dataset.components[ion])
-
+                l_center = l0*(dataset.redshift + 1.)
+                vel = (wl_line - l_center)/l_center*299792.458
+                span = (vel >= -velspan)*(vel <= velspan)
                 ion = ion.replace('*', 'x')
 
                 for n in range(n_comp):
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
-                        tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
                         ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
                         N_highlight += 1
 
@@ -389,7 +401,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         profile_int_hl = np.exp(-tau_hl)
         fwhm_instrumental = res
         sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
-        LSF = gaussian(len(wl_line), sigma_instrumental)
+        LSF = gaussian(len(wl_line)/2, sigma_instrumental)
         LSF = LSF/LSF.sum()
         profile_broad = fftconvolve(profile_int, LSF, 'same')
         profile_broad_hl = fftconvolve(profile_int_hl, LSF, 'same')
@@ -419,7 +431,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     # Expand mask by 1 pixel around each masked range
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
-    big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    if mask_idx.max() == len(mask)-1:
+        big_mask_idx = np.union1d(mask_idx, mask_idx-1)
+    else:
+        big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
     masked_range = np.ma.masked_where(big_mask, y)
@@ -445,7 +460,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
             cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
-            cax.set_xticklabels([''])
+            # cax.set_xticklabels([''])
             cax.set_yticklabels([''])
             res_min = np.max(4*err)
             res_max = np.min(-4*err)

@@ -76,7 +76,8 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     dx = np.mean(np.diff(x))
     xmin = np.log10(x.min() - 50*dx)
     xmax = np.log10(x.max() + 50*dx)
-    N = int((x.max() - x.min())/(0.5*x.max() + 0.5*x.min())*299792.458 / dv)
+    # N = int((x.max() - x.min())/(0.5*x.max() + 0.5*x.min())*299792.458 / dv)
+    N = 3*len(x)
 
     # Calculate logarithmically binned wavelength grid:
     profile_wl = np.logspace(xmin, xmax, N)
@@ -113,7 +114,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     # the kernel is constant in velocity-space:
     fwhm_instrumental = res                                   # in units of km/s
     sigma_instrumental = fwhm_instrumental / 2.35482 / pxs    # in units of pixels
-    LSF = gaussian(len(profile_wl), sigma_instrumental)
+    LSF = gaussian(len(profile_wl)/2, sigma_instrumental)
     LSF = LSF/LSF.sum()
     profile_broad = fftconvolve(profile, LSF, 'same')
 
