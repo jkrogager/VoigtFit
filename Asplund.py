@@ -1,8 +1,11 @@
 import numpy as np
 from terminal_attributes import bold, reset
+import os.path
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt('/Users/krogager/Projects/VoigtFit/static/Asplund2009.dat', dtype=dt)
+file_path = os.path.abspath(os.path.dirname(__file__))
+relative_path = os.path.join(file_path, "static/Asplund2009.dat")
+data = np.loadtxt(relative_path, dtype=dt)
 
 photosphere = dict()
 meteorite = dict()
