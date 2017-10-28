@@ -4,3 +4,6 @@
 *.dataset
 VoigtFit.zip
 backup/*
+*.fit
+*.pdf
+*.cont
