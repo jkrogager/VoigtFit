@@ -155,9 +155,12 @@ class Region():
         plt.close('all')
 
         plt.xlim(self.wl.min(), self.wl.max())
-        plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5)
+        # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
+        lines_title = ", ".join([line.tag for line in self.lines])
+        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
+                 label=lines_title)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
+        plt.legend()
 
         if z is not None:
             for line in self.lines:
@@ -173,8 +176,8 @@ class Region():
                 else:
                     plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
-        lines_title = ", ".join([line.tag for line in self.lines])
-        plt.title(lines_title)
+        # lines_title = ", ".join([line.tag for line in self.lines])
+        plt.title("Mark regions to mask, left and right boundary.")
         print "\n\n  Mark regions to mask, left and right boundary."
 
         ok = 0

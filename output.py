@@ -434,9 +434,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
     # if mask_idx.max() == len(mask)-1:
-        # big_mask_idx = np.union1d(mask_idx, mask_idx-1)
+    #     big_mask_idx = np.union1d(mask_idx, mask_idx-1)
     # else:
-        # big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    #     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
@@ -766,7 +766,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     """
 
     print "\n  Metallicities\n"
-    print "  log(NHI) = %.2f +/- %.2f\n" % (logNHI, err)
+    print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in dataset.components.keys():
         element = ion[:2] if ion[1].islower() else ion[0]
@@ -794,7 +794,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print "  [%s/H] = %.2f +/- %.2f" % (element, metal, metal_err)
+        print "  [%s/H] = %.3f +/- %.3f" % (element, metal, metal_err)
 
 
 def print_abundance(dataset):

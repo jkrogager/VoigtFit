@@ -10,7 +10,8 @@ the older pickled datasets to the new HDF5 format.
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
-from os.path import splitext
+from os.path import splitext, basename
+import pickle
 
 import h5py
 from lmfit import Parameters
@@ -19,14 +20,16 @@ import regions
 import dataset
 
 
-# def dataset_to_hdf(fname):
-#     """ Convert a pickled dataset to the HDF5 format"""
-#     ds = VoigtFit.LoadDataSet(fname)
-#     f_base = basename(fname)
-#     root, ext = splitext(f_base)
-#     hdf_fname = root + '.vfit.h5'
-#     save_hdf_dataset(ds, hdf_fname)
-#     return hdf_fname
+def dataset_to_hdf(fname):
+    """ Convert a pickled dataset to the HDF5 format"""
+    f = open(fname, 'rb')
+    ds = pickle.load(f)
+    f.close()
+    f_base = basename(fname)
+    root, ext = splitext(f_base)
+    hdf_fname = root + '.vfit.h5'
+    save_hdf_dataset(ds, hdf_fname)
+    return hdf_fname
 
 
 def save_hdf_dataset(dataset, fname, verbose=True):

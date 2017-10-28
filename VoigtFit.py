@@ -132,6 +132,34 @@ def main():
     if os.path.exists(name+'.hdf5'):
         dataset = LoadDataSet(name+'.hdf5')
 
+        # Add new data:
+        if len(dataset.data) != len(parameters['data']):
+            dataset.data = list()
+            # Setup data:
+            for fname, res, norm, airORvac in parameters['data']:
+                if fname[-5:] == '.fits':
+                    spec = pf.getdata(fname)
+                    hdr = pf.getheader(fname)
+                    wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
+                    N = len(spec)
+                    err = np.std(spec[N/2-N/20:N/2+N/20])*np.ones_like(spec)
+
+                else:
+                    data = np.loadtxt(fname)
+                    if data.shape[1] == 2:
+                        wl, spec = data.T
+                        N = len(spec)
+                        err = np.std(spec[N/2-N/20:N/2+N/20]) * np.ones_like(spec)
+                    elif data.shape[1] == 3:
+                        wl, spec, err = data.T
+                    elif data.shape[1] == 4:
+                        wl, spec, err, mask = data.T
+
+                if airORvac == 'air':
+                    wl = air2vac(wl)
+
+                dataset.add_data(wl, spec, res, err=err, normalized=norm)
+
         # Add new lines that were not defined before:
         new_lines = list()
         for tag, velspan in parameters['lines']:
@@ -270,6 +298,19 @@ def main():
 
     else:
         print "\n Continuum Fitting : Chebyshev Polynomial up to %ith order\n" % (dataset.cheb_order)
+
+    # Reset data in regions:
+    if 'reset' in parameters.keys():
+        if len(parameters['reset']) > 0:
+            for line_tag in parameters['reset']:
+                reg = dataset.find_line(line_tag)
+                dataset.reset_region(reg)
+        else:
+            dataset.reset_all_regions()
+
+    # Mask invidiual lines
+    for line_tag in parameters['mask']:
+        dataset.mask_line(line_tag)
 
     # prepare_dataset
     if parameters['nomask']:

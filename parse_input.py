@@ -6,6 +6,7 @@ def parse_parameters(fname):
     parameters['logNHI'] = None
     parameters['norm_method'] = 'linear'
     parameters['nomask'] = False
+    parameters['mask'] = list()
     parameters['show_abundance'] = False
     parameters['plot'] = False
     parameters['resolution'] = list()
@@ -243,6 +244,13 @@ def parse_parameters(fname):
         elif 'nomask' in line and 'name' not in line and 'save' not in line:
             parameters['nomask'] = True
 
+        elif 'mask' in line and 'nomask' not in line and 'name' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            items = line.split()[1:]
+            parameters['mask'] += items
+
         elif 'resolution' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -292,6 +300,16 @@ def parse_parameters(fname):
             line = line[:comment_begin].strip()
             order = line.split('=')[1]
             parameters['C_order'] = int(order)
+
+        elif 'reset' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            items = line.split()[1:]
+            if 'reset' in parameters.keys():
+                parameters['reset'] += items
+            else:
+                parameters['reset'] = list()
 
         else:
             pass

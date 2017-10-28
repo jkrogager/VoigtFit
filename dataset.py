@@ -117,6 +117,23 @@ class DataSet(object):
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res, 'norm': normalized})
 
+    def reset_region(self, reg):
+        """Reset the data in a given region to the raw input data."""
+        for chunk in self.data:
+            if reg.res == chunk['res'] and (chunk['wl'].min() < reg.wl.min() < chunk['wl'].max()):
+                raw_data = chunk
+
+        cutout = (raw_data['wl'] >= reg.wl.min()) * (raw_data['wl'] <= reg.wl.max())
+        reg.res = raw_data['res']
+        reg.err = raw_data['error'][cutout]
+        reg.flux = raw_data['flux'][cutout]
+        reg.wl = raw_data['wl'][cutout]
+        reg.normalized = raw_data['norm']
+
+    def reset_all_regions(self):
+        for reg in self.regions:
+            self.reset_region(reg)
+
     def get_resolution(self, line_tag=None, verbose=False):
         if line_tag:
             region = self.find_line(line_tag)
