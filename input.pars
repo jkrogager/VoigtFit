@@ -8,7 +8,7 @@ save :  test_dataset
 # Continuum Fitting using Chebyshev Polynomials:
 # If not given, the default is 1 (straight line)
 # Use negative order to turn off the Chebyshev fitting
-C_order = 4
+C_order = 2
 
 # Skip interactive masking:
 nomask

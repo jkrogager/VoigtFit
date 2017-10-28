@@ -793,7 +793,8 @@ class DataSet(object):
                     dv_pix = calculate_velocity_bin_size(x)
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   region.lines, self.components,
+                                                   # region.lines, self.components,
+                                                   self.lines.values(), self.components,
                                                    res, dv=dv_pix/3.)
 
                     if self.cheb_order >= 0:
