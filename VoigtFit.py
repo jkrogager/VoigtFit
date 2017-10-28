@@ -15,6 +15,7 @@ from argparse import ArgumentParser
 import output
 from parse_input import parse_parameters
 from dataset import DataSet, lineList
+import hdf5_save
 
 
 def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
@@ -55,31 +56,40 @@ def air2vac(air):
     return out
 
 
-def SaveDataSet(pickle_file, dataset):
-    f = open(pickle_file, 'wb')
-    # Strip parameter ties before saving.
-    # They often cause problems when loading datasets.
-    try:
-        for par in dataset.best_fit.values():
-            par.expr = None
-    except:
-        pass
+def SaveDataSet(filename, dataset):
+    """Rewritten function to save dataset using HDF5"""
+    hdf5_save.save_hdf_dataset(dataset, filename)
 
-    try:
-        for par in dataset.pars.values():
-            par.expr = None
-    except:
-        pass
+# def SaveDataSet(pickle_file, dataset):
+#     f = open(pickle_file, 'wb')
+#     # Strip parameter ties before saving.
+#     # They often cause problems when loading datasets.
+#     try:
+#         for par in dataset.best_fit.values():
+#             par.expr = None
+#     except:
+#         pass
+#
+#     try:
+#         for par in dataset.pars.values():
+#             par.expr = None
+#     except:
+#         pass
+#
+#     pickle.dump(dataset, f)
+#     f.close()
 
-    pickle.dump(dataset, f)
-    f.close()
 
-
-def LoadDataSet(pickle_file):
-    f = open(pickle_file, 'rb')
-    dataset = pickle.load(f)
-    f.close()
+def LoadDataSet(filename):
+    """Rewritten functino to load HDF5 file"""
+    dataset = hdf5_save.load_dataset_from_hdf(filename)
     return dataset
+
+# def LoadDataSet(pickle_file):
+#     f = open(pickle_file, 'rb')
+#     dataset = pickle.load(f)
+#     f.close()
+#     return dataset
 
 
 # defined here and in dataset.py for backwards compatibility
@@ -119,8 +129,8 @@ def main():
 
     # Define dataset:
     name = parameters['name']
-    if os.path.exists(name+'.dataset'):
-        dataset = LoadDataSet(name+'.dataset')
+    if os.path.exists(name+'.hdf5'):
+        dataset = LoadDataSet(name+'.hdf5')
 
         # Add new lines that were not defined before:
         new_lines = list()
@@ -286,8 +296,7 @@ def main():
         dataset.print_abundance()
 
     # save
-    SaveDataSet(name+'.dataset', dataset)
-    # dataset.save(name + '.dataset')
+    SaveDataSet(name + '.hdf5', dataset)
     if parameters['save']:
         filename = parameters['filename']
         if not filename:
