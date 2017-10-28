@@ -388,9 +388,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    # tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
-                        tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        # tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                         ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
                         N_highlight += 1
 
@@ -431,10 +433,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     # Expand mask by 1 pixel around each masked range
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
-    if mask_idx.max() == len(mask)-1:
-        big_mask_idx = np.union1d(mask_idx, mask_idx-1)
-    else:
-        big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    # if mask_idx.max() == len(mask)-1:
+        # big_mask_idx = np.union1d(mask_idx, mask_idx-1)
+    # else:
+        # big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
     masked_range = np.ma.masked_where(big_mask, y)
@@ -842,5 +845,30 @@ def save_parameters_to_file(dataset, filename):
                                                                             z.value, z.stderr,
                                                                             b.value, b.stderr,
                                                                             logN.value, logN.stderr)
+                output.write(line + "\n")
+            output.write("\n")
+
+
+def save_cont_parameters_to_file(dataset, filename):
+    """ Function to save parameters to file. """
+    with open(filename, 'w') as output:
+        header = "# Chebyshev Polynomial Coefficients"
+        output.write(header + "\n")
+
+        for reg_num, region in enumerate(dataset.regions):
+            output.write("# Region %i: \n" % reg_num)
+            cheb_parnames = list()
+            # Find Chebyshev parameters for this region:
+            # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
+            for parname in dataset.best_fit.keys():
+                if 'R%i_cheb' % reg_num in parname:
+                    cheb_parnames.append(parname)
+            # This should be calculated at the point of generating
+            # the parameters, since this is a fixed data structure
+            # Sort the names, to arange the coefficients right:
+            cheb_parnames = sorted(cheb_parnames)
+            for i, parname in enumerate(cheb_parnames):
+                coeff = dataset.best_fit[parname]
+                line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
                 output.write(line + "\n")
             output.write("\n")

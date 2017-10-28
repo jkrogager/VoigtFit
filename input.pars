@@ -3,6 +3,13 @@
 name :  test_dataset
 z_sys:  1.7941
 norm_method:  linear    # or spline
+#norm_method:  spline    # or spline
+save :  test_dataset
+
+# Continuum Fitting using Chebyshev Polynomials:
+# If not given, the default is 1 (straight line)
+# Use negative order to turn off the Chebyshev fitting
+C_order = -1
 
 # Skip interactive masking:
 nomask
@@ -42,10 +49,16 @@ component FeII 1.794282 20. 14.3
 component FeII 1.794722 20. 14.3
 component FeII 1.795121 15. 14.5
 
+# Define components for FeII using the interactive window.
+# The transition used for defining the components should be a strong one:
+#interactive FeII_2374
+# This will overwrite the components defined above
+
 # The mini-language is flexible, so all of the following are accepted:
 copy components to ZnII from FeII scale logN=12.9 of comp 1
 copy components to CrII from FeII scale logN=13.6 of component 1
 copy components from FeII to MgI and scale logN=12.4 of component 1
+# The default scale applied to logN when copying components is the Solar abundnace ratio
 
 # In order to remove components from a copied structure do the following
 # The component numbers start from 0

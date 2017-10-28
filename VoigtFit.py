@@ -172,6 +172,10 @@ def main():
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
                                   tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
+        if 'interactive' in parameters.keys():
+            for line_tag in parameters['interactive']:
+                dataset.interactive_components(line_tag)
+
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
@@ -208,9 +212,6 @@ def main():
 
             dataset.add_data(wl, spec, res, err=err, normalized=norm)
 
-        # Define normalization method:
-        # dataset.norm_method = 1
-
         # Define lines:
         for tag, velspan in parameters['lines']:
             dataset.add_line(tag, velspan)
@@ -228,6 +229,10 @@ def main():
             dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
                                   tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
+        if 'interactive' in parameters.keys():
+            for line_tag in parameters['interactive']:
+                dataset.interactive_components(line_tag)
+
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
@@ -236,11 +241,31 @@ def main():
         for component in parameters['components_to_delete']:
             dataset.delete_component(*component)
 
+    # Set default value of norm:
+    norm = False
+    if 'C_order' in parameters.keys():
+        dataset.cheb_order = parameters['C_order']
+        if parameters['C_order'] >= 0:
+            norm = False
+        else:
+            norm = True
+
+    if norm is True:
+        if parameters['norm_method'].lower() in ['linear', 'spline']:
+            dataset.norm_method = parameters['norm_method'].lower()
+        else:
+            print "\n [WARNING] - Unexpected value for norm_method: %r" % parameters['norm_method']
+            print "             Using default normalization method : linear\n"
+        print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
+
+    else:
+        print "\n Continuum Fitting : Chebyshev Polynomial up to %ith order\n" % (dataset.cheb_order)
+
     # prepare_dataset
     if parameters['nomask']:
-        dataset.prepare_dataset(mask=False)
+        dataset.prepare_dataset(mask=False, norm=norm)
     else:
-        dataset.prepare_dataset(mask=True)
+        dataset.prepare_dataset(mask=True, norm=norm)
 
     # update resolution:
     if len(parameters['resolution']) > 0:
@@ -272,7 +297,8 @@ def main():
         # plot and save
         dataset.plot_fit(filename=filename, show=False)
 
-        output.save_parameters_to_file(dataset, filename)
+        output.save_parameters_to_file(dataset, filename+'.fit')
+        output.save_cont_parameters_to_file(dataset, filename+'.cont')
 
     else:
         dataset.plot_fit()

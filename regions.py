@@ -46,7 +46,7 @@ class Region():
                     num_to_remove = num
             self.lines.pop(num_to_remove)
 
-    def normalize(self, plot=True, norm_method=1):
+    def normalize(self, plot=True, norm_method='linear'):
         """
         Normalize the region if the data were not normalized.
         Choose from two methods:
@@ -56,6 +56,14 @@ class Region():
                 and use spline interpolation to infer the
                 continuum.
         """
+
+        if norm_method == 'linear':
+            norm_num = 1
+        elif norm_method == 'spline':
+            norm_num = 2
+        else:
+            err_msg = "Invalid norm_method: %r" % norm_method
+            raise ValueError(err_msg)
 
         plt.close('all')
 
@@ -68,14 +76,7 @@ class Region():
         lines_title_string = ", ".join([line.tag for line in self.lines])
         plt.title(lines_title_string)
 
-        if not norm_method:
-            print "\n\n  Choose normalization method:"
-            print "   1: linear (left, right)"
-            print "   2: spline to points"
-            print ""
-            norm_method = int(raw_input("Method number: "))
-
-        if norm_method == 1:
+        if norm_num == 1:
             # - Normalize by defining a left and right continuum region
 
             print "\n\n  Mark continuum region 1, left and right boundary."
@@ -104,7 +105,7 @@ class Region():
 
             plt.close()
 
-        elif norm_method == 2:
+        elif norm_num == 2:
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
