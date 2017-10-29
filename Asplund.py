@@ -2,7 +2,7 @@ import numpy as np
 # from terminal_attributes import bold, reset
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt('static/Asplund2009.dat', dtype=dt)
+data = np.loadtxt('/Users/krogager/Projects/VoigtFit/static/Asplund2009.dat', dtype=dt)
 
 photosphere = dict()
 meteorite = dict()

@@ -12,6 +12,7 @@ def parse_parameters(fname):
     parameters['resolution'] = list()
     parameters['save'] = False
     parameters['C_order'] = 1
+    parameters['systemic'] = [None, 'none']
     par_file = open(fname)
     data = list()
     components = list()
@@ -239,6 +240,7 @@ def parse_parameters(fname):
         elif 'norm_method' in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
+            line = line.replace("'", "")
             parameters['norm_method'] = line.split(':')[-1].strip()
 
         elif 'nomask' in line and 'name' not in line and 'save' not in line:
@@ -300,6 +302,24 @@ def parse_parameters(fname):
             line = line[:comment_begin].strip()
             order = line.split('=')[1]
             parameters['C_order'] = int(order)
+
+        elif 'systemic' in line and 'name' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            # remove parentheses
+            line = line.replace('[', '').replace(']', '')
+            line = line.replace('(', '').replace(')', '')
+            mode = line.split('=')[1]
+            if ',' in mode:
+                # num, ion mode:
+                num, ion = mode.split(',')
+                parameters['systemic'] = [int(num), ion]
+            else:
+                # either none or auto:
+                if "'" in mode:
+                    mode = mode.replace("'", '')
+                    parameters['systemic'] = [None, mode]
 
         elif 'reset' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')

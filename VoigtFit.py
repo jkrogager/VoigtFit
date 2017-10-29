@@ -326,6 +326,40 @@ def main():
     # fit
     dataset.fit(verbose=False, plot=False)
 
+    # Update systemic redshift
+    if parameters['systemic'][1] == 'none':
+        # do not update the systemic redshift
+        pass
+
+    elif isinstance(parameters['systemic'][0], int):
+        num, ion = parameters['systemic']
+        if num == -1:
+            num = len(dataset.components[ion]) - 1
+        new_z_sys = dataset.best_fit['z%i_%s' % (num, ion)].value
+        dataset.set_systemic_redshift(new_z_sys)
+
+    elif parameters['systemic'][1] == 'auto':
+        # find ion to search for strongest component:
+        if 'FeII' in dataset.components.keys():
+            ion = 'FeII'
+        elif 'SiII' in dataset.components.keys():
+            ion = 'SiII'
+        else:
+            ion = dataset.components.keys()[0]
+
+        # find strongest component:
+        n_comp = len(dataset.components[ion])
+        logN_list = list()
+        for n in range(n_comp):
+            this_logN = dataset.best_fit['logN%i_%s' % (n, ion)].value
+            logN_list.append(this_logN)
+        num = np.argmax(logN_list)
+        new_z_sys = dataset.best_fit['z%i_%s' % (num, ion)].value
+        dataset.set_systemic_redshift(new_z_sys)
+    else:
+        systemic_err_msg = "Invalid mode to set systemic redshift: %r" % parameters['systemic']
+        raise ValueError(systemic_err_msg)
+
     # print metallicity
     dataset.print_results()
     logNHI = parameters['logNHI']

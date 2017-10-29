@@ -223,6 +223,9 @@ class Region():
     def unpack(self):
         return (self.wl, self.flux, self.err, self.mask)
 
+    def is_normalized(self):
+        return self.normalized
+
     def set_label(self, text):
         self.label = text
 

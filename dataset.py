@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import copy
 from lmfit import Parameters, minimize, Minimizer
 import os
-import pickle
 
 # from VoigtFit import Line
 from voigt import evaluate_profile, evaluate_continuum
@@ -13,6 +12,7 @@ import output
 import line_complexes
 from line_complexes import fine_structure_complexes
 import Asplund
+import hdf5_save
 
 options = {'nsamp': 1,
            'npad': 20}
@@ -175,6 +175,10 @@ class DataSet(object):
 
             for chunk in self.data:
                 chunk['res'] = res
+
+    def set_systemic_redshift(self, z_sys):
+        """Update the systemic redshift"""
+        self.redshift = z_sys
 
     def remove_line(self, tag):
         if tag in self.all_lines:
@@ -948,21 +952,5 @@ class DataSet(object):
 
         return allPars, allChi
 
-    def save(self, fname):
-        f = open(fname, 'wb')
-        # Strip parameter ties before saving.
-        # They often cause problems when loading datasets.
-        try:
-            for par in self.best_fit.values():
-                par.expr = None
-        except:
-            pass
-
-        try:
-            for par in self.pars.values():
-                par.expr = None
-        except:
-            pass
-
-        pickle.dump(self, f)
-        f.close()
+    def save(self, fname, verbose=False):
+        hdf5_save.save_hdf_dataset(self, fname, verbose=verbose)
