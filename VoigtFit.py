@@ -7,8 +7,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pyfits as pf
-import pickle
+try:
+    import pyfits as pf
+except:
+    from astropy.io import fits as pf
+# import pickle
 import os
 from argparse import ArgumentParser
 
