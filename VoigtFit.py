@@ -173,6 +173,11 @@ def main():
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
+            else:
+                reg = dataset.find_line(tag)
+                if reg.velocity_span != velspan:
+                    dataset.remove_line(tag)
+                    new_lines.append([tag, velspan])
 
         for tag, velspan in new_lines:
                 dataset.add_line(tag, velspan)
