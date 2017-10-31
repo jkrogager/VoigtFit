@@ -6,6 +6,9 @@
 #
 
 import numpy as np
+import matplotlib
+# The native MacOSX backend doesn't work for all:
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 try:
     import pyfits as pf
@@ -18,6 +21,9 @@ import output
 from parse_input import parse_parameters
 from dataset import DataSet, lineList
 import hdf5_save
+
+
+plt.interactive(True)
 
 
 def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
@@ -310,6 +316,11 @@ def main():
         else:
             dataset.reset_all_regions()
 
+    # Reset all masks:
+    if 'clear_mask':
+        for region in dataset.regions:
+            region.clear_mask()
+
     # Mask invidiual lines
     for line_tag in parameters['mask']:
         dataset.mask_line(line_tag)
@@ -326,7 +337,6 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # fit
-    print "  Fit is running... Please, be patient.\n"
     dataset.fit(verbose=False, plot=False)
 
     # Update systemic redshift

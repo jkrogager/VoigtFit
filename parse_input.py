@@ -13,6 +13,7 @@ def parse_parameters(fname):
     parameters['save'] = False
     parameters['C_order'] = 1
     parameters['systemic'] = [None, 'none']
+    parameters['clear_mask'] = False
     par_file = open(fname)
     data = list()
     components = list()
@@ -245,6 +246,9 @@ def parse_parameters(fname):
 
         elif 'nomask' in line and 'name' not in line and 'save' not in line:
             parameters['nomask'] = True
+
+        elif 'clear mask' in line.lower():
+            parameters['clear_mask'] = True
 
         elif 'mask' in line and 'nomask' not in line and 'name' not in line:
             comment_begin = line.find('#')
