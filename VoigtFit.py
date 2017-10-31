@@ -273,6 +273,11 @@ def main():
                 for band, Jmax, velspan in bands:
                     dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
 
+        # Load components from file:
+        if 'load' in parameters.keys():
+            for fname in parameters['load']:
+                dataset.load_components_from_file(fname)
+
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:

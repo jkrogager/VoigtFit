@@ -333,7 +333,18 @@ def parse_parameters(fname):
             if 'reset' in parameters.keys():
                 parameters['reset'] += items
             else:
-                parameters['reset'] = list()
+                parameters['reset'] = items
+
+        elif 'load' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace('"', '')
+            line = line.replace("'", '')
+            filenames = line.split()[1:]
+            if 'load' in parameters.keys():
+                parameters['load'] += filenames
+            else:
+                parameters['load'] = filenames
 
         else:
             pass
