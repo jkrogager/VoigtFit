@@ -238,6 +238,9 @@ def main():
     else:
         dataset = DataSet(parameters['z_sys'])
 
+        if 'velspan' in parameters.keys():
+            dataset.velspan = parameters['velspan']
+
         # Setup data:
         for fname, res, norm, airORvac in parameters['data']:
             if fname[-5:] == '.fits':

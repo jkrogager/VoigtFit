@@ -14,6 +14,7 @@ def parse_parameters(fname):
     parameters['C_order'] = 1
     parameters['systemic'] = [None, 'none']
     parameters['clear_mask'] = False
+    parameters['velspan'] = 500.
     par_file = open(fname)
     data = list()
     components = list()
@@ -299,6 +300,13 @@ def parse_parameters(fname):
 
         elif 'abundance' in line and 'name' not in line and 'save' not in line:
             parameters['show_abundance'] = True
+
+        elif 'velspan' in line and 'lines' not in line and 'molecules' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            velspan = line.split('=')[1]
+            parameters['velspan'] = velspan
 
         elif 'C_order' in line and 'name' not in line and 'save' not in line:
             # strip comments:
