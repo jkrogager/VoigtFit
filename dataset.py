@@ -776,6 +776,7 @@ class DataSet(object):
                 print "            Run '.prepare_dataset()' before fitting."
             return False
 
+        print "  Fit is running... Please, be patient.\n"
         # npad = options['npad']
 
         def chi(pars):

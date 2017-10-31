@@ -326,6 +326,7 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # fit
+    print "  Fit is running... Please, be patient.\n"
     dataset.fit(verbose=False, plot=False)
 
     # Update systemic redshift
