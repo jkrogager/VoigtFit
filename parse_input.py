@@ -305,7 +305,12 @@ def parse_parameters(fname):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
-            velspan = line.split('=')[1]
+            if '=' in line:
+                velspan = line.split('=')[1]
+            elif ' ' in line:
+                velspan = line.split(' ')[1]
+            elif ':' in line:
+                velspan = line.split(':')[1]
             parameters['velspan'] = velspan
 
         elif 'C_order' in line and 'name' not in line and 'save' not in line:
