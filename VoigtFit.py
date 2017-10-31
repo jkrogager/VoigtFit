@@ -305,7 +305,15 @@ def main():
         print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
 
     else:
-        print "\n Continuum Fitting : Chebyshev Polynomial up to %ith order\n" % (dataset.cheb_order)
+        if dataset.cheb_order == 1:
+            order_str = "%ist" % (dataset.cheb_order)
+        elif dataset.cheb_order == 2:
+            order_str = "%ind" % (dataset.cheb_order)
+        elif dataset.cheb_order == 3:
+            order_str = "%ird" % (dataset.cheb_order)
+        else:
+            order_str = "%ith" % (dataset.cheb_order)
+        print "\n Continuum Fitting : Chebyshev Polynomial up to %s order\n" % (order_str)
 
     # Reset data in regions:
     if 'reset' in parameters.keys():
