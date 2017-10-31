@@ -1,12 +1,22 @@
 # Python requirements
 
-Python version 2.7
+Python version 2.7 (Python 3 is not supported yet)
 
  ## Standard Packages
 - Numpy
 - Matplotlib
 - Scipy
 
+
+ ## PyFITS / Astropy
+https://pypi.python.org/pypi/pyfits/3.3
+http://www.astropy.org/
+
+PyFITS can be installed individually, but the package is now mainly provided through the astropy
+package. Either one of these packages will work. These are available on pip:
+
+    %] pip install pyfits
+    %] pip install astropy
 
  ## LmFit
 https://lmfit.github.io/lmfit-py/
@@ -31,26 +41,36 @@ Or follow the instruction on the webpage.
 
 # Setting up the environment:
 
-Add the ATOMPATH environment variable. This variable points to the location of the atomic data file 'atomdata_updated.dat' located in the 'static' directory.
+First up, you can check which shell type you are using by typing 'echo $0' in your terminal.
+In order to run VoigtFit from any location, you should add the directory which contains VoigtFit to your PYTHONPATH environment variable:
+
+in bash:
+    export PYTHONPATH='${PYTHONPATH}:/path/to/folder/with/VoigtFit'
+
+or in csh:
+    setenv PYTHONPATH $PYTHONPATH\:/path/to/folder/with/VoigtFit
+
+
+The software needs two data files in order to run. These are distributed along with the software under the directory 'static/'. The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create system variables which the software will recognize.
+
+Add the VFITDATA environment variable. This variable points to the absolute path of the atomic data file ('atomdata_updated.dat') and the solar abundance file ('Asplund2009.dat') located in the 'static' directory:
 
 in bash:
 
-    export ATOMPATH='path/to/atomdata_updated.dat'
+    export VFITDATA='/path/to/VoigtFit/static'
 
 or in csh:
 
-    setenv ATOMPATH path/to/atomdata_updated.dat
+    setenv VFITDATA path/to/VoigtFit/static
 
 
-Add the SOLARPATH environment variable. This variable points to the location of the Solar abundance data file (from Asplund et al. 2009), 'Asplund2009.dat', located in the 'static' directory.
+  An example:
 
-in bash:
+    If you are using bash shell and the code for VoigtFit is located in the folder
+    '/home/user/coding/VoigtFit', then the path to the atomdata_updated.dat and
+    Asplund2009.dat files will be:
 
-    export SOLARPATH='path/to/Asplund2009.dat'
-
-or in csh:
-
-    setenv SOLARPATH path/to/Asplund2009.dat
+    export VFITDATA='/home/user/coding/VoigtFit/static/'
 
 
 ### To Do

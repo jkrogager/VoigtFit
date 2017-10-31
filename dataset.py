@@ -18,13 +18,12 @@ options = {'nsamp': 1,
            'npad': 20}
 myfloat = np.float64
 
-if 'ATOMPATH' in os.environ.keys():
-    atomfile = os.environ['ATOMPATH']
+if 'VFITDATA' in os.environ.keys():
+    atomfile = os.environ['VFITDATA']+'/atomdata_updated.dat'
 
 else:
-    print("No ATOMPATH in environment ... Using static provided atomic database ...")
-    atomfile = "static/atomdata_updated.dat"
-    # atomfile = raw_input("No atomic database was found!\nSpecify filename here:")
+    print("No VFITDATA in environment ... Using relative path to static data files")
+    datafile = './static/atomdata_updated.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
