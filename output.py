@@ -277,7 +277,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         print "\n  Output saved to PDF file:  " + filename
 
     if show:
-        plt.show()
+        plt.show(block=True)
 
 
 def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
@@ -521,7 +521,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         fig.set_tight_layout(True)
 
     if show:
-        plt.show()
+        plt.show(block=True)
 
     return (ax, lines_in_view)
 
@@ -649,7 +649,7 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     ax.plot(vel, -err, ls=':', color='b')
 
     if not axis:
-        plt.show()
+        plt.show(block=True)
 
     return (ax, lines_in_view)
 
