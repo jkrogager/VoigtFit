@@ -11,6 +11,11 @@ import Asplund
 plt.rcParams['lines.linewidth'] = 1.0
 
 
+def mad(x):
+    """Calculate Median Absolute Deviation"""
+    return np.median(np.abs(x - np.median(x)))
+
+
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in xrange(0, len(l), n):
@@ -426,8 +431,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     view_part = (vel > xmin) * (vel < xmax)
 
     if not ymin:
-        ymin = y[view_part].min() - 3.5*err[view_part].mean()
-    ymax = max(1. + 2*err[view_part].mean(), 1.08)
+        # ymin = y[view_part].min() - 3.5*err[view_part].mean()
+        ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
+    # ymax = max(1. + 2*err[view_part].mean(), 1.08)
+    ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range
