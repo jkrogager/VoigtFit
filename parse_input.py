@@ -286,6 +286,8 @@ def parse_parameters(fname):
                 print " Error - In order to print metallicities you must give log(NHI)."
             parameters['logNHI'] = logNHI
 
+        # elif 'print' in line
+
         elif 'save' in line and 'name' not in line:
             parameters['save'] = True
             # strip comments:
@@ -316,7 +318,7 @@ def parse_parameters(fname):
                 snr = line.split(' ')[1]
             elif ':' in line:
                 snr = line.split(':')[1]
-            parameters['snr'] = snr
+            parameters['snr'] = float(snr)
 
         elif 'velspan' in line and 'lines' not in line and 'molecules' not in line and 'save' not in line:
             # strip comments:
@@ -328,7 +330,7 @@ def parse_parameters(fname):
                 velspan = line.split(' ')[1]
             elif ':' in line:
                 velspan = line.split(':')[1]
-            parameters['velspan'] = velspan
+            parameters['velspan'] = float(velspan)
 
         elif 'C_order' in line and 'name' not in line and 'save' not in line:
             # strip comments:
