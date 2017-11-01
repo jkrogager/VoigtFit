@@ -67,7 +67,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         hdf_regions = hdf.create_group('regions')
         for num, reg in enumerate(dataset.regions):
             reg_group = hdf_regions.create_group('region%i' % (num+1))
-            reg_group.attrs.create('velspan', reg.velocity_span)
+            reg_group.attrs.create('velspan', reg.velspan)
             reg_group.attrs.create('res', reg.res)
             reg_group.attrs.create('normalized', reg.normalized)
             reg_group.attrs.create('cont_err', reg.cont_err)
