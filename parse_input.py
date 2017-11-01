@@ -309,7 +309,7 @@ def parse_parameters(fname):
         elif 'abundance' in line and 'name' not in line and 'save' not in line:
             parameters['show_abundance'] = True
 
-        elif 'signal-to-noise' in line and 'name' not in line and 'save' not in line:
+        elif 'signal' in line and 'noise' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             if '=' in line:
