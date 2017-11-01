@@ -134,6 +134,8 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
                 z = pars['z%i_%s' % (n, ion)].value
                 if x.min() < l0*(z+1) < x.max():
                     pass
+                elif ion == 'HI':
+                    pass
                 else:
                     continue
                 b = pars['b%i_%s' % (n, ion)].value
