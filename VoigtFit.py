@@ -175,7 +175,7 @@ def main():
                 new_lines.append([tag, velspan])
             else:
                 reg = dataset.find_line(tag)
-                if reg.velocity_span != velspan:
+                if reg.velspan != velspan:
                     dataset.remove_line(tag)
                     new_lines.append([tag, velspan])
 

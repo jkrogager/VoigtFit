@@ -420,9 +420,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     vel = (x - l_ref) / l_ref * 299792.458
 
     if not xmin:
-        xmin = -region.velocity_span
+        xmin = -region.velspan
     if not xmax:
-        xmax = region.velocity_span
+        xmax = region.velspan
     ax.set_xlim(xmin, xmax)
 
     if residuals and plot_fit:
@@ -618,10 +618,10 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     y = y - profile
 
     if not xmin:
-        xmin = -region.velocity_span
+        xmin = -region.velspan
 
     if not xmax:
-        xmax = region.velocity_span
+        xmax = region.velspan
     ax.set_xlim(xmin, xmax)
 
     view_part = (vel > xmin) * (vel < xmax)
