@@ -311,6 +311,16 @@ class DataSet(object):
         else:
             self.components[element] = [[z, b, logN, options]]
 
+    def add_component_velocity(self, element, v, b, logN,
+                               var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
+        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
+                   'tie_N': tie_N}
+        z = self.redshift + v/299792.458*(self.redshift + 1.)
+        if element in self.components.keys():
+            self.components[element].append([z, b, logN, options])
+        else:
+            self.components[element] = [[z, b, logN, options]]
+
     def interactive_components(self, line_tag):
         region = self.find_line(line_tag)
         wl, flux, err, mask = region.unpack()

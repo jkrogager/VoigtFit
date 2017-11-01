@@ -160,7 +160,12 @@ def parse_parameters(fname):
                 b = float(parlist[2])
                 logN = float(parlist[3])
 
-            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N])
+            if 'velocity' in line.lower():
+                vel = True
+            else:
+                vel = False
+
+            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel])
 
         elif 'copy' in line:
             # strip comments:

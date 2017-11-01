@@ -226,9 +226,16 @@ def main():
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
-            dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            # ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
+            # dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+            #                       tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
+            if vel:
+                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            else:
+                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         if 'interactive' in parameters.keys():
             for line_tag in parameters['interactive']:
@@ -298,9 +305,13 @@ def main():
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
-            dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
+            if vel:
+                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            else:
+                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
         if 'interactive' in parameters.keys():
             for line_tag in parameters['interactive']:
