@@ -11,7 +11,7 @@ def linfunc(x, a, b):
 
 class Region():
     def __init__(self, v, line):
-        self.velocity_span = v
+        self.velspan = v
         self.lines = [line]
         self.label = ''
 
@@ -69,17 +69,18 @@ class Region():
 
         plt.figure()
         dx = 0.1*(self.wl.max() - self.wl.min())
+        lines_title_string = ", ".join([line.tag for line in self.lines])
         plt.xlim(self.wl.min()-dx, self.wl.max()+dx)
         plt.ylim(0.8*self.flux.min(), 1.2*self.flux.max())
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid')
+        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid',
+                 label=lines_title_string)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
-        lines_title_string = ", ".join([line.tag for line in self.lines])
-        plt.title(lines_title_string)
 
         if norm_num == 1:
             # - Normalize by defining a left and right continuum region
 
             print "\n\n  Mark continuum region 1, left and right boundary."
+            plt.title("Mark continuum region 1, left and right boundary.")
 
             bounds = plt.ginput(2, -1)
             left_bound = min(bounds[0][0], bounds[1][0])
@@ -91,6 +92,7 @@ class Region():
             lines_title_string = ", ".join([line.tag for line in self.lines])
             plt.title(lines_title_string)
             print "\n  Mark continuum region 2, left and right boundary."
+            plt.title("Mark continuum region 2, left and right boundary.")
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
@@ -103,13 +105,12 @@ class Region():
             continuum = linfunc(self.wl, *popt)
             e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
 
-            plt.close()
-
         elif norm_num == 2:
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print "\n\n  Select continuum points to fit"
+            print "\n\n Select a range of continuum spline points over the whole range"
+            plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
             xk, yk = [], []
             for x, y in points:
@@ -125,7 +126,8 @@ class Region():
             new_flux = self.flux/continuum
             new_err = self.err/continuum
             plt.cla()
-            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid')
+            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid',
+                     label=lines_title_string)
             plt.xlabel("Wavelength  [${\\rm \AA}$]")
             plt.title("Normalized")
             plt.axhline(1., ls='--', color='k')
@@ -133,6 +135,7 @@ class Region():
             plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
             plt.show(block=False)
 
+            plt.title("Go back to terminal...")
             prompt = raw_input(" Is normalization correct?  (YES/no)")
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
@@ -176,7 +179,6 @@ class Region():
                 else:
                     plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
-        # lines_title = ", ".join([line.tag for line in self.lines])
         plt.title("Mark regions to mask, left and right boundary.")
         print "\n\n  Mark regions to mask, left and right boundary."
 
