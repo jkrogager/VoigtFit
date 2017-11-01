@@ -1,0 +1,21 @@
+# Synthetic data setup
+
+SN = 30. # Signal to noise
+
+2.3523 0.5
+2.3534 0.3
+2.3538 1.0
+2.3541 0.2
+2.3544 0.8
+2.3548 0.5
+
+# Column densities
+N = {'HI' : 21.95, 'FeII' : 15.29, 'MnII' : 13.2, 'NV':14.8,
+     'SiII': 16.3, 'SII' : 15.2, 'CIV': 12.8, 'OI': 17,
+     'CII': 16.5, 'NiII': 14.2 , 'SiIV': 12.3, 'AlII': 14.3,
+     'AlIII':13.3, 'CI': 13.41, 'ZnII': 13.47, 'CrII': 13.75,
+     'MgII':18.0, 'MgI':16.0}
+
+# Column densities of excited transitions
+Nexc = {'FeIIa' : 13.32, 'FeIIb':13.11, 'OIa':15.29,
+        'SiIIa': 14.31, 'NiIIa':13.23}
