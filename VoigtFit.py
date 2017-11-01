@@ -129,6 +129,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("input", type=str,
                         help="VoigtFit input parameter file.")
+    parser.add_argument("-f", action="store_true",
+                        help="Force new dataset to be created. This will overwrite existing data.")
 
     args = parser.parse_args()
     parfile = args.input
@@ -137,7 +139,7 @@ def main():
 
     # Define dataset:
     name = parameters['name']
-    if os.path.exists(name+'.hdf5'):
+    if os.path.exists(name+'.hdf5') and not args.f:
         dataset = LoadDataSet(name+'.hdf5')
 
         # if len(dataset.data) != len(parameters['data']):
@@ -419,7 +421,11 @@ def main():
         raise ValueError(systemic_err_msg)
 
     # print metallicity
-    dataset.print_results()
+    if 'velocity' in parameters['output_pars']:
+        dataset.print_results(velocity=True)
+    else:
+        dataset.print_results(velocity=False)
+
     logNHI = parameters['logNHI']
     if logNHI:
         dataset.print_metallicity(*logNHI)

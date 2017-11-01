@@ -181,8 +181,10 @@ class Region():
 
         plt.title("Mark regions to mask, left and right boundary.")
         print "\n\n  Mark regions to mask, left and right boundary."
+        plt.draw()
 
         ok = 0
+        mask_vlines = list()
         while ok >= 0:
             sel = plt.ginput(0, timeout=-1)
 
@@ -193,20 +195,32 @@ class Region():
                 for x1, x2 in selections:
                     cutout = (self.wl >= x1)*(self.wl <= x2)
                     mask[cutout] = False
-                    plt.axvline(x1, color='r', ls='--')
-                    plt.axvline(x2, color='r', ls='--')
+                    mask_vlines.append(plt.axvline(x1, color='r', ls='--'))
+                    mask_vlines.append(plt.axvline(x2, color='r', ls='--'))
 
                 masked_spectrum = np.ma.masked_where(mask, self.flux)
-                plt.plot(self.wl, masked_spectrum, color='r', drawstyle='steps-mid')
+                mask_line = plt.plot(self.wl, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
-                prompt = raw_input("Are the masked regions correct? (YES/no)")
+                prompt = raw_input("Are the masked regions correct? (YES/no/clear)")
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.mask = mask
                     self.new_mask = False
 
+                elif prompt.lower() in ['c', 'clear']:
+                    ok = 0
+                    self.mask = np.ones_like(mask, dtype=bool)
+                    for linesegment in mask_line:
+                        linesegment.remove()
+                    mask_line = list()
+
+                    for linesegment in mask_vlines:
+                        linesegment.remove()
+                    mask_vlines = list()
+
                 else:
+                    self.mask = mask
                     ok += 1
 
             elif len(sel) == 0:
@@ -220,7 +234,7 @@ class Region():
 
     def clear_mask(self):
         self.mask = np.ones_like(self.wl, dtype=bool)
-        # self.new_mask = True
+        self.new_mask = True
 
     def unpack(self):
         return (self.wl, self.flux, self.err, self.mask)

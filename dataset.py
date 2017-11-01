@@ -685,16 +685,6 @@ class DataSet(object):
                 print " [DONE] - Continuum fitting successfully finished."
                 print ""
 
-        # --- mask spectral regions that should not be fitted
-        if mask:
-            for region in self.regions:
-                if region.new_mask:
-                    region.define_mask()
-            if verbose and self.verbose:
-                print ""
-                print " [DONE] - Spectral masks successfully created."
-                print ""
-
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
         # - First setup parameters with values only:
@@ -735,6 +725,17 @@ class DataSet(object):
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0)
                     else:
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0)
+
+        # --- mask spectral regions that should not be fitted
+        if mask:
+            for region in self.regions:
+                if region.new_mask:
+                    # region.define_mask()
+                    region.define_mask(z=self.redshift, dataset=self)
+            if verbose and self.verbose:
+                print ""
+                print " [DONE] - Spectral masks successfully created."
+                print ""
 
         self.ready2fit = True
 

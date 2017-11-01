@@ -16,6 +16,7 @@ def parse_parameters(fname):
     parameters['clear_mask'] = False
     parameters['velspan'] = 500.
     parameters['snr'] = None
+    parameters['output_pars'] = list()
     par_file = open(fname)
     data = list()
     components = list()
@@ -286,7 +287,12 @@ def parse_parameters(fname):
                 print " Error - In order to print metallicities you must give log(NHI)."
             parameters['logNHI'] = logNHI
 
-        # elif 'print' in line
+        elif 'output' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()[1:]
+            # here you can add keywords like 'velocity' to print velocities instead of redshift
+            parameters['output_pars'] = items
 
         elif 'save' in line and 'name' not in line:
             parameters['save'] = True
