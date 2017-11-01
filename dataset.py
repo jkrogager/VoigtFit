@@ -356,8 +356,8 @@ class DataSet(object):
             ax.axvline(x0, color='darkblue', alpha=0.8)
             comp_list.append([z0, b, logN])
             num += 1
-
         plt.draw()
+
         if len(comp_list) > 0:
             self.reset_components(line.element)
             for z, b, logN in comp_list:

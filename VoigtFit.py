@@ -146,18 +146,25 @@ def main():
             # Setup data:
             for fname, res, norm, airORvac in parameters['data']:
                 if fname[-5:] == '.fits':
+                    hdu = pf.open(fname)
                     spec = pf.getdata(fname)
                     hdr = pf.getheader(fname)
                     wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
-                    N = len(spec)
-                    err = np.std(spec[N/2-N/20:N/2+N/20])*np.ones_like(spec)
+                    if len(hdu) > 1:
+                        err = hdu[1].data
+                    elif parameters['snr'] is not None:
+                        err = spec/parameters['snr']
+                    else:
+                        err = spec/10.
 
                 else:
                     data = np.loadtxt(fname)
                     if data.shape[1] == 2:
                         wl, spec = data.T
-                        N = len(spec)
-                        err = np.std(spec[N/2-N/20:N/2+N/20]) * np.ones_like(spec)
+                        if parameters['snr'] is not None:
+                            err = spec/parameters['snr']
+                        else:
+                            err = spec/10.
                     elif data.shape[1] == 3:
                         wl, spec, err = data.T
                     elif data.shape[1] == 4:
@@ -244,18 +251,25 @@ def main():
         # Setup data:
         for fname, res, norm, airORvac in parameters['data']:
             if fname[-5:] == '.fits':
+                hdu = pf.open(fname)
                 spec = pf.getdata(fname)
                 hdr = pf.getheader(fname)
                 wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
-                N = len(spec)
-                err = np.std(spec[N/2-N/20:N/2+N/20])*np.ones_like(spec)
+                if len(hdu) > 1:
+                    err = hdu[1].data
+                elif parameters['snr'] is not None:
+                    err = spec/parameters['snr']
+                else:
+                    err = spec/10.
 
             else:
                 data = np.loadtxt(fname)
                 if data.shape[1] == 2:
                     wl, spec = data.T
-                    N = len(spec)
-                    err = np.std(spec[N/2-N/20:N/2+N/20]) * np.ones_like(spec)
+                    if parameters['snr'] is not None:
+                        err = spec/parameters['snr']
+                    else:
+                        err = spec/10.
                 elif data.shape[1] == 3:
                     wl, spec, err = data.T
                 elif data.shape[1] == 4:
