@@ -374,7 +374,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             velspan = 20000.
 
-        for line in region.lines:
+        for line in dataset.lines.values():
             if line.active:
                 # Reset line properties for each element
                 component_prop = itertools.product(linestyles, colors)
