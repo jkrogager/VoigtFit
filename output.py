@@ -232,8 +232,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             width = 8.5
             columns = 2
 
-        heigth = (len(contents) + 1) / 2 * 8./max_rows
-        rows = (len(contents) + 1) / 2
+        heigth = (len(contents) + 2) / 2 * 8.5/max_rows
+        rows = (len(contents) + 2) / 2
 
         fig = plt.figure(figsize=(width, heigth))
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
@@ -252,7 +252,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           highlight=highlight, residuals=residuals)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
-                if num < len(contents)-1:
+                if num <= len(contents):
                     ax.set_xticklabels([''])
                 else:
                     ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
@@ -470,10 +470,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
             cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
-            # cax.set_xticklabels([''])
+            cax.set_xticklabels([''])
             cax.set_yticklabels([''])
-            res_min = np.max(4*err)
-            res_max = np.min(-4*err)
+            res_min = np.nanmax(4*err)
+            res_max = np.nanmin(-4*err)
             cax.set_ylim(res_min, res_max)
 
     if nolabels:

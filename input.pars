@@ -49,6 +49,7 @@ lines MgI_2852 MgI_2026
 
 # Mask an individual line using the interactive window
 #mask HI_1215
+mask FeII_2374
 
 # Define components:
 #         ion  z        b   logN

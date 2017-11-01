@@ -11,9 +11,9 @@ save :  HI_test_dataset
 C_order = 6
 
 # Skip interactive masking:
-nomask
+#nomask
 
-print metallicity logNHI = 21.31 +/- 0.01
+#print metallicity logNHI = 21.31 +/- 0.01
 # The mini-language is flexible and accepts words
 # between the keywords, so the following works just
 # as well as the line above:
@@ -41,7 +41,7 @@ reset
 lines HI_1215 velspan=8000
 
 # Mask an individual line using the interactive window
-#mask HI_1215
+mask HI_1215
 
 # Define components:
 #         ion  z        b   logN

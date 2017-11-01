@@ -8,3 +8,9 @@ backup/*
 *.fit
 *.pdf
 *.cont
+
+doc/VoigtFit_mini_language.pdf
+
+HI_input.pars
+
+input.pars
