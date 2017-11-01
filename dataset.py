@@ -721,7 +721,7 @@ class DataSet(object):
             for reg_num, reg in enumerate(self.regions):
                 p0 = np.median(reg.flux)
                 for cheb_num in range(self.cheb_order+1):
-                    if n == 0:
+                    if cheb_num == 0:
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0)
                     else:
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0)
