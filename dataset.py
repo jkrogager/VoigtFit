@@ -679,7 +679,7 @@ class DataSet(object):
                     if line_tag in self.all_lines:
                         self.activate_line(line_tag)
 
-    def prepare_dataset(self, norm=False, mask=True, verbose=True):
+    def prepare_dataset(self, norm=True, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
         # --- normalize spectral region
 
