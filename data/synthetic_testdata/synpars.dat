@@ -15,7 +15,3 @@ N = {'HI' : 21.95, 'FeII' : 15.29, 'MnII' : 13.2, 'NV':14.8,
      'CII': 16.5, 'NiII': 14.2 , 'SiIV': 12.3, 'AlII': 14.3,
      'AlIII':13.3, 'CI': 13.41, 'ZnII': 13.47, 'CrII': 13.75,
      'MgII':18.0, 'MgI':16.0}
-
-# Column densities of excited transitions
-Nexc = {'FeIIa' : 13.32, 'FeIIb':13.11, 'OIa':15.29,
-        'SiIIa': 14.31, 'NiIIa':13.23}
