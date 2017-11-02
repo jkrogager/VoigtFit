@@ -9,7 +9,7 @@ def parse_parameters(fname):
     parameters['plot'] = False
     parameters['resolution'] = list()
     parameters['save'] = False
-    parameters['C_order'] = 1
+    parameters['cheb_order'] = 1
     parameters['systemic'] = [None, 'none']
     parameters['clear_mask'] = False
     parameters['velspan'] = 500.
@@ -356,7 +356,14 @@ def parse_parameters(fname):
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             order = line.split('=')[1]
-            parameters['C_order'] = int(order)
+            parameters['cheb_order'] = int(order)
+
+        elif 'cheb_order' in line and 'name' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            order = line.split('=')[1]
+            parameters['cheb_order'] = int(order)
 
         elif 'systemic' in line and 'name' not in line and 'save' not in line:
             # strip comments:

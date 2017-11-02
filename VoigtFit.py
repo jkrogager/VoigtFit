@@ -339,9 +339,9 @@ def main():
 
     # Set default value of norm:
     norm = False
-    if 'C_order' in parameters.keys():
-        dataset.cheb_order = parameters['C_order']
-        if parameters['C_order'] >= 0:
+    if 'cheb_order' in parameters.keys():
+        dataset.cheb_order = parameters['cheb_order']
+        if parameters['cheb_order'] >= 0:
             norm = False
         else:
             norm = True
