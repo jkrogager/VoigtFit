@@ -7,7 +7,7 @@ if 'VFITDATA' in environ.keys():
 
 else:
     print("No VFITDATA in environment ... Using relative path to static data files")
-    datafile = './static/Asplund2009.dat'
+    datafile = os.path.dirname(__file__) + '/static/Asplund2009.dat'
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)
