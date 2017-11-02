@@ -1,15 +1,4 @@
 import numpy as np
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-from terminal_attributes import bold, reset
-import os.path
-
-dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-file_path = os.path.abspath(os.path.dirname(__file__))
-relative_path = os.path.join(file_path, "static/Asplund2009.dat")
-data = np.loadtxt(relative_path, dtype=dt)
-=======
 import os
 # from terminal_attributes import bold, reset
 
@@ -22,35 +11,6 @@ else:
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)
->>>>>>> master
-=======
-import os
-# from terminal_attributes import bold, reset
-
-if 'VFITDATA' in os.environ.keys():
-    datafile = os.environ['VFITDATA']+'/Asplund2009.dat'
-
-else:
-    print("No VFITDATA in environment ... Using relative path to static data files")
-    datafile = os.path.dirname(__file__) + '/static/Asplund2009.dat'
-
-dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt(datafile, dtype=dt)
->>>>>>> master
-=======
-import os
-# from terminal_attributes import bold, reset
-
-if 'VFITDATA' in os.environ.keys():
-    datafile = os.environ['VFITDATA']+'/Asplund2009.dat'
-
-else:
-    print("No VFITDATA in environment ... Using relative path to static data files")
-    datafile = os.path.dirname(__file__) + '/static/Asplund2009.dat'
-
-dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt(datafile, dtype=dt)
->>>>>>> master
 
 photosphere = dict()
 meteorite = dict()
