@@ -1,9 +1,9 @@
 import numpy as np
-from os import environ
+import os
 # from terminal_attributes import bold, reset
 
-if 'VFITDATA' in environ.keys():
-    datafile = environ['VFITDATA']+'/Asplund2009.dat'
+if 'VFITDATA' in os.environ.keys():
+    datafile = os.environ['VFITDATA']+'/Asplund2009.dat'
 
 else:
     print("No VFITDATA in environment ... Using relative path to static data files")
