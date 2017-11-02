@@ -154,18 +154,22 @@ def main():
                 if len(hdu) > 1:
                     err = hdu[1].data
                 elif parameters['snr'] is not None:
-                    err = spec/parameters['snr']
+                    # err = spec/parameters['snr']
+                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
                 else:
                     err = spec/10.
+                err[err <= 0.] = np.abs(np.mean(err))
 
             else:
                 data = np.loadtxt(fname)
                 if data.shape[1] == 2:
                     wl, spec = data.T
                     if parameters['snr'] is not None:
-                        err = spec/parameters['snr']
+                        # err = spec/parameters['snr']
+                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
                     else:
                         err = spec/10.
+                    err[err <= 0.] = np.abs(np.mean(err))
                 elif data.shape[1] == 3:
                     wl, spec, err = data.T
                 elif data.shape[1] == 4:
@@ -266,18 +270,22 @@ def main():
                 if len(hdu) > 1:
                     err = hdu[1].data
                 elif parameters['snr'] is not None:
-                    err = spec/parameters['snr']
+                    # err = spec/parameters['snr']
+                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
                 else:
                     err = spec/10.
+                err[err <= 0.] = np.abs(np.mean(err))
 
             else:
                 data = np.loadtxt(fname)
                 if data.shape[1] == 2:
                     wl, spec = data.T
                     if parameters['snr'] is not None:
-                        err = spec/parameters['snr']
+                        # err = spec/parameters['snr']
+                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
                     else:
                         err = spec/10.
+                    err[err <= 0.] = np.abs(np.mean(err))
                 elif data.shape[1] == 3:
                     wl, spec, err = data.T
                 elif data.shape[1] == 4:
@@ -301,13 +309,16 @@ def main():
         # Load components from file:
         if 'load' in parameters.keys():
             for fname in parameters['load']:
+                print "\nLoading parameters from file: %s \n" % fname
                 dataset.load_components_from_file(fname)
+        else:
+            dataset.reset_components()
 
         # Define Components:
-        dataset.reset_components()
         for component in parameters['components']:
             ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
             if vel:
+                print "Defining component in velocity"
                 dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
                                                tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
             else:
@@ -364,7 +375,7 @@ def main():
             dataset.reset_all_regions()
 
     # Reset all masks:
-    if 'clear_mask':
+    if 'clear_mask' in parameters.keys():
         for region in dataset.regions:
             region.clear_mask()
 
@@ -420,12 +431,12 @@ def main():
         systemic_err_msg = "Invalid mode to set systemic redshift: %r" % parameters['systemic']
         raise ValueError(systemic_err_msg)
 
-    # print metallicity
     if 'velocity' in parameters['output_pars']:
         dataset.print_results(velocity=True)
     else:
         dataset.print_results(velocity=False)
 
+    # print metallicity
     logNHI = parameters['logNHI']
     if logNHI:
         dataset.print_metallicity(*logNHI)

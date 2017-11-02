@@ -132,13 +132,28 @@ def parse_parameters(fname):
                         logN = float(value)
                     elif 'var_z=' in val:
                         par, value = val.split('=')
-                        var_z = bool(value)
+                        if value.lower() == 'false':
+                            var_z = False
+                        elif value.lower() == 'true':
+                            var_z = True
+                        else:
+                            var_z = bool(value)
                     elif 'var_b=' in val:
                         par, value = val.split('=')
-                        var_b = bool(value)
+                        if value.lower() == 'false':
+                            var_b = False
+                        elif value.lower() == 'true':
+                            var_b = True
+                        else:
+                            var_b = bool(value)
                     elif 'var_N=' in val:
                         par, value = val.split('=')
-                        var_N = bool(value)
+                        if value.lower() == 'false':
+                            var_N = False
+                        elif value.lower() == 'true':
+                            var_N = True
+                        else:
+                            var_N = bool(value)
                     elif 'tie_z=' in val:
                         par, value = val.split('=')
                         tie_z = value
@@ -315,7 +330,7 @@ def parse_parameters(fname):
         elif 'abundance' in line and 'name' not in line and 'save' not in line:
             parameters['show_abundance'] = True
 
-        elif 'signal' in line and 'noise' in line and 'name' not in line and 'save' not in line:
+        elif 'signal-to-noise' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             if '=' in line:

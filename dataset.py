@@ -710,7 +710,7 @@ class DataSet(object):
                 N_name = 'logN%i_%s' % (n, ion)
 
                 self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'])
-                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=500.)
+                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=800.)
                 self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0., max=40.)
 
         # - Then setup parameter links:
