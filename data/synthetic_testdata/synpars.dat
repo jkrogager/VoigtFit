@@ -1,6 +1,7 @@
 # Synthetic data setup
 
 SN = 30. # Signal to noise
+R = 10000 # Resolution
 
 2.3523 0.5
 2.3534 0.3
