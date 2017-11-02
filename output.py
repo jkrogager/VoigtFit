@@ -441,6 +441,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     try:
         mask_idx.max()
@@ -452,11 +453,16 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
 =======
+=======
+>>>>>>> master
     # if mask_idx.max() == len(mask)-1:
     #     big_mask_idx = np.union1d(mask_idx, mask_idx-1)
     # else:
     #     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
