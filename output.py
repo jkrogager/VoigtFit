@@ -11,6 +11,11 @@ import Asplund
 plt.rcParams['lines.linewidth'] = 1.0
 
 
+def mad(x):
+    """Calculate Median Absolute Deviation"""
+    return np.median(np.abs(x - np.median(x)))
+
+
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in xrange(0, len(l), n):
@@ -227,8 +232,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             width = 8.5
             columns = 2
 
-        heigth = (len(contents) + 1) / 2 * 8./max_rows
-        rows = (len(contents) + 1) / 2
+        heigth = (len(contents) + 2) / 2 * 8.5/max_rows
+        rows = (len(contents) + 2) / 2
 
         fig = plt.figure(figsize=(width, heigth))
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
@@ -247,7 +252,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           highlight=highlight, residuals=residuals)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
-                if num < len(contents)-1:
+                if num <= len(contents):
                     ax.set_xticklabels([''])
                 else:
                     ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
@@ -272,7 +277,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         print "\n  Output saved to PDF file:  " + filename
 
     if show:
-        plt.show()
+        plt.show(block=True)
 
 
 def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
@@ -369,7 +374,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             velspan = 20000.
 
-        for line in region.lines:
+        for line in dataset.lines.values():
             if line.active:
                 # Reset line properties for each element
                 component_prop = itertools.product(linestyles, colors)
@@ -388,9 +393,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    # tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
-                        tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        # tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                         ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
                         N_highlight += 1
 
@@ -413,9 +420,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     vel = (x - l_ref) / l_ref * 299792.458
 
     if not xmin:
-        xmin = -region.velocity_span
+        xmin = -region.velspan
     if not xmax:
-        xmax = region.velocity_span
+        xmax = region.velspan
     ax.set_xlim(xmin, xmax)
 
     if residuals and plot_fit:
@@ -424,13 +431,16 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     view_part = (vel > xmin) * (vel < xmax)
 
     if not ymin:
-        ymin = y[view_part].min() - 3.5*err[view_part].mean()
-    ymax = max(1. + 2*err[view_part].mean(), 1.08)
+        # ymin = y[view_part].min() - 3.5*err[view_part].mean()
+        ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
+    # ymax = max(1. + 2*err[view_part].mean(), 1.08)
+    ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
+<<<<<<< HEAD
 
     try:
         mask_idx.max()
@@ -441,6 +451,13 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         big_mask_idx = np.union1d(mask_idx, mask_idx-1)
     else:
         big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+=======
+    # if mask_idx.max() == len(mask)-1:
+    #     big_mask_idx = np.union1d(mask_idx, mask_idx-1)
+    # else:
+    #     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+    big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+>>>>>>> master
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
     masked_range = np.ma.masked_where(big_mask, y)
@@ -466,10 +483,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
             cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
-            # cax.set_xticklabels([''])
+            cax.set_xticklabels([''])
             cax.set_yticklabels([''])
-            res_min = np.max(4*err)
-            res_max = np.min(-4*err)
+            res_min = np.nanmax(4*err)
+            res_max = np.nanmin(-4*err)
             cax.set_ylim(res_min, res_max)
 
     if nolabels:
@@ -517,7 +534,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         fig.set_tight_layout(True)
 
     if show:
-        plt.show()
+        plt.show(block=True)
 
     return (ax, lines_in_view)
 
@@ -614,10 +631,10 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     y = y - profile
 
     if not xmin:
-        xmin = -region.velocity_span
+        xmin = -region.velspan
 
     if not xmax:
-        xmax = region.velocity_span
+        xmax = region.velspan
     ax.set_xlim(xmin, xmax)
 
     view_part = (vel > xmin) * (vel < xmax)
@@ -645,7 +662,7 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     ax.plot(vel, -err, ls=':', color='b')
 
     if not axis:
-        plt.show()
+        plt.show(block=True)
 
     return (ax, lines_in_view)
 
@@ -769,7 +786,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     """
 
     print "\n  Metallicities\n"
-    print "  log(NHI) = %.2f +/- %.2f\n" % (logNHI, err)
+    print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in dataset.components.keys():
         element = ion[:2] if ion[1].islower() else ion[0]
@@ -797,7 +814,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print "  [%s/H] = %.2f +/- %.2f" % (element, metal, metal_err)
+        print "  [%s/H] = %.3f +/- %.3f" % (element, metal, metal_err)
 
 
 def print_abundance(dataset):
@@ -848,5 +865,30 @@ def save_parameters_to_file(dataset, filename):
                                                                             z.value, z.stderr,
                                                                             b.value, b.stderr,
                                                                             logN.value, logN.stderr)
+                output.write(line + "\n")
+            output.write("\n")
+
+
+def save_cont_parameters_to_file(dataset, filename):
+    """ Function to save parameters to file. """
+    with open(filename, 'w') as output:
+        header = "# Chebyshev Polynomial Coefficients"
+        output.write(header + "\n")
+
+        for reg_num, region in enumerate(dataset.regions):
+            output.write("# Region %i: \n" % reg_num)
+            cheb_parnames = list()
+            # Find Chebyshev parameters for this region:
+            # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
+            for parname in dataset.best_fit.keys():
+                if 'R%i_cheb' % reg_num in parname:
+                    cheb_parnames.append(parname)
+            # This should be calculated at the point of generating
+            # the parameters, since this is a fixed data structure
+            # Sort the names, to arange the coefficients right:
+            cheb_parnames = sorted(cheb_parnames)
+            for i, parname in enumerate(cheb_parnames):
+                coeff = dataset.best_fit[parname]
+                line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
                 output.write(line + "\n")
             output.write("\n")

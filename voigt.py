@@ -41,6 +41,34 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     return tau
 
 
+def evaluate_continuum(x, pars, reg_num):
+    """
+    Function to evaluate the continuum model
+    using Chebyshev polynomials.
+    All regions are fitted with the same order
+    of polynomials.
+    """
+    cheb_parnames = list()
+    p_cont = list()
+
+    # Find Chebyshev parameters for this region:
+    # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
+    for parname in pars.keys():
+        if 'R%i_cheb' % reg_num in parname:
+            cheb_parnames.append(parname)
+    # This should be calculated at the point of generating
+    # the parameters, since this is a fixed data structure
+    # Sort the names, to arange the coefficients right:
+    cheb_parnames = sorted(cheb_parnames)
+    for parname in cheb_parnames:
+        p_cont.append(pars[parname].value)
+
+    # Calculate Chebyshev polynomium in x-range:
+    cont_model = np.polynomial.Chebyshev(p_cont, domain=(x.min(), x.max()))
+
+    return cont_model(x)
+
+
 def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     """
     Function to evaluate Voigt profile for a fitting `Region'.
@@ -104,9 +132,21 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
             ion = ion.replace('*', 'x')
             for n in range(n_comp):
                 z = pars['z%i_%s' % (n, ion)].value
-                b = pars['b%i_%s' % (n, ion)].value
-                logN = pars['logN%i_%s' % (n, ion)].value
-                tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                if x.min() < l0*(z+1) < x.max():
+                    b = pars['b%i_%s' % (n, ion)].value
+                    logN = pars['logN%i_%s' % (n, ion)].value
+                    # tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                # elif ion == 'HI':
+                #     b = pars['b%i_%s' % (n, ion)].value
+                #     logN = pars['logN%i_%s' % (n, ion)].value
+                #     # tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                #     tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                # else:
+                #     continue
+                # b = pars['b%i_%s' % (n, ion)].value
+                # logN = pars['logN%i_%s' % (n, ion)].value
+                # tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
 
     profile = np.exp(-tau)
     # Calculate Line Spread Function, i.e., instrumental broadening:

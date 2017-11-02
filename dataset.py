@@ -4,26 +4,26 @@ import matplotlib.pyplot as plt
 import copy
 from lmfit import Parameters, minimize, Minimizer
 import os
-import pickle
 
 # from VoigtFit import Line
-from voigt import evaluate_profile
+from voigt import evaluate_profile, evaluate_continuum
 from regions import Region
 import output
 import line_complexes
 from line_complexes import fine_structure_complexes
+import Asplund
+import hdf5_save
 
 options = {'nsamp': 1,
            'npad': 20}
 myfloat = np.float64
 
-if 'ATOMPATH' in os.environ.keys():
-    atomfile = os.environ['ATOMPATH']
+if 'VFITDATA' in os.environ.keys():
+    atomfile = os.environ['VFITDATA']+'/atomdata_updated.dat'
 
 else:
-    print("No ATOMPATH in environment ... Using static provided atomic database ...")
-    atomfile = "static/atomdata_updated.dat"
-    # atomfile = raw_input("No atomic database was found!\nSpecify filename here:")
+    print("No VFITDATA in environment ... Using relative path to static data files")
+    atomfile = os.path.dirname(__file__) + '/static/atomdata_updated.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
@@ -85,12 +85,14 @@ class DataSet(object):
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
         self.regions = list()
+        self.cheb_order = 1
+        self.norm_method = 'linear'
 
         # Number of components in each ion
         self.components = dict()
 
         # Define default velocity span for fitting region
-        self.velspan = 300.  # km/s
+        self.velspan = 500.  # km/s
 
         self.ready2fit = False
         self.best_fit = None
@@ -113,6 +115,23 @@ class DataSet(object):
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res, 'norm': normalized})
+
+    def reset_region(self, reg):
+        """Reset the data in a given region to the raw input data."""
+        for chunk in self.data:
+            if reg.res == chunk['res'] and (chunk['wl'].min() < reg.wl.min() < chunk['wl'].max()):
+                raw_data = chunk
+
+        cutout = (raw_data['wl'] >= reg.wl.min()) * (raw_data['wl'] <= reg.wl.max())
+        reg.res = raw_data['res']
+        reg.err = raw_data['error'][cutout]
+        reg.flux = raw_data['flux'][cutout]
+        reg.wl = raw_data['wl'][cutout]
+        reg.normalized = raw_data['norm']
+
+    def reset_all_regions(self):
+        for reg in self.regions:
+            self.reset_region(reg)
 
     def get_resolution(self, line_tag=None, verbose=False):
         if line_tag:
@@ -156,6 +175,10 @@ class DataSet(object):
             for chunk in self.data:
                 chunk['res'] = res
 
+    def set_systemic_redshift(self, z_sys):
+        """Update the systemic redshift"""
+        self.redshift = z_sys
+
     def remove_line(self, tag):
         if tag in self.all_lines:
             self.all_lines.remove(tag)
@@ -189,10 +212,18 @@ class DataSet(object):
                 print ""
                 print " The line is not defined. Nothing to remove."
 
-    def normalize_line(self, line_tag):
+    def normalize_line(self, line_tag, norm_method='spline'):
         """ normalize or re-normalize a given line """
+        if norm_method == 'linear':
+            norm_num = 1
+        elif norm_method == 'spline':
+            norm_num = 2
+        else:
+            err_msg = "Invalid norm_method: %r" % norm_method
+            raise ValueError(err_msg)
+
         region = self.find_line(line_tag)
-        region.normalize(norm_method=2)
+        region.normalize(norm_method=norm_num)
 
     def mask_line(self, line_tag, reset=True, mask=None):
         """ define masked regions for a given line """
@@ -204,6 +235,7 @@ class DataSet(object):
             region.mask = mask
             region.new_mask = False
         else:
+            # region.define_mask(z=self.redshift, dataset=self)
             region.define_mask()
 
     def find_line(self, tag):
@@ -240,9 +272,21 @@ class DataSet(object):
                 if line.tag == line_tag:
                     line.set_inactive()
 
+        # --- Check if the ion has transistions defined in other regions
+        ion = line_tag.split('_')[0]
+        ion_defined_elsewhere = False
+        for line_tag in self.all_lines:
+            if line_tag.find(ion) >= 0:
+                ion_defined_elsewhere = True
+
+        # --- If it is not defined elsewhere, remove it from components
+        if not ion_defined_elsewhere:
+            self.components.pop(ion)
+
     def deactivate_all(self):
         for line_tag in self.all_lines:
             self.deactivate_line(line_tag)
+        self.components = dict()
 
     def activate_all(self):
         for line_tag in self.all_lines:
@@ -279,6 +323,16 @@ class DataSet(object):
         else:
             self.components[element] = [[z, b, logN, options]]
 
+    def add_component_velocity(self, element, v, b, logN,
+                               var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
+        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
+                   'tie_N': tie_N}
+        z = self.redshift + v/299792.458*(self.redshift + 1.)
+        if element in self.components.keys():
+            self.components[element].append([z, b, logN, options])
+        else:
+            self.components[element] = [[z, b, logN, options]]
+
     def interactive_components(self, line_tag):
         region = self.find_line(line_tag)
         wl, flux, err, mask = region.unpack()
@@ -294,39 +348,45 @@ class DataSet(object):
 
         ax.plot(wl, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
         ax.plot(wl, flux, 'k', drawstyle='steps-mid')
-        ax.axhline(1., color='0.3', ls='--')
 
         line = self.lines[line_tag]
-        self.reset_components(line.element)
+        if region.normalized:
+            c_level = 1.
+        else:
+            ax.set_title("Click to Mark Continuum Level...")
+            cont_level_point = plt.ginput(1, 30.)
+            c_level = cont_level_point[0][1]
+            ax.axhline(c_level, color='0.3', ls=':')
 
-        ax.set_title("Mark central wavelength of components for %s" % line.element)
+        ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
         ax.set_xlabel(u"Wavelength  (Å)")
         if region.normalized:
             ax.set_ylabel(u"Normalized Flux")
         else:
             ax.set_ylabel(u"Flux")
         comps = plt.ginput(-1, 60)
-        num = 1
-        for x0, y in comps:
+        num = 0
+        # Assume that components are unresolved:
+        b = region.res/2.35482
+        comp_list = list()
+        for x0, y0 in comps:
             z0 = x0/line.l0 - 1.
-            # b = float(raw_input('b-parameter [km/s] for component %i: ' % num))
-            # print ""
-            # logN = float(raw_input('log(N / cm^-2) for component %i: ' % num))
-            # print ""
-            # self.add_component(line.element, z0, b, logN)
-            print "Component %i:  z = %.6f" % (num, z0)
+            # Calculate logN from peak depth:
+            y0 = max(y0/c_level, 0.01)
+            logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
+            print "Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN)
             ax.axvline(x0, color='darkblue', alpha=0.8)
+            comp_list.append([z0, b, logN])
             num += 1
-
-        # ax.cla()
-        # self.plot_line(line_tag, plot_fit=True, axis=ax)
         plt.draw()
-        print "Save components? "
-        answer = raw_input("(Y/n) : ")
-        if answer.lower() in ['', 'y', 'yes']:
-            pass
+
+        if len(comp_list) > 0:
+            if line.element in self.components.keys():
+                self.reset_components(line.element)
+            for z, b, logN in comp_list:
+                self.add_component(line.element, z, b, logN)
         else:
-            self.reset_components(line.element)
+            pass
 
     def delete_component(self, element, index):
         """
@@ -339,10 +399,10 @@ class DataSet(object):
             if self.verbose:
                 print " [ERROR] - No components defined for ion: "+element
 
-    def copy_components(self, element, anchor, logN=0, ref_comp=0, tie_z=True, tie_b=True):
+    def copy_components(self, ion, anchor, logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
         Copy velocity structure from one element to another.
-        Input: 'element' is the new ion to define, which will
+        Input: 'ion' is the new ion to define, which will
                 be linked to the ion 'anchor'.
                 If logN is given the starting guess is defined
                 from this value following the pattern of the
@@ -354,9 +414,18 @@ class DataSet(object):
         reference = self.components[anchor]
         # overwrite the components already defined for element
         # if they exist.
-        self.components[element] = []
+        self.components[ion] = []
 
-        offset_N = logN - reference[ref_comp][2]
+        if ref_comp is not None:
+            offset_N = logN - reference[ref_comp][2]
+        else:
+            # Strip ionization state to get element:
+            ion_tmp = ion[:1] + ion[1:].replace('I', '')
+            element = ion_tmp[:1] + ion_tmp[1:].replace('V', '')
+            anchor_tmp = anchor[:1] + anchor[1:].replace('I', '')
+            element_anchor = anchor_tmp[:1] + anchor_tmp[1:].replace('V', '')
+            # Use Solar abundance ratios:
+            offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
         for num, comp in enumerate(reference):
             new_comp = copy.deepcopy(comp)
             if logN:
@@ -366,7 +435,7 @@ class DataSet(object):
             if tie_b:
                 new_comp[3]['tie_b'] = 'b%i_%s' % (num, anchor)
 
-            self.components[element].append(new_comp)
+            self.components[ion].append(new_comp)
 
     def load_components_from_file(self, fname):
         parameters = open(fname)
@@ -610,31 +679,23 @@ class DataSet(object):
                     if line_tag in self.all_lines:
                         self.activate_line(line_tag)
 
-    def prepare_dataset(self, mask=True, verbose=True):
+    def prepare_dataset(self, norm=True, mask=True, verbose=True):
         # Prepare fitting regions to be fit:
         # --- normalize spectral region
 
         plt.close('all')
-        for region in self.regions:
-            if not region.normalized:
-
-                go_on = 0
-                while go_on == 0:
-                    go_on = region.normalize()
-                    # region.normalize returns 1 when continuum is fitted
-        if verbose and self.verbose:
-            print ""
-            print " [DONE] - Continuum fitting successfully finished."
-            print ""
-
-        # --- mask spectral regions that should not be fitted
-        if mask:
+        # --- Normalize fitting regions manually, or use polynomial fitting
+        if norm:
             for region in self.regions:
-                if region.new_mask:
-                    region.define_mask()
+                if not region.normalized:
+                    go_on = 0
+                    while go_on == 0:
+                        go_on = region.normalize(norm_method=self.norm_method)
+                        # region.normalize returns 1 when continuum is fitted
+
             if verbose and self.verbose:
                 print ""
-                print " [DONE] - Spectral masks successfully created."
+                print " [DONE] - Continuum fitting successfully finished."
                 print ""
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
@@ -649,7 +710,7 @@ class DataSet(object):
                 N_name = 'logN%i_%s' % (n, ion)
 
                 self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'])
-                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=500.)
+                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=800.)
                 self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0., max=40.)
 
         # - Then setup parameter links:
@@ -667,6 +728,27 @@ class DataSet(object):
                     self.pars[b_name].expr = opts['tie_b']
                 if opts['tie_N']:
                     self.pars[N_name].expr = opts['tie_N']
+
+        # Setup Chebyshev parameters:
+        if self.cheb_order >= 0:
+            for reg_num, reg in enumerate(self.regions):
+                p0 = np.median(reg.flux)
+                for cheb_num in range(self.cheb_order+1):
+                    if cheb_num == 0:
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0)
+                    else:
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0)
+
+        # --- mask spectral regions that should not be fitted
+        if mask:
+            for region in self.regions:
+                if region.new_mask:
+                    # region.define_mask()
+                    region.define_mask(z=self.redshift, dataset=self)
+            if verbose and self.verbose:
+                print ""
+                print " [DONE] - Spectral masks successfully created."
+                print ""
 
         self.ready2fit = True
 
@@ -719,6 +801,7 @@ class DataSet(object):
                 print "            Run '.prepare_dataset()' before fitting."
             return False
 
+        print "  Fit is running... Please, be patient.\n"
         # npad = options['npad']
 
         def chi(pars):
@@ -726,7 +809,7 @@ class DataSet(object):
             data = list()
             error = list()
 
-            for region in self.regions:
+            for reg_num, region in enumerate(self.regions):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     if rebin > 1:
@@ -739,10 +822,16 @@ class DataSet(object):
                     dv_pix = calculate_velocity_bin_size(x)
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   region.lines, self.components,
+                                                   # region.lines, self.components,
+                                                   self.lines.values(), self.components,
                                                    res, dv=dv_pix/3.)
 
-                    model.append(profile_obs[mask])
+                    if self.cheb_order >= 0:
+                        cont_model = evaluate_continuum(x, pars, reg_num)
+                    else:
+                        cont_model = 1.
+
+                    model.append((profile_obs*cont_model)[mask])
                     data.append(np.array(y[mask], dtype=myfloat))
                     error.append(np.array(err[mask], dtype=myfloat))
 
@@ -754,11 +843,19 @@ class DataSet(object):
             return residual/error_spectrum
 
         minimizer = Minimizer(chi, self.pars, nan_policy='omit')
-        # popt = minimize(chi, self.pars, **kwargs)
         popt = minimizer.minimize()
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
+
+        if self.cheb_order >= 0:
+            # Normalize region data with best-fit polynomial:
+            for reg_num, region in enumerate(self.regions):
+                x, y, err, mask = region.unpack()
+                cont_model = evaluate_continuum(x, self.best_fit, reg_num)
+                region.flux /= cont_model
+                region.err /= cont_model
+                region.normalized = True
 
         if verbose and self.verbose:
             output.print_results(self, self.best_fit, velocity=False)
@@ -880,21 +977,5 @@ class DataSet(object):
 
         return allPars, allChi
 
-    def save(self, fname):
-        f = open(fname, 'wb')
-        # Strip parameter ties before saving.
-        # They often cause problems when loading datasets.
-        try:
-            for par in self.best_fit.values():
-                par.expr = None
-        except:
-            pass
-
-        try:
-            for par in self.pars.values():
-                par.expr = None
-        except:
-            pass
-
-        pickle.dump(self, f)
-        f.close()
+    def save(self, fname, verbose=False):
+        hdf5_save.save_hdf_dataset(self, fname, verbose=verbose)

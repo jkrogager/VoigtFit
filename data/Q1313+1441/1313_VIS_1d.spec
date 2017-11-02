@@ -5,6 +5,7 @@
 # NCOMBINE    : 3 
 # EXPTIME     : 10800.0 sec
 # <AIRMASS>   : 1.35 
+# Resolution  : 11800  (25.4 kms/)
 #=======================================
 # 1: wavelength, vacuum, helio-corrected, unit: Angstrom
 # 2: flux, unit: erg/s/cm2/Angstrom

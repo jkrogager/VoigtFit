@@ -11,7 +11,7 @@ def linfunc(x, a, b):
 
 class Region():
     def __init__(self, v, line):
-        self.velocity_span = v
+        self.velspan = v
         self.lines = [line]
         self.label = ''
 
@@ -46,7 +46,7 @@ class Region():
                     num_to_remove = num
             self.lines.pop(num_to_remove)
 
-    def normalize(self, plot=True, norm_method=1):
+    def normalize(self, plot=True, norm_method='linear'):
         """
         Normalize the region if the data were not normalized.
         Choose from two methods:
@@ -57,28 +57,30 @@ class Region():
                 continuum.
         """
 
+        if norm_method == 'linear':
+            norm_num = 1
+        elif norm_method == 'spline':
+            norm_num = 2
+        else:
+            err_msg = "Invalid norm_method: %r" % norm_method
+            raise ValueError(err_msg)
+
         plt.close('all')
 
         plt.figure()
         dx = 0.1*(self.wl.max() - self.wl.min())
+        lines_title_string = ", ".join([line.tag for line in self.lines])
         plt.xlim(self.wl.min()-dx, self.wl.max()+dx)
         plt.ylim(0.8*self.flux.min(), 1.2*self.flux.max())
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid')
+        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid',
+                 label=lines_title_string)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
-        lines_title_string = ", ".join([line.tag for line in self.lines])
-        plt.title(lines_title_string)
 
-        if not norm_method:
-            print "\n\n  Choose normalization method:"
-            print "   1: linear (left, right)"
-            print "   2: spline to points"
-            print ""
-            norm_method = int(raw_input("Method number: "))
-
-        if norm_method == 1:
+        if norm_num == 1:
             # - Normalize by defining a left and right continuum region
 
             print "\n\n  Mark continuum region 1, left and right boundary."
+            plt.title("Mark continuum region 1, left and right boundary.")
 
             bounds = plt.ginput(2, -1)
             left_bound = min(bounds[0][0], bounds[1][0])
@@ -90,6 +92,7 @@ class Region():
             lines_title_string = ", ".join([line.tag for line in self.lines])
             plt.title(lines_title_string)
             print "\n  Mark continuum region 2, left and right boundary."
+            plt.title("Mark continuum region 2, left and right boundary.")
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
@@ -102,13 +105,12 @@ class Region():
             continuum = linfunc(self.wl, *popt)
             e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
 
-            plt.close()
-
-        elif norm_method == 2:
+        elif norm_num == 2:
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print "\n\n  Select continuum points to fit"
+            print "\n\n Select a range of continuum spline points over the whole range"
+            plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
             xk, yk = [], []
             for x, y in points:
@@ -124,7 +126,8 @@ class Region():
             new_flux = self.flux/continuum
             new_err = self.err/continuum
             plt.cla()
-            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid')
+            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid',
+                     label=lines_title_string)
             plt.xlabel("Wavelength  [${\\rm \AA}$]")
             plt.title("Normalized")
             plt.axhline(1., ls='--', color='k')
@@ -132,6 +135,7 @@ class Region():
             plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
             plt.show(block=False)
 
+            plt.title("Go back to terminal...")
             prompt = raw_input(" Is normalization correct?  (YES/no)")
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
@@ -154,9 +158,12 @@ class Region():
         plt.close('all')
 
         plt.xlim(self.wl.min(), self.wl.max())
-        plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5)
+        # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
+        lines_title = ", ".join([line.tag for line in self.lines])
+        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
+                 label=lines_title)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
+        plt.legend()
 
         if z is not None:
             for line in self.lines:
@@ -172,11 +179,12 @@ class Region():
                 else:
                     plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
-        lines_title = ", ".join([line.tag for line in self.lines])
-        plt.title(lines_title)
+        plt.title("Mark regions to mask, left and right boundary.")
         print "\n\n  Mark regions to mask, left and right boundary."
+        plt.draw()
 
         ok = 0
+        mask_vlines = list()
         while ok >= 0:
             sel = plt.ginput(0, timeout=-1)
 
@@ -187,20 +195,32 @@ class Region():
                 for x1, x2 in selections:
                     cutout = (self.wl >= x1)*(self.wl <= x2)
                     mask[cutout] = False
-                    plt.axvline(x1, color='r', ls='--')
-                    plt.axvline(x2, color='r', ls='--')
+                    mask_vlines.append(plt.axvline(x1, color='r', ls='--'))
+                    mask_vlines.append(plt.axvline(x2, color='r', ls='--'))
 
                 masked_spectrum = np.ma.masked_where(mask, self.flux)
-                plt.plot(self.wl, masked_spectrum, color='r', drawstyle='steps-mid')
+                mask_line = plt.plot(self.wl, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
-                prompt = raw_input("Are the masked regions correct? (YES/no)")
+                prompt = raw_input("Are the masked regions correct? (YES/no/clear)")
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.mask = mask
                     self.new_mask = False
 
+                elif prompt.lower() in ['c', 'clear']:
+                    ok = 0
+                    self.mask = np.ones_like(mask, dtype=bool)
+                    for linesegment in mask_line:
+                        linesegment.remove()
+                    mask_line = list()
+
+                    for linesegment in mask_vlines:
+                        linesegment.remove()
+                    mask_vlines = list()
+
                 else:
+                    self.mask = mask
                     ok += 1
 
             elif len(sel) == 0:
@@ -214,10 +234,13 @@ class Region():
 
     def clear_mask(self):
         self.mask = np.ones_like(self.wl, dtype=bool)
-        # self.new_mask = True
+        self.new_mask = True
 
     def unpack(self):
         return (self.wl, self.flux, self.err, self.mask)
+
+    def is_normalized(self):
+        return self.normalized
 
     def set_label(self, text):
         self.label = text

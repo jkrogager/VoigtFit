@@ -5,25 +5,31 @@ def parse_parameters(fname):
     parameters = dict()
     parameters['logNHI'] = None
     parameters['norm_method'] = 'linear'
-    parameters['nomask'] = False
     parameters['show_abundance'] = False
     parameters['plot'] = False
     parameters['resolution'] = list()
     parameters['save'] = False
+    parameters['C_order'] = 1
+    parameters['systemic'] = [None, 'none']
+    parameters['clear_mask'] = False
+    parameters['velspan'] = 500.
+    parameters['snr'] = None
+    parameters['output_pars'] = list()
     par_file = open(fname)
     data = list()
     components = list()
     components_to_copy = list()
     components_to_delete = list()
+    interactive_components = list()
     lines = list()
     molecules = dict()
     # fine_lines = list()
 
     for line in par_file.readlines():
         if line[0] == '#':
-            pass
+            continue
 
-        elif 'data' in line and 'name' not in line:
+        elif 'data' in line and 'name' not in line and 'save' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin]
@@ -42,7 +48,7 @@ def parse_parameters(fname):
             airORvac = 'air' if air else 'vac'
             data.append([filename, resolution, norm, airORvac])
 
-        elif 'lines' in line:
+        elif 'lines' in line and 'save' not in line:
             velspan = 500.
             # strip comments:
             comment_begin = line.find('#')
@@ -124,13 +130,28 @@ def parse_parameters(fname):
                         logN = float(value)
                     elif 'var_z=' in val:
                         par, value = val.split('=')
-                        var_z = bool(value)
+                        if value.lower() == 'false':
+                            var_z = False
+                        elif value.lower() == 'true':
+                            var_z = True
+                        else:
+                            var_z = bool(value)
                     elif 'var_b=' in val:
                         par, value = val.split('=')
-                        var_b = bool(value)
+                        if value.lower() == 'false':
+                            var_b = False
+                        elif value.lower() == 'true':
+                            var_b = True
+                        else:
+                            var_b = bool(value)
                     elif 'var_N=' in val:
                         par, value = val.split('=')
-                        var_N = bool(value)
+                        if value.lower() == 'false':
+                            var_N = False
+                        elif value.lower() == 'true':
+                            var_N = True
+                        else:
+                            var_N = bool(value)
                     elif 'tie_z=' in val:
                         par, value = val.split('=')
                         tie_z = value
@@ -153,7 +174,12 @@ def parse_parameters(fname):
                 b = float(parlist[2])
                 logN = float(parlist[3])
 
-            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N])
+            if 'velocity' in line.lower():
+                vel = True
+            else:
+                vel = False
+
+            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel])
 
         elif 'copy' in line:
             # strip comments:
@@ -215,31 +241,56 @@ def parse_parameters(fname):
 
             components_to_delete.append([ion, comp])
 
+        elif 'interact' in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            par_list = line.split()[1:]
+            interactive_components += par_list
+
         elif 'name' in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
             parameters['name'] = line.split(':')[-1].strip()
 
         elif 'z_sys' in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
             parameters['z_sys'] = float(line.split(':')[-1].strip())
 
         elif 'norm_method' in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace("'", "")
             parameters['norm_method'] = line.split(':')[-1].strip()
 
-        elif 'nomask' in line and 'name' not in line:
-            parameters['nomask'] = True
+        elif 'clear mask' in line.lower():
+            parameters['clear_mask'] = True
 
-        elif 'resolution' in line and 'name' not in line:
+        elif 'mask' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            items = line.split()[1:]
+            if 'mask' in parameters.keys():
+                parameters['mask'] += items
+            else:
+                parameters['mask'] = items
+
+        elif 'resolution' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             items = line.split()
             if len(items) == 3 and items[0] == 'resolution':
-                res = items[1]
+                res = float(items[1])
                 line = items[2]
             elif len(items) == 2 and items[0] == 'resolution':
-                res = items[1]
+                res = float(items[1])
                 line = None
             parameters['resolution'].append([res, line])
 
-        elif 'metallicity' in line and 'name' not in line:
+        elif 'metallicity' in line and 'name' not in line and 'save' not in line:
             numbers = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
             if len(numbers) == 2:
                 logNHI = [float(n) for n in numbers]
@@ -248,6 +299,13 @@ def parse_parameters(fname):
             else:
                 print " Error - In order to print metallicities you must give log(NHI)."
             parameters['logNHI'] = logNHI
+
+        elif 'output' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()[1:]
+            # here you can add keywords like 'velocity' to print velocities instead of redshift
+            parameters['output_pars'] = items
 
         elif 'save' in line and 'name' not in line:
             parameters['save'] = True
@@ -267,8 +325,77 @@ def parse_parameters(fname):
                 filename = None
             parameters['filename'] = filename
 
-        elif 'abundance' in line and 'name' not in line:
+        elif 'abundance' in line and 'name' not in line and 'save' not in line:
             parameters['show_abundance'] = True
+
+        elif 'signal-to-noise' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            if '=' in line:
+                snr = line.split('=')[1]
+            elif ' ' in line:
+                snr = line.split(' ')[1]
+            elif ':' in line:
+                snr = line.split(':')[1]
+            parameters['snr'] = float(snr)
+
+        elif 'velspan' in line and 'lines' not in line and 'molecules' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            if '=' in line:
+                velspan = line.split('=')[1]
+            elif ' ' in line:
+                velspan = line.split(' ')[1]
+            elif ':' in line:
+                velspan = line.split(':')[1]
+            parameters['velspan'] = float(velspan)
+
+        elif 'C_order' in line and 'name' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            order = line.split('=')[1]
+            parameters['C_order'] = int(order)
+
+        elif 'systemic' in line and 'name' not in line and 'save' not in line:
+            # strip comments:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            # remove parentheses
+            line = line.replace('[', '').replace(']', '')
+            line = line.replace('(', '').replace(')', '')
+            mode = line.split('=')[1]
+            if ',' in mode:
+                # num, ion mode:
+                num, ion = mode.split(',')
+                parameters['systemic'] = [int(num), ion]
+            else:
+                # either none or auto:
+                if "'" in mode:
+                    mode = mode.replace("'", '')
+                    parameters['systemic'] = [None, mode]
+
+        elif 'reset' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            items = line.split()[1:]
+            if 'reset' in parameters.keys():
+                parameters['reset'] += items
+            else:
+                parameters['reset'] = items
+
+        elif 'load' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace('"', '')
+            line = line.replace("'", '')
+            filenames = line.split()[1:]
+            if 'load' in parameters.keys():
+                parameters['load'] += filenames
+            else:
+                parameters['load'] = filenames
 
         else:
             pass
@@ -280,5 +407,6 @@ def parse_parameters(fname):
     parameters['components'] = components
     parameters['components_to_copy'] = components_to_copy
     parameters['components_to_delete'] = components_to_delete
+    parameters['interactive'] = interactive_components
 
     return parameters

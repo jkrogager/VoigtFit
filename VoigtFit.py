@@ -6,15 +6,24 @@
 #
 
 import numpy as np
+import matplotlib
+# The native MacOSX backend doesn't work for all:
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-import pyfits as pf
-import pickle
+try:
+    import pyfits as pf
+except:
+    from astropy.io import fits as pf
 import os
 from argparse import ArgumentParser
 
 import output
 from parse_input import parse_parameters
 from dataset import DataSet, lineList
+import hdf5_save
+
+
+plt.interactive(True)
 
 
 def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
@@ -55,31 +64,40 @@ def air2vac(air):
     return out
 
 
-def SaveDataSet(pickle_file, dataset):
-    f = open(pickle_file, 'wb')
-    # Strip parameter ties before saving.
-    # They often cause problems when loading datasets.
-    try:
-        for par in dataset.best_fit.values():
-            par.expr = None
-    except:
-        pass
+def SaveDataSet(filename, dataset):
+    """Rewritten function to save dataset using HDF5"""
+    hdf5_save.save_hdf_dataset(dataset, filename)
 
-    try:
-        for par in dataset.pars.values():
-            par.expr = None
-    except:
-        pass
+# def SaveDataSet(pickle_file, dataset):
+#     f = open(pickle_file, 'wb')
+#     # Strip parameter ties before saving.
+#     # They often cause problems when loading datasets.
+#     try:
+#         for par in dataset.best_fit.values():
+#             par.expr = None
+#     except:
+#         pass
+#
+#     try:
+#         for par in dataset.pars.values():
+#             par.expr = None
+#     except:
+#         pass
+#
+#     pickle.dump(dataset, f)
+#     f.close()
 
-    pickle.dump(dataset, f)
-    f.close()
 
-
-def LoadDataSet(pickle_file):
-    f = open(pickle_file, 'rb')
-    dataset = pickle.load(f)
-    f.close()
+def LoadDataSet(filename):
+    """Rewritten functino to load HDF5 file"""
+    dataset = hdf5_save.load_dataset_from_hdf(filename)
     return dataset
+
+# def LoadDataSet(pickle_file):
+#     f = open(pickle_file, 'rb')
+#     dataset = pickle.load(f)
+#     f.close()
+#     return dataset
 
 
 # defined here and in dataset.py for backwards compatibility
@@ -111,6 +129,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("input", type=str,
                         help="VoigtFit input parameter file.")
+    parser.add_argument("-f", action="store_true",
+                        help="Force new dataset to be created. This will overwrite existing data.")
 
     args = parser.parse_args()
     parfile = args.input
@@ -119,14 +139,57 @@ def main():
 
     # Define dataset:
     name = parameters['name']
-    if os.path.exists(name+'.dataset'):
-        dataset = LoadDataSet(name+'.dataset')
+    if os.path.exists(name+'.hdf5') and not args.f:
+        dataset = LoadDataSet(name+'.hdf5')
+
+        # if len(dataset.data) != len(parameters['data']):
+        dataset.data = list()
+        # Setup data:
+        for fname, res, norm, airORvac in parameters['data']:
+            if fname[-5:] == '.fits':
+                hdu = pf.open(fname)
+                spec = pf.getdata(fname)
+                hdr = pf.getheader(fname)
+                wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
+                if len(hdu) > 1:
+                    err = hdu[1].data
+                elif parameters['snr'] is not None:
+                    # err = spec/parameters['snr']
+                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
+                else:
+                    err = spec/10.
+                err[err <= 0.] = np.abs(np.mean(err))
+
+            else:
+                data = np.loadtxt(fname)
+                if data.shape[1] == 2:
+                    wl, spec = data.T
+                    if parameters['snr'] is not None:
+                        # err = spec/parameters['snr']
+                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
+                    else:
+                        err = spec/10.
+                    err[err <= 0.] = np.abs(np.mean(err))
+                elif data.shape[1] == 3:
+                    wl, spec, err = data.T
+                elif data.shape[1] == 4:
+                    wl, spec, err, mask = data.T
+
+            if airORvac == 'air':
+                wl = air2vac(wl)
+
+            dataset.add_data(wl, spec, res, err=err, normalized=norm)
 
         # Add new lines that were not defined before:
         new_lines = list()
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
+            else:
+                reg = dataset.find_line(tag)
+                if reg.velspan != velspan:
+                    dataset.remove_line(tag)
+                    new_lines.append([tag, velspan])
 
         for tag, velspan in new_lines:
                 dataset.add_line(tag, velspan)
@@ -168,9 +231,20 @@ def main():
         # Define Components:
         dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
-            dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            # ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
+            # dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+            #                       tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
+            if vel:
+                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            else:
+                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+
+        if 'interactive' in parameters.keys():
+            for line_tag in parameters['interactive']:
+                dataset.interactive_components(line_tag)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -183,21 +257,35 @@ def main():
     else:
         dataset = DataSet(parameters['z_sys'])
 
+        if 'velspan' in parameters.keys():
+            dataset.velspan = parameters['velspan']
+
         # Setup data:
         for fname, res, norm, airORvac in parameters['data']:
             if fname[-5:] == '.fits':
+                hdu = pf.open(fname)
                 spec = pf.getdata(fname)
                 hdr = pf.getheader(fname)
                 wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
-                N = len(spec)
-                err = np.std(spec[N/2-N/20:N/2+N/20])*np.ones_like(spec)
+                if len(hdu) > 1:
+                    err = hdu[1].data
+                elif parameters['snr'] is not None:
+                    # err = spec/parameters['snr']
+                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
+                else:
+                    err = spec/10.
+                err[err <= 0.] = np.abs(np.mean(err))
 
             else:
                 data = np.loadtxt(fname)
                 if data.shape[1] == 2:
                     wl, spec = data.T
-                    N = len(spec)
-                    err = np.std(spec[N/2-N/20:N/2+N/20]) * np.ones_like(spec)
+                    if parameters['snr'] is not None:
+                        # err = spec/parameters['snr']
+                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
+                    else:
+                        err = spec/10.
+                    err[err <= 0.] = np.abs(np.mean(err))
                 elif data.shape[1] == 3:
                     wl, spec, err = data.T
                 elif data.shape[1] == 4:
@@ -207,9 +295,6 @@ def main():
                 wl = air2vac(wl)
 
             dataset.add_data(wl, spec, res, err=err, normalized=norm)
-
-        # Define normalization method:
-        # dataset.norm_method = 1
 
         # Define lines:
         for tag, velspan in parameters['lines']:
@@ -221,12 +306,28 @@ def main():
                 for band, Jmax, velspan in bands:
                     dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
 
+        # Load components from file:
+        if 'load' in parameters.keys():
+            for fname in parameters['load']:
+                print "\nLoading parameters from file: %s \n" % fname
+                dataset.load_components_from_file(fname)
+        else:
+            dataset.reset_components()
+
         # Define Components:
-        dataset.reset_components()
         for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
-            dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
+            if vel:
+                print "Defining component in velocity"
+                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            else:
+                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
+                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+
+        if 'interactive' in parameters.keys():
+            for line_tag in parameters['interactive']:
+                dataset.interactive_components(line_tag)
 
         for component in parameters['components_to_copy']:
             ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -236,11 +337,59 @@ def main():
         for component in parameters['components_to_delete']:
             dataset.delete_component(*component)
 
-    # prepare_dataset
-    if parameters['nomask']:
-        dataset.prepare_dataset(mask=False)
+    # Set default value of norm:
+    norm = False
+    if 'C_order' in parameters.keys():
+        dataset.cheb_order = parameters['C_order']
+        if parameters['C_order'] >= 0:
+            norm = False
+        else:
+            norm = True
+
+    if norm is True:
+        if parameters['norm_method'].lower() in ['linear', 'spline']:
+            dataset.norm_method = parameters['norm_method'].lower()
+        else:
+            print "\n [WARNING] - Unexpected value for norm_method: %r" % parameters['norm_method']
+            print "             Using default normalization method : linear\n"
+        print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
+
     else:
-        dataset.prepare_dataset(mask=True)
+        if dataset.cheb_order == 1:
+            order_str = "%ist" % (dataset.cheb_order)
+        elif dataset.cheb_order == 2:
+            order_str = "%ind" % (dataset.cheb_order)
+        elif dataset.cheb_order == 3:
+            order_str = "%ird" % (dataset.cheb_order)
+        else:
+            order_str = "%ith" % (dataset.cheb_order)
+        print "\n Continuum Fitting : Chebyshev Polynomial up to %s order\n" % (order_str)
+
+    # Reset data in regions:
+    if 'reset' in parameters.keys():
+        if len(parameters['reset']) > 0:
+            for line_tag in parameters['reset']:
+                reg = dataset.find_line(line_tag)
+                dataset.reset_region(reg)
+        else:
+            dataset.reset_all_regions()
+
+    # prepare_dataset
+    dataset.prepare_dataset(mask=False, norm=norm)
+
+    # Reset all masks:
+    if 'clear_mask' in parameters.keys():
+        for region in dataset.regions:
+            region.clear_mask()
+
+    # Mask invidiual lines
+    if 'mask' in parameters.keys():
+        if len(parameters['mask']) > 0:
+            for line_tag in parameters['mask']:
+                dataset.mask_line(line_tag)
+        else:
+            for region in dataset.regions:
+                region.define_mask(z=dataset.redshift, dataset=dataset)
 
     # update resolution:
     if len(parameters['resolution']) > 0:
@@ -248,10 +397,51 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # fit
-    dataset.fit(verbose=False, plot=False)
+    popt, chi2 = dataset.fit(verbose=False, plot=False)
+    print ""
+    print popt.message
+    print ""
+
+    # Update systemic redshift
+    if parameters['systemic'][1] == 'none':
+        # do not update the systemic redshift
+        pass
+
+    elif isinstance(parameters['systemic'][0], int):
+        num, ion = parameters['systemic']
+        if num == -1:
+            num = len(dataset.components[ion]) - 1
+        new_z_sys = dataset.best_fit['z%i_%s' % (num, ion)].value
+        dataset.set_systemic_redshift(new_z_sys)
+
+    elif parameters['systemic'][1] == 'auto':
+        # find ion to search for strongest component:
+        if 'FeII' in dataset.components.keys():
+            ion = 'FeII'
+        elif 'SiII' in dataset.components.keys():
+            ion = 'SiII'
+        else:
+            ion = dataset.components.keys()[0]
+
+        # find strongest component:
+        n_comp = len(dataset.components[ion])
+        logN_list = list()
+        for n in range(n_comp):
+            this_logN = dataset.best_fit['logN%i_%s' % (n, ion)].value
+            logN_list.append(this_logN)
+        num = np.argmax(logN_list)
+        new_z_sys = dataset.best_fit['z%i_%s' % (num, ion)].value
+        dataset.set_systemic_redshift(new_z_sys)
+    else:
+        systemic_err_msg = "Invalid mode to set systemic redshift: %r" % parameters['systemic']
+        raise ValueError(systemic_err_msg)
+
+    if 'velocity' in parameters['output_pars']:
+        dataset.print_results(velocity=True)
+    else:
+        dataset.print_results(velocity=False)
 
     # print metallicity
-    dataset.print_results()
     logNHI = parameters['logNHI']
     if logNHI:
         dataset.print_metallicity(*logNHI)
@@ -261,8 +451,7 @@ def main():
         dataset.print_abundance()
 
     # save
-    SaveDataSet(name+'.dataset', dataset)
-    # dataset.save(name + '.dataset')
+    SaveDataSet(name + '.hdf5', dataset)
     if parameters['save']:
         filename = parameters['filename']
         if not filename:
@@ -272,7 +461,8 @@ def main():
         # plot and save
         dataset.plot_fit(filename=filename, show=False)
 
-        output.save_parameters_to_file(dataset, filename)
+        output.save_parameters_to_file(dataset, filename+'.fit')
+        output.save_cont_parameters_to_file(dataset, filename+'.cont')
 
     else:
         dataset.plot_fit()
