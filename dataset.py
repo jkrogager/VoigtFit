@@ -23,7 +23,7 @@ if 'VFITDATA' in os.environ.keys():
 
 else:
     print("No VFITDATA in environment ... Using relative path to static data files")
-    datafile = './static/atomdata_updated.dat'
+    atomfile = os.path.dirname(__file__) + '/static/atomdata_updated.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
