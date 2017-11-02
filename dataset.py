@@ -272,9 +272,21 @@ class DataSet(object):
                 if line.tag == line_tag:
                     line.set_inactive()
 
+        # --- Check if the ion has transistions defined in other regions
+        ion = line_tag.split('_')[0]
+        ion_defined_elsewhere = False
+        for line_tag in self.all_lines:
+            if line_tag.find(ion) >= 0:
+                ion_defined_elsewhere = True
+
+        # --- If it is not defined elsewhere, remove it from components
+        if not ion_defined_elsewhere:
+            self.components.pop(ion)
+
     def deactivate_all(self):
         for line_tag in self.all_lines:
             self.deactivate_line(line_tag)
+        self.components = dict()
 
     def activate_all(self):
         for line_tag in self.all_lines:
@@ -369,7 +381,8 @@ class DataSet(object):
         plt.draw()
 
         if len(comp_list) > 0:
-            self.reset_components(line.element)
+            if line.element in self.components.keys():
+                self.reset_components(line.element)
             for z, b, logN in comp_list:
                 self.add_component(line.element, z, b, logN)
         else:
