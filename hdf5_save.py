@@ -48,6 +48,10 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         # set main attributes:
         hdf.attrs.create('redshift', dataset.redshift)
         hdf.attrs.create('velspan', dataset.velspan)
+        if hasattr(dataset, 'name'):
+            hdf.attrs.create('name', dataset.name)
+        else:
+            hdf.attrs.create('name', '')
         if hasattr(dataset, 'verbose'):
             hdf.attrs.create('verbose', dataset.verbose)
         else:
@@ -138,6 +142,10 @@ def load_dataset_from_hdf(fname):
         ds = dataset.DataSet(z_sys)
         ds.velspan = hdf.attrs['velspan']
         ds.verbose = hdf.attrs['verbose']
+        if 'name' in hdf.attrs.keys():
+            ds.set_name(hdf.attrs['name'])
+        else:
+            ds.set_name('')
 
         # Load .data:
         data = hdf['data']

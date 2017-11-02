@@ -305,6 +305,7 @@ def parse_parameters(fname):
             line = line[:comment_begin].strip()
             items = line.split()[1:]
             # here you can add keywords like 'velocity' to print velocities instead of redshift
+            # 'individual-regions' saves individual regions to separate files
             parameters['output_pars'] = items
 
         elif 'save' in line and 'name' not in line:

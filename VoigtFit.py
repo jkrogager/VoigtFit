@@ -254,8 +254,11 @@ def main():
         for component in parameters['components_to_delete']:
             dataset.delete_component(*component)
 
+    # ================================================================================
+    # Generate New Dataset:
+    #
     else:
-        dataset = DataSet(parameters['z_sys'])
+        dataset = DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
             dataset.velspan = parameters['velspan']
@@ -441,6 +444,11 @@ def main():
     else:
         dataset.print_results(velocity=False)
 
+    if 'individual-regions' in parameters['output_pars']:
+        individual_regions = True
+    else:
+        individual_regions = False
+
     # print metallicity
     logNHI = parameters['logNHI']
     if logNHI:
@@ -459,10 +467,10 @@ def main():
         if filename.split('.')[-1] in ['pdf']:
             filename = filename[:-4]
         # plot and save
-        dataset.plot_fit(filename=filename, show=False)
-
+        dataset.plot_fit(filename=filename, show=True)
         output.save_parameters_to_file(dataset, filename+'.fit')
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
+        output.save_fit_regions(dataset, filename+'.reg', individual=individual_regions)
 
     else:
         dataset.plot_fit()

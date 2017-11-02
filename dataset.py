@@ -63,7 +63,7 @@ class Line(object):
 
 # --- Definition of main class *DataSet*:
 class DataSet(object):
-    def __init__(self, z):
+    def __init__(self, z, name=''):
         # Define the systemic redshift
         self.redshift = z
 
@@ -97,6 +97,13 @@ class DataSet(object):
         self.ready2fit = False
         self.best_fit = None
         self.pars = None
+        self.name = name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
 
     def add_data(self, wl, flux, res, err=None, normalized=False):
         """
@@ -911,6 +918,15 @@ class DataSet(object):
     def print_abundance(self):
         output.print_abundance(self)
 
+    def save_fit_regions(self, filename=None, individual=False):
+        if not filename:
+            if self.name:
+                filename = self.name
+            else:
+                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
+                print "           or give filename [dataset.save(filename='filename')]"
+        output.save_fit_regions(self, filename, individual=individual)
+
     def conf_interval(self, nsim=10):
         """ The method is deprecated and has not been carefully tested!"""
         import sys
@@ -977,5 +993,11 @@ class DataSet(object):
 
         return allPars, allChi
 
-    def save(self, fname, verbose=False):
-        hdf5_save.save_hdf_dataset(self, fname, verbose=verbose)
+    def save(self, filename=None, verbose=False):
+        if not filename:
+            if self.name:
+                filename = self.name
+            else:
+                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
+                print "           or give filename [dataset.save(filename='filename')]"
+        hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)

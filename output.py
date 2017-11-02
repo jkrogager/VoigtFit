@@ -1,3 +1,4 @@
+from os.path import splitext
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -879,3 +880,68 @@ def save_cont_parameters_to_file(dataset, filename):
                 line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
                 output.write(line + "\n")
             output.write("\n")
+
+
+def save_fit_regions(dataset, filename, individual=False):
+    """ Save fit regions to file
+    """
+    if individual:
+        for reg_num, region in enumerate(dataset.regions):
+            wl, flux, err, mask = region.unpack()
+            if dataset.best_fit:
+                p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
+                                               dataset.lines.values(), dataset.components,
+                                               region.res)
+            else:
+                p_obs = np.ones_like(wl)
+            data_table = np.column_stack([wl, flux, err, p_obs, mask])
+            line_string = ", ".join([line.tag for line in region.lines])
+            filebase, ext = splitext(filename)
+            filebase += '_reg%i' % reg_num
+            reg_filename = filebase + ext
+            with open(reg_filename, 'w') as out_file:
+                out_file.write("# Best-fit normalized data and profile from VoigtFit\n")
+                out_file.write("# Lines in regions: %s \n" % line_string)
+                out_file.write("# column 1 : Wavelength\n")
+                out_file.write("# column 2 : Normalized flux\n")
+                out_file.write("# column 3 : Normalized error\n")
+                out_file.write("# column 4 : Best-fit profile\n")
+                out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
+                np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
+
+    else:
+        # Concatenate all regions and save to one file
+        l_tot = list()
+        f_tot = list()
+        e_tot = list()
+        p_tot = list()
+        m_tot = list()
+        for region in dataset.regions:
+            wl, flux, err, mask = region.unpack()
+            if dataset.best_fit:
+                p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
+                                               dataset.lines.values(), dataset.components,
+                                               region.res)
+            else:
+                p_obs = np.ones_like(wl)
+            l_tot.append(wl)
+            f_tot.append(flux)
+            e_tot.append(err)
+            p_tot.append(p_obs)
+            m_tot.append(mask)
+
+        l_tot = np.concatenate(l_tot)
+        f_tot = np.concatenate(f_tot)
+        e_tot = np.concatenate(e_tot)
+        p_tot = np.concatenate(p_tot)
+        m_tot = np.concatenate(m_tot)
+
+        data_table = np.column_stack([l_tot, f_tot, e_tot, p_tot, m_tot])
+        with open(filename, 'w') as out_file:
+            out_file.write("# Best-fit normalized data and profile from VoigtFit\n")
+            out_file.write("# column 1 : Wavelength\n")
+            out_file.write("# column 2 : Normalized flux\n")
+            out_file.write("# column 3 : Normalized error\n")
+            out_file.write("# column 4 : Best-fit profile\n")
+            out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
+            np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
