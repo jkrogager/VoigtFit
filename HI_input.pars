@@ -1,0 +1,65 @@
+# Input parameter file for VoigtFit
+
+name :  HI_test_dataset
+z_sys:  1.7941
+norm_method:  linear    # or spline
+save :  HI_test_dataset
+
+# Continuum Fitting using Chebyshev Polynomials:
+# If not given, the default is 1 (straight line)
+# Use negative order to turn off the Chebyshev fitting
+C_order = 6
+
+# Skip interactive masking:
+#nomask
+
+#print metallicity logNHI = 21.31 +/- 0.01
+# The mini-language is flexible and accepts words
+# between the keywords, so the following works just
+# as well as the line above:
+#calculate metallicity based on logNHI  21.3   0.1
+
+# Print total abundances for each ion:
+#abundance
+
+# Load spectra:
+#      filename                          spectral resolution in km/s
+# add the keyword 'norm' at the end of the line if the spectrum is normalized
+# add the keyword 'air' at the end of the line if the wavelength are air wavelengths
+#data  'data/Q1313+1441/1313_VIS_1d.spec' 25.4
+data  'data/Q1313+1441/1313_UVB_1d.spec' 37.0
+# reset data for all lines:
+reset
+# or for some lines only:
+#reset SiII_1808 HI_1215
+
+# Update the spectral resolution
+# Warning: if more than one spectrum is loaded and they do not have the same resolution
+# be careful with this function, and use it for each line separately.
+#set resolution  22.4
+
+lines HI_1215 velspan=8000
+
+# Mask an individual line using the interactive window
+mask HI_1215
+
+# Define components:
+#         ion  z        b   logN
+component HI   z=1.794060 b=20. logN=21.3 var_b=False
+
+# Define components for FeII using the interactive window.
+# The transition used for defining the components should be a strong one:
+#interactive FeII_2374
+# This will overwrite the components defined above
+
+# The mini-language is flexible, so all of the following are accepted:
+#copy components to ZnII from FeII scale logN=12.9 of comp 1
+#copy components to CrII from FeII scale logN=13.6 of component 1
+#copy components from FeII to MgI and scale logN=12.4 of component 1
+# The default scale applied to logN when copying components is the Solar abundnace ratio
+#copy components from FeII to SiII
+
+# In order to remove components from a copied structure do the following
+# The component numbers start from 0
+#delete component 3 from CrII
+#delete component 3 from ZnII
