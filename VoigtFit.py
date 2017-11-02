@@ -374,20 +374,22 @@ def main():
         else:
             dataset.reset_all_regions()
 
+    # prepare_dataset
+    dataset.prepare_dataset(mask=False, norm=norm)
+
     # Reset all masks:
     if 'clear_mask' in parameters.keys():
         for region in dataset.regions:
             region.clear_mask()
 
     # Mask invidiual lines
-    for line_tag in parameters['mask']:
-        dataset.mask_line(line_tag)
-
-    # prepare_dataset
-    if parameters['nomask']:
-        dataset.prepare_dataset(mask=False, norm=norm)
-    else:
-        dataset.prepare_dataset(mask=True, norm=norm)
+    if 'mask' in parameters.keys():
+        if len(parameters['mask']) > 0:
+            for line_tag in parameters['mask']:
+                dataset.mask_line(line_tag)
+        else:
+            for region in dataset.regions:
+                region.define_mask(z=dataset.redshift, dataset=dataset)
 
     # update resolution:
     if len(parameters['resolution']) > 0:
@@ -395,7 +397,10 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # fit
-    dataset.fit(verbose=False, plot=False)
+    popt, chi2 = dataset.fit(verbose=False, plot=False)
+    print ""
+    print popt.message
+    print ""
 
     # Update systemic redshift
     if parameters['systemic'][1] == 'none':

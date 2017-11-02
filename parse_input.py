@@ -5,8 +5,6 @@ def parse_parameters(fname):
     parameters = dict()
     parameters['logNHI'] = None
     parameters['norm_method'] = 'linear'
-    parameters['nomask'] = False
-    parameters['mask'] = list()
     parameters['show_abundance'] = False
     parameters['plot'] = False
     parameters['resolution'] = list()
@@ -267,18 +265,18 @@ def parse_parameters(fname):
             line = line.replace("'", "")
             parameters['norm_method'] = line.split(':')[-1].strip()
 
-        elif 'nomask' in line and 'name' not in line and 'save' not in line:
-            parameters['nomask'] = True
-
         elif 'clear mask' in line.lower():
             parameters['clear_mask'] = True
 
-        elif 'mask' in line and 'nomask' not in line and 'name' not in line:
+        elif 'mask' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
             items = line.split()[1:]
-            parameters['mask'] += items
+            if 'mask' in parameters.keys():
+                parameters['mask'] += items
+            else:
+                parameters['mask'] = items
 
         elif 'resolution' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
