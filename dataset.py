@@ -792,7 +792,7 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, rebin=1, verbose=True, plot=True, **kwargs):
+    def fit(self, rebin=1, verbose=True, plot=False, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
         Returns the best fitting parameters for each component
@@ -874,16 +874,24 @@ class DataSet(object):
         return popt, chi2
 
     def plot_fit(self, linestyles=['--', ':'], colors=['RoyalBlue', 'Crimson'],
-                 rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=5,
+                 rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
                  highlight=[], residuals=True):
-
-        output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
-                              colors=colors, rebin=rebin, fontsize=fontsize,
-                              xmin=xmin, xmax=xmax, max_rows=max_rows,
-                              filename=filename, show=show,
-                              subsample_profile=subsample_profile, npad=npad,
-                              highlight=highlight, residuals=residuals)
+        if len(self.all_active_lines):
+            line_tag = self.all_active_lines[0]
+            output.plot_single_line(self, line_tag, plot_fit=True, linestyles=linestyles,
+                                    colors=colors, rebin=rebin, fontsize=fontsize,
+                                    xmin=xmin, xmax=xmax,
+                                    filename=filename, show=show,
+                                    subsample_profile=subsample_profile, npad=npad,
+                                    highlight=highlight, residuals=residuals)
+        else:
+            output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
+                                  colors=colors, rebin=rebin, fontsize=fontsize,
+                                  xmin=xmin, xmax=xmax, max_rows=max_rows,
+                                  filename=filename, show=show,
+                                  subsample_profile=subsample_profile, npad=npad,
+                                  highlight=highlight, residuals=residuals)
         plt.show()
 
     def velocity_plot(self, **kwargs):

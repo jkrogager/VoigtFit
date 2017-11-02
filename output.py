@@ -166,7 +166,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
 
 
 def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
-                   rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=5,
+                   rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                    filename=None, show=True, subsample_profile=1, npad=50,
                    highlight=[], residuals=True):
     """
@@ -233,7 +233,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             width = 8.5
             columns = 2
 
-        heigth = (len(contents) + 2) / 2 * 8.5/max_rows
+        heigth = (len(contents) + 2) / 2 * 8.5/(max_rows+1)
         rows = (len(contents) + 2) / 2
 
         fig = plt.figure(figsize=(width, heigth))
@@ -248,12 +248,12 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                 _, LIV = plot_single_line(dataset, line_tag,
                                           plot_fit=plot_fit, linestyles=linestyles,
                                           colors=colors, rebin=rebin, nolabels=True, axis=ax,
-                                          fontsize=fontsize, xmin=xmin, xmax=xmax, show=show,
+                                          fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
                                           subsample_profile=subsample_profile, npad=npad,
                                           highlight=highlight, residuals=residuals)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
-                if num <= len(contents):
+                if num <= len(contents)-2:
                     ax.set_xticklabels([''])
                 else:
                     ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
@@ -337,7 +337,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         ax = axis
     else:
         # plt.close('all')
-        fig = plt.figure(figsize=(6, 3.5))
+        fig = plt.figure(figsize=(6, 5))
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
@@ -511,7 +511,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.05, line_string, va='bottom', ha=loc,
+    ax.text(label_x, 0.06, line_string, va='bottom', ha=loc,
             transform=ax.transAxes, fontsize=fontsize,
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
@@ -522,7 +522,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         fig.set_tight_layout(True)
 
     if show:
-        plt.show(block=True)
+        plt.show()
 
     return (ax, lines_in_view)
 
