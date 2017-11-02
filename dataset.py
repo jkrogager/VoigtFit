@@ -877,21 +877,12 @@ class DataSet(object):
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
                  highlight=[], residuals=True):
-        if len(self.all_active_lines):
-            line_tag = self.all_active_lines[0]
-            output.plot_single_line(self, line_tag, plot_fit=True, linestyles=linestyles,
-                                    colors=colors, rebin=rebin, fontsize=fontsize,
-                                    xmin=xmin, xmax=xmax,
-                                    filename=filename, show=show,
-                                    subsample_profile=subsample_profile, npad=npad,
-                                    highlight=highlight, residuals=residuals)
-        else:
-            output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
-                                  colors=colors, rebin=rebin, fontsize=fontsize,
-                                  xmin=xmin, xmax=xmax, max_rows=max_rows,
-                                  filename=filename, show=show,
-                                  subsample_profile=subsample_profile, npad=npad,
-                                  highlight=highlight, residuals=residuals)
+        output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
+                              colors=colors, rebin=rebin, fontsize=fontsize,
+                              xmin=xmin, xmax=xmax, max_rows=max_rows,
+                              filename=filename, show=show,
+                              subsample_profile=subsample_profile, npad=npad,
+                              highlight=highlight, residuals=residuals)
         plt.show()
 
     def velocity_plot(self, **kwargs):

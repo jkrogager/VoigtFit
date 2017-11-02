@@ -22,6 +22,9 @@ from parse_input import parse_parameters
 from dataset import DataSet, lineList
 import hdf5_save
 
+import warnings
+warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 plt.interactive(True)
 

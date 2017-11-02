@@ -235,6 +235,10 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
 
         heigth = (len(contents) + 2) / 2 * 8.5/(max_rows+1)
         rows = (len(contents) + 2) / 2
+        if len(contents) == 1:
+            heigth = 6
+            columns = 1
+            rows = 1
 
         fig = plt.figure(figsize=(width, heigth))
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
