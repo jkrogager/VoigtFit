@@ -8,6 +8,7 @@ from scipy.signal import fftconvolve, gaussian
 
 # ==== VOIGT PROFILE ===============
 def H(a, x):
+    """Voigt Profile Approximation from T. Tepper-Garcia 2006, 2007."""
     P = x**2
     H0 = np.exp(-x**2)
     Q = 1.5/x**2
@@ -43,10 +44,8 @@ def Voigt(l, l0, f, N, b, gam, z=0):
 
 def evaluate_continuum(x, pars, reg_num):
     """
-    Function to evaluate the continuum model
-    using Chebyshev polynomials.
-    All regions are fitted with the same order
-    of polynomials.
+    Function to evaluate the continuum model using Chebyshev polynomials.
+    All regions are fitted with the same order of polynomials.
     """
     cheb_parnames = list()
     p_cont = list()

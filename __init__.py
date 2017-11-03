@@ -1,5 +1,5 @@
 print "\n"
-print "    VoigtFit v.1.2"
+print "    VoigtFit"
 print ""
 print "    by Jens-Kristian Krogager"
 print ""
@@ -13,6 +13,7 @@ print "        \/   \  / oigtFit      "
 print "              \/               "
 print ""
 print ""
+__author__ = 'Jens-Kristian Krogager'
 # from VoigtFit import *
 # import Voigt
 # from dataset import DataSet

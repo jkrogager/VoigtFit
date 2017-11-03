@@ -1,3 +1,8 @@
+# -*- coding: UTF-8 -*-
+#    Written by:
+#    Jens-Kristian Krogager
+#
+__author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit

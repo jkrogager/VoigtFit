@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 #    Written by:
 #    Jens-Kristian Krogager
-#    PhD Student, Dark Cosmology Centre, Niels Bohr Institute
-#    University of Copenhagen
 #
+__author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 

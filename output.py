@@ -1,3 +1,8 @@
+# -*- coding: UTF-8 -*-
+#    Written by:
+#    Jens-Kristian Krogager
+#
+__author__ = 'Jens-Kristian Krogager'
 from os.path import splitext
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
@@ -174,7 +179,6 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
 
       INPUT:
     dataset:  VoigtFit.DataSet instance containing the line regions
-    line_tag: The line tag of the line to show, e.g., 'FeII_2374'
 
     plot_fit:    if True, the best-fit profile will be shown
     linestyles:  a list of linestyles to show velocity components
@@ -197,9 +201,6 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     for ref_line in dataset.lines.values():
         if ref_line.tag in included_lines:
             pass
-        # elif ref_line.ion[-1].islower():
-        #     # do not plot individual figures for fine-structure lines
-        #     included_lines.append(ref_line)
         else:
             region = dataset.find_line(ref_line.tag)
             lines_to_plot.append(ref_line.tag)
@@ -212,8 +213,6 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                     delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
                     if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
                         included_lines.append(line.tag)
-            # l0 = line.l0
-            # delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
 
     # --- If *filename* is given, set up a PDF container for saving to file:
     if filename:
