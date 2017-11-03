@@ -620,6 +620,8 @@ class DataSet(object):
         """
         Add molecular lines for a given band, e.g., AX(0-0).
         All rotational levels up to and including *J* will be included.
+        If full_label is set, the regions label will be translated to the full
+        description of the quantum mechanical state.
         """
         if molecule == 'CO':
             nu_level = line_complexes.CO[band]
@@ -659,7 +661,8 @@ class DataSet(object):
                 self.molecules.pop('CO')
 
     def deactivate_molecule(self, molecule, band):
-        """Deactivate all lines for the given band of the given molecule."""
+        """Deactivate all lines for the given band of the given molecule.
+        To see the available molecular bands defined, see the manual pdf."""
         if molecule == 'CO':
             if band not in self.molecules['CO']:
                 if self.verbose:
@@ -673,7 +676,10 @@ class DataSet(object):
                         self.deactivate_line(line_tag)
 
     def activate_molecule(self, molecule, band):
-        """Deactivate all lines for the given band of the given molecule."""
+        """
+        Activate all lines for the given band of the given molecule.
+        Example: activate_molecule('CO', 'AX(0-0)')
+        """
         if molecule == 'CO':
             if band not in self.molecules['CO']:
                 if self.verbose:
@@ -687,8 +693,20 @@ class DataSet(object):
                         self.activate_line(line_tag)
 
     def prepare_dataset(self, norm=True, mask=True, verbose=True):
-        # Prepare fitting regions to be fit:
-        # --- normalize spectral region
+        """
+        Prepare the data for fitting. This function sets up the parameter structure,
+        and handles the normalization and masking of fitting regions.
+
+        norm : boolean   [default = True]
+            Opens an interactive window to let the user normalize each region
+            using the defined *norm_method*.
+
+        mask : boolean   [default = True]
+            Opens an interactive window to let the user mask each fitting region.
+
+        verbose : boolean   [default = True]
+            If this is set, the code will print small info statements during the run.
+        """
 
         plt.close('all')
         # --- Normalize fitting regions manually, or use polynomial fitting
@@ -800,6 +818,18 @@ class DataSet(object):
 
         rebin : integer   [default = 1]
             Rebin data by a factor *rebin* before fitting.
+
+        verbose : boolean   [default = True]
+            This will print the fit results to terminal.
+
+        plot : boolean   [default = False]
+            This will make the best-fit solution show up in a new window.
+
+        kwargs : dictionary of keyword arguments
+            Options are derived from the scipy.optimize minimization methods.
+            The default method is 'leastsq', used in lmfit.
+            This can be changed with method='nelder', to use Nelder-Mead minimization.
+            See documentation in LmFit and SciPy.optimize.
         """
 
         if not self.ready2fit:
