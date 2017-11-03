@@ -197,9 +197,9 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     for ref_line in dataset.lines.values():
         if ref_line.tag in included_lines:
             pass
-        elif ref_line.ion[-1].islower():
-            # do not plot individual figures for fine-structure lines
-            included_lines.append(ref_line)
+        # elif ref_line.ion[-1].islower():
+        #     # do not plot individual figures for fine-structure lines
+        #     included_lines.append(ref_line)
         else:
             region = dataset.find_line(ref_line.tag)
             lines_to_plot.append(ref_line.tag)
@@ -424,7 +424,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         xmax = region.velspan
     ax.set_xlim(xmin, xmax)
     if np.abs(xmin) > 900 or np.abs(xmax) > 900:
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
 
     if residuals and plot_fit:
         cax.set_xlim(xmin, xmax)
