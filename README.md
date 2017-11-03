@@ -3,4 +3,4 @@
 # Repository to contain VoigtFit
 
 
-## Check out documentation at: http://VoigtFit.readthedocs.io/en/latest/
+Check out the \href{http://VoigtFit.readthedocs.io}{documentation}
