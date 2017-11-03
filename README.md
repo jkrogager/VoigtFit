@@ -3,4 +3,4 @@
 # Repository to contain VoigtFit
 
 
-Check out the \href{http://VoigtFit.readthedocs.io}{documentation}
+Check out the [documentation](http://VoigtFit.readthedocs.io) for instructions of installation and use. 
