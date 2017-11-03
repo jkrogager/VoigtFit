@@ -246,8 +246,8 @@ class DataSet(object):
             region.mask = mask
             region.new_mask = False
         else:
-            # region.define_mask(z=self.redshift, dataset=self)
-            region.define_mask()
+            region.define_mask(z=self.redshift, dataset=self)
+            # region.define_mask()
 
     def find_line(self, tag):
         if tag in self.all_lines:
