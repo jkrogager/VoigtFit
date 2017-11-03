@@ -16,6 +16,7 @@ def parse_parameters(fname):
     parameters['snr'] = None
     parameters['output_pars'] = list()
     parameters['options'] = list()
+    parameters['fit_options'] = {'rebin': 1, 'method': 'leastsq'}
     par_file = open(fname)
     data = list()
     components = list()
@@ -301,13 +302,36 @@ def parse_parameters(fname):
                 print " Error - In order to print metallicities you must give log(NHI)."
             parameters['logNHI'] = logNHI
 
-        elif 'options' in line and 'name' not in line and 'save' not in line:
+        elif 'fit-options' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             items = line.split()[1:]
-            # here you can add keywords like 'velocity' to print velocities instead of redshift
-            # 'individual-regions' saves individual regions to separate files
-            parameters['output_pars'] = items
+            # here you can add keywords that will be passed to the fit and minimizer from lmfit.
+            # ex: rebin, ftol, xtol, method, etc.
+            fit_keywords = dict()
+            for item in items:
+                key, val = item.split('=')
+                if "'" in val or '"' in val:
+                    val = val.replace('"', '')
+                    val = val.replace("'", '')
+                    fit_keywords[key] = val
+                elif val.lower() == 'true':
+                    fit_keywords[key] = True
+                elif val.lower() == 'false':
+                    fit_keywords[key] = False
+                elif '.' in val:
+                    fit_keywords[key] = float(val)
+                else:
+                    fit_keywords[key] = int(val)
+            parameters['fit_options'] = fit_keywords
+
+        # elif 'options' in line and 'name' not in line and 'save' not in line and 'fit' not in line:
+        #     comment_begin = line.find('#')
+        #     line = line[:comment_begin].strip()
+        #     items = line.split()[1:]
+        #     # here you can add keywords like 'velocity' to print velocities instead of redshift
+        #     # 'individual-regions' saves individual regions to separate files
+        #     parameters['options'] = items
 
         elif 'output' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')

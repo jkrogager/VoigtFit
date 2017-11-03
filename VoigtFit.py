@@ -406,8 +406,10 @@ def main():
         for item in parameters['resolution']:
             dataset.set_resolution(item[0], item[1])
 
+    popt, chi2 = dataset.fit(verbose=False, plot=False, **parameters['fit_options'])
+
     # fit
-    popt, chi2 = dataset.fit(verbose=False, plot=False)
+
     print ""
     print popt.message
     print ""
@@ -474,7 +476,11 @@ def main():
         if filename.split('.')[-1] in ['pdf']:
             filename = filename[:-4]
         # plot and save
-        dataset.plot_fit(filename=filename, show=True)
+        if 'rebin' in parameters['fit_options'].keys():
+            rebin = parameters['fit_options']['rebin']
+        else:
+            rebin = 1
+        dataset.plot_fit(filename=filename, show=True, rebin=rebin)
         output.save_parameters_to_file(dataset, filename+'.fit')
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
         output.save_fit_regions(dataset, filename+'.reg', individual=individual_regions)

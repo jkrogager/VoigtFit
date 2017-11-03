@@ -850,7 +850,7 @@ class DataSet(object):
             return residual/error_spectrum
 
         minimizer = Minimizer(chi, self.pars, nan_policy='omit')
-        popt = minimizer.minimize()
+        popt = minimizer.minimize(**kwargs)
         self.best_fit = popt.params
         # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
         #                factor=1, method='nelder')
