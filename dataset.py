@@ -842,6 +842,9 @@ class DataSet(object):
                 print "            Run '.prepare_dataset()' before fitting."
             return False
 
+        if rebin > 1:
+            print "\n  Rebinning the data by a factor of %i \n" % rebin
+
         print "  Fit is running... Please, be patient.\n"
         # npad = options['npad']
 
@@ -886,8 +889,6 @@ class DataSet(object):
         minimizer = Minimizer(chi, self.pars, nan_policy='omit')
         popt = minimizer.minimize(**kwargs)
         self.best_fit = popt.params
-        # popt = minimize(chi, self.pars, maxfev=5000, ftol=1.49012e-10,
-        #                factor=1, method='nelder')
 
         if self.cheb_order >= 0:
             # Normalize region data with best-fit polynomial:
@@ -899,7 +900,12 @@ class DataSet(object):
                 region.normalized = True
 
         if verbose and self.verbose:
+            print "\n The fit has finished with the following exit message:"
+            print "  " + popt.message
+            print ""
             output.print_results(self, self.best_fit, velocity=False)
+            if self.cheb_order >= 0:
+                output.print_cont_parameters(self)
 
         if plot:
             self.plot_fit(rebin=rebin, subsample_profile=rebin)
@@ -944,6 +950,9 @@ class DataSet(object):
 
     def print_results(self, velocity=True, elements='all', systemic=0):
         output.print_results(self, self.best_fit, elements, velocity, systemic)
+
+    def print_cont_parameters(self):
+        output.print_cont_parameters(self)
 
     def print_metallicity(self, logNHI, err=0.1):
         output.print_metallicity(self, self.best_fit, logNHI, err)

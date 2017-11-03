@@ -405,9 +405,8 @@ def main():
         for item in parameters['resolution']:
             dataset.set_resolution(item[0], item[1])
 
+    # Run the fit:
     popt, chi2 = dataset.fit(verbose=False, plot=False, **parameters['fit_options'])
-
-    # fit
 
     print ""
     print popt.message

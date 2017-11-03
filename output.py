@@ -759,6 +759,29 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             print ""
 
 
+def print_cont_parameters(dataset):
+    """ Function to print Chebyshev coefficients"""
+    print ""
+    print "  Chebyshev coefficients for fitting regions:"
+    for reg_num, region in enumerate(dataset.regions):
+        lines_in_region = ", ".join([line.tag for line in region.lines])
+        print "   Region no. %i : %s" % (reg_num, lines_in_region)
+        cheb_parnames = list()
+        # Find Chebyshev parameters for this region:
+        # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
+        for parname in dataset.best_fit.keys():
+            if 'R%i_cheb' % reg_num in parname:
+                cheb_parnames.append(parname)
+        # This should be calculated at the point of generating
+        # the parameters, since this is a fixed data structure
+        # Sort the names, to arange the coefficients right:
+        cheb_parnames = sorted(cheb_parnames)
+        for i, parname in enumerate(cheb_parnames):
+            coeff = dataset.best_fit[parname]
+            line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
+        print ""
+
+
 def print_metallicity(dataset, params, logNHI, err=0.1):
     """
     Plot best fit absorption profiles.
