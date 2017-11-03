@@ -1,0 +1,16 @@
+# Synthetic data setup
+
+SN = 30. # Signal to noise
+R = 10000 # Resolution
+
+# Centers strengths
+2.3523 0.5
+2.3534 0.3
+2.3538 1.0
+2.3541 0.2
+2.3544 0.8
+2.3548 0.5
+
+# Total Column densities
+HI: 22.47
+SiII: 14.72
