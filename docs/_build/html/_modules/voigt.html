@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>voigt &#8212; VoigtFit 0.7 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.7',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for voigt</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#   VoigtFit</span>
+<span class="c1">#   module to evaluate line profile</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">fftconvolve</span><span class="p">,</span> <span class="n">gaussian</span>
+
+
+<span class="c1"># ==== VOIGT PROFILE ===============</span>
+<div class="viewcode-block" id="H"><a class="viewcode-back" href="../api.html#voigt.H">[docs]</a><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Voigt Profile Approximation from T. Tepper-Garcia 2006, 2007.&quot;&quot;&quot;</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">H0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="mf">1.5</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">a</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="n">P</span> <span class="o">*</span> <span class="p">(</span><span class="n">H0</span><span class="o">*</span><span class="n">H0</span><span class="o">*</span><span class="p">(</span><span class="mf">4.</span><span class="o">*</span><span class="n">P</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">7.</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">4.</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span> <span class="o">-</span> <span class="n">Q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Voigt"><a class="viewcode-back" href="../api.html#voigt.Voigt">[docs]</a><span class="k">def</span> <span class="nf">Voigt</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the Voigt profile of transition with</span>
+<span class="sd">    rest frame transition wavelength: &#39;l0&#39;</span>
+<span class="sd">    oscillator strength: &#39;f&#39;</span>
+<span class="sd">    column density: N  cm^-2</span>
+<span class="sd">    velocity width: b  cm/s</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ==== PARAMETERS ==================</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">2.99792e10</span>        <span class="c1"># cm/s</span>
+    <span class="n">m_e</span> <span class="o">=</span> <span class="mf">9.1095e-28</span>       <span class="c1"># g</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="mf">4.8032e-10</span>        <span class="c1"># cgs units</span>
+
+    <span class="c1"># ==================================</span>
+    <span class="c1"># Calculate Profile</span>
+
+    <span class="n">C_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">l0</span><span class="o">*</span><span class="mf">1.e-8</span><span class="o">/</span><span class="n">m_e</span><span class="o">/</span><span class="n">c</span><span class="o">/</span><span class="n">b</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">l0</span><span class="o">*</span><span class="mf">1.e-8</span><span class="o">*</span><span class="n">gam</span><span class="o">/</span><span class="p">(</span><span class="mf">4.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="n">dl_D</span> <span class="o">=</span> <span class="n">b</span><span class="o">/</span><span class="n">c</span><span class="o">*</span><span class="n">l0</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mf">1.</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="n">l0</span><span class="p">)</span><span class="o">/</span><span class="n">dl_D</span> <span class="o">+</span> <span class="mf">0.00001</span>
+
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">C_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tau</span></div>
+
+
+<div class="viewcode-block" id="evaluate_continuum"><a class="viewcode-back" href="../api.html#voigt.evaluate_continuum">[docs]</a><span class="k">def</span> <span class="nf">evaluate_continuum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">reg_num</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to evaluate the continuum model using Chebyshev polynomials.</span>
+<span class="sd">    All regions are fitted with the same order of polynomials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cheb_parnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">p_cont</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="c1"># Find Chebyshev parameters for this region:</span>
+    <span class="c1"># They are named like &#39;R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...&#39;</span>
+    <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">pars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb&#39;</span> <span class="o">%</span> <span class="n">reg_num</span> <span class="ow">in</span> <span class="n">parname</span><span class="p">:</span>
+            <span class="n">cheb_parnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parname</span><span class="p">)</span>
+    <span class="c1"># This should be calculated at the point of generating</span>
+    <span class="c1"># the parameters, since this is a fixed data structure</span>
+    <span class="c1"># Sort the names, to arange the coefficients right:</span>
+    <span class="n">cheb_parnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cheb_parnames</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">cheb_parnames</span><span class="p">:</span>
+        <span class="n">p_cont</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">parname</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="c1"># Calculate Chebyshev polynomium in x-range:</span>
+    <span class="n">cont_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Chebyshev</span><span class="p">(</span><span class="n">p_cont</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="n">cont_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="evaluate_profile"><a class="viewcode-back" href="../api.html#voigt.evaluate_profile">[docs]</a><span class="k">def</span> <span class="nf">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to evaluate Voigt profile for a fitting `Region&#39;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : np.array</span>
+<span class="sd">        Wavelength array to evaluate the profile on</span>
+
+<span class="sd">    pars : dictionary</span>
+<span class="sd">        Dictionary containing fit parameters from `lmfit&#39;</span>
+
+<span class="sd">    lines : list</span>
+<span class="sd">        List of lines in the region to evaluate.</span>
+<span class="sd">        Should be a list of `Line&#39; instances.</span>
+
+<span class="sd">    components : dictionary</span>
+<span class="sd">        Dictionary containing component data for the defined ions.</span>
+
+<span class="sd">    res : float</span>
+<span class="sd">        Spectral resolution of the region in km/s.</span>
+
+<span class="sd">    dv : float  [default=0.1]</span>
+<span class="sd">        Desired pixel size of profile evaluation in km/s.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    profile_obs : np.array</span>
+<span class="sd">        Total observed line profile of all lines in the region,</span>
+<span class="sd">        convolved with the instrument Line Spread Function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">xmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">50</span><span class="o">*</span><span class="n">dx</span><span class="p">)</span>
+    <span class="n">xmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">50</span><span class="o">*</span><span class="n">dx</span><span class="p">)</span>
+    <span class="c1"># N = int((x.max() - x.min())/(0.5*x.max() + 0.5*x.min())*299792.458 / dv)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Calculate logarithmically binned wavelength grid:</span>
+    <span class="n">profile_wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">)</span>
+
+    <span class="c1"># Calculate actual pixel size in km/s:</span>
+    <span class="n">pxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">profile_wl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
+
+    <span class="c1"># Determine range in which to evaluate the profile:</span>
+    <span class="n">max_logN</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">val</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">pars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;logN&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">max_logN</span> <span class="o">&gt;</span> <span class="mf">19.0</span><span class="p">:</span>
+        <span class="n">velspan</span> <span class="o">=</span> <span class="mf">20000.</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">(</span><span class="n">max_logN</span><span class="o">-</span><span class="mf">19.</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">velspan</span> <span class="o">=</span> <span class="mf">20000.</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gam</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_properties</span><span class="p">()</span>
+            <span class="n">ion</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">ion</span>
+            <span class="n">n_comp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">])</span>
+            <span class="n">l_center</span> <span class="o">=</span> <span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="n">z_sys</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
+            <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">profile_wl</span> <span class="o">-</span> <span class="n">l_center</span><span class="p">)</span><span class="o">/</span><span class="n">l_center</span><span class="o">*</span><span class="mf">299792.</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">velspan</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">vel</span> <span class="o">&lt;=</span> <span class="n">velspan</span><span class="p">)</span>
+            <span class="n">ion</span> <span class="o">=</span> <span class="n">ion</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_comp</span><span class="p">):</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;z</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ion</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+                    <span class="n">b</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;b</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ion</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">logN</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;logN</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ion</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">tau</span><span class="p">[</span><span class="n">span</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Voigt</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">[</span><span class="n">span</span><span class="p">],</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="n">logN</span><span class="p">,</span> <span class="mf">1.e5</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
+                    <span class="c1"># tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)</span>
+                <span class="k">elif</span> <span class="n">ion</span> <span class="o">==</span> <span class="s1">&#39;HI&#39;</span><span class="p">:</span>
+                    <span class="n">b</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;b</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ion</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">logN</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="s1">&#39;logN</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ion</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">tau</span><span class="p">[</span><span class="n">span</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Voigt</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">[</span><span class="n">span</span><span class="p">],</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="n">logN</span><span class="p">,</span> <span class="mf">1.e5</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
+                    <span class="c1"># tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># b = pars[&#39;b%i_%s&#39; % (n, ion)].value</span>
+                <span class="c1"># logN = pars[&#39;logN%i_%s&#39; % (n, ion)].value</span>
+                <span class="c1"># tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)</span>
+
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">tau</span><span class="p">)</span>
+    <span class="c1"># Calculate Line Spread Function, i.e., instrumental broadening:</span>
+    <span class="c1"># Since the wavelength grid is logarithmically binned,</span>
+    <span class="c1"># the kernel is constant in velocity-space:</span>
+    <span class="n">fwhm_instrumental</span> <span class="o">=</span> <span class="n">res</span>                                   <span class="c1"># in units of km/s</span>
+    <span class="n">sigma_instrumental</span> <span class="o">=</span> <span class="n">fwhm_instrumental</span> <span class="o">/</span> <span class="mf">2.35482</span> <span class="o">/</span> <span class="n">pxs</span>    <span class="c1"># in units of pixels</span>
+    <span class="n">LSF</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma_instrumental</span><span class="p">)</span>
+    <span class="n">LSF</span> <span class="o">=</span> <span class="n">LSF</span><span class="o">/</span><span class="n">LSF</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">profile_broad</span> <span class="o">=</span> <span class="n">fftconvolve</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">LSF</span><span class="p">,</span> <span class="s1">&#39;same&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Interpolate onto the data grid:</span>
+    <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">profile_wl</span><span class="p">,</span> <span class="n">profile_broad</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">profile_obs</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jens-Kristian Krogager.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
