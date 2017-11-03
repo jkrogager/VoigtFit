@@ -26,6 +26,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview of the VoigtFit program" href="documentation.html" />
+    <link rel="prev" title="VoigtFit" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -70,6 +72,74 @@ directory and run:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
 </div>
+<p># Python requirements</p>
+<p>Python version 2.7 (Python 3 is not supported yet)</p>
+<blockquote>
+<div>## Standard Packages</div></blockquote>
+<ul class="simple">
+<li>Numpy</li>
+<li>Matplotlib</li>
+<li>Scipy</li>
+</ul>
+<blockquote>
+<div>## PyFITS / Astropy</div></blockquote>
+<p><a class="reference external" href="https://pypi.python.org/pypi/pyfits/3.3">https://pypi.python.org/pypi/pyfits/3.3</a>
+<a class="reference external" href="http://www.astropy.org/">http://www.astropy.org/</a></p>
+<p>PyFITS can be installed individually, but the package is now mainly provided through the astropy
+package. Either one of these packages will work. These are available on pip:</p>
+<blockquote>
+<div><blockquote>
+<div>%] pip install pyfits
+%] pip install astropy</div></blockquote>
+<p>## LmFit</p>
+</div></blockquote>
+<p><a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a></p>
+<p>If you have pip installed, you can install lmfit with:</p>
+<blockquote>
+<div>%] pip install lmfit</div></blockquote>
+<p>or you can download the source kit, unpack it and install with:</p>
+<blockquote>
+<div><blockquote>
+<div>%] python setup.py install</div></blockquote>
+<p>## H5py</p>
+</div></blockquote>
+<p><a class="reference external" href="http://www.h5py.org/">http://www.h5py.org/</a></p>
+<p>If you have pip installed, you can install h5py with:</p>
+<blockquote>
+<div>%] pip install h5py</div></blockquote>
+<p>Or follow the instruction on the webpage.</p>
+<p># Setting up the environment:</p>
+<p>First up, you can check which shell type you are using by typing &#8216;echo $0&#8217; in your terminal.
+In order to run VoigtFit from any location, you should add the directory which contains VoigtFit to your PYTHONPATH environment variable:</p>
+<dl class="docutils">
+<dt>in bash:</dt>
+<dd>export PYTHONPATH=&#8217;${PYTHONPATH}:/path/to/folder/with/VoigtFit&#8217;</dd>
+<dt>or in csh:</dt>
+<dd>setenv PYTHONPATH $PYTHONPATH:/path/to/folder/with/VoigtFit</dd>
+</dl>
+<p>The software needs two data files in order to run. These are distributed along with the software under the directory &#8216;static/&#8217;. The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create system variables which the software will recognize.</p>
+<p>Add the VFITDATA environment variable. This variable points to the absolute path of the atomic data file (&#8216;atomdata_updated.dat&#8217;) and the solar abundance file (&#8216;Asplund2009.dat&#8217;) located in the &#8216;static&#8217; directory:</p>
+<p>in bash:</p>
+<blockquote>
+<div>export VFITDATA=&#8217;/path/to/VoigtFit/static&#8217;</div></blockquote>
+<p>or in csh:</p>
+<blockquote>
+<div><blockquote>
+<div>setenv VFITDATA path/to/VoigtFit/static</div></blockquote>
+<p>An example:</p>
+<blockquote>
+<div><p>If you are using bash shell and the code for VoigtFit is located in the folder
+&#8216;/home/user/coding/VoigtFit&#8217;, then the path to the atomdata_updated.dat and
+Asplund2009.dat files will be:</p>
+<p>export VFITDATA=&#8217;/home/user/coding/VoigtFit/static/&#8217;</p>
+</div></blockquote>
+</div></blockquote>
+<p>### To Do</p>
+<blockquote>
+<div><ul class="simple">
+<li>Show sky-lines/telluric in mask</li>
+</ul>
+</div></blockquote>
 </div>
 </div>
 
@@ -92,6 +162,8 @@ directory and run:</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">VoigtFit</a></li>
+      <li>Next: <a href="documentation.html" title="next chapter">Overview of the VoigtFit program</a></li>
   </ul></li>
 </ul>
 </div>
