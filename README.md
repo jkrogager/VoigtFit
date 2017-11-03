@@ -27,16 +27,14 @@ Using pip
 The easiest way to install the most recent stable version of ``VoigtFit`` is
 with [pip](http://www.pip-installer.org/):
 
-.. code-block:: bash
-
     pip install VoigtFit
 
 
 From source
 -----------
 
-Alternatively, you can get the source by cloning [the git
-repository](https://github.com/jkrogager/VoigtFit):
+Alternatively, you can get the source by cloning the git
+repository:
 
     git clone https://github.com/jkrogager/VoigtFit.git
 
