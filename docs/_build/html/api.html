@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &#8212; VoigtFit 0.7 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.7',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Detailed code overview</p>
+<dl class="class">
+<dt id="dataset.DataSet">
+<em class="property">class </em><code class="descclassname">dataset.</code><code class="descname">DataSet</code><span class="sig-paren">(</span><em>z</em>, <em>name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="dataset.DataSet.add_data">
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spectral data chunk to Absorption Line System.</p>
+<blockquote>
+<div>&#8211; input &#8211;</div></blockquote>
+<p>Give wavelength, flux and error as np.arrays.</p>
+<p>The spectrum should be helio-vacuum corrected!
+Flux and error should be given in the same units.</p>
+<p>The resolution &#8216;res&#8217; of the spectrum should be specified in km/s</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_fine_lines">
+<code class="descname">add_fine_lines</code><span class="sig-paren">(</span><em>line_tag</em>, <em>levels=None</em>, <em>full_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_fine_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_fine_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add fine-structure line complexes by providing only the main transition.
+The exact fine-structure leves to include is controlled by <em>levels</em>.
+By default all levels are included.
+Valid entries are:</p>
+<blockquote>
+<div>levels=&#8217;a&#8217;, levels=&#8217;b&#8217;, levels=&#8217;c&#8217;...</div></blockquote>
+<p>for first, second, and third levels.
+Several levels can be included at once:</p>
+<blockquote>
+<div>levels=[&#8216;a&#8217;,&#8217;b&#8217;]</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_molecule">
+<code class="descname">add_molecule</code><span class="sig-paren">(</span><em>molecule</em>, <em>band</em>, <em>J=0</em>, <em>velspan=None</em>, <em>full_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add molecular lines for a given band, e.g., AX(0-0).
+All rotational levels up to and including <em>J</em> will be included.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.copy_components">
+<code class="descname">copy_components</code><span class="sig-paren">(</span><em>ion</em>, <em>anchor</em>, <em>logN=0</em>, <em>ref_comp=None</em>, <em>tie_z=True</em>, <em>tie_b=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.copy_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.copy_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy velocity structure from one element to another.
+Input: &#8216;ion&#8217; is the new ion to define, which will</p>
+<blockquote>
+<div><p>be linked to the ion &#8216;anchor&#8217;.
+If logN is given the starting guess is defined
+from this value following the pattern of the
+component number &#8216;ref_comp&#8217; of the anchor ion.</p>
+<p>If &#8216;tie_z&#8217; or &#8216;tie_b&#8217; is set, then <em>all</em> components
+of the new element will be linked to the anchor.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.delete_component">
+<code class="descname">delete_component</code><span class="sig-paren">(</span><em>element</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.delete_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.delete_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove component with the given <a href="#id1"><span class="problematic" id="id2">`</span></a>index&#8217;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>verbose=True</em>, <em>plot=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the absorption lines using chi-square minimization.
+Returns the best fitting parameters for each component
+of each line.</p>
+<dl class="docutils">
+<dt>rebin <span class="classifier-delimiter">:</span> <span class="classifier">integer   [default = 1]</span></dt>
+<dd>Rebin data by a factor <em>rebin</em> before fitting.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.mask_line">
+<code class="descname">mask_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>reset=True</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.mask_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>define masked regions for a given line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.normalize_line">
+<code class="descname">normalize_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>norm_method='spline'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.normalize_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.normalize_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>normalize or re-normalize a given line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.reset_region">
+<code class="descname">reset_region</code><span class="sig-paren">(</span><em>reg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.reset_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.reset_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the data in a given region to the raw input data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.set_resolution">
+<code class="descname">set_resolution</code><span class="sig-paren">(</span><em>res</em>, <em>line_tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the spectral resolution in km/s for a given region containing <em>line_tag</em>.
+If not <em>line_tag</em> is given, the resolution will be set for <em>all</em> regions,
+including the raw data chunks!</p>
+<p>WARNING: If not all data chunks have the same resolution, then this method
+should be used with caution!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.set_systemic_redshift">
+<code class="descname">set_systemic_redshift</code><span class="sig-paren">(</span><em>z_sys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_systemic_redshift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_systemic_redshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the systemic redshift</p>
+</dd></dl>
+
+</dd></dl>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Jens-Kristian Krogager.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
