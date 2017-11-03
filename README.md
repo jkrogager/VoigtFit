@@ -18,14 +18,14 @@ Python version 2.7 (Python 3 is not supported yet)
 
 VoigtFit depends on ``matplotlib``, ``numpy``, ``scipy``, ``h5py``, ``astropy``, and ``lmfit``. You
 can install these using your favorite Python package manager and I would
-recommend `conda <http://conda.pydata.org/docs/>`_ if you don't already have
+recommend [conda](http://conda.pydata.org/docs/) if you don't already have
 an opinion.
 
 Using pip
 ---------
 
 The easiest way to install the most recent stable version of ``VoigtFit`` is
-with `pip <http://www.pip-installer.org/>`_:
+with [pip](http://www.pip-installer.org/):
 
 .. code-block:: bash
 
@@ -35,18 +35,13 @@ with `pip <http://www.pip-installer.org/>`_:
 From source
 -----------
 
-Alternatively, you can get the source by downloading a `tarball
-<https://github.com/jkrogager/VoigtFit/tarball/master>`_ or cloning `the git
-repository <https://github.com/jkrogager/VoigtFit>`_:
-
-.. code-block:: bash
+Alternatively, you can get the source by cloning [the git
+repository](https://github.com/jkrogager/VoigtFit):
 
     git clone https://github.com/jkrogager/VoigtFit.git
 
 Once you've downloaded the source, you can navigate into the root source
 directory and run:
-
-.. code-block:: bash
 
     python setup.py install
 
