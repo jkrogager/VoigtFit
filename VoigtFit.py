@@ -6,6 +6,12 @@
 #
 
 import numpy as np
+
+import matplotlib
+# The native MacOSX backend doesn't work for all:
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+
 try:
     import pyfits as pf
 except:
@@ -20,10 +26,6 @@ import hdf5_save
 
 import warnings
 
-import matplotlib
-# The native MacOSX backend doesn't work for all:
-matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
 warnings.filterwarnings("ignore", category=UserWarning)

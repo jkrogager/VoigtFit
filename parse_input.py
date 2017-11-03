@@ -15,6 +15,7 @@ def parse_parameters(fname):
     parameters['velspan'] = 500.
     parameters['snr'] = None
     parameters['output_pars'] = list()
+    parameters['options'] = list()
     par_file = open(fname)
     data = list()
     components = list()
@@ -268,7 +269,7 @@ def parse_parameters(fname):
         elif 'clear mask' in line.lower():
             parameters['clear_mask'] = True
 
-        elif 'mask' in line and 'name' not in line and 'save' not in line:
+        elif 'mask' in line and 'name' not in line and 'save' not in line and 'nomask' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
@@ -299,6 +300,14 @@ def parse_parameters(fname):
             else:
                 print " Error - In order to print metallicities you must give log(NHI)."
             parameters['logNHI'] = logNHI
+
+        elif 'options' in line and 'name' not in line and 'save' not in line:
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()[1:]
+            # here you can add keywords like 'velocity' to print velocities instead of redshift
+            # 'individual-regions' saves individual regions to separate files
+            parameters['output_pars'] = items
 
         elif 'output' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')

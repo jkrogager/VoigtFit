@@ -233,7 +233,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             width = 8.5
             columns = 2
 
-        heigth = (len(contents) + 2) / 2 * 8.5/(max_rows+1)
+        heigth = (len(contents) + 2) / 2 * 7.5/(max_rows)
         rows = (len(contents) + 2) / 2
         if len(contents) == 1:
             heigth = 6
@@ -258,7 +258,9 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents)-2:
-                    ax.set_xticklabels([''])
+                    # xtl = ax.get_xticklabels()
+                    # print [ticklabel.get_text() for ticklabel in xtl]
+                    pass
                 else:
                     ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
 
@@ -266,12 +268,7 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                     ax.set_ylabel("Normalized Flux", fontsize=12)
                 num += 1
                 # LIV is a shorthand for 'lines_in_view'
-        # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
-        #          ha='center', va='bottom', transform=fig.transFigure,
-        #          fontsize=16)
-        # fig.text(0.01, 0.5, "Normalized flux",
-        #          ha='left', va='center', transform=fig.transFigure,
-        #          fontsize=16, rotation=90)
+
         if filename:
             pdf.savefig(fig)
 
@@ -391,17 +388,14 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                 n_comp = len(dataset.components[ion])
                 l_center = l0*(dataset.redshift + 1.)
                 vel = (wl_line - l_center)/l_center*299792.458
-                span = (vel >= -velspan)*(vel <= velspan)
                 ion = ion.replace('*', 'x')
 
                 for n in range(n_comp):
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    # tau[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
-                        # tau_hl[span] += voigt.Voigt(wl_line[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
                         tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                         ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
                         N_highlight += 1
@@ -429,6 +423,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     if not xmax:
         xmax = region.velspan
     ax.set_xlim(xmin, xmax)
+    if np.abs(xmin) > 900 or np.abs(xmax) > 900:
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 
     if residuals and plot_fit:
         cax.set_xlim(xmin, xmax)
@@ -436,9 +432,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     view_part = (vel > xmin) * (vel < xmax)
 
     if not ymin:
-        # ymin = y[view_part].min() - 3.5*err[view_part].mean()
         ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
-    # ymax = max(1. + 2*err[view_part].mean(), 1.08)
     ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
     ax.set_ylim(ymin, ymax)
 
@@ -475,7 +469,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
             cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
-            cax.set_xticklabels([''])
+            # cax.set_xticklabels([''])
+            cax.tick_params(labelbottom='off')
             cax.set_yticklabels([''])
             res_min = np.nanmax(4*err)
             res_max = np.nanmin(-4*err)
@@ -515,7 +510,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.06, line_string, va='bottom', ha=loc,
+    ax.text(label_x, 0.08, line_string, va='bottom', ha=loc,
             transform=ax.transAxes, fontsize=fontsize,
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
