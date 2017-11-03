@@ -199,6 +199,10 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
     included_lines = list()
     lines_to_plot = list()
     for ref_line in dataset.lines.values():
+        # If the line is not active, skip this line:
+        if not ref_line.active:
+            continue
+
         if ref_line.tag in included_lines:
             pass
         else:
