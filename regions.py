@@ -8,6 +8,16 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.interpolate import spline
 
+import os
+
+if 'VFITDATA' in os.environ.keys():
+    datafile = os.environ['VFITDATA']+'/telluric_em_abs.dat'
+
+else:
+    print("No VFITDATA in environment ... Using relative path to static data files")
+    datafile = os.path.dirname(__file__) + '/static/Asplund2009.dat'
+telluric_data = np.loadtxt(datafile)
+
 
 def linfunc(x, a, b):
     # Linear fitting function
@@ -159,7 +169,7 @@ class Region():
             self.normalized = True
             return 1
 
-    def define_mask(self, z=None, dataset=None):
+    def define_mask(self, z=None, dataset=None, telluric=True):
         plt.close('all')
 
         plt.xlim(self.wl.min(), self.wl.max())
@@ -169,6 +179,18 @@ class Region():
                  label=lines_title)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
         plt.legend()
+        if telluric:
+            wl_T = telluric_data[:, 0]
+            cutout = (wl_T > self.wl.min()) * (wl_T < self.wl.max())
+            flux_T = telluric_data[:, 1][cutout]
+            abs_T = telluric_data[:, 2][cutout]
+            wl_T = wl_T[cutout]
+            if self.normalized:
+                cont = 1.
+            else:
+                cont = np.median(self.flux)
+            plt.plot(wl_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
+            plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont, color='orange', alpha=0.7, lw=0.5)
 
         if z is not None:
             for line in self.lines:

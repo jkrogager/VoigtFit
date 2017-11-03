@@ -451,6 +451,9 @@ def main():
     else:
         dataset.print_results(velocity=False)
 
+    if dataset.cheb_order >= 0:
+        dataset.print_cont_parameters()
+
     if 'individual-regions' in parameters['output_pars']:
         individual_regions = True
     else:

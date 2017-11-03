@@ -111,15 +111,26 @@ class DataSet(object):
 
     def add_data(self, wl, flux, res, err=None, normalized=False):
         """
-        Add spectral data chunk to Absorption Line System.
+        Add spectral data to the DataSet. This will be used to define fitting regions.
 
-         -- input --
-        Give wavelength, flux and error as np.arrays.
+        Parameters
+        ----------
+        wl : ndarray, shape (n)
+            Input vacuum wavelength array in Angstroms
 
-        The spectrum should be helio-vacuum corrected!
-        Flux and error should be given in the same units.
+        flux : ndarray, shape (n)
+            Input flux array, should be same length as wl
 
-        The resolution 'res' of the spectrum should be specified in km/s
+        res : float
+            Spectral resolution in km/s  (c/R)
+
+        err : ndarray, shape (n)
+            Error array, should be same length as wl
+            If `None' is given, a constant uncertainty of 1. is given to all pixels.
+
+        normalized : bool
+            If the input spectrum is normalized this should be given as True
+            in order to skip normalization steps.
         """
         if err is None:
             err = np.ones_like(flux)
@@ -128,7 +139,7 @@ class DataSet(object):
                           'error': err, 'res': res, 'norm': normalized})
 
     def reset_region(self, reg):
-        """Reset the data in a given region to the raw input data."""
+        """Reset the data in a given region `reg' to use the raw input data."""
         for chunk in self.data:
             if reg.res == chunk['res'] and (chunk['wl'].min() < reg.wl.min() < chunk['wl'].max()):
                 raw_data = chunk
@@ -141,10 +152,27 @@ class DataSet(object):
         reg.normalized = raw_data['norm']
 
     def reset_all_regions(self):
+        """Reset the data in all regions defined in the DataSet to use the raw input data."""
         for reg in self.regions:
             self.reset_region(reg)
 
-    def get_resolution(self, line_tag=None, verbose=False):
+    def get_resolution(self, line_tag, verbose=False):
+        """Return the spectral resolution for the fitting region where the line with
+        the given `line_tag' is defined, otherwise give the resolution for all fitting regions.
+
+        Parameters
+        ----------
+        line_tag : str,  default = None
+            The line-tag for the line to look up: e.g., "FeII_2374"
+
+        verbose : bool,  default = False
+            If `True', print the returned spectral resolution to std out.
+
+        Returns
+        -------
+        res : float
+            The spectral resolution of the fitting region where the given line is defined.
+        """
         if line_tag:
             region = self.find_line(line_tag)
             if verbose and self.verbose:
@@ -152,24 +180,10 @@ class DataSet(object):
                 print output_msg % (line_tag, region.res)
             return region.res
 
-        else:
-            resolution = list()
-            if verbose and self.verbose:
-                print " Spectral Resolution:"
-            for region in self.regions:
-                if region.has_active_lines():
-                    res = region.res
-                    ref_line = region.lines[0]
-                    if verbose and self.verbose:
-                        print "   For %-13s :  %.1f" % (ref_line.tag, res)
-                    resolution.append(res)
-
-            return resolution
-
-    def set_resolution(self, res, line_tag=None):
+    def set_resolution(self, res, line_tag=None, verbose=True):
         """
-        Set the spectral resolution in km/s for a given region containing *line_tag*.
-        If not *line_tag* is given, the resolution will be set for *all* regions,
+        Set the spectral resolution in km/s for a given region containing `line_tag'.
+        If `line_tag' is not given, the resolution will be set for *all* regions,
         including the raw data chunks!
 
         WARNING: If not all data chunks have the same resolution, then this method
@@ -180,6 +194,10 @@ class DataSet(object):
             region.res = res
 
         else:
+            if verbose:
+                warn_msg = " [WARNING] - Setting spectral resolution for all regions, R=%.1f km/s!"
+                print warn_msg % res
+
             for region in self.regions:
                 region.res = res
 
@@ -187,10 +205,20 @@ class DataSet(object):
                 chunk['res'] = res
 
     def set_systemic_redshift(self, z_sys):
-        """Update the systemic redshift"""
+        """Update the systemic redshift of the dataset"""
         self.redshift = z_sys
 
     def remove_line(self, tag):
+        """
+        Remove an absorption line from the DataSet. If this is the last line in a fitting region
+        the given region will be eliminated, and if this is the last line of a given ion,
+        then the components will be eliminated for that ion.
+
+        Parameters
+        ----------
+        tag : str
+            Line tag of the transitoin that should be removed.
+        """
         if tag in self.all_lines:
             self.all_lines.remove(tag)
             if tag in self.lines.keys():
@@ -224,7 +252,18 @@ class DataSet(object):
                 print " The line is not defined. Nothing to remove."
 
     def normalize_line(self, line_tag, norm_method='spline'):
-        """ normalize or re-normalize a given line """
+        """
+        Normalize or re-normalize a given line
+
+        Parameters
+        ----------
+        line_tag : str
+            Line tag of the line whose fitting region should be normalized.
+
+        norm_method : str  default = 'spline':
+            Normalization method used for the interactive continuum fit.
+            Options ["spline", "linear"]
+        """
         if norm_method == 'linear':
             norm_num = 1
         elif norm_method == 'spline':
@@ -236,8 +275,29 @@ class DataSet(object):
         region = self.find_line(line_tag)
         region.normalize(norm_method=norm_num)
 
-    def mask_line(self, line_tag, reset=True, mask=None):
-        """ define masked regions for a given line """
+    def mask_line(self, line_tag, reset=True, mask=None, telluric=True):
+        """
+        Define exclusion masks for the fitting region of a given line.
+        Note that the masked regions are exclusion regions and will not be used for the fit.
+        If components have been defined, these will be shown as vertical lines.
+
+        Parameters
+        ----------
+        line_tag : str
+            Line tag for the line whose region should be masked.
+
+        reset : bool  default = True
+            If `True', clear the mask before defining a new mask.
+
+        mask : array_like, shape (n)  default = None
+            If the mask is given, it must be a boolean array of the same length
+            as the region flux, err, and wl arrays.
+            Passing a mask this was supresses the interactive masking process.
+
+        telluric : bool  default = True
+            If `True', a telluric absorption template and sky emission template
+            is shown for reference.
+        """
         region = self.find_line(line_tag)
         if reset:
             region.clear_mask()
@@ -246,22 +306,34 @@ class DataSet(object):
             region.mask = mask
             region.new_mask = False
         else:
-            region.define_mask(z=self.redshift, dataset=self)
-            # region.define_mask()
+            region.define_mask(z=self.redshift, dataset=self, telluric=telluric)
 
-    def find_line(self, tag):
-        if tag in self.all_lines:
+    def find_line(self, line_tag):
+        """
+        Look up the fitting region for a given line.
+
+        line_tag : str
+            The line tag of the line whose region will be returned.
+
+        Returns
+        -------
+        region : Region instance
+            The fitting region containing the given line.
+            This is an instance of the regions.Region class.
+        """
+        if line_tag in self.all_lines:
             for region in self.regions:
-                if region.has_line(tag):
+                if region.has_line(line_tag):
                     return region
 
         else:
             if self.verbose:
-                print "\n The line (%s) is not defined." % tag
+                print "\n The line (%s) is not defined." % line_tag
 
         return None
 
     def activate_line(self, line_tag):
+        """Activate a given line defined by its `line_tag'"""
         if line_tag in self.lines.keys():
             line = self.lines[line_tag]
             line.set_active()
@@ -273,6 +345,10 @@ class DataSet(object):
                     line.set_active()
 
     def deactivate_line(self, line_tag):
+        """
+        Deactivate a given line defined by its `line_tag'.
+        This will exclude the line during the fit.
+        """
         if line_tag in self.lines.keys():
             line = self.lines[line_tag]
             line.set_inactive()
@@ -295,56 +371,119 @@ class DataSet(object):
             self.components.pop(ion)
 
     def deactivate_all(self):
+        """Deactivate all lines defined in the DataSet. This will not remove the lines."""
         for line_tag in self.all_lines:
             self.deactivate_line(line_tag)
         self.components = dict()
 
     def activate_all(self):
+        """Activate all lines defined in the DataSet."""
         for line_tag in self.all_lines:
             self.activate_line(line_tag)
 
     def all_active_lines(self):
+        """Returns a list of all the active lines defined by their `line_tag'."""
         act_lines = list()
         for line_tag, line in self.lines.items():
             if line.active:
                 act_lines.append(line_tag)
         return act_lines
 
-    def reset_components(self, element=None):
-        """    Reset components dictionary.
-            If an element is given, only this element is reset.
-            Otherwise all elements are reset."""
+    def reset_components(self, ion=None):
+        """
+        Reset component structure for a given ion.
 
-        if element:
-            if element in self.components.keys():
-                self.components.pop(element)
+        Parameters
+        ----------
+        ion : str  default = None
+            The ion for which to reset the components: e.g., FeII, HI, CIa, etc.
+            Otherwise all components for all ions will be reset.
+        """
+
+        if ion:
+            if ion in self.components.keys():
+                self.components.pop(ion)
             else:
                 if self.verbose:
-                    print " [ERROR] - No components defined for element: %s" % element
+                    print " [ERROR] - No components defined for ion: %s" % ion
 
         else:
             self.components = dict()
 
-    def add_component(self, element, z, b, logN,
+    def add_component(self, ion, z, b, logN,
                       var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
+        """
+        Add component for a given ion. Each component defined will be used for all transitions
+        defined for a given ion.
+
+        Parameters
+        ----------
+        ion : str
+            The ion for which to define a component: e.g., "FeII", "HI", "CIa", etc.
+
+        z : float
+            The redshift of the component.
+
+        b : float
+            The effective broadening parameter for the component in km/s.
+            This parameter is constrained to be in the interval [0 - 1000] km/s.
+
+        logN : float
+            The 10-base logarithm of the column density of the component.
+            The column density is expected in cm^-2.
+
+        var_z : bool
+            If `False', the redshift of the component will be kept fixed.
+
+        var_b : bool
+            If `False', the b-parameter of the component will be kept fixed.
+
+        var_N : bool
+            If `False', the column density of the component will be kept fixed.
+
+        tie_z, tie_b, tie_N : str  default = None
+            Parameter constraints for the different variables.
+            The ties are defined relative to the parameter names. The naming is as follows:
+            The redshift of the first component of FeII is called "z0_FeII",
+            the logN of the second component of SiII is called "logN1_SiII".
+            For more information about parameter ties, see the LmFit documentation.
+        """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
-        if element in self.components.keys():
-            self.components[element].append([z, b, logN, options])
+        if ion in self.components.keys():
+            self.components[ion].append([z, b, logN, options])
         else:
-            self.components[element] = [[z, b, logN, options]]
+            self.components[ion] = [[z, b, logN, options]]
 
-    def add_component_velocity(self, element, v, b, logN,
+    def add_component_velocity(self, ion, v, b, logN,
                                var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
+        """
+        Same as for `add_component()' but input is given as relative velocity instead of redshift.
+        """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
         z = self.redshift + v/299792.458*(self.redshift + 1.)
-        if element in self.components.keys():
-            self.components[element].append([z, b, logN, options])
+        if ion in self.components.keys():
+            self.components[ion].append([z, b, logN, options])
         else:
-            self.components[element] = [[z, b, logN, options]]
+            self.components[ion] = [[z, b, logN, options]]
 
     def interactive_components(self, line_tag):
+        """
+        Define components interactively for a given ion. The components will be defined on the
+        basis of the single given line for that ion. Previously defined components for the
+        ion will be overwritten.
+
+        Parameters
+        ----------
+        line_tag : str
+            Line tag for the line belonging to the ion for which components should be defined.
+
+        This will launch an interactive plot showing the fitting region of the given line.
+        The user can then click on the positions of the components which. At the end, the
+        redshifts and estimated column densities are printed to terminal. The b-parameter
+        is assumed to be unresolved.
+        """
         region = self.find_line(line_tag)
         wl, flux, err, mask = region.unpack()
         plt.close('all')
@@ -399,32 +538,43 @@ class DataSet(object):
         else:
             pass
 
-    def delete_component(self, element, index):
-        """
-        Remove component with the given `index'.
-        """
-        if element in self.components.keys():
-            self.components[element].pop(index)
+    def delete_component(self, ion, index):
+        """Remove component of the given `ion' with the given `index'."""
+        if ion in self.components.keys():
+            self.components[ion].pop(index)
 
         else:
             if self.verbose:
-                print " [ERROR] - No components defined for ion: "+element
+                print " [ERROR] - No components defined for ion: "+ion
 
     def copy_components(self, ion, anchor, logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
-        Copy velocity structure from one element to another.
-        Input: 'ion' is the new ion to define, which will
-                be linked to the ion 'anchor'.
-                If logN is given the starting guess is defined
-                from this value following the pattern of the
-                component number 'ref_comp' of the anchor ion.
+        Copy velocity structure to `ion' from the anchor.
 
-                If 'tie_z' or 'tie_b' is set, then *all* components
-                of the new element will be linked to the anchor.
+        Parameters
+        ----------
+        ion : str
+            The new ion to define, which will be linked to the `anchor' ion.
+
+        anchor : str
+            The baes ion which will be used for the linking.
+
+        logN : float
+            If logN is given the starting guess is defined from this value
+            following the pattern of the components defined for `anchor' relative to the
+            `ref_comp' (default: the first component).
+
+        ref_comp : int
+            The reference component to which logN will be scaled.
+
+        tie_z : bool  default = True
+            If `True', the redshifts for all components of the two ions will be tied together.
+
+        tie_b : bool  default = True
+            If `True', the b-parameters for all components of the two ions will be tied together.
         """
         reference = self.components[anchor]
-        # overwrite the components already defined for element
-        # if they exist.
+        # overwrite the components already defined for ion if they exist
         self.components[ion] = []
 
         if ref_comp is not None:
@@ -449,6 +599,7 @@ class DataSet(object):
             self.components[ion].append(new_comp)
 
     def load_components_from_file(self, fname):
+        """Load best-fit parameters from an output file `fname'."""
         parameters = open(fname)
         components_to_add = list()
         all_ions_in_file = list()
@@ -477,9 +628,17 @@ class DataSet(object):
             self.add_component(ion, z, b, logN)
         parameters.close()
 
-    def fix_structure(self, element=''):
-        if element:
-            for comp in self.components[element]:
+    def fix_structure(self, ion=None):
+        """Fix the velocity structure, that is, the redshifts and the b-parameters.
+
+        Parameters
+        ----------
+        ion : str  default = None
+            The ion for which the structure should be fixed.
+            If None is given, the structure is fixed for all ions.
+        """
+        if ion:
+            for comp in self.components[ion]:
                 comp[3]['var_b'] = False
                 comp[3]['var_z'] = False
         else:
@@ -488,18 +647,38 @@ class DataSet(object):
                     comp[3]['var_b'] = False
                     comp[3]['var_z'] = False
 
-    def add_line(self, tag, velspan=None, active=True, norm_method=1):
+    def add_line(self, line_tag, velspan=None, active=True):
+        """
+        Add an absorption line to the DataSet.
+
+        Parameters
+        ----------
+        line_tag : str
+            The line tag for the transition which should be defined: e.g., "FeII_2374"
+
+        velspan : float  default = None
+            The velocity span around the line center, which will be included in the fit.
+            If `None' is given, use the default `self.velspan' defined (500 km/s).
+
+        active : bool  default = True
+            Set the line as active (i.e., included in the fit).
+
+        This will initiate a `Line' class with the atomic data for the transition,
+        as well as creating a fitting region (`Region' class) containing the data cutout
+        around the line center.
+        """
+
         self.ready2fit = False
-        if tag in self.all_lines:
+        if line_tag in self.all_lines:
             if self.verbose:
-                print " [WARNING] - %s is already defined." % tag
+                print " [WARNING] - %s is already defined." % line_tag
             return False
 
-        if tag in lineList['trans']:
-            new_line = Line(tag)
+        if line_tag in lineList['trans']:
+            new_line = Line(line_tag)
         else:
             if self.verbose:
-                print "\nThe transition (%s) not found in line list!" % tag
+                print "\nThe transition (%s) not found in line list!" % line_tag
             return False
 
         if velspan is None:
@@ -554,13 +733,13 @@ class DataSet(object):
                     new_region.add_data_to_region(chunk, cutout)
 
                     self.regions.append(new_region)
-                    self.all_lines.append(tag)
-                    self.lines[tag] = new_line
+                    self.all_lines.append(line_tag)
+                    self.lines[line_tag] = new_line
                     success = True
 
             if not success:
                 if self.verbose:
-                    print "\n [ERROR] - The given line is not covered by the spectral data: " + tag
+                    print "\n [ERROR] - The given line is not covered by the spectral data: " + line_tag
                     print ""
                 return False
 
@@ -569,6 +748,19 @@ class DataSet(object):
                 print " [ERROR]  No data is loaded. Run method 'add_data' to add spectral data."
 
     def add_many_lines(self, tags, velspan=None):
+        """
+        Add many lines at once.
+
+        Parameters
+        ----------
+        tags : list(str)
+            A list of line tags for the transitions that should be added.
+
+        velspan : float  default = None
+            The velocity span around the line center, which will be included in the fit.
+            If `None' is given, use the default `self.velspan' defined (500 km/s).
+        """
+
         self.ready2fit = False
         if hasattr(velspan, '__iter__'):
             for tag, v in zip(tags, velspan):
@@ -583,13 +775,23 @@ class DataSet(object):
     def add_fine_lines(self, line_tag, levels=None, full_label=False):
         """
         Add fine-structure line complexes by providing only the main transition.
-        The exact fine-structure leves to include is controlled by *levels*.
-        By default all levels are included.
-        Valid entries are:
-            levels='a', levels='b', levels='c'...
-        for first, second, and third levels.
-        Several levels can be included at once:
-            levels=['a','b']
+        This function is mainly useful for the CI complexes, where the many lines are closely
+        located and often blended.
+
+        Parameters
+        ----------
+        line_tag : str
+            Line tag for the ground state transition, e.g., "CI_1656"
+
+        levels : str, list(str), None
+            The levels of the fine-structure complexes to add, starting with "a" referring
+            to the first excited level, "b" is the second, etc..
+            Several levels can be given at once: ['a', 'b']
+            By default, all levels are included.
+
+        full_label : bool  default = False
+            If `True', the label will be translated to the full quantum mechanical description
+            of the state.
         """
         if hasattr(levels, '__iter__'):
             for fineline in fine_structure_complexes[line_tag]:
@@ -615,17 +817,42 @@ class DataSet(object):
             reg.label = line_complexes.CI_labels[line_tag]
 
     def remove_fine_lines(self, line_tag):
-        """Remove all lines associated to a given fine-structure complex."""
+        """
+        Remove all lines associated to a given fine-structure complex.
+
+        Parameters
+        ----------
+        line_tag : str
+            The line tag of the gorund state transition to remove.
+        """
         for fineline in fine_structure_complexes[line_tag]:
             if fineline in self.all_lines:
                 self.remove_line(line_tag)
 
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
-        Add molecular lines for a given band, e.g., AX(0-0).
-        All rotational levels up to and including *J* will be included.
-        If full_label is set, the regions label will be translated to the full
-        description of the quantum mechanical state.
+        Add molecular lines for a given band, e.g., ``AX(0-0)".
+
+        Parameters
+        ----------
+        molecule : str
+            The molecular identifier, e.g., 'CO', 'H2'
+
+        band : str
+            The vibrational band of the molecule, e.g., for CO: "AX(0-0)"
+            These bands are defined in the `line_complexes'.
+
+        J : int  default = 0
+            The maximal rotational level to include. All levels up to and including `J'
+            will be included.
+
+        velspan : float  default = None
+            The velocity span around the line center, which will be included in the fit.
+            If `None' is given, use the default `self.velspan' defined (500 km/s).
+
+        full_label : bool  default = False
+            If `True', the label will be translated to the full quantum mechanical description
+            of the state.
         """
         if molecule == 'CO':
             nu_level = line_complexes.CO[band]
@@ -665,8 +892,10 @@ class DataSet(object):
                 self.molecules.pop('CO')
 
     def deactivate_molecule(self, molecule, band):
-        """Deactivate all lines for the given band of the given molecule.
-        To see the available molecular bands defined, see the manual pdf."""
+        """
+        Deactivate all lines for the given band of the given molecule.
+        To see the available molecular bands defined, see the manual pdf or the `line_complexes'.
+        """
         if molecule == 'CO':
             if band not in self.molecules['CO']:
                 if self.verbose:
