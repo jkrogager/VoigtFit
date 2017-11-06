@@ -292,22 +292,43 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     """
     Plot absorption line.
 
-      INPUT:
-    dataset:  VoigtFit.DataSet instance containing the line regions
-    line_tag: The line tag of the line to show, e.g., 'FeII_2374'
+    Parameters
+    ----------
+    dataset : class DataSet
+        Instance of class `DataSet' containing the line regions
 
-    plot_fit:    if True, the best-fit profile will be shown
-    linestyles:  a list of linestyles to show velocity components
-    colors:      a lost of colors to show the velocity components
+    line_tag : str
+        The line tag of the line to show, e.g., 'FeII_2374'
 
-    The colors and linestyles are combined to form an `iterator'
-    which cycles through a set of (linestyle, color).
+    plot_fit : bool   [default = False]
+        If `True', the best-fit profile will be shown
 
-    loc: places the line tag (right or left), default *left*.
+    linestyles : list(linestyle)
+        A list of matplotlib linestyles to show velocity components
 
-    rebin: integer factor for rebinning the spectrum
+    colors : list(colors)
+        A loit of matplotlib color strings to show the velocity components
+        The colors and linestyles are combined to form an iterator
+        which cycles through a set of (linestyle, color).
 
-    nolabels: show axis labels?
+    loc : str   [default = 'left']
+        Places the line tag (right or left).
+
+    rebin : int   [default = 1]
+        Rebinning factor for the spectrum
+
+    nolabels : bool   [default = False]
+        Show axis labels?
+
+    axis
+    fontsize
+    xmin, xmax
+    ymin
+    show
+    subsample_profile
+    npad
+    residuals
+    highlight
     """
 
     if line_tag not in dataset.all_lines:

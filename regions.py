@@ -26,6 +26,7 @@ def linfunc(x, a, b):
 
 class Region():
     def __init__(self, v, line):
+        """Fitting region object. This class contains the fit region data and line information."""
         self.velspan = v
         self.lines = [line]
         self.label = ''
@@ -170,6 +171,22 @@ class Region():
             return 1
 
     def define_mask(self, z=None, dataset=None, telluric=True):
+        """
+        Use an interactive window to define the mask for the region.
+
+        Parameters
+        ----------
+        z : float   [default = None]
+            If a redshift is given, the lines in the region are shown as vertical lines
+            at the given redshift.
+
+        dataset : class DataSet   [default = None]
+            A dataset with components defined for the lines in the region.
+            If a dataset is passed, the components of the lines in the region are shown.
+
+        telluric : bool   [default = True]
+            Show telluric absorption and sky emission line templates during the masking.
+        """
         plt.close('all')
 
         plt.xlim(self.wl.min(), self.wl.max())
@@ -260,19 +277,23 @@ class Region():
                     ok += 1
 
     def clear_mask(self):
+        """Clear the already defined mask in the region."""
         self.mask = np.ones_like(self.wl, dtype=bool)
         self.new_mask = True
 
     def unpack(self):
+        """Return the data of the region (wl, flux, error, mask)"""
         return (self.wl, self.flux, self.err, self.mask)
 
     def is_normalized(self):
         return self.normalized
 
     def set_label(self, text):
+        """Set descriptive text label for the given region."""
         self.label = text
 
     def generate_label(self, active_only=True):
+        """Automatically generate a descriptive label for the region."""
         transition_lines = list()
         if active_only:
             for line in self.lines:

@@ -57,7 +57,7 @@ def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
 
 
 def air2vac(air):
-    # From Donald Morton 1991, ApJS 77,119
+    """Air to vacuum conversion from Donald Morton 1991, ApJS 77,119"""
     if type(air) == float or type(air) == int:
         air = np.array(air)
     air = np.array(air)
@@ -71,54 +71,30 @@ def air2vac(air):
 
 
 def SaveDataSet(filename, dataset):
-    """Rewritten function to save dataset using HDF5"""
+    """Save dataset to HDF5 file."""
     hdf5_save.save_hdf_dataset(dataset, filename)
-
-# def SaveDataSet(pickle_file, dataset):
-#     f = open(pickle_file, 'wb')
-#     # Strip parameter ties before saving.
-#     # They often cause problems when loading datasets.
-#     try:
-#         for par in dataset.best_fit.values():
-#             par.expr = None
-#     except:
-#         pass
-#
-#     try:
-#         for par in dataset.pars.values():
-#             par.expr = None
-#     except:
-#         pass
-#
-#     pickle.dump(dataset, f)
-#     f.close()
 
 
 def LoadDataSet(filename):
-    """Rewritten functino to load HDF5 file"""
+    """Load a dataset from a HDF5 file."""
     dataset = hdf5_save.load_dataset_from_hdf(filename)
     return dataset
 
-# def LoadDataSet(pickle_file):
-#     f = open(pickle_file, 'rb')
-#     dataset = pickle.load(f)
-#     f.close()
-#     return dataset
-
 
 # defined here and in dataset.py for backwards compatibility
+# TODO: Test if this is necessary with the new file format.
 class Line(object):
     def __init__(self, tag, active=True):
         self.tag = tag
         index = lineList['trans'].tolist().index(tag)
-        tag, ion, l0, f, gam = lineList[index]
+        tag, ion, l0, f, gam, mass = lineList[index]
 
         self.tag = tag
         self.ion = ion
         self.element = ion
         self.l0 = l0
         self.f = f
-        self.gam = gam
+        self.mass = mass
         self.active = active
 
     def get_properties(self):

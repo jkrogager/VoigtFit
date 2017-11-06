@@ -6,7 +6,7 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-from lmfit import Parameters, minimize, Minimizer
+from lmfit import Parameters, Minimizer
 import os
 
 # from VoigtFit import Line
@@ -33,7 +33,8 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
                                        ('l0', 'f4'),
                                        ('f', 'f4'),
-                                       ('gam', 'f4')])
+                                       ('gam', 'f4'),
+                                       ('mass', 'f4')])
 
 
 def calculate_velocity_bin_size(x):
@@ -43,9 +44,10 @@ def calculate_velocity_bin_size(x):
 
 class Line(object):
     def __init__(self, tag, active=True):
+        """Line object containing atomic data for the given transition."""
         self.tag = tag
         index = lineList['trans'].tolist().index(tag)
-        tag, ion, l0, f, gam = lineList[index]
+        tag, ion, l0, f, gam, mass = lineList[index]
 
         self.tag = tag
         self.ion = ion
@@ -53,6 +55,7 @@ class Line(object):
         self.l0 = l0
         self.f = f
         self.gam = gam
+        self.mass = mass
         self.active = active
 
     def get_properties(self):
@@ -68,12 +71,29 @@ class Line(object):
 # --- Definition of main class *DataSet*:
 class DataSet(object):
     def __init__(self, z, name=''):
+        """
+        Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.
+        Spectral data must be added using the `add_data' method. Hereafter the absorption lines
+        to be fitted are added to the DataSet using the `add_line' or `add_many_lines' methods.
+        Lastly, the components of each element is defined using the `add_component' method.
+        When all lines and components have been defined, the DataSet must be prepared by
+        calling the `prepare_dataset' method and subsequently, the lines can be fitted using
+        the `fit' method.
+
+        Parameters
+        ----------
+        z : float
+            Systemic redshift of the absorption system.
+
+        name : str   [default = '']
+            The name of the DataSet, this will be used for saving the dataset to a file structure.
+        """
         # Define the systemic redshift
         self.redshift = z
 
         # container for data chunks to be fitted
         # data should be added by calling method 'add_data'
-        self.data = []
+        self.data = list()
 
         self.verbose = True
 
@@ -104,9 +124,11 @@ class DataSet(object):
         self.name = name
 
     def set_name(self, name):
+        """Set the name of the DataSet. This parameter is used when saving the dataset."""
         self.name = name
 
     def get_name(self):
+        """Returns the name of the DataSet."""
         return self.name
 
     def add_data(self, wl, flux, res, err=None, normalized=False):
@@ -124,11 +146,11 @@ class DataSet(object):
         res : float
             Spectral resolution in km/s  (c/R)
 
-        err : ndarray, shape (n)
+        err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
             If `None' is given, a constant uncertainty of 1. is given to all pixels.
 
-        normalized : bool
+        normalized : bool   [default = False]
             If the input spectrum is normalized this should be given as True
             in order to skip normalization steps.
         """
@@ -162,10 +184,10 @@ class DataSet(object):
 
         Parameters
         ----------
-        line_tag : str,  default = None
+        line_tag : str   [default = None]
             The line-tag for the line to look up: e.g., "FeII_2374"
 
-        verbose : bool,  default = False
+        verbose : bool   [default = False]
             If `True', print the returned spectral resolution to std out.
 
         Returns
@@ -260,7 +282,7 @@ class DataSet(object):
         line_tag : str
             Line tag of the line whose fitting region should be normalized.
 
-        norm_method : str  default = 'spline':
+        norm_method : str   [default = 'spline']
             Normalization method used for the interactive continuum fit.
             Options ["spline", "linear"]
         """
@@ -286,15 +308,15 @@ class DataSet(object):
         line_tag : str
             Line tag for the line whose region should be masked.
 
-        reset : bool  default = True
+        reset : bool   [default = True]
             If `True', clear the mask before defining a new mask.
 
-        mask : array_like, shape (n)  default = None
+        mask : array_like, shape (n)   [default = None]
             If the mask is given, it must be a boolean array of the same length
             as the region flux, err, and wl arrays.
             Passing a mask this was supresses the interactive masking process.
 
-        telluric : bool  default = True
+        telluric : bool   [default = True]
             If `True', a telluric absorption template and sky emission template
             is shown for reference.
         """
@@ -395,7 +417,7 @@ class DataSet(object):
 
         Parameters
         ----------
-        ion : str  default = None
+        ion : str   [default = None]
             The ion for which to reset the components: e.g., FeII, HI, CIa, etc.
             Otherwise all components for all ions will be reset.
         """
@@ -432,16 +454,16 @@ class DataSet(object):
             The 10-base logarithm of the column density of the component.
             The column density is expected in cm^-2.
 
-        var_z : bool
+        var_z : bool   [default = True]
             If `False', the redshift of the component will be kept fixed.
 
-        var_b : bool
+        var_b : bool   [default = True]
             If `False', the b-parameter of the component will be kept fixed.
 
-        var_N : bool
+        var_N : bool   [default = True]
             If `False', the column density of the component will be kept fixed.
 
-        tie_z, tie_b, tie_N : str  default = None
+        tie_z, tie_b, tie_N : str   [default = None]
             Parameter constraints for the different variables.
             The ties are defined relative to the parameter names. The naming is as follows:
             The redshift of the first component of FeII is called "z0_FeII",
@@ -567,10 +589,10 @@ class DataSet(object):
         ref_comp : int
             The reference component to which logN will be scaled.
 
-        tie_z : bool  default = True
+        tie_z : bool   [default = True]
             If `True', the redshifts for all components of the two ions will be tied together.
 
-        tie_b : bool  default = True
+        tie_b : bool   [default = True]
             If `True', the b-parameters for all components of the two ions will be tied together.
         """
         reference = self.components[anchor]
@@ -633,7 +655,7 @@ class DataSet(object):
 
         Parameters
         ----------
-        ion : str  default = None
+        ion : str   [default = None]
             The ion for which the structure should be fixed.
             If None is given, the structure is fixed for all ions.
         """
@@ -656,11 +678,11 @@ class DataSet(object):
         line_tag : str
             The line tag for the transition which should be defined: e.g., "FeII_2374"
 
-        velspan : float  default = None
+        velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
             If `None' is given, use the default `self.velspan' defined (500 km/s).
 
-        active : bool  default = True
+        active : bool   [default = True]
             Set the line as active (i.e., included in the fit).
 
         This will initiate a `Line' class with the atomic data for the transition,
@@ -756,7 +778,7 @@ class DataSet(object):
         tags : list(str)
             A list of line tags for the transitions that should be added.
 
-        velspan : float  default = None
+        velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
             If `None' is given, use the default `self.velspan' defined (500 km/s).
         """
@@ -783,13 +805,13 @@ class DataSet(object):
         line_tag : str
             Line tag for the ground state transition, e.g., "CI_1656"
 
-        levels : str, list(str), None
+        levels : str, list(str)    [default = None]
             The levels of the fine-structure complexes to add, starting with "a" referring
             to the first excited level, "b" is the second, etc..
             Several levels can be given at once: ['a', 'b']
             By default, all levels are included.
 
-        full_label : bool  default = False
+        full_label : bool   [default = False]
             If `True', the label will be translated to the full quantum mechanical description
             of the state.
         """
@@ -842,15 +864,15 @@ class DataSet(object):
             The vibrational band of the molecule, e.g., for CO: "AX(0-0)"
             These bands are defined in the `line_complexes'.
 
-        J : int  default = 0
+        J : int   [default = 0]
             The maximal rotational level to include. All levels up to and including `J'
             will be included.
 
-        velspan : float  default = None
+        velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
             If `None' is given, use the default `self.velspan' defined (500 km/s).
 
-        full_label : bool  default = False
+        full_label : bool   [default = False]
             If `True', the label will be translated to the full quantum mechanical description
             of the state.
         """
@@ -930,14 +952,14 @@ class DataSet(object):
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
 
-        norm : boolean   [default = True]
+        norm : bool   [default = True]
             Opens an interactive window to let the user normalize each region
-            using the defined *norm_method*.
+            using the defined `norm_method'.
 
-        mask : boolean   [default = True]
+        mask : bool   [default = True]
             Opens an interactive window to let the user mask each fitting region.
 
-        verbose : boolean   [default = True]
+        verbose : bool   [default = True]
             If this is set, the code will print small info statements during the run.
         """
 
@@ -1049,25 +1071,25 @@ class DataSet(object):
         Returns the best fitting parameters for each component
         of each line.
 
-        rebin : integer   [default = 1]
+        rebin : int   [default = 1]
             Rebin data by a factor *rebin* before fitting.
 
-        verbose : boolean   [default = True]
+        verbose : bool   [default = True]
             This will print the fit results to terminal.
 
-        plot : boolean   [default = False]
+        plot : bool   [default = False]
             This will make the best-fit solution show up in a new window.
 
-        kwargs : dictionary of keyword arguments
+        kwargs : keyword argument dictionary
             Options are derived from the scipy.optimize minimization methods.
             The default method is 'leastsq', used in lmfit.
-            This can be changed with method='nelder', to use Nelder-Mead minimization.
-            See documentation in LmFit and SciPy.optimize.
+            This can be changed with `method' keyword.
+            See documentation in `lmfit' and `scipy.optimize'.
         """
 
         if not self.ready2fit:
             if self.verbose:
-                print " [Error]  - Dataset is not ready to be fit."
+                print " [Error]  - Dataset is not ready to be fitted."
                 print "            Run '.prepare_dataset()' before fitting."
             return False
 
@@ -1128,10 +1150,10 @@ class DataSet(object):
                 region.err /= cont_model
                 region.normalized = True
 
+        print "\n The fit has finished with the following exit message:"
+        print "  " + popt.message
+        print ""
         if verbose and self.verbose:
-            print "\n The fit has finished with the following exit message:"
-            print "  " + popt.message
-            print ""
             output.print_results(self, self.best_fit, velocity=False)
             if self.cheb_order >= 0:
                 output.print_cont_parameters(self)
@@ -1156,11 +1178,8 @@ class DataSet(object):
 
     def velocity_plot(self, **kwargs):
         """
-        Parameters
-        vmin=-400, vmax=400
-        filename=None, max_rows=6, max_columns=2,
-        rebin=1, fontsize=12,
-        subsample_profile=1, npad=50, ymin=None
+        Create a velocity plot, showing all the fitting regions defined, in order to compare
+        different lines and to identify blends and contamination.
         """
         output.velocity_plot(self, **kwargs)
 
@@ -1177,19 +1196,50 @@ class DataSet(object):
                                 subsample_profile=subsample_profile, npad=npad,
                                 highlight=highlight, residuals=residuals)
 
-    def print_results(self, velocity=True, elements='all', systemic=0):
+    def print_results(self, velocity=True, elements='all', systemic=None):
+        """
+        Print the best fit parameters.
+
+        Parameters
+        ----------
+        velocity : bool   [default = True]
+            If `True', show the relative velocities of each component instead of redshifts.
+
+        elements : list(str)   [default = 'all']
+            A list of elements for which to show parameters.
+
+        systemic : float   [default = None]
+            The systemic redshift used as reference for the relative velocities.
+        """
         output.print_results(self, self.best_fit, elements, velocity, systemic)
 
     def print_cont_parameters(self):
+        """Print Chebyshev coefficients for the continuum fit."""
         output.print_cont_parameters(self)
 
     def print_metallicity(self, logNHI, err=0.1):
+        """Print the total column densities for each element relative to HI in Solar units."""
         output.print_metallicity(self, self.best_fit, logNHI, err)
 
     def print_abundance(self):
+        """Print the total column densities of all components."""
         output.print_abundance(self)
 
     def save_fit_regions(self, filename=None, individual=False):
+        """
+        Save the fitting regions to ASCII table output.
+        The format is as follows:
+        (wavelength , normalized flux , normalized error , best-fit profile , mask)
+
+        Parameters
+        ----------
+        filename : str   [default = None]
+            Filename for the fitting regions. If `None', the `self.name' parameter will be used.
+
+        individual : bool   [default = False]
+            Save the fitting regions to individual files. By default all regions are concatenated
+            into one file.
+        """
         if not filename:
             if self.name:
                 filename = self.name
@@ -1198,73 +1248,8 @@ class DataSet(object):
                 print "           or give filename [dataset.save(filename='filename')]"
         output.save_fit_regions(self, filename, individual=individual)
 
-    def conf_interval(self, nsim=10):
-        """ The method is deprecated and has not been carefully tested!"""
-        import sys
-
-        def chi(pars):
-            model = list()
-            data = list()
-            error = list()
-
-            for region in self.regions:
-                x, y, err, mask = region.unpack()
-                res = region.res
-                # randomize the data within the errors:
-                # y += err*np.random.normal(0, 1, size=len(y))
-
-                # Generate line profile
-                profile_obs = evaluate_profile(x, pars, self.redshift,
-                                               region.lines, self.components,
-                                               res, dv=0.1)
-
-                model.append(profile_obs[mask])
-                data.append(np.array(y[mask], dtype=myfloat))
-                error.append(np.array(err[mask], dtype=myfloat))
-
-            model_spectrum = np.concatenate(model)
-            data_spectrum = np.concatenate(data)
-            error_spectrum = np.concatenate(error)
-
-            residual = data_spectrum - model_spectrum
-            return residual/error_spectrum
-
-        allPars = dict()
-        for param in self.pars.keys():
-            allPars[param] = list()
-
-        allChi = list()
-        print "\n  Error Estimation in Progress:"
-        print ""
-        pars_original = self.pars.copy()
-
-        for sim in range(nsim):
-            for key in self.pars.keys():
-                if key.find('z') == 0:
-                    self.pars[key].value = pars_original[key].value + 0.5e-5*np.random.normal(0, 1)
-
-                # elif key.find('logN')==0:
-                #     self.pars[key].value = pars_original[key].value + 0.01*np.random.normal(0,1)
-
-                else:
-                    self.pars[key].value = pars_original[key].value + 0.2*np.random.normal(0, 1)
-
-            popt = minimize(chi, self.pars, maxfev=50000, ftol=1.49012e-11, factor=1)
-
-            if popt.success:
-                for param in popt.params.keys():
-                    allPars[param].append(popt.params[param].value)
-
-                allChi.append(popt.chisqr)
-
-            sys.stdout.write("\r%6.2f%%" % (100. * (sim + 1) / nsim))
-            sys.stdout.flush()
-
-        print ""
-
-        return allPars, allChi
-
     def save(self, filename=None, verbose=False):
+        """Save the DataSet to file using the HDF5 format."""
         if not filename:
             if self.name:
                 filename = self.name
