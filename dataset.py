@@ -23,7 +23,7 @@ options = {'nsamp': 1,
 myfloat = np.float64
 
 if 'VFITDATA' in os.environ.keys():
-    atomfile = os.environ['VFITDATA']+'/atomdata_updated.dat'
+    atomfile = os.environ['VFITDATA'] + '/atomdata_updated.dat'
 
 else:
     print("No VFITDATA in environment ... Using relative path to static data files")
@@ -73,12 +73,12 @@ class DataSet(object):
     def __init__(self, z, name=''):
         """
         Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.
-        Spectral data must be added using the `add_data' method. Hereafter the absorption lines
-        to be fitted are added to the DataSet using the `add_line' or `add_many_lines' methods.
-        Lastly, the components of each element is defined using the `add_component' method.
+        Spectral data must be added using the `add_data` method. Hereafter the absorption lines
+        to be fitted are added to the DataSet using the `add_line` or `add_many_lines` methods.
+        Lastly, the components of each element is defined using the `add_component` method.
         When all lines and components have been defined, the DataSet must be prepared by
-        calling the `prepare_dataset' method and subsequently, the lines can be fitted using
-        the `fit' method.
+        calling the `prepare_dataset` method and subsequently, the lines can be fitted using
+        the `fit` method.
 
         Parameters
         ----------
@@ -148,7 +148,7 @@ class DataSet(object):
 
         err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
-            If `None' is given, a constant uncertainty of 1. is given to all pixels.
+            If `None` is given, a constant uncertainty of 1. is given to all pixels.
 
         normalized : bool   [default = False]
             If the input spectrum is normalized this should be given as True
@@ -161,7 +161,7 @@ class DataSet(object):
                           'error': err, 'res': res, 'norm': normalized})
 
     def reset_region(self, reg):
-        """Reset the data in a given region `reg' to use the raw input data."""
+        """Reset the data in a given region `reg` to use the raw input data."""
         for chunk in self.data:
             if reg.res == chunk['res'] and (chunk['wl'].min() < reg.wl.min() < chunk['wl'].max()):
                 raw_data = chunk
@@ -180,7 +180,7 @@ class DataSet(object):
 
     def get_resolution(self, line_tag, verbose=False):
         """Return the spectral resolution for the fitting region where the line with
-        the given `line_tag' is defined, otherwise give the resolution for all fitting regions.
+        the given `line_tag` is defined, otherwise give the resolution for all fitting regions.
 
         Parameters
         ----------
@@ -188,7 +188,7 @@ class DataSet(object):
             The line-tag for the line to look up: e.g., "FeII_2374"
 
         verbose : bool   [default = False]
-            If `True', print the returned spectral resolution to std out.
+            If `True`, print the returned spectral resolution to std out.
 
         Returns
         -------
@@ -204,12 +204,13 @@ class DataSet(object):
 
     def set_resolution(self, res, line_tag=None, verbose=True):
         """
-        Set the spectral resolution in km/s for a given region containing `line_tag'.
-        If `line_tag' is not given, the resolution will be set for *all* regions,
+        Set the spectral resolution in km/s for a given region containing `line_tag`.
+        If `line_tag` is not given, the resolution will be set for *all* regions,
         including the raw data chunks!
 
-        WARNING: If not all data chunks have the same resolution, then this method
-        should be used with caution!
+        Note -- If not all data chunks have the same resolution, this method
+        should be used with caution. It is advised to check the spectral resolution beforehand
+        and only update the appropriate regions using a for-loop.
         """
         if line_tag:
             region = self.find_line(line_tag)
@@ -309,7 +310,7 @@ class DataSet(object):
             Line tag for the line whose region should be masked.
 
         reset : bool   [default = True]
-            If `True', clear the mask before defining a new mask.
+            If `True`, clear the mask before defining a new mask.
 
         mask : array_like, shape (n)   [default = None]
             If the mask is given, it must be a boolean array of the same length
@@ -317,7 +318,7 @@ class DataSet(object):
             Passing a mask this was supresses the interactive masking process.
 
         telluric : bool   [default = True]
-            If `True', a telluric absorption template and sky emission template
+            If `True`, a telluric absorption template and sky emission template
             is shown for reference.
         """
         region = self.find_line(line_tag)
@@ -355,7 +356,7 @@ class DataSet(object):
         return None
 
     def activate_line(self, line_tag):
-        """Activate a given line defined by its `line_tag'"""
+        """Activate a given line defined by its `line_tag`"""
         if line_tag in self.lines.keys():
             line = self.lines[line_tag]
             line.set_active()
@@ -368,7 +369,7 @@ class DataSet(object):
 
     def deactivate_line(self, line_tag):
         """
-        Deactivate a given line defined by its `line_tag'.
+        Deactivate a given line defined by its `line_tag`.
         This will exclude the line during the fit.
         """
         if line_tag in self.lines.keys():
@@ -404,7 +405,7 @@ class DataSet(object):
             self.activate_line(line_tag)
 
     def all_active_lines(self):
-        """Returns a list of all the active lines defined by their `line_tag'."""
+        """Returns a list of all the active lines defined by their `line_tag`."""
         act_lines = list()
         for line_tag, line in self.lines.items():
             if line.active:
@@ -455,13 +456,13 @@ class DataSet(object):
             The column density is expected in cm^-2.
 
         var_z : bool   [default = True]
-            If `False', the redshift of the component will be kept fixed.
+            If `False`, the redshift of the component will be kept fixed.
 
         var_b : bool   [default = True]
-            If `False', the b-parameter of the component will be kept fixed.
+            If `False`, the b-parameter of the component will be kept fixed.
 
         var_N : bool   [default = True]
-            If `False', the column density of the component will be kept fixed.
+            If `False`, the column density of the component will be kept fixed.
 
         tie_z, tie_b, tie_N : str   [default = None]
             Parameter constraints for the different variables.
@@ -480,7 +481,7 @@ class DataSet(object):
     def add_component_velocity(self, ion, v, b, logN,
                                var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
         """
-        Same as for `add_component()' but input is given as relative velocity instead of redshift.
+        Same as for `add_component()` but input is given as relative velocity instead of redshift.
         """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
@@ -561,7 +562,7 @@ class DataSet(object):
             pass
 
     def delete_component(self, ion, index):
-        """Remove component of the given `ion' with the given `index'."""
+        """Remove component of the given `ion` with the given `index`."""
         if ion in self.components.keys():
             self.components[ion].pop(index)
 
@@ -571,29 +572,29 @@ class DataSet(object):
 
     def copy_components(self, ion, anchor, logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
-        Copy velocity structure to `ion' from the anchor.
+        Copy velocity structure to `ion` from the anchor.
 
         Parameters
         ----------
         ion : str
-            The new ion to define, which will be linked to the `anchor' ion.
+            The new ion to define, which will be linked to the `anchor` ion.
 
         anchor : str
             The baes ion which will be used for the linking.
 
         logN : float
             If logN is given the starting guess is defined from this value
-            following the pattern of the components defined for `anchor' relative to the
-            `ref_comp' (default: the first component).
+            following the pattern of the components defined for `anchor` relative to the
+            `ref_comp` (default: the first component).
 
         ref_comp : int
             The reference component to which logN will be scaled.
 
         tie_z : bool   [default = True]
-            If `True', the redshifts for all components of the two ions will be tied together.
+            If `True`, the redshifts for all components of the two ions will be tied together.
 
         tie_b : bool   [default = True]
-            If `True', the b-parameters for all components of the two ions will be tied together.
+            If `True`, the b-parameters for all components of the two ions will be tied together.
         """
         reference = self.components[anchor]
         # overwrite the components already defined for ion if they exist
@@ -621,7 +622,7 @@ class DataSet(object):
             self.components[ion].append(new_comp)
 
     def load_components_from_file(self, fname):
-        """Load best-fit parameters from an output file `fname'."""
+        """Load best-fit parameters from an output file `fname`."""
         parameters = open(fname)
         components_to_add = list()
         all_ions_in_file = list()
@@ -680,13 +681,13 @@ class DataSet(object):
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None' is given, use the default `self.velspan' defined (500 km/s).
+            If `None` is given, use the default `self.velspan` defined (500 km/s).
 
         active : bool   [default = True]
             Set the line as active (i.e., included in the fit).
 
-        This will initiate a `Line' class with the atomic data for the transition,
-        as well as creating a fitting region (`Region' class) containing the data cutout
+        This will initiate a `Line` class with the atomic data for the transition,
+        as well as creating a fitting region (`Region` class) containing the data cutout
         around the line center.
         """
 
@@ -767,7 +768,7 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print " [ERROR]  No data is loaded. Run method 'add_data' to add spectral data."
+                print " [ERROR]  No data is loaded. Run method `add_data` to add spectral data."
 
     def add_many_lines(self, tags, velspan=None):
         """
@@ -780,7 +781,7 @@ class DataSet(object):
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None' is given, use the default `self.velspan' defined (500 km/s).
+            If `None` is given, use the default `self.velspan` defined (500 km/s).
         """
 
         self.ready2fit = False
@@ -812,7 +813,7 @@ class DataSet(object):
             By default, all levels are included.
 
         full_label : bool   [default = False]
-            If `True', the label will be translated to the full quantum mechanical description
+            If `True`, the label will be translated to the full quantum mechanical description
             of the state.
         """
         if hasattr(levels, '__iter__'):
@@ -862,18 +863,18 @@ class DataSet(object):
 
         band : str
             The vibrational band of the molecule, e.g., for CO: "AX(0-0)"
-            These bands are defined in the `line_complexes'.
+            These bands are defined in the `line_complexes`.
 
         J : int   [default = 0]
-            The maximal rotational level to include. All levels up to and including `J'
+            The maximal rotational level to include. All levels up to and including `J`
             will be included.
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None' is given, use the default `self.velspan' defined (500 km/s).
+            If `None` is given, use the default `self.velspan` defined (500 km/s).
 
         full_label : bool   [default = False]
-            If `True', the label will be translated to the full quantum mechanical description
+            If `True`, the label will be translated to the full quantum mechanical description
             of the state.
         """
         if molecule == 'CO':
@@ -916,7 +917,7 @@ class DataSet(object):
     def deactivate_molecule(self, molecule, band):
         """
         Deactivate all lines for the given band of the given molecule.
-        To see the available molecular bands defined, see the manual pdf or the `line_complexes'.
+        To see the available molecular bands defined, see the manual pdf or the `line_complexes`.
         """
         if molecule == 'CO':
             if band not in self.molecules['CO']:
@@ -954,7 +955,7 @@ class DataSet(object):
 
         norm : bool   [default = True]
             Opens an interactive window to let the user normalize each region
-            using the defined `norm_method'.
+            using the defined `norm_method`.
 
         mask : bool   [default = True]
             Opens an interactive window to let the user mask each fitting region.
@@ -1082,15 +1083,15 @@ class DataSet(object):
 
         kwargs : keyword argument dictionary
             Options are derived from the scipy.optimize minimization methods.
-            The default method is 'leastsq', used in lmfit.
-            This can be changed with `method' keyword.
-            See documentation in `lmfit' and `scipy.optimize'.
+            The default method is `leastsq`, used in lmfit.
+            This can be changed with `method` keyword.
+            See documentation in `lmfit` and `scipy.optimize`.
         """
 
         if not self.ready2fit:
             if self.verbose:
                 print " [Error]  - Dataset is not ready to be fitted."
-                print "            Run '.prepare_dataset()' before fitting."
+                print "            Run `.prepare_dataset()` before fitting."
             return False
 
         if rebin > 1:
@@ -1203,7 +1204,7 @@ class DataSet(object):
         Parameters
         ----------
         velocity : bool   [default = True]
-            If `True', show the relative velocities of each component instead of redshifts.
+            If `True`, show the relative velocities of each component instead of redshifts.
 
         elements : list(str)   [default = 'all']
             A list of elements for which to show parameters.
@@ -1234,7 +1235,7 @@ class DataSet(object):
         Parameters
         ----------
         filename : str   [default = None]
-            Filename for the fitting regions. If `None', the `self.name' parameter will be used.
+            Filename for the fitting regions. If `None`, the `self.name` parameter will be used.
 
         individual : bool   [default = False]
             Save the fitting regions to individual files. By default all regions are concatenated

@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-#   VoigtFit
-#   module to evaluate line profile
+"""
+The module contains functions to evaluate the optical depth,
+to convert this to observed transmission and to convolve the
+observed spectrum with the instrumental profile.
+"""
+__author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 from scipy.signal import fftconvolve, gaussian
@@ -16,11 +20,36 @@ def H(a, x):
 
 
 def Voigt(l, l0, f, N, b, gam, z=0):
-    """Calculate the Voigt profile of transition with
-    rest frame transition wavelength: 'l0'
-    oscillator strength: 'f'
-    column density: N  cm^-2
-    velocity width: b  cm/s
+    """
+    Calculate the optical depth Voigt profile.
+
+    Parameters
+    ----------
+    l : array_like, shape (N)
+        Wavelength grid in Angstroms at which to evaluate the optical depth.
+
+    l0 : float
+        Rest frame transition wavelength in Angstroms.
+
+    f : float
+        Oscillator strength.
+
+    N : float
+        Column density in units of cm^-2.
+
+    b : float
+        Velocity width of the Voigt profile in cm/s.
+
+    gam : float
+        Radiation damping constant, inverse Einstein constant (A_ul)
+
+    z : float
+        The redshift of the observed wavelength grid `l`.
+
+    Returns
+    -------
+    tau : array_like, shape (N)
+        Optical depth array evaluated at the input grid wavelengths `l`.
     """
     # ==== PARAMETERS ==================
 
@@ -44,8 +73,24 @@ def Voigt(l, l0, f, N, b, gam, z=0):
 
 def evaluate_continuum(x, pars, reg_num):
     """
-    Function to evaluate the continuum model using Chebyshev polynomials.
+    Evaluate the continuum model using Chebyshev polynomials.
     All regions are fitted with the same order of polynomials.
+
+    Parameters
+    ----------
+    x : array_like, shape (N)
+        Input wavelength grid in Angstroms.
+
+    pars : dict(parameters)
+        An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.
+
+    reg_num : int
+        The region number, i.e., the index of the region in the list `DataSet.regions`.
+
+    Returns
+    -------
+    cont_model : array_like, shape (N)
+        The continuum Chebyshev polynomial evaluated at the input wavelengths `x`.
     """
     cheb_parnames = list()
     p_cont = list()
@@ -70,34 +115,40 @@ def evaluate_continuum(x, pars, reg_num):
 
 def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     """
-    Function to evaluate Voigt profile for a fitting `Region'.
+    Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is
+    converted to observed transmission, `f`:
+
+        f = exp(-tau)
+
+    The observed transmission is subsequently convolved with the instrumental
+    broadening profile assumed to be Gaussian with a full-width at half maximum
+    of res. The resolving power is assumed to be constant in velocity space.
 
     Parameters
     ----------
-    x : np.array
-        Wavelength array to evaluate the profile on
+    x : array_like, shape (N)
+        Wavelength array in Angstroms on which to evaluate the profile.
 
-    pars : dictionary
-        Dictionary containing fit parameters from `lmfit'
+    pars : dict(parameters)
+        An instance of lmfit.Parameters containing the line parameters.
 
-    lines : list
-        List of lines in the region to evaluate.
-        Should be a list of `Line' instances.
+    lines : list(Line)
+        List of lines to evaluate. Should be a list of `Line` objects.
 
-    components : dictionary
+    components : dict
         Dictionary containing component data for the defined ions.
+        See `DataSet.components`.
 
     res : float
-        Spectral resolution of the region in km/s.
+        Spectral resolving power of the data in km/s  [= c/R].
 
     dv : float  [default=0.1]
-        Desired pixel size of profile evaluation in km/s.
+        Desired pixel size of subsampled profile grid in km/s.
 
     Returns
     -------
-    profile_obs : np.array
-        Total observed line profile of all lines in the region,
-        convolved with the instrument Line Spread Function.
+    profile_obs :array_like, shape (N)
+        Observed line profile convolved with the instrument profile.
     """
 
     dx = np.mean(np.diff(x))

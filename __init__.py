@@ -1,11 +1,18 @@
+"""
+VoigtFit is a Python package designed to fit Voigt profiles to absorption
+lines in spectral data. The package handles multiple spectra simultaneously,
+and fits multiple component structure of several absorption lines using a
+Levenberg--Marquardt minimization algorithm to identify the optimal parameters.
+
+Written by Jens-Kristian Krogager.
+"""
 print "\n"
 print "    VoigtFit"
 print ""
 print "    by Jens-Kristian Krogager"
 print ""
-print "    Dark Cosmology Centre"
-print "    Copenhagen University"
-print "    January 2015"
+print "    Institut d'Astrophysique de Paris"
+print "    November 2017"
 print ""
 print "____  _           _____________"
 print "    \/ \  _/\    /             "
@@ -20,3 +27,4 @@ __author__ = 'Jens-Kristian Krogager'
 # from regions import Region
 # import output
 from VoigtFit import *
+import regions

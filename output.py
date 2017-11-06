@@ -23,14 +23,14 @@ def mad(x):
 
 
 def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
+    """Yield successive `n`-sized chunks from `l`."""
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
 
 
 def rebin_spectrum(wl, spec, err, n, method='mean'):
     """
-    Rebin input spectrum (wl, spec) by a factor of *n*.
+    Rebin input spectrum (`wl`, `spec`) by a factor of `n`.
     Method is either *mean* or *median*, default is mean.
     """
     if method.lower() == 'mean':
@@ -55,9 +55,7 @@ def rebin_spectrum(wl, spec, err, n, method='mean'):
 
 
 def rebin_bool_array(x, n):
-    """
-    Rebin input boolean array *x* by an integer factor of *n*.
-    """
+    """Rebin input boolean array `x` by an integer factor of `n`."""
 
     array_chunks = list(chunks(x, n))
 
@@ -175,23 +173,19 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                    filename=None, show=True, subsample_profile=1, npad=50,
                    highlight=[], residuals=True):
     """
-    Plot absorption line.
+    Plot all active absorption lines. This function is a wrapper of the function `plot_single_line`.
+    For a complete description of input parameters, see the documentation for `plot_single_line`.
 
-      INPUT:
-    dataset:  VoigtFit.DataSet instance containing the line regions
+    Parameters
+    ----------
+    dataset : class DataSet
+        Instance of class `DataSet` containing the line regions to plot.
 
-    plot_fit:    if True, the best-fit profile will be shown
-    linestyles:  a list of linestyles to show velocity components
-    colors:      a lost of colors to show the velocity components
+    max_rows : int   [default = 4]
+        The maximum number of rows of figures. Each row consists of two figure panels.
 
-    The colors and linestyles are combined to form an `iterator'
-    which cycles through a set of (linestyle, color).
-
-    loc: places the line tag (based on the plt.legend keyword *loc*)
-
-    rebin: integer factor for rebinning the spectrum
-
-    nolabels: show axis labels?
+    filename : str
+        If a filename is given, the figures are saved to a pdf file.
     """
 
     # --- First figure out which lines to plot to avoid overlap
@@ -290,18 +284,18 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                      xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
                      residuals=False, highlight=[]):
     """
-    Plot absorption line.
+    Plot a single absorption line.
 
     Parameters
     ----------
     dataset : class DataSet
-        Instance of class `DataSet' containing the line regions
+        Instance of class `DataSet` containing the line regions
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
 
     plot_fit : bool   [default = False]
-        If `True', the best-fit profile will be shown
+        If `True`, the best-fit profile will be shown
 
     linestyles : list(linestyle)
         A list of matplotlib linestyles to show velocity components
@@ -318,17 +312,42 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         Rebinning factor for the spectrum
 
     nolabels : bool   [default = False]
-        Show axis labels?
+        If `True`, show the axis x- and y-labels.
 
-    axis
-    fontsize
-    xmin, xmax
-    ymin
-    show
-    subsample_profile
-    npad
-    residuals
-    highlight
+    axis : matplotlib.Axes.axis
+        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
+
+    fontsize : int   [default = 12]
+        The fontsize of text labels.
+
+    xmin : float
+        The lower x-limit in relative velocity (km/s).
+        If nothing is given, the extent of the region is used.
+
+    xmax : float
+        The upper x-limit in relative velocity (km/s).
+        If nothing is given, the extent of the region is used.
+
+    ymin : float
+        The lower y-limit in normalized flux units. Default is determined from the data.
+
+    show : bool   [default = True]
+        Show the figure.
+
+    subsample_profile : int   [default = 1]
+        Subsampling factor to calculate the profile on a finer grid than the data sampling.
+        By default the profile is evaluated on the same grid as the data.
+
+    npad : int   [default = 50]
+        Padding added to the synthetic profile before convolution.
+        This removes end artefacts from the `FFT` routine.
+
+    residuals : bool   [default = False]
+        Add a panel above the absorption line view to show the residuals of the fit.
+
+    highlight : list(str)
+        A list of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
+        for this subset of ions.
     """
 
     if line_tag not in dataset.all_lines:
@@ -393,12 +412,12 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             params = dataset.pars
 
-        # Determine range in which to evaluate the profile:
-        max_logN = max([val.value for key, val in params.items() if 'logN' in key])
-        if max_logN > 19.0:
-            velspan = 20000.*(1. + 1.0*(max_logN-19.))
-        else:
-            velspan = 20000.
+        # # Determine range in which to evaluate the profile:
+        # max_logN = max([val.value for key, val in params.items() if 'logN' in key])
+        # if max_logN > 19.0:
+        #     velspan = 20000.*(1. + 1.0*(max_logN-19.))
+        # else:
+        #     velspan = 20000.
 
         for line in dataset.lines.values():
             if line.active:
@@ -552,15 +571,29 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
 def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
     """
-    Plot residuals for best-fit to absorption line.
+    Plot residuals for the best-fit to a given absorption line.
 
-      INPUT:
-    dataset:  VoigtFit.DataSet instance containing the line regions
-    line_tag: The line tag of the line to show, e.g., 'FeII_2374'
+    Parameters
+    ----------
+    dataset : class DataSet
+        An instance of DataSet class containing the line region to plot.
 
-    rebin: integer factor for rebinning the spectrum
+    line_tag : str
+        The line tag of the line to show, e.g., 'FeII_2374'
 
-    xmin and xmax define the plotting range.
+    rebin: int
+        Integer factor for rebinning the spectral data.
+
+    xmin : float
+        The lower x-limit in relative velocity (km/s).
+        If nothing is given, the extent of the region is used.
+
+    xmax : float
+        The upper x-limit in relative velocity (km/s).
+        If nothing is given, the extent of the region is used.
+
+    axis : matplotlib.Axes.axis
+        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
     """
 
     if line_tag not in dataset.all_lines:
@@ -685,18 +718,25 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
 
 def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     """
-    Plot best fit absorption profiles.
+    Print the parameters of the best-fit.
 
-      INPUT:
-    dataset:  VoigtFit.DataSet instance containing the line regions
-    params: Output parameter dictionary from VoigtFit.DataSet.fit()
+    Parameters
+    ----------
+    dataset : class DataSet
+        An instance of DataSet class containing the line region to plot.
 
-    if velocity is set to 'False' the components redshift is shown instead
-    of the velocity relative to the systemic redshift.
+    params : class lmfit.Parameters
+        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.
 
-    if systemic is set the velocities will be relative to this redshift;
-    default behaviour is to use the systemic redshift defined in the dataset.
+    elements : list(str)   [default = 'all']
+        A list of ions for which to print the best-fit parameters. By default all ions are shown.
 
+    velocity : bool   [default = True]
+        Show the components in relative velocity or redshift.
+
+    systemic : float   [default = 0]
+        Systemic redshift used to calculate the relative velocities.
+        By default the systemic redshift defined in the dataset is used.
     """
 
     if systemic:
@@ -785,7 +825,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
 
 def print_cont_parameters(dataset):
-    """ Function to print Chebyshev coefficients"""
+    """ Print the Chebyshev coefficients of the continuum normalization."""
     print ""
     print "  Chebyshev coefficients for fitting regions:"
     for reg_num, region in enumerate(dataset.regions):
@@ -797,7 +837,7 @@ def print_cont_parameters(dataset):
         for parname in dataset.best_fit.keys():
             if 'R%i_cheb' % reg_num in parname:
                 cheb_parnames.append(parname)
-        # This should be calculated at the point of generating
+        # This could be calculated at the point of generating
         # the parameters, since this is a fixed data structure
         # Sort the names, to arange the coefficients right:
         cheb_parnames = sorted(cheb_parnames)
@@ -809,13 +849,22 @@ def print_cont_parameters(dataset):
 
 def print_metallicity(dataset, params, logNHI, err=0.1):
     """
-    Plot best fit absorption profiles.
+    Print the metallicity derived from different species.
+    This will add the column densities for all components of a given ion.
 
-      INPUT:
-    dataset:  VoigtFit.DataSet instance containing the line regions
-    params: Output parameter dictionary from VoigtFit.DataSet.fit()
-    logNHI:   Column density of neutral hydrogen
-    err:      Uncertainty on logNHI
+    Parameters
+    ----------
+    dataset : class DataSet
+        An instance of `DataSet` containing the definition of data and absorption lines.
+
+    params : class lmfit.Parameters
+        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.
+
+    logNHI : float
+        Column density of neutral hydrogen.
+
+    err : float   [default = 0.1]
+        Uncertainty (1-sigma) on `logNHI`.
 
     """
 
@@ -853,7 +902,9 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
 def print_abundance(dataset):
     """
-    Plot best fit absorption profiles.
+    Print the total column densities of all species.
+    This will sum *all* the components of a given ion. The uncertainty on the total column density
+    is calculated using random resampling within the errors of each component.
     """
 
     if isinstance(dataset.best_fit, dict):
@@ -886,7 +937,7 @@ def print_abundance(dataset):
 
 
 def save_parameters_to_file(dataset, filename):
-    """ Function to save parameters to file. """
+    """Save best-fit parameters to file."""
     with open(filename, 'w') as output:
         header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
         output.write(header + "\n")
@@ -904,7 +955,7 @@ def save_parameters_to_file(dataset, filename):
 
 
 def save_cont_parameters_to_file(dataset, filename):
-    """ Function to save parameters to file. """
+    """Save Chebyshev coefficients to file."""
     with open(filename, 'w') as output:
         header = "# Chebyshev Polynomial Coefficients"
         output.write(header + "\n")
@@ -929,7 +980,9 @@ def save_cont_parameters_to_file(dataset, filename):
 
 
 def save_fit_regions(dataset, filename, individual=False):
-    """ Save fit regions to file
+    """
+    Save fit regions to file.
+    If `individual` is set, then each region will be saved to a separate file.
     """
     if individual:
         for reg_num, region in enumerate(dataset.regions):

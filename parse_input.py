@@ -7,6 +7,7 @@ import re
 
 
 def parse_parameters(fname):
+    """Parse parameters from input file."""
     parameters = dict()
     parameters['logNHI'] = None
     parameters['norm_method'] = 'linear'

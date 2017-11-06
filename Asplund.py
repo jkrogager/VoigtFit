@@ -19,7 +19,7 @@ for element, N_phot, N_phot_err, N_met, N_met_err in data:
     photosphere[element] = [N_phot, N_phot_err]
     meteorite[element] = [N_met, N_met_err]
 
-print " Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
+print "\n Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
 # print bold+"    The Chemical Composition of the Sun"+reset
 # print " Annual Review of Astronomy and Astrophysics"
 # print "             Vol. 47: 481-522"

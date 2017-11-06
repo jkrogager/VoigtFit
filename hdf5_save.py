@@ -1,8 +1,7 @@
 # -*- coding: UTF-8 -*-
 """
-A module to save VoigtFit datasets to file.
-The files are saved in HDF5 format to allow
-easy portability.
+A module to save a VoigtFit dataset to a file.
+The files are saved in HDF5 format to allow easy portability.
 
 The module also contains a function to sconvert
 the older pickled datasets to the new HDF5 format.
@@ -134,9 +133,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
 
 def load_dataset_from_hdf(fname):
-    """
-    Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class.
-    """
+    """Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class."""
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']
         ds = dataset.DataSet(z_sys)

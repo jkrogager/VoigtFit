@@ -33,6 +33,29 @@ plt.interactive(True)
 
 
 def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
+    """
+    Show the transitions defined in the atomic database.
+
+    Parameters
+    ----------
+    ion : str   [default = '']
+        Which ion to search for in the atomic database.
+
+    lower : float   [default = 0.]
+        The lower limit on the rest-frame wavelength of the transition.
+
+    upper : float   [default = 0.]
+        The upper limit on the rest-frame wavelength of the transition.
+
+    fine_lines : bool   [default = False]
+        If `True`, then fine-structure transistions for the given ion is included.
+
+    Returns
+    -------
+    all_lines : list(trans)
+        A list of transitions. Each `transition` is taken from the atomic database,
+        and contains the following indices: `l0`, `trans`, `ion`, `f`, `gam`, `mass`.
+    """
     all_lines = list()
     if upper is None:
         upper = max(lineList['l0'])
@@ -57,7 +80,7 @@ def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
 
 
 def air2vac(air):
-    """Air to vacuum conversion from Donald Morton 1991, ApJS 77,119"""
+    """Air to vacuum conversion from Donald Morton 1991, ApJS 77, 119."""
     if type(air) == float or type(air) == int:
         air = np.array(air)
     air = np.array(air)
@@ -85,6 +108,7 @@ def LoadDataSet(filename):
 # TODO: Test if this is necessary with the new file format.
 class Line(object):
     def __init__(self, tag, active=True):
+        """Line object containing atomic data for the given transition."""
         self.tag = tag
         index = lineList['trans'].tolist().index(tag)
         tag, ion, l0, f, gam, mass = lineList[index]

@@ -1,6 +1,8 @@
 import numpy as np
-
-# module to define line-complexes which should be defined simulatneously
+"""
+This module contains definitions of line-complexes which should be defined simulatneously.
+Data in this module are purely included for ease of use.
+"""
 
 fine_structure_complexes = dict()
 

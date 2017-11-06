@@ -20,7 +20,7 @@ telluric_data = np.loadtxt(datafile)
 
 
 def linfunc(x, a, b):
-    # Linear fitting function
+    """Linear fitting function of first order."""
     return a*x + b
 
 
@@ -32,6 +32,17 @@ class Region():
         self.label = ''
 
     def add_data_to_region(self, data_chunk, cutout):
+        """
+        Define the spectral data for the fitting region.
+
+        Parameters
+        ----------
+        data_chunk : dict()
+            A `data_chunk` as defined in the data structure of `DataSet.data`.
+
+        cutout : bool array
+            A boolean array defining the subset of the `data_chunk` which makes up the fitting region.
+        """
         self.res = data_chunk['res']
         self.err = data_chunk['error'][cutout]
         self.flux = data_chunk['flux'][cutout]
@@ -41,30 +52,33 @@ class Region():
         self.mask = np.ones_like(self.wl, dtype=bool)
         self.new_mask = True
 
-    def has_line(self, tag):
+    def has_line(self, line_tag):
+        """Return `True` if a line with the given `line_tag` is defined in the region."""
         for line in self.lines:
-            if line.tag == tag:
+            if line.tag == line_tag:
                 return True
 
         return False
 
     def has_active_lines(self):
+        """Return `True` is at least one line in the region is active."""
         active_lines = [line.active for line in self.lines]
         if np.any(active_lines):
             return True
 
         return False
 
-    def remove_line(self, tag):
-        if self.has_line(tag):
+    def remove_line(self, line_tag):
+        """Remove absorption line with the given `line_tag` from the region."""
+        if self.has_line(line_tag):
             for num, line in enumerate(self.lines):
-                if line.tag == tag:
+                if line.tag == line_tag:
                     num_to_remove = num
             self.lines.pop(num_to_remove)
 
     def normalize(self, plot=True, norm_method='linear'):
         """
-        Normalize the region if the data were not normalized.
+        Normalize the region if the data are not already normalized.
         Choose from two methods:
             1:  define left and right continuum regions
                 and fit a linear continuum.
@@ -95,8 +109,8 @@ class Region():
         if norm_num == 1:
             # - Normalize by defining a left and right continuum region
 
-            print "\n\n  Mark continuum region 1, left and right boundary."
-            plt.title("Mark continuum region 1, left and right boundary.")
+            print "\n\n  Mark left continuum region, left and right boundary."
+            plt.title("Mark left continuum region, left and right boundary.")
 
             bounds = plt.ginput(2, -1)
             left_bound = min(bounds[0][0], bounds[1][0])
@@ -107,8 +121,8 @@ class Region():
 
             lines_title_string = ", ".join([line.tag for line in self.lines])
             plt.title(lines_title_string)
-            print "\n  Mark continuum region 2, left and right boundary."
-            plt.title("Mark continuum region 2, left and right boundary.")
+            print "\n  Mark right continuum region, left and right boundary."
+            plt.title("Mark right continuum region, left and right boundary.")
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
@@ -152,7 +166,7 @@ class Region():
             plt.show(block=False)
 
             plt.title("Go back to terminal...")
-            prompt = raw_input(" Is normalization correct?  (YES/no)")
+            prompt = raw_input(" Is normalization correct?  (YES/no) ")
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err
@@ -286,6 +300,7 @@ class Region():
         return (self.wl, self.flux, self.err, self.mask)
 
     def is_normalized(self):
+        """Return `True` if the region data is normalized."""
         return self.normalized
 
     def set_label(self, text):
