@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview of the VoigtFit program &#8212; VoigtFit 0.7 documentation</title>
+    <title>Overview of VoigtFit &#8212; VoigtFit 0.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="VoigtFit Overview" href="api.html" />
+    <link rel="next" title="VoigtFit Interface" href="api.html" />
     <link rel="prev" title="Installation" href="install.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -40,8 +40,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="overview-of-the-voigtfit-program">
-<h1>Overview of the VoigtFit program<a class="headerlink" href="#overview-of-the-voigtfit-program" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="overview-of-voigtfit">
+<h1>Overview of VoigtFit<a class="headerlink" href="#overview-of-voigtfit" title="Permalink to this headline">¶</a></h1>
 <p>The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.</p>
 <p>The transitions that should be fitted are then defined through “lines” statements and the component structure is defined through “component” statements (see also “copy component” and “delete component”). Note that components must be defined for all the ions that are defined in the “lines” statements.</p>
 <p>If the data are not already normalized, and the chebyshev polynomial fitting has been turned off (see ‘C_order’ below), a window for each line fitting region will pop up allowing the user to normalize the data by selecting a left and right continuum region. This will fit a straight line to the continuum and normalize the region. Alternatively, the user can specify a ‘norm_method’ = spline to select a set of spline points used for the continuum estimation.</p>
@@ -238,27 +238,12 @@ systemic  2   FeII</p>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview of the VoigtFit program</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview of VoigtFit</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Interface</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
-      <li>Next: <a href="api.html" title="next chapter">VoigtFit Overview</a></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/documentation.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">

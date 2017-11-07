@@ -89,8 +89,8 @@
 <span class="sd">        Only the line_tag is passed, the rest of the information is</span>
 <span class="sd">        looked up in the atomic database.</span>
 
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+<span class="sd">        .. rubric:: Attributes</span>
+
 <span class="sd">        tag : str</span>
 <span class="sd">            The line tag for the line, e.g., &quot;FeII_2374&quot;</span>
 
@@ -98,11 +98,11 @@
 <span class="sd">            The ion for the line; The ion for &quot;FeII_2374&quot; is &quot;FeII&quot;.</span>
 
 <span class="sd">        element : str</span>
-<span class="sd">            Equal to ``self.ion`` for backwards compatibility.</span>
+<span class="sd">            Equal to ``Line.ion`` for backwards compatibility.</span>
 
 <span class="sd">        l0 : float</span>
 <span class="sd">            Rest-frame resonant wavelength of the transition.</span>
-<span class="sd">            Unit: Angstrøm.</span>
+<span class="sd">            Unit: Ångstrøm.</span>
 
 <span class="sd">        f : float</span>
 <span class="sd">            The oscillator strength for the transition.</span>
@@ -135,11 +135,13 @@
         <span class="sd">&quot;&quot;&quot;Return the principal atomic constants for the transition: *l0*, *f*, and *gam*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gam</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">set_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="viewcode-block" id="Line.set_inactive"><a class="viewcode-back" href="../api.html#dataset.Line.set_inactive">[docs]</a>    <span class="k">def</span> <span class="nf">set_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the line inactive; exclude the line in the fit.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span></div>
+<div class="viewcode-block" id="Line.set_active"><a class="viewcode-back" href="../api.html#dataset.Line.set_active">[docs]</a>    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the line active; include the line in the fit.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 
 
 <span class="c1"># --- Definition of main class *DataSet*:</span>
@@ -1440,20 +1442,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of the VoigtFit program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of VoigtFit</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Interface</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">

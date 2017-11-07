@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Overview &#8212; VoigtFit 0.7 documentation</title>
+    <title>VoigtFit Interface &#8212; VoigtFit 0.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Overview of the VoigtFit program" href="documentation.html" />
+    <link rel="prev" title="Overview of VoigtFit" href="documentation.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -39,8 +39,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="voigtfit-overview">
-<h1>VoigtFit Overview<a class="headerlink" href="#voigtfit-overview" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="voigtfit-interface">
+<h1>VoigtFit Interface<a class="headerlink" href="#voigtfit-interface" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="class-dataset">
 <h2>class <strong>DataSet</strong><a class="headerlink" href="#class-dataset" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -998,6 +998,7 @@ different lines and to identify blends and contamination.</p>
 </dd></dl>
 
 </div>
+<hr class="docutils" />
 <div class="section" id="class-line">
 <h2>class <strong>Line</strong><a class="headerlink" href="#class-line" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -1007,38 +1008,26 @@ different lines and to identify blends and contamination.</p>
 Only the line_tag is passed, the rest of the information is
 looked up in the atomic database.</p>
 <p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="9%" />
-<col width="91%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>tag</strong></td>
-<td>(str) The line tag for the line, e.g., “FeII_2374”</td>
-</tr>
-<tr class="row-even"><td><strong>ion</strong></td>
-<td>(str) The ion for the line; The ion for “FeII_2374” is “FeII”.</td>
-</tr>
-<tr class="row-odd"><td><strong>element</strong></td>
-<td>(str) Equal to <code class="docutils literal"><span class="pre">self.ion</span></code> for backwards compatibility.</td>
-</tr>
-<tr class="row-even"><td><strong>l0</strong></td>
-<td>(float) Rest-frame resonant wavelength of the transition. Unit: Angstrøm.</td>
-</tr>
-<tr class="row-odd"><td><strong>f</strong></td>
-<td>(float) The oscillator strength for the transition.</td>
-</tr>
-<tr class="row-even"><td><strong>gam</strong></td>
-<td>(float) The radiation damping constant or Einstein coefficient.</td>
-</tr>
-<tr class="row-odd"><td><strong>mass</strong></td>
-<td>(float) The atomic mass in atomic mass units.</td>
-</tr>
-<tr class="row-even"><td><strong>active</strong></td>
-<td>(bool   [default = True]) The state of the line in the dataset. Only active lines will be included in the fit.</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>tag <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The line tag for the line, e.g., “FeII_2374”</dd>
+<dt>ion <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The ion for the line; The ion for “FeII_2374” is “FeII”.</dd>
+<dt>element <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Equal to <code class="docutils literal"><span class="pre">Line.ion</span></code> for backwards compatibility.</dd>
+<dt>l0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Rest-frame resonant wavelength of the transition.
+Unit: Ångstrøm.</dd>
+<dt>f <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The oscillator strength for the transition.</dd>
+<dt>gam <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The radiation damping constant or Einstein coefficient.</dd>
+<dt>mass <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The atomic mass in atomic mass units.</dd>
+<dt>active <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd>The state of the line in the dataset. Only active lines will
+be included in the fit.</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -1049,11 +1038,11 @@ looked up in the atomic database.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#dataset.Line.get_properties" title="dataset.Line.get_properties"><code class="xref py py-obj docutils literal"><span class="pre">get_properties</span></code></a>()</td>
 <td>Return the principal atomic constants for the transition: <em>l0</em>, <em>f</em>, and <em>gam</em>.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_active</span></code>()</td>
-<td></td>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.Line.set_active" title="dataset.Line.set_active"><code class="xref py py-obj docutils literal"><span class="pre">set_active</span></code></a>()</td>
+<td>Set the line active; include the line in the fit.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_inactive</span></code>()</td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.Line.set_inactive" title="dataset.Line.set_inactive"><code class="xref py py-obj docutils literal"><span class="pre">set_inactive</span></code></a>()</td>
+<td>Set the line inactive; exclude the line in the fit.</td>
 </tr>
 </tbody>
 </table>
@@ -1063,9 +1052,22 @@ looked up in the atomic database.</p>
 <dd><p>Return the principal atomic constants for the transition: <em>l0</em>, <em>f</em>, and <em>gam</em>.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="dataset.Line.set_active">
+<code class="descname">set_active</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Line.set_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.Line.set_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the line active; include the line in the fit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.Line.set_inactive">
+<code class="descname">set_inactive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Line.set_inactive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.Line.set_inactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the line inactive; exclude the line in the fit.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
+<hr class="docutils" />
 <div class="section" id="class-region">
 <h2>class <strong>Region</strong><a class="headerlink" href="#class-region" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -1231,6 +1233,7 @@ continuum.</dd>
 </dd></dl>
 
 </div>
+<hr class="docutils" />
 <div class="section" id="module-voigt">
 <span id="module-voigt"></span><h2>module <strong>voigt</strong><a class="headerlink" href="#module-voigt" title="Permalink to this headline">¶</a></h2>
 <p>The module contains functions to evaluate the optical depth,
@@ -1375,6 +1378,7 @@ See <cite>DataSet.components</cite>.</p>
 </dd></dl>
 
 </div>
+<hr class="docutils" />
 <div class="section" id="module-output">
 <span id="module-output"></span><h2>module <strong>output</strong><a class="headerlink" href="#module-output" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
@@ -1675,39 +1679,19 @@ If <cite>individual</cite> is set, then each region will be saved to a separate 
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of the VoigtFit program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of VoigtFit</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">VoigtFit Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#class-dataset">class <strong>DataSet</strong></a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#class-line">class <strong>Line</strong></a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#class-region">class <strong>Region</strong></a><ul class="simple">
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">VoigtFit Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#class-dataset">class <strong>DataSet</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#class-line">class <strong>Line</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#class-region">class <strong>Region</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-voigt">module <strong>voigt</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output">module <strong>output</strong></a></li>
 </ul>
 </li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="documentation.html" title="previous chapter">Overview of the VoigtFit program</a></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/api.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">

@@ -1,6 +1,6 @@
 
-Overview of the VoigtFit program
-================================
+Overview of VoigtFit
+====================
 
 
 The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.

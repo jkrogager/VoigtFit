@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview of the VoigtFit program" href="documentation.html" />
+    <link rel="next" title="Overview of VoigtFit" href="documentation.html" />
     <link rel="prev" title="VoigtFit" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -42,17 +42,17 @@
             
   <div class="section" id="installation">
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>VoigtFit is currently only written and tested for Python 2.7; However, the code is currently being ported to Python 3.6 – Stay tuned!</p>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
-<p>VoigtFit depends on <code class="docutils literal"><span class="pre">matplotlib</span></code>, <code class="docutils literal"><span class="pre">numpy</span></code>, <code class="docutils literal"><span class="pre">scipy</span></code>, <code class="docutils literal"><span class="pre">h5py</span></code>, <code class="docutils literal"><span class="pre">astropy</span></code>, and <code class="docutils literal"><span class="pre">lmfit</span></code>. You
-can install these using your favorite Python package manager and I would
-recommend <a class="reference external" href="http://conda.pydata.org/docs/">conda</a> if you don’t already have
-an opinion.</p>
+<p>VoigtFit depends on <a class="reference external" href="https://matplotlib.org/">matplotlib</a>, <a class="reference external" href="http://www.numpy.org/">numpy</a>, <a class="reference external" href="https://scipy.org/">scipy</a>, <a class="reference external" href="http://www.h5py.org/">h5py</a>, <a class="reference external" href="http://www.astropy.org/">astropy</a>, and <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>. You
+can install these using your favorite Python package manager such as <a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> or
+<a class="reference external" href="http://conda.pydata.org/docs/">conda</a>.</p>
 </div>
 <div class="section" id="using-pip">
 <h2>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to install the most recent stable version of <code class="docutils literal"><span class="pre">VoigtFit</span></code> is
-with <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
+using <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>pip install VoigtFit
 </pre></div>
 </div>
@@ -64,79 +64,36 @@ repository</a>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/jkrogager/VoigtFit.git
 </pre></div>
 </div>
-<p>Once you’ve downloaded the source, you can navigate into the root source
+<p>Once you’ve downloaded the source, you can navigate to the root
 directory and run:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
 </div>
-<p># Python requirements</p>
-<p>Python version 2.7 (Python 3 is not supported yet)</p>
-<blockquote>
-<div>## Standard Packages</div></blockquote>
-<ul class="simple">
-<li>Numpy</li>
-<li>Matplotlib</li>
-<li>Scipy</li>
-</ul>
-<blockquote>
-<div>## PyFITS / Astropy</div></blockquote>
-<p><a class="reference external" href="https://pypi.python.org/pypi/pyfits/3.3">https://pypi.python.org/pypi/pyfits/3.3</a>
-<a class="reference external" href="http://www.astropy.org/">http://www.astropy.org/</a></p>
-<p>PyFITS can be installed individually, but the package is now mainly provided through the astropy
-package. Either one of these packages will work. These are available on pip:</p>
-<blockquote>
-<div><blockquote>
-<div>%] pip install pyfits
-%] pip install astropy</div></blockquote>
-<p>## LmFit</p>
-</div></blockquote>
-<p><a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a></p>
-<p>If you have pip installed, you can install lmfit with:</p>
-<blockquote>
-<div>%] pip install lmfit</div></blockquote>
-<p>or you can download the source kit, unpack it and install with:</p>
-<blockquote>
-<div><blockquote>
-<div>%] python setup.py install</div></blockquote>
-<p>## H5py</p>
-</div></blockquote>
-<p><a class="reference external" href="http://www.h5py.org/">http://www.h5py.org/</a></p>
-<p>If you have pip installed, you can install h5py with:</p>
-<blockquote>
-<div>%] pip install h5py</div></blockquote>
-<p>Or follow the instruction on the webpage.</p>
-<p># Setting up the environment:</p>
-<p>First up, you can check which shell type you are using by typing ‘echo $0’ in your terminal.
-In order to run VoigtFit from any location, you should add the directory which contains VoigtFit to your PYTHONPATH environment variable:</p>
-<dl class="docutils">
-<dt>in bash:</dt>
-<dd>export PYTHONPATH=’${PYTHONPATH}:/path/to/folder/with/VoigtFit’</dd>
-<dt>or in csh:</dt>
-<dd>setenv PYTHONPATH $PYTHONPATH:/path/to/folder/with/VoigtFit</dd>
-</dl>
-<p>The software needs two data files in order to run. These are distributed along with the software under the directory ‘static/’. The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create system variables which the software will recognize.</p>
-<p>Add the VFITDATA environment variable. This variable points to the absolute path of the atomic data file (‘atomdata_updated.dat’) and the solar abundance file (‘Asplund2009.dat’) located in the ‘static’ directory:</p>
+</div>
+<div class="section" id="setting-up-the-environment">
+<h2>Setting up the environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
+<p>First up, you can check which shell type you are using by typing <code class="docutils literal"><span class="pre">echo</span> <span class="pre">$0</span></code> in your terminal.
+In order to run <code class="docutils literal"><span class="pre">VoigtFit</span></code> from any location, you should add the directory which contains VoigtFit to your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> environment variable:</p>
 <p>in bash:</p>
-<blockquote>
-<div>export VFITDATA=’/path/to/VoigtFit/static’</div></blockquote>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s1">&#39;${PYTHONPATH}:/path/to/folder/with/VoigtFit&#39;</span>
+</pre></div>
+</div>
 <p>or in csh:</p>
-<blockquote>
-<div><blockquote>
-<div>setenv VFITDATA path/to/VoigtFit/static</div></blockquote>
-<p>An example:</p>
-<blockquote>
-<div><p>If you are using bash shell and the code for VoigtFit is located in the folder
-‘/home/user/coding/VoigtFit’, then the path to the atomdata_updated.dat and
-Asplund2009.dat files will be:</p>
-<p>export VFITDATA=’/home/user/coding/VoigtFit/static/’</p>
-</div></blockquote>
-</div></blockquote>
-<p>### To Do</p>
-<blockquote>
-<div><ul class="simple">
-<li>Show sky-lines/telluric in mask</li>
-</ul>
-</div></blockquote>
+<div class="highlight-csh"><div class="highlight"><pre><span></span><span class="nb">setenv </span>PYTHONPATH <span class="nv">$PYTHONPATH</span><span class="se">\:</span>/path/to/folder/with/VoigtFit
+</pre></div>
+</div>
+<p>The software needs two data files in order to run. These are distributed along with the software under the directory <code class="docutils literal"><span class="pre">static/</span></code>.
+The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create
+system variables which the software will recognize.</p>
+<p>Add the <code class="docutils literal"><span class="pre">VFITDATA</span></code> environment variable. This variable points to the absolute path of the <code class="docutils literal"><span class="pre">static</span></code> directory:</p>
+<p>in bash:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">VFITDATA</span><span class="o">=</span><span class="s1">&#39;/path/to/VoigtFit/static&#39;</span>
+</pre></div>
+</div>
+<p>or in csh:</p>
+<div class="highlight-csh"><div class="highlight"><pre><span></span><span class="nb">setenv </span>VFITDATA path/to/VoigtFit/static
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -151,27 +108,12 @@ Asplund2009.dat files will be:</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of the VoigtFit program</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of VoigtFit</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Interface</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">VoigtFit</a></li>
-      <li>Next: <a href="documentation.html" title="next chapter">Overview of the VoigtFit program</a></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/install.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">

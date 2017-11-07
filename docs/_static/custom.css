@@ -66,7 +66,7 @@ body {
 
 div.document {
     width: {{ theme_page_width }};
-    margin: 30px auto 0 auto;
+    margin: 20px auto 0 auto;
 }
 
 div.documentwrapper {
@@ -291,10 +291,12 @@ div.admonition p.last {
 
 div.highlight {
     background-color: {{ theme_code_highlight_bg }};
+    font-size: 12px;
 }
 
 dt:target, .highlight {
     background: {{ theme_highlight_bg }};
+    width: 960px;
 }
 
 div.warning {

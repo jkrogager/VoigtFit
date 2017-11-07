@@ -92,16 +92,18 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-#html_theme = "sphinx_rtd_theme"
-#html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme = "sphinx_rtd_theme"
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'], }
+# html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'], }
+html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'], }
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {'gray_1': '#023F6C'}
+html_theme_options = {'gray_1': '#023F6C',
+        'page_width': '1040px'}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
