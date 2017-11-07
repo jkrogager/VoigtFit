@@ -36,13 +36,47 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
 
 
 def calculate_velocity_bin_size(x):
+    """Calculate the bin size of *x* in velocity units."""
     log_x = np.logspace(np.log10(x.min()), np.log10(x.max()), len(x))
     return np.diff(log_x)[0] / log_x[0] * 299792.458
 
 
 class Line(object):
     def __init__(self, tag, active=True):
-        """Line object containing atomic data for the given transition."""
+        """
+        Line object containing atomic data for the given transition.
+        Only the line_tag is passed, the rest of the information is
+        looked up in the atomic database.
+
+        Attributes
+        ----------
+        tag : str
+            The line tag for the line, e.g., "FeII_2374"
+
+        ion : str
+            The ion for the line; The ion for "FeII_2374" is "FeII".
+
+        element : str
+            Equal to ``self.ion`` for backwards compatibility.
+
+        l0 : float
+            Rest-frame resonant wavelength of the transition.
+            Unit: Angstrøm.
+
+        f : float
+            The oscillator strength for the transition.
+
+        gam : float
+            The radiation damping constant or Einstein coefficient.
+
+        mass : float
+            The atomic mass in atomic mass units.
+
+        active : bool   [default = True]
+            The state of the line in the dataset. Only active lines will
+            be included in the fit.
+
+        """
         self.tag = tag
         index = lineList['trans'].tolist().index(tag)
         tag, ion, l0, f, gam, mass = lineList[index]
@@ -57,6 +91,7 @@ class Line(object):
         self.active = active
 
     def get_properties(self):
+        """Return the principal atomic constants for the transition: *l0*, *f*, and *gam*."""
         return (self.l0, self.f, self.gam)
 
     def set_inactive(self):
@@ -68,7 +103,7 @@ class Line(object):
 
 # --- Definition of main class *DataSet*:
 class DataSet(object):
-    def __init__(self, z, name=''):
+    def __init__(self, redshift, name=''):
         """
         Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.
         Spectral data must be added using the `add_data` method. Hereafter the absorption lines
@@ -78,16 +113,68 @@ class DataSet(object):
         calling the `prepare_dataset` method and subsequently, the lines can be fitted using
         the `fit` method.
 
-        Parameters
+        Attributes
         ----------
-        z : float
+        redshift : float
             Systemic redshift of the absorption system.
 
         name : str   [default = '']
             The name of the DataSet, this will be used for saving the dataset to a file structure.
+
+        verbose : bool   [default = True]
+            If `False`, the printed information statements will be suppressed.
+
+        data : list(data_chunks)
+            A list of *data chunks* defined for the dataset. A *data chunk* is
+            a dictionary with keys 'wl', 'flux', 'error', 'res', 'norm'.
+            See :meth:`dataset.DataSet.add_data`.
+
+        lines : dict
+            A dictionary holding pairs of defined (*line_tag* : :class:`dataset.Line`)
+
+        all_lines : list(str)
+            A list of all the defined *line tags* for easy look-up.
+
+        molecules : dict
+            A dictionary holding a list of the defined molecular bands for each molecule:
+            {*molecule* : list(str)}
+
+        regions : list(:class:`regions.Region`)
+            A list of the fitting regions.
+
+        cheb_order : int   [default = 1]
+            The maximum order of Chebyshev polynomials to use for the continuum
+            fitting in each region.
+
+        norm_method : str   [default = 'linear']
+            Default normalization method to use for interactive normalization
+            if Chebyshev polynomial fitting should not be used.
+
+        components : dict
+            A dictionary of components for each *ion* defined:
+            (*ion* : [z, b, logN, options]). See :meth:`self.add_component`.
+
+        velspan : float   [default = 500]
+            The default velocity range to use for the definition
+            of fitting regions.
+
+        ready2fit : bool   [default = False]
+            This attribute is checked before fitting the dataset. Only when
+            the attribute has been set to `True` can the dataset be fitted.
+            This will be toggled after a successful run of :meth:`self.prepare_dataset`
+
+        best_fit : lmfit.Parameters_   [default = None]
+            Best-fit parameters from lmfit_. This attribute will be `None` until
+            the dataset has been fitted.
+
+        pars : lmfit.Parameters_   [default = None]
+            Placeholder for the fit parameters initiated before the fit.
+            The parameters will be defined during the call to :meth:`self.prepare_dataset`
+            based on the defined components.
+
         """
         # Define the systemic redshift
-        self.redshift = z
+        self.redshift = redshift
 
         # container for data chunks to be fitted
         # data should be added by calling method 'add_data'
@@ -333,6 +420,8 @@ class DataSet(object):
         """
         Look up the fitting region for a given line.
 
+        Parameters
+        ----------
         line_tag : str
             The line tag of the line whose region will be returned.
 
@@ -500,10 +589,12 @@ class DataSet(object):
         line_tag : str
             Line tag for the line belonging to the ion for which components should be defined.
 
+        Notes
+        -----
         This will launch an interactive plot showing the fitting region of the given line.
         The user can then click on the positions of the components which. At the end, the
         redshifts and estimated column densities are printed to terminal. The b-parameter
-        is assumed to be unresolved.
+        is assumed to be unresolved, i.e., taken from the resolution.
         """
         region = self.find_line(line_tag)
         wl, flux, err, mask = region.unpack()
@@ -684,6 +775,8 @@ class DataSet(object):
         active : bool   [default = True]
             Set the line as active (i.e., included in the fit).
 
+        Notes
+        -----
         This will initiate a `Line` class with the atomic data for the transition,
         as well as creating a fitting region (`Region` class) containing the data cutout
         around the line center.
@@ -852,7 +945,7 @@ class DataSet(object):
 
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
-        Add molecular lines for a given band, e.g., ``AX(0-0)".
+        Add molecular lines for a given band, e.g., "AX(0-0)" of CO.
 
         Parameters
         ----------
@@ -951,6 +1044,8 @@ class DataSet(object):
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
 
+        Parameters
+        ----------
         norm : bool   [default = True]
             Opens an interactive window to let the user normalize each region
             using the defined `norm_method`.
@@ -960,6 +1055,15 @@ class DataSet(object):
 
         verbose : bool   [default = True]
             If this is set, the code will print small info statements during the run.
+
+        Returns
+        -------
+        bool
+            The function returns `True` when the dataset has passed all the steps.
+            If one step fails, the function returns `False`.
+            The ``ready2fit`` attribute of the dataset is also
+            updated accordingly.
+
         """
 
         plt.close('all')
@@ -1067,9 +1171,9 @@ class DataSet(object):
     def fit(self, rebin=1, verbose=True, plot=False, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
-        Returns the best fitting parameters for each component
-        of each line.
 
+        Parameters
+        ----------
         rebin : int   [default = 1]
             Rebin data by a factor *rebin* before fitting.
 
@@ -1079,11 +1183,29 @@ class DataSet(object):
         plot : bool   [default = False]
             This will make the best-fit solution show up in a new window.
 
-        kwargs : keyword argument dictionary
-            Options are derived from the scipy.optimize minimization methods.
-            The default method is `leastsq`, used in lmfit.
-            This can be changed with `method` keyword.
-            See documentation in `lmfit` and `scipy.optimize`.
+        **kwargs
+            Keyword arguments are derived from the `scipy.optimize`_ minimization methods.
+            The default method is leastsq_, used in `lmfit <https://lmfit.github.io/lmfit-py/>`_.
+            This can be changed using the `method` keyword.
+            See documentation in lmfit_ and scipy.optimize_.
+
+        Returns
+        -------
+        popt : lmfit.MinimizerResult_
+            The minimzer results from lmfit_ containing best-fit parameters
+            and fit details, e.g., exit status and reduced chi squared.
+            See documentation for lmfit_.
+
+        chi2 : float
+            The chi squared value of the best-fit. Note that this value is **not**
+            the reduced chi squared. This value, and the number of degrees of freedom,
+            are available under the `popt` object.
+
+
+        .. _scipy.optimize: https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html
+        .. _leastsq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html
+        .. _lmfit.MinimizerResult: https://lmfit.github.io/lmfit-py/fitting.html#lmfit.minimizer.MinimizerResult
+
         """
 
         if not self.ready2fit:
@@ -1167,6 +1289,10 @@ class DataSet(object):
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
                  highlight=[], residuals=True):
+        """
+        Plot the absorption lines and the best-fit profiles.
+        For details, see `output.plot_all_lines`.
+        """
         output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
                               colors=colors, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
@@ -1186,7 +1312,10 @@ class DataSet(object):
                   loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                   xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1,
                   npad=50, highlight=[], residuals=True):
-
+        """
+        Plot a single fitting region containing the line corresponding to the
+        given `line_tag`. For details, see `output.plot_single_line()`.
+        """
         output.plot_single_line(self, line_tag, plot_fit=plot_fit,
                                 linestyles=linestyles, colors=colors,
                                 loc=loc, rebin=rebin, nolabels=nolabels,
