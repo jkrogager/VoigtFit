@@ -24,8 +24,11 @@ if 'VFITDATA' in os.environ.keys():
     atomfile = os.environ['VFITDATA'] + '/atomdata_updated.dat'
 
 else:
-    print("No VFITDATA in environment ... Using relative path to static data files")
-    atomfile = os.path.dirname(__file__) + '/static/atomdata_updated.dat'
+    source_dir = os.path.dirname(__file__)
+    if source_dir != '':
+        atomfile = source_dir + '/static/atomdata_updated.dat'
+    else:
+        atomfile = 'static/atomdata_updated.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
@@ -48,8 +51,8 @@ class Line(object):
         Only the line_tag is passed, the rest of the information is
         looked up in the atomic database.
 
-        Attributes
-        ----------
+        .. rubric:: Attributes
+
         tag : str
             The line tag for the line, e.g., "FeII_2374"
 
@@ -57,11 +60,11 @@ class Line(object):
             The ion for the line; The ion for "FeII_2374" is "FeII".
 
         element : str
-            Equal to ``self.ion`` for backwards compatibility.
+            Equal to ``Line.ion`` for backwards compatibility.
 
         l0 : float
             Rest-frame resonant wavelength of the transition.
-            Unit: Angstrøm.
+            Unit: Ångstrøm.
 
         f : float
             The oscillator strength for the transition.
@@ -95,9 +98,11 @@ class Line(object):
         return (self.l0, self.f, self.gam)
 
     def set_inactive(self):
+        """Set the line inactive; exclude the line in the fit."""
         self.active = False
 
     def set_active(self):
+        """Set the line active; include the line in the fit."""
         self.active = True
 
 
