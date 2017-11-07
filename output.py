@@ -1,7 +1,5 @@
 # -*- coding: UTF-8 -*-
-#    Written by:
-#    Jens-Kristian Krogager
-#
+
 __author__ = 'Jens-Kristian Krogager'
 from os.path import splitext
 import matplotlib.pyplot as plt

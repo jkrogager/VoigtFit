@@ -4,6 +4,7 @@ The module contains functions to evaluate the optical depth,
 to convert this to observed transmission and to convolve the
 observed spectrum with the instrumental profile.
 """
+
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np

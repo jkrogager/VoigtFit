@@ -1,15 +1,13 @@
 # -*- coding: UTF-8 -*-
-#    Written by:
-#    Jens-Kristian Krogager
-#
+
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
-
 import matplotlib
 # The native MacOSX backend doesn't work for all:
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
+import warnings
 
 try:
     import pyfits as pf
@@ -22,8 +20,6 @@ import output
 from parse_input import parse_parameters
 from dataset import DataSet, lineList
 import hdf5_save
-
-import warnings
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)

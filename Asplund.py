@@ -1,6 +1,6 @@
 import numpy as np
 import os
-# from terminal_attributes import bold, reset
+__author__ = 'Jens-Kristian Krogager'
 
 if 'VFITDATA' in os.environ.keys():
     datafile = os.environ['VFITDATA']+'/Asplund2009.dat'

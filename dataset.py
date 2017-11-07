@@ -1,15 +1,13 @@
 # -*- coding: UTF-8 -*-
-#    Written by:
-#    Jens-Kristian Krogager
-#
+
 __author__ = 'Jens-Kristian Krogager'
+
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
 from lmfit import Parameters, Minimizer
 import os
 
-# from VoigtFit import Line
 from voigt import evaluate_profile, evaluate_continuum
 from regions import Region
 import output

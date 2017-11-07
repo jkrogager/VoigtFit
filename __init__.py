@@ -14,17 +14,17 @@ print ""
 print "    Institut d'Astrophysique de Paris"
 print "    November 2017"
 print ""
-print "____  _           _____________"
-print "    \/ \  _/\    /             "
-print "        \/   \  / oigtFit      "
-print "              \/               "
+print "  ____  _           ___________________"
+print "      \/ \  _/\    /                   "
+print "          \/   \  / oigtFit            "
+print "                \/                     "
 print ""
 print ""
 __author__ = 'Jens-Kristian Krogager'
-# from VoigtFit import *
-# import Voigt
-# from dataset import DataSet
-# from regions import Region
-# import output
+
 from VoigtFit import *
 import regions
+import output
+import voigt
+import dataset
+import line_complexes

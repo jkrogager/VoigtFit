@@ -3,6 +3,7 @@ import numpy as np
 This module contains definitions of line-complexes which should be defined simulatneously.
 Data in this module are purely included for ease of use.
 """
+__author__ = 'Jens-Kristian Krogager'
 
 fine_structure_complexes = dict()
 
