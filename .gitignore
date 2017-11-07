@@ -19,3 +19,5 @@ input.pars
 *.reg
 
 *.swp
+
+.input.pars.swp
