@@ -9,12 +9,16 @@ from scipy.interpolate import spline
 import os
 
 if 'VFITDATA' in os.environ.keys():
-    datafile = os.environ['VFITDATA']+'/telluric_em_abs.dat'
+    datafile = os.environ['VFITDATA']+'/telluric_em_abs.npz'
 
 else:
-    print("No VFITDATA in environment ... Using relative path to static data files")
-    datafile = os.path.dirname(__file__) + '/static/Asplund2009.dat'
-telluric_data = np.loadtxt(datafile)
+    source_dir = os.path.dirname(__file__)
+    if source_dir != '':
+        datafile = source_dir + '/static/telluric_em_abs.npz'
+    else:
+        datafile = 'static/telluric_em_abs.npz'
+
+telluric_data = np.load(datafile)
 
 
 def linfunc(x, a, b):
@@ -23,10 +27,58 @@ def linfunc(x, a, b):
 
 
 class Region():
-    def __init__(self, v, line):
-        """Fitting region object. This class contains the fit region data and line information."""
-        self.velspan = v
-        self.lines = [line]
+    def __init__(self, velspan, line=None):
+        """
+        A Region contains the fitting data, exclusion mask and line information.
+        The class is instantiated with the velocity span, `velspan`,
+        and can include a :class:`dataset.Line` instance for the first line
+        belonging to the region.
+
+        .. rubric:: Attributes
+
+        velspan : float
+            The velocity range to used for the fitting region.
+
+        lines : list(:class:`dataset.Line`)
+            A list of Lines defined in the region.
+
+        label : str
+            A LaTeX label describing the lines in the region for plotting purposes.
+
+        res : float
+            Spectral resolution of the region in km/s.
+
+        wl : array_like, shape (N)
+            Data array of wavelengths in Ångstrøm.
+
+        flux : array_like, shape (N)
+            Data array of fluxes (normalized if :attr:`normalized` is `True`).
+
+        err : array_like, shape (N)
+            Array of uncertainties for each flux element.
+
+        normalized : bool
+            `True` if the data in the region are normlized.
+
+        mask : array_like, shape (N)
+            Exclusion mask for the region:
+            0/`False` = pixel is *not* included in the fit.
+            1/`True` = pixel is included in the fit.
+
+        new_mask : bool
+            Internal parameter for :meth:`dataset.DataSet.prepare_dataset`.
+            If `True`, an interactive masking process will be initiated in the
+            preparation stage.
+
+        cont_err : float
+            An estimate of the uncertainty in the continuum fit.
+
+        """
+        self.velspan = velspan
+        if line:
+            self.lines = [line]
+        else:
+            self.lines = list()
         self.label = ''
 
     def add_data_to_region(self, data_chunk, cutout):
@@ -49,6 +101,10 @@ class Region():
         self.cont_err = 0.
         self.mask = np.ones_like(self.wl, dtype=bool)
         self.new_mask = True
+
+    def add_line(self, line):
+        """Add a new :class:`dataset.Line` to the fitting region."""
+        self.lines.append(line)
 
     def has_line(self, line_tag):
         """Return `True` if a line with the given `line_tag` is defined in the region."""
@@ -209,10 +265,10 @@ class Region():
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
         plt.legend()
         if telluric:
-            wl_T = telluric_data[:, 0]
+            wl_T = telluric_data['wl']
             cutout = (wl_T > self.wl.min()) * (wl_T < self.wl.max())
-            flux_T = telluric_data[:, 1][cutout]
-            abs_T = telluric_data[:, 2][cutout]
+            flux_T = telluric_data['em'][cutout]
+            abs_T = telluric_data['abs'][cutout]
             wl_T = wl_T[cutout]
             if self.normalized:
                 cont = 1.

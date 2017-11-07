@@ -15,3 +15,7 @@ doc/VoigtFit_mini_language.pdf
 HI_input.pars
 
 input.pars
+
+*.reg
+
+*.swp

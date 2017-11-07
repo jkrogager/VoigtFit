@@ -1072,8 +1072,40 @@ be included in the fit.</dd>
 <h2>class <strong>Region</strong><a class="headerlink" href="#class-region" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="regions.Region">
-<em class="property">class </em><code class="descclassname">regions.</code><code class="descname">Region</code><span class="sig-paren">(</span><em>v</em>, <em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fitting region object. This class contains the fit region data and line information.</p>
+<em class="property">class </em><code class="descclassname">regions.</code><code class="descname">Region</code><span class="sig-paren">(</span><em>velspan</em>, <em>line=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Region contains the fitting data, exclusion mask and line information.
+The class is instantiated with the velocity span, <cite>velspan</cite>,
+and can include a <a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">dataset.Line</span></code></a> instance for the first line
+belonging to the region.</p>
+<p class="rubric">Attributes</p>
+<dl class="docutils">
+<dt>velspan <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The velocity range to used for the fitting region.</dd>
+<dt>lines <span class="classifier-delimiter">:</span> <span class="classifier">list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">dataset.Line</span></code></a>)</span></dt>
+<dd>A list of Lines defined in the region.</dd>
+<dt>label <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>A LaTeX label describing the lines in the region for plotting purposes.</dd>
+<dt>res <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Spectral resolution of the region in km/s.</dd>
+<dt>wl <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd>Data array of wavelengths in Ångstrøm.</dd>
+<dt>flux <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd>Data array of fluxes (normalized if <code class="xref py py-attr docutils literal"><span class="pre">normalized</span></code> is <cite>True</cite>).</dd>
+<dt>err <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd>Array of uncertainties for each flux element.</dd>
+<dt>normalized <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><cite>True</cite> if the data in the region are normlized.</dd>
+<dt>mask <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd>Exclusion mask for the region:
+0/<cite>False</cite> = pixel is <em>not</em> included in the fit.
+1/<cite>True</cite> = pixel is included in the fit.</dd>
+<dt>new_mask <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Internal parameter for <a class="reference internal" href="#dataset.DataSet.prepare_dataset" title="dataset.DataSet.prepare_dataset"><code class="xref py py-meth docutils literal"><span class="pre">dataset.DataSet.prepare_dataset()</span></code></a>.
+If <cite>True</cite>, an interactive masking process will be initiated in the
+preparation stage.</dd>
+<dt>cont_err <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>An estimate of the uncertainty in the continuum fit.</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -1084,34 +1116,37 @@ be included in the fit.</dd>
 <tr class="row-odd"><td><a class="reference internal" href="#regions.Region.add_data_to_region" title="regions.Region.add_data_to_region"><code class="xref py py-obj docutils literal"><span class="pre">add_data_to_region</span></code></a>(data_chunk,&nbsp;cutout)</td>
 <td>Define the spectral data for the fitting region.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.clear_mask" title="regions.Region.clear_mask"><code class="xref py py-obj docutils literal"><span class="pre">clear_mask</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.add_line" title="regions.Region.add_line"><code class="xref py py-obj docutils literal"><span class="pre">add_line</span></code></a>(line)</td>
+<td>Add a new <a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">dataset.Line</span></code></a> to the fitting region.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.clear_mask" title="regions.Region.clear_mask"><code class="xref py py-obj docutils literal"><span class="pre">clear_mask</span></code></a>()</td>
 <td>Clear the already defined mask in the region.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.define_mask" title="regions.Region.define_mask"><code class="xref py py-obj docutils literal"><span class="pre">define_mask</span></code></a>([z,&nbsp;dataset,&nbsp;telluric])</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.define_mask" title="regions.Region.define_mask"><code class="xref py py-obj docutils literal"><span class="pre">define_mask</span></code></a>([z,&nbsp;dataset,&nbsp;telluric])</td>
 <td>Use an interactive window to define the mask for the region.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.generate_label" title="regions.Region.generate_label"><code class="xref py py-obj docutils literal"><span class="pre">generate_label</span></code></a>([active_only])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.generate_label" title="regions.Region.generate_label"><code class="xref py py-obj docutils literal"><span class="pre">generate_label</span></code></a>([active_only])</td>
 <td>Automatically generate a descriptive label for the region.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.has_active_lines" title="regions.Region.has_active_lines"><code class="xref py py-obj docutils literal"><span class="pre">has_active_lines</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.has_active_lines" title="regions.Region.has_active_lines"><code class="xref py py-obj docutils literal"><span class="pre">has_active_lines</span></code></a>()</td>
 <td>Return <cite>True</cite> is at least one line in the region is active.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.has_line" title="regions.Region.has_line"><code class="xref py py-obj docutils literal"><span class="pre">has_line</span></code></a>(line_tag)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.has_line" title="regions.Region.has_line"><code class="xref py py-obj docutils literal"><span class="pre">has_line</span></code></a>(line_tag)</td>
 <td>Return <cite>True</cite> if a line with the given <cite>line_tag</cite> is defined in the region.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.is_normalized" title="regions.Region.is_normalized"><code class="xref py py-obj docutils literal"><span class="pre">is_normalized</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.is_normalized" title="regions.Region.is_normalized"><code class="xref py py-obj docutils literal"><span class="pre">is_normalized</span></code></a>()</td>
 <td>Return <cite>True</cite> if the region data is normalized.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.normalize" title="regions.Region.normalize"><code class="xref py py-obj docutils literal"><span class="pre">normalize</span></code></a>([plot,&nbsp;norm_method])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.normalize" title="regions.Region.normalize"><code class="xref py py-obj docutils literal"><span class="pre">normalize</span></code></a>([plot,&nbsp;norm_method])</td>
 <td>Normalize the region if the data are not already normalized.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.remove_line" title="regions.Region.remove_line"><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></a>(line_tag)</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.remove_line" title="regions.Region.remove_line"><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></a>(line_tag)</td>
 <td>Remove absorption line with the given <cite>line_tag</cite> from the region.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.set_label" title="regions.Region.set_label"><code class="xref py py-obj docutils literal"><span class="pre">set_label</span></code></a>(text)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.set_label" title="regions.Region.set_label"><code class="xref py py-obj docutils literal"><span class="pre">set_label</span></code></a>(text)</td>
 <td>Set descriptive text label for the given region.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.unpack" title="regions.Region.unpack"><code class="xref py py-obj docutils literal"><span class="pre">unpack</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.unpack" title="regions.Region.unpack"><code class="xref py py-obj docutils literal"><span class="pre">unpack</span></code></a>()</td>
 <td>Return the data of the region (wl, flux, error, mask)</td>
 </tr>
 </tbody>
@@ -1136,6 +1171,12 @@ be included in the fit.</dd>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.add_line">
+<code class="descname">add_line</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.add_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.add_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new <a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">dataset.Line</span></code></a> to the fitting region.</p>
 </dd></dl>
 
 <dl class="method">

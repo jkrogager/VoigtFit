@@ -64,10 +64,58 @@
 
 
 <div class="viewcode-block" id="Region"><a class="viewcode-back" href="../api.html#regions.Region">[docs]</a><span class="k">class</span> <span class="nc">Region</span><span class="p">():</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fitting region object. This class contains the fit region data and line information.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velspan</span> <span class="o">=</span> <span class="n">v</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velspan</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A Region contains the fitting data, exclusion mask and line information.</span>
+<span class="sd">        The class is instantiated with the velocity span, `velspan`,</span>
+<span class="sd">        and can include a :class:`dataset.Line` instance for the first line</span>
+<span class="sd">        belonging to the region.</span>
+
+<span class="sd">        .. rubric:: Attributes</span>
+
+<span class="sd">        velspan : float</span>
+<span class="sd">            The velocity range to used for the fitting region.</span>
+
+<span class="sd">        lines : list(:class:`dataset.Line`)</span>
+<span class="sd">            A list of Lines defined in the region.</span>
+
+<span class="sd">        label : str</span>
+<span class="sd">            A LaTeX label describing the lines in the region for plotting purposes.</span>
+
+<span class="sd">        res : float</span>
+<span class="sd">            Spectral resolution of the region in km/s.</span>
+
+<span class="sd">        wl : array_like, shape (N)</span>
+<span class="sd">            Data array of wavelengths in Ångstrøm.</span>
+
+<span class="sd">        flux : array_like, shape (N)</span>
+<span class="sd">            Data array of fluxes (normalized if :attr:`normalized` is `True`).</span>
+
+<span class="sd">        err : array_like, shape (N)</span>
+<span class="sd">            Array of uncertainties for each flux element.</span>
+
+<span class="sd">        normalized : bool</span>
+<span class="sd">            `True` if the data in the region are normlized.</span>
+
+<span class="sd">        mask : array_like, shape (N)</span>
+<span class="sd">            Exclusion mask for the region:</span>
+<span class="sd">            0/`False` = pixel is *not* included in the fit.</span>
+<span class="sd">            1/`True` = pixel is included in the fit.</span>
+
+<span class="sd">        new_mask : bool</span>
+<span class="sd">            Internal parameter for :meth:`dataset.DataSet.prepare_dataset`.</span>
+<span class="sd">            If `True`, an interactive masking process will be initiated in the</span>
+<span class="sd">            preparation stage.</span>
+
+<span class="sd">        cont_err : float</span>
+<span class="sd">            An estimate of the uncertainty in the continuum fit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velspan</span> <span class="o">=</span> <span class="n">velspan</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
 <div class="viewcode-block" id="Region.add_data_to_region"><a class="viewcode-back" href="../api.html#regions.Region.add_data_to_region">[docs]</a>    <span class="k">def</span> <span class="nf">add_data_to_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_chunk</span><span class="p">,</span> <span class="n">cutout</span><span class="p">):</span>
@@ -90,6 +138,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cont_err</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Region.add_line"><a class="viewcode-back" href="../api.html#regions.Region.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new :class:`dataset.Line` to the fitting region.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Region.has_line"><a class="viewcode-back" href="../api.html#regions.Region.has_line">[docs]</a>    <span class="k">def</span> <span class="nf">has_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return `True` if a line with the given `line_tag` is defined in the region.&quot;&quot;&quot;</span>

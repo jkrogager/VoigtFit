@@ -65,8 +65,11 @@
     <span class="n">atomfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VFITDATA&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/atomdata_updated.dat&#39;</span>
 
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No VFITDATA in environment ... Using relative path to static data files&quot;</span><span class="p">)</span>
-    <span class="n">atomfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/static/atomdata_updated.dat&#39;</span>
+    <span class="n">source_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_dir</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">atomfile</span> <span class="o">=</span> <span class="n">source_dir</span> <span class="o">+</span> <span class="s1">&#39;/static/atomdata_updated.dat&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">atomfile</span> <span class="o">=</span> <span class="s1">&#39;static/atomdata_updated.dat&#39;</span>
 
 <span class="n">lineList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">atomfile</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;trans&#39;</span><span class="p">,</span> <span class="s1">&#39;S13&#39;</span><span class="p">),</span>
                                        <span class="p">(</span><span class="s1">&#39;ion&#39;</span><span class="p">,</span> <span class="s1">&#39;S6&#39;</span><span class="p">),</span>

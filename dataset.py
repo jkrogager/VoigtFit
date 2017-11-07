@@ -807,12 +807,13 @@ class DataSet(object):
 
         if new_line.element not in self.components.keys():
             # Initiate component list if ion has not been defined before:
-            self.components[new_line.element] = list()
+            self.components[new_line.ion] = list()
 
         l_center = new_line.l0*(self.redshift + 1.)
 
         # Initiate new Region:
-        new_region = Region(velspan, new_line)
+        new_region = Region(velspan)
+        new_region.add_line(new_line)
 
         if self.data:
             success = False
