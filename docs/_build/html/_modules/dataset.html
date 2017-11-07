@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>dataset &#8212; VoigtFit 0.7 documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -33,7 +30,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -43,17 +40,15 @@
             
   <h1>Source code for dataset</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: UTF-8 -*-</span>
-<span class="c1">#    Written by:</span>
-<span class="c1">#    Jens-Kristian Krogager</span>
-<span class="c1">#</span>
+
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Jens-Kristian Krogager&#39;</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">lmfit</span> <span class="k">import</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">Minimizer</span>
+<span class="kn">from</span> <span class="nn">lmfit</span> <span class="k">import</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">Minimizer</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="c1"># from VoigtFit import Line</span>
 <span class="kn">from</span> <span class="nn">voigt</span> <span class="k">import</span> <span class="n">evaluate_profile</span><span class="p">,</span> <span class="n">evaluate_continuum</span>
 <span class="kn">from</span> <span class="nn">regions</span> <span class="k">import</span> <span class="n">Region</span>
 <span class="kn">import</span> <span class="nn">output</span>
@@ -67,7 +62,7 @@
 <span class="n">myfloat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
 
 <span class="k">if</span> <span class="s1">&#39;VFITDATA&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-    <span class="n">atomfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VFITDATA&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/atomdata_updated.dat&#39;</span>
+    <span class="n">atomfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VFITDATA&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/atomdata_updated.dat&#39;</span>
 
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No VFITDATA in environment ... Using relative path to static data files&quot;</span><span class="p">)</span>
@@ -77,19 +72,55 @@
                                        <span class="p">(</span><span class="s1">&#39;ion&#39;</span><span class="p">,</span> <span class="s1">&#39;S6&#39;</span><span class="p">),</span>
                                        <span class="p">(</span><span class="s1">&#39;l0&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
                                        <span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
-                                       <span class="p">(</span><span class="s1">&#39;gam&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">)])</span>
+                                       <span class="p">(</span><span class="s1">&#39;gam&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">)])</span>
 
 
-<div class="viewcode-block" id="calculate_velocity_bin_size"><a class="viewcode-back" href="../api.html#dataset.calculate_velocity_bin_size">[docs]</a><span class="k">def</span> <span class="nf">calculate_velocity_bin_size</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">calculate_velocity_bin_size</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the bin size of *x* in velocity units.&quot;&quot;&quot;</span>
     <span class="n">log_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">log_x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">log_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">log_x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">log_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
 
 
-<span class="k">class</span> <span class="nc">Line</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Line"><a class="viewcode-back" href="../api.html#dataset.Line">[docs]</a><span class="k">class</span> <span class="nc">Line</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Line object containing atomic data for the given transition.</span>
+<span class="sd">        Only the line_tag is passed, the rest of the information is</span>
+<span class="sd">        looked up in the atomic database.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tag : str</span>
+<span class="sd">            The line tag for the line, e.g., &quot;FeII_2374&quot;</span>
+
+<span class="sd">        ion : str</span>
+<span class="sd">            The ion for the line; The ion for &quot;FeII_2374&quot; is &quot;FeII&quot;.</span>
+
+<span class="sd">        element : str</span>
+<span class="sd">            Equal to ``self.ion`` for backwards compatibility.</span>
+
+<span class="sd">        l0 : float</span>
+<span class="sd">            Rest-frame resonant wavelength of the transition.</span>
+<span class="sd">            Unit: Angstrøm.</span>
+
+<span class="sd">        f : float</span>
+<span class="sd">            The oscillator strength for the transition.</span>
+
+<span class="sd">        gam : float</span>
+<span class="sd">            The radiation damping constant or Einstein coefficient.</span>
+
+<span class="sd">        mass : float</span>
+<span class="sd">            The atomic mass in atomic mass units.</span>
+
+<span class="sd">        active : bool   [default = True]</span>
+<span class="sd">            The state of the line in the dataset. Only active lines will</span>
+<span class="sd">            be included in the fit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">lineList</span><span class="p">[</span><span class="s1">&#39;trans&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
-        <span class="n">tag</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gam</span> <span class="o">=</span> <span class="n">lineList</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">tag</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">mass</span> <span class="o">=</span> <span class="n">lineList</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ion</span> <span class="o">=</span> <span class="n">ion</span>
@@ -97,27 +128,100 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">l0</span> <span class="o">=</span> <span class="n">l0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gam</span> <span class="o">=</span> <span class="n">gam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="n">active</span>
 
-    <span class="k">def</span> <span class="nf">get_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gam</span><span class="p">)</span>
+<div class="viewcode-block" id="Line.get_properties"><a class="viewcode-back" href="../api.html#dataset.Line.get_properties">[docs]</a>    <span class="k">def</span> <span class="nf">get_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the principal atomic constants for the transition: *l0*, *f*, and *gam*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gam</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">set_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 <span class="c1"># --- Definition of main class *DataSet*:</span>
 <div class="viewcode-block" id="DataSet"><a class="viewcode-back" href="../api.html#dataset.DataSet">[docs]</a><span class="k">class</span> <span class="nc">DataSet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.</span>
+<span class="sd">        Spectral data must be added using the `add_data` method. Hereafter the absorption lines</span>
+<span class="sd">        to be fitted are added to the DataSet using the `add_line` or `add_many_lines` methods.</span>
+<span class="sd">        Lastly, the components of each element is defined using the `add_component` method.</span>
+<span class="sd">        When all lines and components have been defined, the DataSet must be prepared by</span>
+<span class="sd">        calling the `prepare_dataset` method and subsequently, the lines can be fitted using</span>
+<span class="sd">        the `fit` method.</span>
+
+<span class="sd">        .. rubric:: Attributes</span>
+
+<span class="sd">        redshift : float</span>
+<span class="sd">            Systemic redshift of the absorption system.</span>
+
+<span class="sd">        name : str   [default = &#39;&#39;]</span>
+<span class="sd">            The name of the DataSet, this will be used for saving the dataset to a file structure.</span>
+
+<span class="sd">        verbose : bool   [default = True]</span>
+<span class="sd">            If `False`, the printed information statements will be suppressed.</span>
+
+<span class="sd">        data : list(data_chunks)</span>
+<span class="sd">            A list of *data chunks* defined for the dataset. A *data chunk* is</span>
+<span class="sd">            a dictionary with keys &#39;wl&#39;, &#39;flux&#39;, &#39;error&#39;, &#39;res&#39;, &#39;norm&#39;.</span>
+<span class="sd">            See :meth:`DataSet.add_data &lt;dataset.DataSet.add_data&gt;`.</span>
+
+<span class="sd">        lines : dict</span>
+<span class="sd">            A dictionary holding pairs of defined (*line_tag* : :class:`dataset.Line`)</span>
+
+<span class="sd">        all_lines : list(str)</span>
+<span class="sd">            A list of all the defined *line tags* for easy look-up.</span>
+
+<span class="sd">        molecules : dict</span>
+<span class="sd">            A dictionary holding a list of the defined molecular bands for each molecule:</span>
+<span class="sd">            {*molecule* : list(str)}</span>
+
+<span class="sd">        regions : list(:class:`regions.Region`)</span>
+<span class="sd">            A list of the fitting regions.</span>
+
+<span class="sd">        cheb_order : int   [default = 1]</span>
+<span class="sd">            The maximum order of Chebyshev polynomials to use for the continuum</span>
+<span class="sd">            fitting in each region.</span>
+
+<span class="sd">        norm_method : str   [default = &#39;linear&#39;]</span>
+<span class="sd">            Default normalization method to use for interactive normalization</span>
+<span class="sd">            if Chebyshev polynomial fitting should not be used.</span>
+
+<span class="sd">        components : dict</span>
+<span class="sd">            A dictionary of components for each *ion* defined:</span>
+<span class="sd">            (*ion* : [z, b, logN, options]). See :meth:`DataSet.add_component</span>
+<span class="sd">            &lt;dataset.DataSet.add_component&gt;`.</span>
+
+<span class="sd">        velspan : float   [default = 500]</span>
+<span class="sd">            The default velocity range to use for the definition</span>
+<span class="sd">            of fitting regions.</span>
+
+<span class="sd">        ready2fit : bool   [default = False]</span>
+<span class="sd">            This attribute is checked before fitting the dataset. Only when</span>
+<span class="sd">            the attribute has been set to `True` can the dataset be fitted.</span>
+<span class="sd">            This will be toggled after a successful run of</span>
+<span class="sd">            :meth:`DataSet.prepare_dataset &lt;dataset.DataSet.prepare_dataset&gt;`.</span>
+
+<span class="sd">        best_fit : lmfit.Parameters_   [default = None]</span>
+<span class="sd">            Best-fit parameters from lmfit_. This attribute will be `None` until</span>
+<span class="sd">            the dataset has been fitted.</span>
+
+<span class="sd">        pars : lmfit.Parameters_   [default = None]</span>
+<span class="sd">            Placeholder for the fit parameters initiated before the fit.</span>
+<span class="sd">            The parameters will be defined during the call to :meth:`DataSet.prepare_dataset</span>
+<span class="sd">            &lt;dataset.DataSet.prepare_dataset&gt;` based on the defined components.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Define the systemic redshift</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">redshift</span>
 
         <span class="c1"># container for data chunks to be fitted</span>
         <span class="c1"># data should be added by calling method &#39;add_data&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -147,23 +251,36 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pars</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+<div class="viewcode-block" id="DataSet.set_name"><a class="viewcode-back" href="../api.html#dataset.DataSet.set_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the name of the DataSet. This parameter is used when saving the dataset.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></div>
 
-    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+<div class="viewcode-block" id="DataSet.get_name"><a class="viewcode-back" href="../api.html#dataset.DataSet.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the name of the DataSet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 <div class="viewcode-block" id="DataSet.add_data"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add spectral data chunk to Absorption Line System.</span>
+<span class="sd">        Add spectral data to the DataSet. This will be used to define fitting regions.</span>
 
-<span class="sd">         -- input --</span>
-<span class="sd">        Give wavelength, flux and error as np.arrays.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wl : ndarray, shape (n)</span>
+<span class="sd">            Input vacuum wavelength array in Angstroms</span>
 
-<span class="sd">        The spectrum should be helio-vacuum corrected!</span>
-<span class="sd">        Flux and error should be given in the same units.</span>
+<span class="sd">        flux : ndarray, shape (n)</span>
+<span class="sd">            Input flux array, should be same length as wl</span>
 
-<span class="sd">        The resolution &#39;res&#39; of the spectrum should be specified in km/s</span>
+<span class="sd">        res : float</span>
+<span class="sd">            Spectral resolution in km/s  (c/R)</span>
+
+<span class="sd">        err : ndarray, shape (n)   [default = None]</span>
+<span class="sd">            Error array, should be same length as wl</span>
+<span class="sd">            If `None` is given, a constant uncertainty of 1. is given to all pixels.</span>
+
+<span class="sd">        normalized : bool   [default = False]</span>
+<span class="sd">            If the input spectrum is normalized this should be given as True</span>
+<span class="sd">            in order to skip normalization steps.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span>
@@ -172,7 +289,7 @@
                           <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span> <span class="s1">&#39;res&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span> <span class="s1">&#39;norm&#39;</span><span class="p">:</span> <span class="n">normalized</span><span class="p">})</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_region"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_region">[docs]</a>    <span class="k">def</span> <span class="nf">reset_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reset the data in a given region to the raw input data.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Reset the data in a given region `reg` to use the raw input data.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reg</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">reg</span><span class="o">.</span><span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
                 <span class="n">raw_data</span> <span class="o">=</span> <span class="n">chunk</span>
@@ -184,46 +301,54 @@
         <span class="n">reg</span><span class="o">.</span><span class="n">wl</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
         <span class="n">reg</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">reset_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.reset_all_regions"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_all_regions">[docs]</a>    <span class="k">def</span> <span class="nf">reset_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the data in all regions defined in the DataSet to use the raw input data.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reset_region</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_region</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">get_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.get_resolution"><a class="viewcode-back" href="../api.html#dataset.DataSet.get_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">get_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the spectral resolution for the fitting region where the line with</span>
+<span class="sd">        the given `line_tag` is defined, otherwise give the resolution for all fitting regions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str   [default = None]</span>
+<span class="sd">            The line-tag for the line to look up: e.g., &quot;FeII_2374&quot;</span>
+
+<span class="sd">        verbose : bool   [default = False]</span>
+<span class="sd">            If `True`, print the returned spectral resolution to std out.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res : float</span>
+<span class="sd">            The spectral resolution of the fitting region where the given line is defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">line_tag</span><span class="p">:</span>
             <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="n">output_msg</span> <span class="o">=</span> <span class="s2">&quot; Spectral resolution in the region around </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%.1f</span><span class="s2"> km/s.&quot;</span>
                 <span class="nb">print</span> <span class="n">output_msg</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span>
+            <span class="k">return</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span></div>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">resolution</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot; Spectral Resolution:&quot;</span>
-            <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_active_lines</span><span class="p">():</span>
-                    <span class="n">res</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span>
-                    <span class="n">ref_line</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span> <span class="s2">&quot;   For </span><span class="si">%-13s</span><span class="s2"> :  </span><span class="si">%.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ref_line</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-                    <span class="n">resolution</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">resolution</span>
-
-<div class="viewcode-block" id="DataSet.set_resolution"><a class="viewcode-back" href="../api.html#dataset.DataSet.set_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">line_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.set_resolution"><a class="viewcode-back" href="../api.html#dataset.DataSet.set_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">line_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the spectral resolution in km/s for a given region containing *line_tag*.</span>
-<span class="sd">        If not *line_tag* is given, the resolution will be set for *all* regions,</span>
+<span class="sd">        Set the spectral resolution in km/s for a given region containing `line_tag`.</span>
+<span class="sd">        If `line_tag` is not given, the resolution will be set for *all* regions,</span>
 <span class="sd">        including the raw data chunks!</span>
 
-<span class="sd">        WARNING: If not all data chunks have the same resolution, then this method</span>
-<span class="sd">        should be used with caution!</span>
+<span class="sd">        Note -- If not all data chunks have the same resolution, this method</span>
+<span class="sd">        should be used with caution. It is advised to check the spectral resolution beforehand</span>
+<span class="sd">        and only update the appropriate regions using a for-loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">line_tag</span><span class="p">:</span>
             <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="n">region</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
 
         <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">warn_msg</span> <span class="o">=</span> <span class="s2">&quot; [WARNING] - Setting spectral resolution for all regions, R=</span><span class="si">%.1f</span><span class="s2"> km/s!&quot;</span>
+                <span class="nb">print</span> <span class="n">warn_msg</span> <span class="o">%</span> <span class="n">res</span>
+
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
 
@@ -231,10 +356,20 @@
                 <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span></div>
 
 <div class="viewcode-block" id="DataSet.set_systemic_redshift"><a class="viewcode-back" href="../api.html#dataset.DataSet.set_systemic_redshift">[docs]</a>    <span class="k">def</span> <span class="nf">set_systemic_redshift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update the systemic redshift&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Update the systemic redshift of the dataset&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">z_sys</span></div>
 
-    <span class="k">def</span> <span class="nf">remove_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.remove_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.remove_line">[docs]</a>    <span class="k">def</span> <span class="nf">remove_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove an absorption line from the DataSet. If this is the last line in a fitting region</span>
+<span class="sd">        the given region will be eliminated, and if this is the last line of a given ion,</span>
+<span class="sd">        then the components will be eliminated for that ion.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tag : str</span>
+<span class="sd">            Line tag of the transitoin that should be removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -265,10 +400,21 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
-                <span class="nb">print</span> <span class="s2">&quot; The line is not defined. Nothing to remove.&quot;</span>
+                <span class="nb">print</span> <span class="s2">&quot; The line is not defined. Nothing to remove.&quot;</span></div>
 
 <div class="viewcode-block" id="DataSet.normalize_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.normalize_line">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">norm_method</span><span class="o">=</span><span class="s1">&#39;spline&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; normalize or re-normalize a given line &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalize or re-normalize a given line</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            Line tag of the line whose fitting region should be normalized.</span>
+
+<span class="sd">        norm_method : str   [default = &#39;spline&#39;]</span>
+<span class="sd">            Normalization method used for the interactive continuum fit.</span>
+<span class="sd">            Options [&quot;spline&quot;, &quot;linear&quot;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">norm_method</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
             <span class="n">norm_num</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">elif</span> <span class="n">norm_method</span> <span class="o">==</span> <span class="s1">&#39;spline&#39;</span><span class="p">:</span>
@@ -280,8 +426,29 @@
         <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="n">region</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_method</span><span class="o">=</span><span class="n">norm_num</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataSet.mask_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.mask_line">[docs]</a>    <span class="k">def</span> <span class="nf">mask_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; define masked regions for a given line &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DataSet.mask_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.mask_line">[docs]</a>    <span class="k">def</span> <span class="nf">mask_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">telluric</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define exclusion masks for the fitting region of a given line.</span>
+<span class="sd">        Note that the masked regions are exclusion regions and will not be used for the fit.</span>
+<span class="sd">        If components have been defined, these will be shown as vertical lines.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            Line tag for the line whose region should be masked.</span>
+
+<span class="sd">        reset : bool   [default = True]</span>
+<span class="sd">            If `True`, clear the mask before defining a new mask.</span>
+
+<span class="sd">        mask : array_like, shape (n)   [default = None]</span>
+<span class="sd">            If the mask is given, it must be a boolean array of the same length</span>
+<span class="sd">            as the region flux, err, and wl arrays.</span>
+<span class="sd">            Passing a mask this was supresses the interactive masking process.</span>
+
+<span class="sd">        telluric : bool   [default = True]</span>
+<span class="sd">            If `True`, a telluric absorption template and sky emission template</span>
+<span class="sd">            is shown for reference.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
             <span class="n">region</span><span class="o">.</span><span class="n">clear_mask</span><span class="p">()</span>
@@ -290,22 +457,36 @@
             <span class="n">region</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
             <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
-            <span class="c1"># region.define_mask()</span>
+            <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">telluric</span><span class="o">=</span><span class="n">telluric</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">find_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+<div class="viewcode-block" id="DataSet.find_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.find_line">[docs]</a>    <span class="k">def</span> <span class="nf">find_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Look up the fitting region for a given line.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            The line tag of the line whose region will be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        region : Region instance</span>
+<span class="sd">            The fitting region containing the given line.</span>
+<span class="sd">            This is an instance of the regions.Region class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_line</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">region</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The line (</span><span class="si">%s</span><span class="s2">) is not defined.&quot;</span> <span class="o">%</span> <span class="n">tag</span>
+                <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The line (</span><span class="si">%s</span><span class="s2">) is not defined.&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
 
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-    <span class="k">def</span> <span class="nf">activate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.activate_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.activate_line">[docs]</a>    <span class="k">def</span> <span class="nf">activate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Activate a given line defined by its `line_tag`&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
             <span class="n">line</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span>
@@ -314,9 +495,13 @@
             <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">region</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">line_tag</span><span class="p">:</span>
-                    <span class="n">line</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span>
+                    <span class="n">line</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">deactivate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.deactivate_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.deactivate_line">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deactivate a given line defined by its `line_tag`.</span>
+<span class="sd">        This will exclude the line during the fit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
             <span class="n">line</span><span class="o">.</span><span class="n">set_inactive</span><span class="p">()</span>
@@ -336,59 +521,124 @@
 
         <span class="c1"># --- If it is not defined elsewhere, remove it from components</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ion_defined_elsewhere</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">deactivate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.deactivate_all"><a class="viewcode-back" href="../api.html#dataset.DataSet.deactivate_all">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deactivate all lines defined in the DataSet. This will not remove the lines.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">activate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.activate_all"><a class="viewcode-back" href="../api.html#dataset.DataSet.activate_all">[docs]</a>    <span class="k">def</span> <span class="nf">activate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Activate all lines defined in the DataSet.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">all_active_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.all_active_lines"><a class="viewcode-back" href="../api.html#dataset.DataSet.all_active_lines">[docs]</a>    <span class="k">def</span> <span class="nf">all_active_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of all the active lines defined by their `line_tag`.&quot;&quot;&quot;</span>
         <span class="n">act_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
                 <span class="n">act_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">act_lines</span>
+        <span class="k">return</span> <span class="n">act_lines</span></div>
 
-<div class="viewcode-block" id="DataSet.reset_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_components">[docs]</a>    <span class="k">def</span> <span class="nf">reset_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;    Reset components dictionary.</span>
-<span class="sd">            If an element is given, only this element is reset.</span>
-<span class="sd">            Otherwise all elements are reset.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DataSet.reset_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_components">[docs]</a>    <span class="k">def</span> <span class="nf">reset_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset component structure for a given ion.</span>
 
-        <span class="k">if</span> <span class="n">element</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ion : str   [default = None]</span>
+<span class="sd">            The ion for which to reset the components: e.g., FeII, HI, CIa, etc.</span>
+<span class="sd">            Otherwise all components for all ions will be reset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">ion</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for element: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">element</span>
+                    <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ion</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
+<div class="viewcode-block" id="DataSet.add_component"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_component">[docs]</a>    <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
                       <span class="n">var_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_N</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_N</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add component for a given ion. Each component defined will be used for all transitions</span>
+<span class="sd">        defined for a given ion.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ion : str</span>
+<span class="sd">            The ion for which to define a component: e.g., &quot;FeII&quot;, &quot;HI&quot;, &quot;CIa&quot;, etc.</span>
+
+<span class="sd">        z : float</span>
+<span class="sd">            The redshift of the component.</span>
+
+<span class="sd">        b : float</span>
+<span class="sd">            The effective broadening parameter for the component in km/s.</span>
+<span class="sd">            This parameter is constrained to be in the interval [0 - 1000] km/s.</span>
+
+<span class="sd">        logN : float</span>
+<span class="sd">            The 10-base logarithm of the column density of the component.</span>
+<span class="sd">            The column density is expected in cm^-2.</span>
+
+<span class="sd">        var_z : bool   [default = True]</span>
+<span class="sd">            If `False`, the redshift of the component will be kept fixed.</span>
+
+<span class="sd">        var_b : bool   [default = True]</span>
+<span class="sd">            If `False`, the b-parameter of the component will be kept fixed.</span>
+
+<span class="sd">        var_N : bool   [default = True]</span>
+<span class="sd">            If `False`, the column density of the component will be kept fixed.</span>
+
+<span class="sd">        tie_z, tie_b, tie_N : str   [default = None]</span>
+<span class="sd">            Parameter constraints for the different variables.</span>
+<span class="sd">            The ties are defined relative to the parameter names. The naming is as follows:</span>
+<span class="sd">            The redshift of the first component of FeII is called &quot;z0_FeII&quot;,</span>
+<span class="sd">            the logN of the second component of SiII is called &quot;logN1_SiII&quot;.</span>
+<span class="sd">            For more information about parameter ties, see the LmFit documentation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;var_z&#39;</span><span class="p">:</span> <span class="n">var_z</span><span class="p">,</span> <span class="s1">&#39;var_b&#39;</span><span class="p">:</span> <span class="n">var_b</span><span class="p">,</span> <span class="s1">&#39;var_N&#39;</span><span class="p">:</span> <span class="n">var_N</span><span class="p">,</span> <span class="s1">&#39;tie_z&#39;</span><span class="p">:</span> <span class="n">tie_z</span><span class="p">,</span> <span class="s1">&#39;tie_b&#39;</span><span class="p">:</span> <span class="n">tie_b</span><span class="p">,</span>
                    <span class="s1">&#39;tie_N&#39;</span><span class="p">:</span> <span class="n">tie_N</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span></div>
 
-    <span class="k">def</span> <span class="nf">add_component_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
+<div class="viewcode-block" id="DataSet.add_component_velocity"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_component_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">add_component_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
                                <span class="n">var_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_N</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_N</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as for `add_component()` but input is given as relative velocity instead of redshift.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;var_z&#39;</span><span class="p">:</span> <span class="n">var_z</span><span class="p">,</span> <span class="s1">&#39;var_b&#39;</span><span class="p">:</span> <span class="n">var_b</span><span class="p">,</span> <span class="s1">&#39;var_N&#39;</span><span class="p">:</span> <span class="n">var_N</span><span class="p">,</span> <span class="s1">&#39;tie_z&#39;</span><span class="p">:</span> <span class="n">tie_z</span><span class="p">,</span> <span class="s1">&#39;tie_b&#39;</span><span class="p">:</span> <span class="n">tie_b</span><span class="p">,</span>
                    <span class="s1">&#39;tie_N&#39;</span><span class="p">:</span> <span class="n">tie_N</span><span class="p">}</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="n">v</span><span class="o">/</span><span class="mf">299792.458</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span></div>
 
-    <span class="k">def</span> <span class="nf">interactive_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.interactive_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.interactive_components">[docs]</a>    <span class="k">def</span> <span class="nf">interactive_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define components interactively for a given ion. The components will be defined on the</span>
+<span class="sd">        basis of the single given line for that ion. Previously defined components for the</span>
+<span class="sd">        ion will be overwritten.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            Line tag for the line belonging to the ion for which components should be defined.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This will launch an interactive plot showing the fitting region of the given line.</span>
+<span class="sd">        The user can then click on the positions of the components which. At the end, the</span>
+<span class="sd">        redshifts and estimated column densities are printed to terminal. The b-parameter</span>
+<span class="sd">        is assumed to be unresolved, i.e., taken from the resolution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
@@ -441,34 +691,45 @@
             <span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span> <span class="ow">in</span> <span class="n">comp_list</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">pass</span>
+            <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DataSet.delete_component"><a class="viewcode-back" href="../api.html#dataset.DataSet.delete_component">[docs]</a>    <span class="k">def</span> <span class="nf">delete_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove component with the given `index&#39;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+<div class="viewcode-block" id="DataSet.delete_component"><a class="viewcode-back" href="../api.html#dataset.DataSet.delete_component">[docs]</a>    <span class="k">def</span> <span class="nf">delete_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove component of the given `ion` with the given `index`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: &quot;</span><span class="o">+</span><span class="n">element</span></div>
+                <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: &quot;</span><span class="o">+</span><span class="n">ion</span></div>
 
 <div class="viewcode-block" id="DataSet.copy_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.copy_components">[docs]</a>    <span class="k">def</span> <span class="nf">copy_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">logN</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ref_comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Copy velocity structure from one element to another.</span>
-<span class="sd">        Input: &#39;ion&#39; is the new ion to define, which will</span>
-<span class="sd">                be linked to the ion &#39;anchor&#39;.</span>
-<span class="sd">                If logN is given the starting guess is defined</span>
-<span class="sd">                from this value following the pattern of the</span>
-<span class="sd">                component number &#39;ref_comp&#39; of the anchor ion.</span>
+<span class="sd">        Copy velocity structure to `ion` from the anchor.</span>
 
-<span class="sd">                If &#39;tie_z&#39; or &#39;tie_b&#39; is set, then *all* components</span>
-<span class="sd">                of the new element will be linked to the anchor.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ion : str</span>
+<span class="sd">            The new ion to define, which will be linked to the `anchor` ion.</span>
+
+<span class="sd">        anchor : str</span>
+<span class="sd">            The baes ion which will be used for the linking.</span>
+
+<span class="sd">        logN : float</span>
+<span class="sd">            If logN is given the starting guess is defined from this value</span>
+<span class="sd">            following the pattern of the components defined for `anchor` relative to the</span>
+<span class="sd">            `ref_comp` (default: the first component).</span>
+
+<span class="sd">        ref_comp : int</span>
+<span class="sd">            The reference component to which logN will be scaled.</span>
+
+<span class="sd">        tie_z : bool   [default = True]</span>
+<span class="sd">            If `True`, the redshifts for all components of the two ions will be tied together.</span>
+
+<span class="sd">        tie_b : bool   [default = True]</span>
+<span class="sd">            If `True`, the b-parameters for all components of the two ions will be tied together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">anchor</span><span class="p">]</span>
-        <span class="c1"># overwrite the components already defined for element</span>
-        <span class="c1"># if they exist.</span>
+        <span class="c1"># overwrite the components already defined for ion if they exist</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">ref_comp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -492,7 +753,8 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_comp</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">load_components_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.load_components_from_file"><a class="viewcode-back" href="../api.html#dataset.DataSet.load_components_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_components_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load best-fit parameters from an output file `fname`.&quot;&quot;&quot;</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="n">components_to_add</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">all_ions_in_file</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -519,31 +781,61 @@
         <span class="k">for</span> <span class="n">comp_pars</span> <span class="ow">in</span> <span class="n">components_to_add</span><span class="p">:</span>
             <span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span> <span class="o">=</span> <span class="n">comp_pars</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">parameters</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">fix_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">element</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">element</span><span class="p">]:</span>
+<div class="viewcode-block" id="DataSet.fix_structure"><a class="viewcode-back" href="../api.html#dataset.DataSet.fix_structure">[docs]</a>    <span class="k">def</span> <span class="nf">fix_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fix the velocity structure, that is, the redshifts and the b-parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ion : str   [default = None]</span>
+<span class="sd">            The ion for which the structure should be fixed.</span>
+<span class="sd">            If None is given, the structure is fixed for all ions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ion</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
                 <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
                     <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">norm_method</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.add_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an absorption line to the DataSet.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            The line tag for the transition which should be defined: e.g., &quot;FeII_2374&quot;</span>
+
+<span class="sd">        velspan : float   [default = None]</span>
+<span class="sd">            The velocity span around the line center, which will be included in the fit.</span>
+<span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
+
+<span class="sd">        active : bool   [default = True]</span>
+<span class="sd">            Set the line as active (i.e., included in the fit).</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This will initiate a `Line` class with the atomic data for the transition,</span>
+<span class="sd">        as well as creating a fitting region (`Region` class) containing the data cutout</span>
+<span class="sd">        around the line center.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot; [WARNING] - </span><span class="si">%s</span><span class="s2"> is already defined.&quot;</span> <span class="o">%</span> <span class="n">tag</span>
+                <span class="nb">print</span> <span class="s2">&quot; [WARNING] - </span><span class="si">%s</span><span class="s2"> is already defined.&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">lineList</span><span class="p">[</span><span class="s1">&#39;trans&#39;</span><span class="p">]:</span>
-            <span class="n">new_line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">lineList</span><span class="p">[</span><span class="s1">&#39;trans&#39;</span><span class="p">]:</span>
+            <span class="n">new_line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The transition (</span><span class="si">%s</span><span class="s2">) not found in line list!&quot;</span> <span class="o">%</span> <span class="n">tag</span>
+                <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The transition (</span><span class="si">%s</span><span class="s2">) not found in line list!&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">velspan</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -598,21 +890,34 @@
                     <span class="n">new_region</span><span class="o">.</span><span class="n">add_data_to_region</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">cutout</span><span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_region</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_line</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_line</span>
                     <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - The given line is not covered by the spectral data: &quot;</span> <span class="o">+</span> <span class="n">tag</span>
+                    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - The given line is not covered by the spectral data: &quot;</span> <span class="o">+</span> <span class="n">line_tag</span>
                     <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot; [ERROR]  No data is loaded. Run method &#39;add_data&#39; to add spectral data.&quot;</span>
+                <span class="nb">print</span> <span class="s2">&quot; [ERROR]  No data is loaded. Run method `add_data` to add spectral data.&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">add_many_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.add_many_lines"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_many_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_many_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add many lines at once.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tags : list(str)</span>
+<span class="sd">            A list of line tags for the transitions that should be added.</span>
+
+<span class="sd">        velspan : float   [default = None]</span>
+<span class="sd">            The velocity span around the line center, which will be included in the fit.</span>
+<span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">velspan</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">velspan</span><span class="p">):</span>
@@ -622,18 +927,28 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velspan</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.add_fine_lines"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">full_label</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add fine-structure line complexes by providing only the main transition.</span>
-<span class="sd">        The exact fine-structure leves to include is controlled by *levels*.</span>
-<span class="sd">        By default all levels are included.</span>
-<span class="sd">        Valid entries are:</span>
-<span class="sd">            levels=&#39;a&#39;, levels=&#39;b&#39;, levels=&#39;c&#39;...</span>
-<span class="sd">        for first, second, and third levels.</span>
-<span class="sd">        Several levels can be included at once:</span>
-<span class="sd">            levels=[&#39;a&#39;,&#39;b&#39;]</span>
+<span class="sd">        This function is mainly useful for the CI complexes, where the many lines are closely</span>
+<span class="sd">        located and often blended.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            Line tag for the ground state transition, e.g., &quot;CI_1656&quot;</span>
+
+<span class="sd">        levels : str, list(str)    [default = None]</span>
+<span class="sd">            The levels of the fine-structure complexes to add, starting with &quot;a&quot; referring</span>
+<span class="sd">            to the first excited level, &quot;b&quot; is the second, etc..</span>
+<span class="sd">            Several levels can be given at once: [&#39;a&#39;, &#39;b&#39;]</span>
+<span class="sd">            By default, all levels are included.</span>
+
+<span class="sd">        full_label : bool   [default = False]</span>
+<span class="sd">            If `True`, the label will be translated to the full quantum mechanical description</span>
+<span class="sd">            of the state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="n">fine_structure_complexes</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
@@ -659,17 +974,42 @@
             <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">CI_labels</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="DataSet.remove_fine_lines"><a class="viewcode-back" href="../api.html#dataset.DataSet.remove_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">remove_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Remove all lines associated to a given fine-structure complex.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all lines associated to a given fine-structure complex.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            The line tag of the gorund state transition to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="n">fine_structure_complexes</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">remove_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.add_molecule"><a class="viewcode-back" href="../api.html#dataset.DataSet.add_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">add_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">J</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">full_label</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add molecular lines for a given band, e.g., AX(0-0).</span>
-<span class="sd">        All rotational levels up to and including *J* will be included.</span>
-<span class="sd">        If full_label is set, the regions label will be translated to the full</span>
-<span class="sd">        description of the quantum mechanical state.</span>
+<span class="sd">        Add molecular lines for a given band, e.g., &quot;AX(0-0)&quot; of CO.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule : str</span>
+<span class="sd">            The molecular identifier, e.g., &#39;CO&#39;, &#39;H2&#39;</span>
+
+<span class="sd">        band : str</span>
+<span class="sd">            The vibrational band of the molecule, e.g., for CO: &quot;AX(0-0)&quot;</span>
+<span class="sd">            These bands are defined in the `line_complexes`.</span>
+
+<span class="sd">        J : int   [default = 0]</span>
+<span class="sd">            The maximal rotational level to include. All levels up to and including `J`</span>
+<span class="sd">            will be included.</span>
+
+<span class="sd">        velspan : float   [default = None]</span>
+<span class="sd">            The velocity span around the line center, which will be included in the fit.</span>
+<span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
+
+<span class="sd">        full_label : bool   [default = False]</span>
+<span class="sd">            If `True`, the label will be translated to the full quantum mechanical description</span>
+<span class="sd">            of the state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">molecule</span> <span class="o">==</span> <span class="s1">&#39;CO&#39;</span><span class="p">:</span>
             <span class="n">nu_level</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">CO</span><span class="p">[</span><span class="n">band</span><span class="p">]</span>
@@ -709,8 +1049,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;CO&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.deactivate_molecule"><a class="viewcode-back" href="../api.html#dataset.DataSet.deactivate_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Deactivate all lines for the given band of the given molecule.</span>
-<span class="sd">        To see the available molecular bands defined, see the manual pdf.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deactivate all lines for the given band of the given molecule.</span>
+<span class="sd">        To see the available molecular bands defined, see the manual pdf or the `line_complexes`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">molecule</span> <span class="o">==</span> <span class="s1">&#39;CO&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">band</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="s1">&#39;CO&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
@@ -745,15 +1087,26 @@
 <span class="sd">        Prepare the data for fitting. This function sets up the parameter structure,</span>
 <span class="sd">        and handles the normalization and masking of fitting regions.</span>
 
-<span class="sd">        norm : boolean   [default = True]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        norm : bool   [default = True]</span>
 <span class="sd">            Opens an interactive window to let the user normalize each region</span>
-<span class="sd">            using the defined *norm_method*.</span>
+<span class="sd">            using the defined `norm_method`.</span>
 
-<span class="sd">        mask : boolean   [default = True]</span>
+<span class="sd">        mask : bool   [default = True]</span>
 <span class="sd">            Opens an interactive window to let the user mask each fitting region.</span>
 
-<span class="sd">        verbose : boolean   [default = True]</span>
+<span class="sd">        verbose : bool   [default = True]</span>
 <span class="sd">            If this is set, the code will print small info statements during the run.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            The function returns `True` when the dataset has passed all the steps.</span>
+<span class="sd">            If one step fails, the function returns `False`.</span>
+<span class="sd">            The ``ready2fit`` attribute of the dataset is also</span>
+<span class="sd">            updated accordingly.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
@@ -861,29 +1214,47 @@
 <div class="viewcode-block" id="DataSet.fit"><a class="viewcode-back" href="../api.html#dataset.DataSet.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit the absorption lines using chi-square minimization.</span>
-<span class="sd">        Returns the best fitting parameters for each component</span>
-<span class="sd">        of each line.</span>
 
-<span class="sd">        rebin : integer   [default = 1]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rebin : int   [default = 1]</span>
 <span class="sd">            Rebin data by a factor *rebin* before fitting.</span>
 
-<span class="sd">        verbose : boolean   [default = True]</span>
+<span class="sd">        verbose : bool   [default = True]</span>
 <span class="sd">            This will print the fit results to terminal.</span>
 
-<span class="sd">        plot : boolean   [default = False]</span>
+<span class="sd">        plot : bool   [default = False]</span>
 <span class="sd">            This will make the best-fit solution show up in a new window.</span>
 
-<span class="sd">        kwargs : dictionary of keyword arguments</span>
-<span class="sd">            Options are derived from the scipy.optimize minimization methods.</span>
-<span class="sd">            The default method is &#39;leastsq&#39;, used in lmfit.</span>
-<span class="sd">            This can be changed with method=&#39;nelder&#39;, to use Nelder-Mead minimization.</span>
-<span class="sd">            See documentation in LmFit and SciPy.optimize.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments are derived from the `scipy.optimize`_ minimization methods.</span>
+<span class="sd">            The default method is leastsq_, used in `lmfit &lt;https://lmfit.github.io/lmfit-py/&gt;`_.</span>
+<span class="sd">            This can be changed using the `method` keyword.</span>
+<span class="sd">            See documentation in lmfit_ and scipy.optimize_.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        popt : lmfit.MinimizerResult_</span>
+<span class="sd">            The minimzer results from lmfit_ containing best-fit parameters</span>
+<span class="sd">            and fit details, e.g., exit status and reduced chi squared.</span>
+<span class="sd">            See documentation for lmfit_.</span>
+
+<span class="sd">        chi2 : float</span>
+<span class="sd">            The chi squared value of the best-fit. Note that this value is **not**</span>
+<span class="sd">            the reduced chi squared. This value, and the number of degrees of freedom,</span>
+<span class="sd">            are available under the `popt` object.</span>
+
+
+<span class="sd">        .. _scipy.optimize: https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html</span>
+<span class="sd">        .. _leastsq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html</span>
+<span class="sd">        .. _lmfit.MinimizerResult: https://lmfit.github.io/lmfit-py/fitting.html#lmfit.minimizer.MinimizerResult</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot; [Error]  - Dataset is not ready to be fit.&quot;</span>
-                <span class="nb">print</span> <span class="s2">&quot;            Run &#39;.prepare_dataset()&#39; before fitting.&quot;</span>
+                <span class="nb">print</span> <span class="s2">&quot; [Error]  - Dataset is not ready to be fitted.&quot;</span>
+                <span class="nb">print</span> <span class="s2">&quot;            Run `.prepare_dataset()` before fitting.&quot;</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -943,10 +1314,10 @@
                 <span class="n">region</span><span class="o">.</span><span class="n">err</span> <span class="o">/=</span> <span class="n">cont_model</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The fit has finished with the following exit message:&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">popt</span><span class="o">.</span><span class="n">message</span>
+        <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The fit has finished with the following exit message:&quot;</span>
-            <span class="nb">print</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">popt</span><span class="o">.</span><span class="n">message</span>
-            <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
             <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -957,143 +1328,124 @@
         <span class="n">chi2</span> <span class="o">=</span> <span class="n">popt</span><span class="o">.</span><span class="n">chisqr</span>
         <span class="k">return</span> <span class="n">popt</span><span class="p">,</span> <span class="n">chi2</span></div>
 
-    <span class="k">def</span> <span class="nf">plot_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RoyalBlue&#39;</span><span class="p">,</span> <span class="s1">&#39;Crimson&#39;</span><span class="p">],</span>
+<div class="viewcode-block" id="DataSet.plot_fit"><a class="viewcode-back" href="../api.html#dataset.DataSet.plot_fit">[docs]</a>    <span class="k">def</span> <span class="nf">plot_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RoyalBlue&#39;</span><span class="p">,</span> <span class="s1">&#39;Crimson&#39;</span><span class="p">],</span>
                  <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                  <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                  <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the absorption lines and the best-fit profiles.</span>
+<span class="sd">        For details, see `output.plot_all_lines`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">plot_all_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">,</span>
                               <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="n">rebin</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
                               <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="n">max_rows</span><span class="p">,</span>
                               <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
                               <span class="n">subsample_profile</span><span class="o">=</span><span class="n">subsample_profile</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="n">npad</span><span class="p">,</span>
                               <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="n">residuals</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.velocity_plot"><a class="viewcode-back" href="../api.html#dataset.DataSet.velocity_plot">[docs]</a>    <span class="k">def</span> <span class="nf">velocity_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        vmin=-400, vmax=400</span>
-<span class="sd">        filename=None, max_rows=6, max_columns=2,</span>
-<span class="sd">        rebin=1, fontsize=12,</span>
-<span class="sd">        subsample_profile=1, npad=50, ymin=None</span>
+<span class="sd">        Create a velocity plot, showing all the fitting regions defined, in order to compare</span>
+<span class="sd">        different lines and to identify blends and contamination.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">velocity_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RoyalBlue&#39;</span><span class="p">],</span>
+<div class="viewcode-block" id="DataSet.plot_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RoyalBlue&#39;</span><span class="p">],</span>
                   <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nolabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
                   <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                   <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a single fitting region containing the line corresponding to the</span>
+<span class="sd">        given `line_tag`. For details, see `output.plot_single_line()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">plot_single_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="n">plot_fit</span><span class="p">,</span>
                                 <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
                                 <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="n">rebin</span><span class="p">,</span> <span class="n">nolabels</span><span class="o">=</span><span class="n">nolabels</span><span class="p">,</span>
                                 <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
                                 <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
                                 <span class="n">subsample_profile</span><span class="o">=</span><span class="n">subsample_profile</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="n">npad</span><span class="p">,</span>
-                                <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="n">residuals</span><span class="p">)</span>
+                                <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="n">residuals</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">systemic</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">systemic</span><span class="p">)</span>
+<div class="viewcode-block" id="DataSet.print_results"><a class="viewcode-back" href="../api.html#dataset.DataSet.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">systemic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the best fit parameters.</span>
 
-    <span class="k">def</span> <span class="nf">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        velocity : bool   [default = True]</span>
+<span class="sd">            If `True`, show the relative velocities of each component instead of redshifts.</span>
 
-    <span class="k">def</span> <span class="nf">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+<span class="sd">        elements : list(str)   [default = &#39;all&#39;]</span>
+<span class="sd">            A list of elements for which to show parameters.</span>
 
-    <span class="k">def</span> <span class="nf">print_abundance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_abundance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="sd">        systemic : float   [default = None]</span>
+<span class="sd">            The systemic redshift used as reference for the relative velocities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">systemic</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.print_cont_parameters"><a class="viewcode-back" href="../api.html#dataset.DataSet.print_cont_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print Chebyshev coefficients for the continuum fit.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataSet.print_metallicity"><a class="viewcode-back" href="../api.html#dataset.DataSet.print_metallicity">[docs]</a>    <span class="k">def</span> <span class="nf">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the total column densities for each element relative to HI in Solar units.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataSet.print_abundance"><a class="viewcode-back" href="../api.html#dataset.DataSet.print_abundance">[docs]</a>    <span class="k">def</span> <span class="nf">print_abundance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the total column densities of all components.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_abundance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataSet.save_fit_regions"><a class="viewcode-back" href="../api.html#dataset.DataSet.save_fit_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the fitting regions to ASCII table output.</span>
+<span class="sd">        The format is as follows:</span>
+<span class="sd">        (wavelength , normalized flux , normalized error , best-fit profile , mask)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str   [default = None]</span>
+<span class="sd">            Filename for the fitting regions. If `None`, the `self.name` parameter will be used.</span>
+
+<span class="sd">        individual : bool   [default = False]</span>
+<span class="sd">            Save the fitting regions to individual files. By default all regions are concatenated</span>
+<span class="sd">            into one file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Must specify dataset.name [dataset.set_name(&#39;name&#39;)]&quot;</span>
                 <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataSet.conf_interval"><a class="viewcode-back" href="../api.html#dataset.DataSet.conf_interval">[docs]</a>    <span class="k">def</span> <span class="nf">conf_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The method is deprecated and has not been carefully tested!&quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">sys</span>
-
-        <span class="k">def</span> <span class="nf">chi</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-            <span class="n">error</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-            <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
-                <span class="n">res</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span>
-                <span class="c1"># randomize the data within the errors:</span>
-                <span class="c1"># y += err*np.random.normal(0, 1, size=len(y))</span>
-
-                <span class="c1"># Generate line profile</span>
-                <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span>
-                                               <span class="n">region</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span>
-                                               <span class="n">res</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-
-                <span class="n">model</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profile_obs</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">myfloat</span><span class="p">))</span>
-                <span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">err</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">myfloat</span><span class="p">))</span>
-
-            <span class="n">model_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-            <span class="n">data_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">error_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-
-            <span class="n">residual</span> <span class="o">=</span> <span class="n">data_spectrum</span> <span class="o">-</span> <span class="n">model_spectrum</span>
-            <span class="k">return</span> <span class="n">residual</span><span class="o">/</span><span class="n">error_spectrum</span>
-
-        <span class="n">allPars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">allPars</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-        <span class="n">allChi</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Error Estimation in Progress:&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">pars_original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">sim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">pars_original</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mf">0.5e-5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-                <span class="c1"># elif key.find(&#39;logN&#39;)==0:</span>
-                <span class="c1">#     self.pars[key].value = pars_original[key].value + 0.01*np.random.normal(0,1)</span>
-
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">pars_original</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-            <span class="n">popt</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">,</span> <span class="n">maxfev</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1.49012e-11</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">popt</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">popt</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">allPars</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">popt</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-                <span class="n">allChi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">popt</span><span class="o">.</span><span class="n">chisqr</span><span class="p">)</span>
-
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="si">%6.2f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mf">100.</span> <span class="o">*</span> <span class="p">(</span><span class="n">sim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">))</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
-        <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">allPars</span><span class="p">,</span> <span class="n">allChi</span></div>
-
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.save"><a class="viewcode-back" href="../api.html#dataset.DataSet.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the DataSet to file using the HDF5 format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Must specify dataset.name [dataset.set_name(&#39;name&#39;)]&quot;</span>
                 <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span>
-        <span class="n">hdf5_save</span><span class="o">.</span><span class="n">save_hdf_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+        <span class="n">hdf5_save</span><span class="o">.</span><span class="n">save_hdf_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of the VoigtFit program</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Overview</a></li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
@@ -1120,7 +1472,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

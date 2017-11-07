@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Installation &#8212; VoigtFit 0.7 documentation</title>
-    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -35,7 +32,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -49,7 +46,7 @@
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>VoigtFit depends on <code class="docutils literal"><span class="pre">matplotlib</span></code>, <code class="docutils literal"><span class="pre">numpy</span></code>, <code class="docutils literal"><span class="pre">scipy</span></code>, <code class="docutils literal"><span class="pre">h5py</span></code>, <code class="docutils literal"><span class="pre">astropy</span></code>, and <code class="docutils literal"><span class="pre">lmfit</span></code>. You
 can install these using your favorite Python package manager and I would
-recommend <a class="reference external" href="http://conda.pydata.org/docs/">conda</a> if you don&#8217;t already have
+recommend <a class="reference external" href="http://conda.pydata.org/docs/">conda</a> if you don’t already have
 an opinion.</p>
 </div>
 <div class="section" id="using-pip">
@@ -67,7 +64,7 @@ repository</a>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/jkrogager/VoigtFit.git
 </pre></div>
 </div>
-<p>Once you&#8217;ve downloaded the source, you can navigate into the root source
+<p>Once you’ve downloaded the source, you can navigate into the root source
 directory and run:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
@@ -109,19 +106,19 @@ package. Either one of these packages will work. These are available on pip:</p>
 <div>%] pip install h5py</div></blockquote>
 <p>Or follow the instruction on the webpage.</p>
 <p># Setting up the environment:</p>
-<p>First up, you can check which shell type you are using by typing &#8216;echo $0&#8217; in your terminal.
+<p>First up, you can check which shell type you are using by typing ‘echo $0’ in your terminal.
 In order to run VoigtFit from any location, you should add the directory which contains VoigtFit to your PYTHONPATH environment variable:</p>
 <dl class="docutils">
 <dt>in bash:</dt>
-<dd>export PYTHONPATH=&#8217;${PYTHONPATH}:/path/to/folder/with/VoigtFit&#8217;</dd>
+<dd>export PYTHONPATH=’${PYTHONPATH}:/path/to/folder/with/VoigtFit’</dd>
 <dt>or in csh:</dt>
 <dd>setenv PYTHONPATH $PYTHONPATH:/path/to/folder/with/VoigtFit</dd>
 </dl>
-<p>The software needs two data files in order to run. These are distributed along with the software under the directory &#8216;static/&#8217;. The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create system variables which the software will recognize.</p>
-<p>Add the VFITDATA environment variable. This variable points to the absolute path of the atomic data file (&#8216;atomdata_updated.dat&#8217;) and the solar abundance file (&#8216;Asplund2009.dat&#8217;) located in the &#8216;static&#8217; directory:</p>
+<p>The software needs two data files in order to run. These are distributed along with the software under the directory ‘static/’. The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create system variables which the software will recognize.</p>
+<p>Add the VFITDATA environment variable. This variable points to the absolute path of the atomic data file (‘atomdata_updated.dat’) and the solar abundance file (‘Asplund2009.dat’) located in the ‘static’ directory:</p>
 <p>in bash:</p>
 <blockquote>
-<div>export VFITDATA=&#8217;/path/to/VoigtFit/static&#8217;</div></blockquote>
+<div>export VFITDATA=’/path/to/VoigtFit/static’</div></blockquote>
 <p>or in csh:</p>
 <blockquote>
 <div><blockquote>
@@ -129,9 +126,9 @@ In order to run VoigtFit from any location, you should add the directory which c
 <p>An example:</p>
 <blockquote>
 <div><p>If you are using bash shell and the code for VoigtFit is located in the folder
-&#8216;/home/user/coding/VoigtFit&#8217;, then the path to the atomdata_updated.dat and
+‘/home/user/coding/VoigtFit’, then the path to the atomdata_updated.dat and
 Asplund2009.dat files will be:</p>
-<p>export VFITDATA=&#8217;/home/user/coding/VoigtFit/static/&#8217;</p>
+<p>export VFITDATA=’/home/user/coding/VoigtFit/static/’</p>
 </div></blockquote>
 </div></blockquote>
 <p>### To Do</p>
@@ -149,14 +146,15 @@ Asplund2009.dat files will be:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#using-pip">Using pip</a></li>
-<li><a class="reference internal" href="#from-source">From source</a></li>
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
 </ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of the VoigtFit program</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Overview</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -192,7 +190,7 @@ Asplund2009.dat files will be:</p>
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

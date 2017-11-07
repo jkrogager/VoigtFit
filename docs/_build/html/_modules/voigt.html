@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>voigt &#8212; VoigtFit 0.7 documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -33,7 +30,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -43,8 +40,13 @@
             
   <h1>Source code for voigt</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="c1">#   VoigtFit</span>
-<span class="c1">#   module to evaluate line profile</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The module contains functions to evaluate the optical depth,</span>
+<span class="sd">to convert this to observed transmission and to convolve the</span>
+<span class="sd">observed spectrum with the instrumental profile.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Jens-Kristian Krogager&#39;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">fftconvolve</span><span class="p">,</span> <span class="n">gaussian</span>
@@ -60,11 +62,36 @@
 
 
 <div class="viewcode-block" id="Voigt"><a class="viewcode-back" href="../api.html#voigt.Voigt">[docs]</a><span class="k">def</span> <span class="nf">Voigt</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculate the Voigt profile of transition with</span>
-<span class="sd">    rest frame transition wavelength: &#39;l0&#39;</span>
-<span class="sd">    oscillator strength: &#39;f&#39;</span>
-<span class="sd">    column density: N  cm^-2</span>
-<span class="sd">    velocity width: b  cm/s</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the optical depth Voigt profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    l : array_like, shape (N)</span>
+<span class="sd">        Wavelength grid in Angstroms at which to evaluate the optical depth.</span>
+
+<span class="sd">    l0 : float</span>
+<span class="sd">        Rest frame transition wavelength in Angstroms.</span>
+
+<span class="sd">    f : float</span>
+<span class="sd">        Oscillator strength.</span>
+
+<span class="sd">    N : float</span>
+<span class="sd">        Column density in units of cm^-2.</span>
+
+<span class="sd">    b : float</span>
+<span class="sd">        Velocity width of the Voigt profile in cm/s.</span>
+
+<span class="sd">    gam : float</span>
+<span class="sd">        Radiation damping constant, inverse Einstein constant (A_ul)</span>
+
+<span class="sd">    z : float</span>
+<span class="sd">        The redshift of the observed wavelength grid `l`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tau : array_like, shape (N)</span>
+<span class="sd">        Optical depth array evaluated at the input grid wavelengths `l`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># ==== PARAMETERS ==================</span>
 
@@ -88,8 +115,24 @@
 
 <div class="viewcode-block" id="evaluate_continuum"><a class="viewcode-back" href="../api.html#voigt.evaluate_continuum">[docs]</a><span class="k">def</span> <span class="nf">evaluate_continuum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">reg_num</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to evaluate the continuum model using Chebyshev polynomials.</span>
+<span class="sd">    Evaluate the continuum model using Chebyshev polynomials.</span>
 <span class="sd">    All regions are fitted with the same order of polynomials.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like, shape (N)</span>
+<span class="sd">        Input wavelength grid in Angstroms.</span>
+
+<span class="sd">    pars : dict(parameters)</span>
+<span class="sd">        An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.</span>
+
+<span class="sd">    reg_num : int</span>
+<span class="sd">        The region number, i.e., the index of the region in the list `DataSet.regions`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cont_model : array_like, shape (N)</span>
+<span class="sd">        The continuum Chebyshev polynomial evaluated at the input wavelengths `x`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cheb_parnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="n">p_cont</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -114,34 +157,40 @@
 
 <div class="viewcode-block" id="evaluate_profile"><a class="viewcode-back" href="../api.html#voigt.evaluate_profile">[docs]</a><span class="k">def</span> <span class="nf">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to evaluate Voigt profile for a fitting `Region&#39;.</span>
+<span class="sd">    Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is</span>
+<span class="sd">    converted to observed transmission, `f`:</span>
+
+<span class="sd">        f = exp(-tau)</span>
+
+<span class="sd">    The observed transmission is subsequently convolved with the instrumental</span>
+<span class="sd">    broadening profile assumed to be Gaussian with a full-width at half maximum</span>
+<span class="sd">    of res. The resolving power is assumed to be constant in velocity space.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    x : np.array</span>
-<span class="sd">        Wavelength array to evaluate the profile on</span>
+<span class="sd">    x : array_like, shape (N)</span>
+<span class="sd">        Wavelength array in Angstroms on which to evaluate the profile.</span>
 
-<span class="sd">    pars : dictionary</span>
-<span class="sd">        Dictionary containing fit parameters from `lmfit&#39;</span>
+<span class="sd">    pars : dict(parameters)</span>
+<span class="sd">        An instance of lmfit.Parameters containing the line parameters.</span>
 
-<span class="sd">    lines : list</span>
-<span class="sd">        List of lines in the region to evaluate.</span>
-<span class="sd">        Should be a list of `Line&#39; instances.</span>
+<span class="sd">    lines : list(Line)</span>
+<span class="sd">        List of lines to evaluate. Should be a list of `Line` objects.</span>
 
-<span class="sd">    components : dictionary</span>
+<span class="sd">    components : dict</span>
 <span class="sd">        Dictionary containing component data for the defined ions.</span>
+<span class="sd">        See `DataSet.components`.</span>
 
 <span class="sd">    res : float</span>
-<span class="sd">        Spectral resolution of the region in km/s.</span>
+<span class="sd">        Spectral resolving power of the data in km/s  [= c/R].</span>
 
 <span class="sd">    dv : float  [default=0.1]</span>
-<span class="sd">        Desired pixel size of profile evaluation in km/s.</span>
+<span class="sd">        Desired pixel size of subsampled profile grid in km/s.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    profile_obs : np.array</span>
-<span class="sd">        Total observed line profile of all lines in the region,</span>
-<span class="sd">        convolved with the instrument Line Spread Function.</span>
+<span class="sd">    profile_obs :array_like, shape (N)</span>
+<span class="sd">        Observed line profile convolved with the instrument profile.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -211,7 +260,18 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of the VoigtFit program</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Overview</a></li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
@@ -238,7 +298,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

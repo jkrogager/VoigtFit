@@ -14,8 +14,8 @@ there <https://github.com/jkrogager/VoigtFit/issues>`_.
 
 
 
-Installation instructions:
---------------------------
+Installation instructions
+-------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -38,6 +38,7 @@ Code Overview
 -------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: -1
+   :glob:
    	
    api.rst   	

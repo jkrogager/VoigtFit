@@ -113,8 +113,8 @@ class DataSet(object):
         calling the `prepare_dataset` method and subsequently, the lines can be fitted using
         the `fit` method.
 
-        Attributes
-        ----------
+        .. rubric:: Attributes
+
         redshift : float
             Systemic redshift of the absorption system.
 
@@ -127,7 +127,7 @@ class DataSet(object):
         data : list(data_chunks)
             A list of *data chunks* defined for the dataset. A *data chunk* is
             a dictionary with keys 'wl', 'flux', 'error', 'res', 'norm'.
-            See :meth:`dataset.DataSet.add_data`.
+            See :meth:`DataSet.add_data <dataset.DataSet.add_data>`.
 
         lines : dict
             A dictionary holding pairs of defined (*line_tag* : :class:`dataset.Line`)
@@ -152,7 +152,8 @@ class DataSet(object):
 
         components : dict
             A dictionary of components for each *ion* defined:
-            (*ion* : [z, b, logN, options]). See :meth:`self.add_component`.
+            (*ion* : [z, b, logN, options]). See :meth:`DataSet.add_component
+            <dataset.DataSet.add_component>`.
 
         velspan : float   [default = 500]
             The default velocity range to use for the definition
@@ -161,7 +162,8 @@ class DataSet(object):
         ready2fit : bool   [default = False]
             This attribute is checked before fitting the dataset. Only when
             the attribute has been set to `True` can the dataset be fitted.
-            This will be toggled after a successful run of :meth:`self.prepare_dataset`
+            This will be toggled after a successful run of
+            :meth:`DataSet.prepare_dataset <dataset.DataSet.prepare_dataset>`.
 
         best_fit : lmfit.Parameters_   [default = None]
             Best-fit parameters from lmfit_. This attribute will be `None` until
@@ -169,8 +171,8 @@ class DataSet(object):
 
         pars : lmfit.Parameters_   [default = None]
             Placeholder for the fit parameters initiated before the fit.
-            The parameters will be defined during the call to :meth:`self.prepare_dataset`
-            based on the defined components.
+            The parameters will be defined during the call to :meth:`DataSet.prepare_dataset
+            <dataset.DataSet.prepare_dataset>` based on the defined components.
 
         """
         # Define the systemic redshift

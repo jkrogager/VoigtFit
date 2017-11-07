@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>output &#8212; VoigtFit 0.7 documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -33,7 +30,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -43,9 +40,7 @@
             
   <h1>Source code for output</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: UTF-8 -*-</span>
-<span class="c1">#    Written by:</span>
-<span class="c1">#    Jens-Kristian Krogager</span>
-<span class="c1">#</span>
+
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Jens-Kristian Krogager&#39;</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">splitext</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -67,14 +62,14 @@
 
 
 <div class="viewcode-block" id="chunks"><a class="viewcode-back" href="../api.html#output.chunks">[docs]</a><span class="k">def</span> <span class="nf">chunks</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Yield successive n-sized chunks from l.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Yield successive `n`-sized chunks from `l`.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
         <span class="k">yield</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="rebin_spectrum"><a class="viewcode-back" href="../api.html#output.rebin_spectrum">[docs]</a><span class="k">def</span> <span class="nf">rebin_spectrum</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rebin input spectrum (wl, spec) by a factor of *n*.</span>
+<span class="sd">    Rebin input spectrum (`wl`, `spec`) by a factor of `n`.</span>
 <span class="sd">    Method is either *mean* or *median*, default is mean.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
@@ -99,9 +94,7 @@
 
 
 <div class="viewcode-block" id="rebin_bool_array"><a class="viewcode-back" href="../api.html#output.rebin_bool_array">[docs]</a><span class="k">def</span> <span class="nf">rebin_bool_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rebin input boolean array *x* by an integer factor of *n*.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Rebin input boolean array `x` by an integer factor of `n`.&quot;&quot;&quot;</span>
 
     <span class="n">array_chunks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
 
@@ -219,23 +212,19 @@
                    <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                    <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot absorption line.</span>
+<span class="sd">    Plot all active absorption lines. This function is a wrapper of the function `plot_single_line`.</span>
+<span class="sd">    For a complete description of input parameters, see the documentation for `plot_single_line`.</span>
 
-<span class="sd">      INPUT:</span>
-<span class="sd">    dataset:  VoigtFit.DataSet instance containing the line regions</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : class DataSet</span>
+<span class="sd">        Instance of class `DataSet` containing the line regions to plot.</span>
 
-<span class="sd">    plot_fit:    if True, the best-fit profile will be shown</span>
-<span class="sd">    linestyles:  a list of linestyles to show velocity components</span>
-<span class="sd">    colors:      a lost of colors to show the velocity components</span>
+<span class="sd">    max_rows : int   [default = 4]</span>
+<span class="sd">        The maximum number of rows of figures. Each row consists of two figure panels.</span>
 
-<span class="sd">    The colors and linestyles are combined to form an `iterator&#39;</span>
-<span class="sd">    which cycles through a set of (linestyle, color).</span>
-
-<span class="sd">    loc: places the line tag (based on the plt.legend keyword *loc*)</span>
-
-<span class="sd">    rebin: integer factor for rebinning the spectrum</span>
-
-<span class="sd">    nolabels: show axis labels?</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        If a filename is given, the figures are saved to a pdf file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># --- First figure out which lines to plot to avoid overlap</span>
@@ -334,24 +323,70 @@
                      <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                      <span class="n">residuals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot absorption line.</span>
+<span class="sd">    Plot a single absorption line.</span>
 
-<span class="sd">      INPUT:</span>
-<span class="sd">    dataset:  VoigtFit.DataSet instance containing the line regions</span>
-<span class="sd">    line_tag: The line tag of the line to show, e.g., &#39;FeII_2374&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : class DataSet</span>
+<span class="sd">        Instance of class `DataSet` containing the line regions</span>
 
-<span class="sd">    plot_fit:    if True, the best-fit profile will be shown</span>
-<span class="sd">    linestyles:  a list of linestyles to show velocity components</span>
-<span class="sd">    colors:      a lost of colors to show the velocity components</span>
+<span class="sd">    line_tag : str</span>
+<span class="sd">        The line tag of the line to show, e.g., &#39;FeII_2374&#39;</span>
 
-<span class="sd">    The colors and linestyles are combined to form an `iterator&#39;</span>
-<span class="sd">    which cycles through a set of (linestyle, color).</span>
+<span class="sd">    plot_fit : bool   [default = False]</span>
+<span class="sd">        If `True`, the best-fit profile will be shown</span>
 
-<span class="sd">    loc: places the line tag (right or left), default *left*.</span>
+<span class="sd">    linestyles : list(linestyle)</span>
+<span class="sd">        A list of matplotlib linestyles to show velocity components</span>
 
-<span class="sd">    rebin: integer factor for rebinning the spectrum</span>
+<span class="sd">    colors : list(colors)</span>
+<span class="sd">        A loit of matplotlib color strings to show the velocity components</span>
+<span class="sd">        The colors and linestyles are combined to form an iterator</span>
+<span class="sd">        which cycles through a set of (linestyle, color).</span>
 
-<span class="sd">    nolabels: show axis labels?</span>
+<span class="sd">    loc : str   [default = &#39;left&#39;]</span>
+<span class="sd">        Places the line tag (right or left).</span>
+
+<span class="sd">    rebin : int   [default = 1]</span>
+<span class="sd">        Rebinning factor for the spectrum</span>
+
+<span class="sd">    nolabels : bool   [default = False]</span>
+<span class="sd">        If `True`, show the axis x- and y-labels.</span>
+
+<span class="sd">    axis : matplotlib.Axes.axis</span>
+<span class="sd">        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.</span>
+
+<span class="sd">    fontsize : int   [default = 12]</span>
+<span class="sd">        The fontsize of text labels.</span>
+
+<span class="sd">    xmin : float</span>
+<span class="sd">        The lower x-limit in relative velocity (km/s).</span>
+<span class="sd">        If nothing is given, the extent of the region is used.</span>
+
+<span class="sd">    xmax : float</span>
+<span class="sd">        The upper x-limit in relative velocity (km/s).</span>
+<span class="sd">        If nothing is given, the extent of the region is used.</span>
+
+<span class="sd">    ymin : float</span>
+<span class="sd">        The lower y-limit in normalized flux units. Default is determined from the data.</span>
+
+<span class="sd">    show : bool   [default = True]</span>
+<span class="sd">        Show the figure.</span>
+
+<span class="sd">    subsample_profile : int   [default = 1]</span>
+<span class="sd">        Subsampling factor to calculate the profile on a finer grid than the data sampling.</span>
+<span class="sd">        By default the profile is evaluated on the same grid as the data.</span>
+
+<span class="sd">    npad : int   [default = 50]</span>
+<span class="sd">        Padding added to the synthetic profile before convolution.</span>
+<span class="sd">        This removes end artefacts from the `FFT` routine.</span>
+
+<span class="sd">    residuals : bool   [default = False]</span>
+<span class="sd">        Add a panel above the absorption line view to show the residuals of the fit.</span>
+
+<span class="sd">    highlight : list(str)</span>
+<span class="sd">        A list of `ions` (e.g., &quot;FeII&quot;, &quot;CIa&quot;, etc.) used to calculate a separate profile</span>
+<span class="sd">        for this subset of ions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
@@ -416,12 +451,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pars</span>
 
-        <span class="c1"># Determine range in which to evaluate the profile:</span>
-        <span class="n">max_logN</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">val</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;logN&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">max_logN</span> <span class="o">&gt;</span> <span class="mf">19.0</span><span class="p">:</span>
-            <span class="n">velspan</span> <span class="o">=</span> <span class="mf">20000.</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">(</span><span class="n">max_logN</span><span class="o">-</span><span class="mf">19.</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">velspan</span> <span class="o">=</span> <span class="mf">20000.</span>
+        <span class="c1"># # Determine range in which to evaluate the profile:</span>
+        <span class="c1"># max_logN = max([val.value for key, val in params.items() if &#39;logN&#39; in key])</span>
+        <span class="c1"># if max_logN &gt; 19.0:</span>
+        <span class="c1">#     velspan = 20000.*(1. + 1.0*(max_logN-19.))</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     velspan = 20000.</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
@@ -575,15 +610,29 @@
 
 <div class="viewcode-block" id="plot_residual"><a class="viewcode-back" href="../api.html#output.plot_residual">[docs]</a><span class="k">def</span> <span class="nf">plot_residual</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot residuals for best-fit to absorption line.</span>
+<span class="sd">    Plot residuals for the best-fit to a given absorption line.</span>
 
-<span class="sd">      INPUT:</span>
-<span class="sd">    dataset:  VoigtFit.DataSet instance containing the line regions</span>
-<span class="sd">    line_tag: The line tag of the line to show, e.g., &#39;FeII_2374&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : class DataSet</span>
+<span class="sd">        An instance of DataSet class containing the line region to plot.</span>
 
-<span class="sd">    rebin: integer factor for rebinning the spectrum</span>
+<span class="sd">    line_tag : str</span>
+<span class="sd">        The line tag of the line to show, e.g., &#39;FeII_2374&#39;</span>
 
-<span class="sd">    xmin and xmax define the plotting range.</span>
+<span class="sd">    rebin: int</span>
+<span class="sd">        Integer factor for rebinning the spectral data.</span>
+
+<span class="sd">    xmin : float</span>
+<span class="sd">        The lower x-limit in relative velocity (km/s).</span>
+<span class="sd">        If nothing is given, the extent of the region is used.</span>
+
+<span class="sd">    xmax : float</span>
+<span class="sd">        The upper x-limit in relative velocity (km/s).</span>
+<span class="sd">        If nothing is given, the extent of the region is used.</span>
+
+<span class="sd">    axis : matplotlib.Axes.axis</span>
+<span class="sd">        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
@@ -708,18 +757,25 @@
 
 <div class="viewcode-block" id="print_results"><a class="viewcode-back" href="../api.html#output.print_results">[docs]</a><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">systemic</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot best fit absorption profiles.</span>
+<span class="sd">    Print the parameters of the best-fit.</span>
 
-<span class="sd">      INPUT:</span>
-<span class="sd">    dataset:  VoigtFit.DataSet instance containing the line regions</span>
-<span class="sd">    params: Output parameter dictionary from VoigtFit.DataSet.fit()</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : class DataSet</span>
+<span class="sd">        An instance of DataSet class containing the line region to plot.</span>
 
-<span class="sd">    if velocity is set to &#39;False&#39; the components redshift is shown instead</span>
-<span class="sd">    of the velocity relative to the systemic redshift.</span>
+<span class="sd">    params : class lmfit.Parameters</span>
+<span class="sd">        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.</span>
 
-<span class="sd">    if systemic is set the velocities will be relative to this redshift;</span>
-<span class="sd">    default behaviour is to use the systemic redshift defined in the dataset.</span>
+<span class="sd">    elements : list(str)   [default = &#39;all&#39;]</span>
+<span class="sd">        A list of ions for which to print the best-fit parameters. By default all ions are shown.</span>
 
+<span class="sd">    velocity : bool   [default = True]</span>
+<span class="sd">        Show the components in relative velocity or redshift.</span>
+
+<span class="sd">    systemic : float   [default = 0]</span>
+<span class="sd">        Systemic redshift used to calculate the relative velocities.</span>
+<span class="sd">        By default the systemic redshift defined in the dataset is used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">systemic</span><span class="p">:</span>
@@ -808,7 +864,7 @@
 
 
 <div class="viewcode-block" id="print_cont_parameters"><a class="viewcode-back" href="../api.html#output.print_cont_parameters">[docs]</a><span class="k">def</span> <span class="nf">print_cont_parameters</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Function to print Chebyshev coefficients&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; Print the Chebyshev coefficients of the continuum normalization.&quot;&quot;&quot;</span>
     <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
     <span class="nb">print</span> <span class="s2">&quot;  Chebyshev coefficients for fitting regions:&quot;</span>
     <span class="k">for</span> <span class="n">reg_num</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">regions</span><span class="p">):</span>
@@ -820,7 +876,7 @@
         <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">best_fit</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">if</span> <span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb&#39;</span> <span class="o">%</span> <span class="n">reg_num</span> <span class="ow">in</span> <span class="n">parname</span><span class="p">:</span>
                 <span class="n">cheb_parnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parname</span><span class="p">)</span>
-        <span class="c1"># This should be calculated at the point of generating</span>
+        <span class="c1"># This could be calculated at the point of generating</span>
         <span class="c1"># the parameters, since this is a fixed data structure</span>
         <span class="c1"># Sort the names, to arange the coefficients right:</span>
         <span class="n">cheb_parnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cheb_parnames</span><span class="p">)</span>
@@ -832,13 +888,22 @@
 
 <div class="viewcode-block" id="print_metallicity"><a class="viewcode-back" href="../api.html#output.print_metallicity">[docs]</a><span class="k">def</span> <span class="nf">print_metallicity</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot best fit absorption profiles.</span>
+<span class="sd">    Print the metallicity derived from different species.</span>
+<span class="sd">    This will add the column densities for all components of a given ion.</span>
 
-<span class="sd">      INPUT:</span>
-<span class="sd">    dataset:  VoigtFit.DataSet instance containing the line regions</span>
-<span class="sd">    params: Output parameter dictionary from VoigtFit.DataSet.fit()</span>
-<span class="sd">    logNHI:   Column density of neutral hydrogen</span>
-<span class="sd">    err:      Uncertainty on logNHI</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : class DataSet</span>
+<span class="sd">        An instance of `DataSet` containing the definition of data and absorption lines.</span>
+
+<span class="sd">    params : class lmfit.Parameters</span>
+<span class="sd">        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.</span>
+
+<span class="sd">    logNHI : float</span>
+<span class="sd">        Column density of neutral hydrogen.</span>
+
+<span class="sd">    err : float   [default = 0.1]</span>
+<span class="sd">        Uncertainty (1-sigma) on `logNHI`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -876,7 +941,9 @@
 
 <div class="viewcode-block" id="print_abundance"><a class="viewcode-back" href="../api.html#output.print_abundance">[docs]</a><span class="k">def</span> <span class="nf">print_abundance</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot best fit absorption profiles.</span>
+<span class="sd">    Print the total column densities of all species.</span>
+<span class="sd">    This will sum *all* the components of a given ion. The uncertainty on the total column density</span>
+<span class="sd">    is calculated using random resampling within the errors of each component.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -909,7 +976,7 @@
 
 
 <div class="viewcode-block" id="save_parameters_to_file"><a class="viewcode-back" href="../api.html#output.save_parameters_to_file">[docs]</a><span class="k">def</span> <span class="nf">save_parameters_to_file</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Function to save parameters to file. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Save best-fit parameters to file.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;#comp   ion   redshift               b (km/s)       log(N/cm^-2)&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -927,7 +994,7 @@
 
 
 <div class="viewcode-block" id="save_cont_parameters_to_file"><a class="viewcode-back" href="../api.html#output.save_cont_parameters_to_file">[docs]</a><span class="k">def</span> <span class="nf">save_cont_parameters_to_file</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Function to save parameters to file. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Save Chebyshev coefficients to file.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;# Chebyshev Polynomial Coefficients&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -952,7 +1019,9 @@
 
 
 <div class="viewcode-block" id="save_fit_regions"><a class="viewcode-back" href="../api.html#output.save_fit_regions">[docs]</a><span class="k">def</span> <span class="nf">save_fit_regions</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Save fit regions to file</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save fit regions to file.</span>
+<span class="sd">    If `individual` is set, then each region will be saved to a separate file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">individual</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">reg_num</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">regions</span><span class="p">):</span>
@@ -1020,7 +1089,18 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of the VoigtFit program</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Overview</a></li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
@@ -1047,7 +1127,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

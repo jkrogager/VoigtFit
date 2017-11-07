@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Detailed code overview &#8212; VoigtFit 0.7 documentation</title>
-    
+    <title>VoigtFit Overview &#8212; VoigtFit 0.7 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -34,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -42,119 +39,743 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="detailed-code-overview">
-<h1>Detailed code overview<a class="headerlink" href="#detailed-code-overview" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="voigtfit-overview">
+<h1>VoigtFit Overview<a class="headerlink" href="#voigtfit-overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-dataset">
+<h2>class <strong>DataSet</strong><a class="headerlink" href="#class-dataset" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dataset.DataSet">
-<em class="property">class </em><code class="descclassname">dataset.</code><code class="descname">DataSet</code><span class="sig-paren">(</span><em>z</em>, <em>name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<em class="property">class </em><code class="descclassname">dataset.</code><code class="descname">DataSet</code><span class="sig-paren">(</span><em>redshift</em>, <em>name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.
+Spectral data must be added using the <cite>add_data</cite> method. Hereafter the absorption lines
+to be fitted are added to the DataSet using the <cite>add_line</cite> or <cite>add_many_lines</cite> methods.
+Lastly, the components of each element is defined using the <cite>add_component</cite> method.
+When all lines and components have been defined, the DataSet must be prepared by
+calling the <cite>prepare_dataset</cite> method and subsequently, the lines can be fitted using
+the <cite>fit</cite> method.</p>
+<p class="rubric">Attributes</p>
+<dl class="docutils">
+<dt>redshift <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Systemic redshift of the absorption system.</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘’]</span></dt>
+<dd>The name of the DataSet, this will be used for saving the dataset to a file structure.</dd>
+<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd>If <cite>False</cite>, the printed information statements will be suppressed.</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">list(data_chunks)</span></dt>
+<dd>A list of <em>data chunks</em> defined for the dataset. A <em>data chunk</em> is
+a dictionary with keys ‘wl’, ‘flux’, ‘error’, ‘res’, ‘norm’.
+See <a class="reference internal" href="#dataset.DataSet.add_data" title="dataset.DataSet.add_data"><code class="xref py py-meth docutils literal"><span class="pre">DataSet.add_data</span></code></a>.</dd>
+<dt>lines <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>A dictionary holding pairs of defined (<em>line_tag</em> : <a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">dataset.Line</span></code></a>)</dd>
+<dt>all_lines <span class="classifier-delimiter">:</span> <span class="classifier">list(str)</span></dt>
+<dd>A list of all the defined <em>line tags</em> for easy look-up.</dd>
+<dt>molecules <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>A dictionary holding a list of the defined molecular bands for each molecule:
+{<em>molecule</em> : list(str)}</dd>
+<dt>regions <span class="classifier-delimiter">:</span> <span class="classifier">list(<a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">regions.Region</span></code></a>)</span></dt>
+<dd>A list of the fitting regions.</dd>
+<dt>cheb_order <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 1]</span></dt>
+<dd>The maximum order of Chebyshev polynomials to use for the continuum
+fitting in each region.</dd>
+<dt>norm_method <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘linear’]</span></dt>
+<dd>Default normalization method to use for interactive normalization
+if Chebyshev polynomial fitting should not be used.</dd>
+<dt>components <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>A dictionary of components for each <em>ion</em> defined:
+(<em>ion</em> : [z, b, logN, options]). See <a class="reference internal" href="#dataset.DataSet.add_component" title="dataset.DataSet.add_component"><code class="xref py py-meth docutils literal"><span class="pre">DataSet.add_component</span></code></a>.</dd>
+<dt>velspan <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = 500]</span></dt>
+<dd>The default velocity range to use for the definition
+of fitting regions.</dd>
+<dt>ready2fit <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd>This attribute is checked before fitting the dataset. Only when
+the attribute has been set to <cite>True</cite> can the dataset be fitted.
+This will be toggled after a successful run of
+<a class="reference internal" href="#dataset.DataSet.prepare_dataset" title="dataset.DataSet.prepare_dataset"><code class="xref py py-meth docutils literal"><span class="pre">DataSet.prepare_dataset</span></code></a>.</dd>
+<dt>best_fit <span class="classifier-delimiter">:</span> <span class="classifier"><a href="#id1"><span class="problematic" id="id2">lmfit.Parameters_</span></a>   [default = None]</span></dt>
+<dd>Best-fit parameters from <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>. This attribute will be <cite>None</cite> until
+the dataset has been fitted.</dd>
+<dt>pars <span class="classifier-delimiter">:</span> <span class="classifier"><a href="#id3"><span class="problematic" id="id4">lmfit.Parameters_</span></a>   [default = None]</span></dt>
+<dd>Placeholder for the fit parameters initiated before the fit.
+The parameters will be defined during the call to <a class="reference internal" href="#dataset.DataSet.prepare_dataset" title="dataset.DataSet.prepare_dataset"><code class="xref py py-meth docutils literal"><span class="pre">DataSet.prepare_dataset</span></code></a> based on the defined components.</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.activate_all" title="dataset.DataSet.activate_all"><code class="xref py py-obj docutils literal"><span class="pre">activate_all</span></code></a>()</td>
+<td>Activate all lines defined in the DataSet.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.activate_line" title="dataset.DataSet.activate_line"><code class="xref py py-obj docutils literal"><span class="pre">activate_line</span></code></a>(line_tag)</td>
+<td>Activate a given line defined by its <cite>line_tag</cite></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.activate_molecule" title="dataset.DataSet.activate_molecule"><code class="xref py py-obj docutils literal"><span class="pre">activate_molecule</span></code></a>(molecule,&nbsp;band)</td>
+<td>Activate all lines for the given band of the given molecule.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.add_component" title="dataset.DataSet.add_component"><code class="xref py py-obj docutils literal"><span class="pre">add_component</span></code></a>(ion,&nbsp;z,&nbsp;b,&nbsp;logN[,&nbsp;var_z,&nbsp;…])</td>
+<td>Add component for a given ion.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.add_component_velocity" title="dataset.DataSet.add_component_velocity"><code class="xref py py-obj docutils literal"><span class="pre">add_component_velocity</span></code></a>(ion,&nbsp;v,&nbsp;b,&nbsp;logN[,&nbsp;…])</td>
+<td>Same as for <cite>add_component()</cite> but input is given as relative velocity instead of redshift.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.add_data" title="dataset.DataSet.add_data"><code class="xref py py-obj docutils literal"><span class="pre">add_data</span></code></a>(wl,&nbsp;flux,&nbsp;res[,&nbsp;err,&nbsp;normalized])</td>
+<td>Add spectral data to the DataSet.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.add_fine_lines" title="dataset.DataSet.add_fine_lines"><code class="xref py py-obj docutils literal"><span class="pre">add_fine_lines</span></code></a>(line_tag[,&nbsp;levels,&nbsp;full_label])</td>
+<td>Add fine-structure line complexes by providing only the main transition.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.add_line" title="dataset.DataSet.add_line"><code class="xref py py-obj docutils literal"><span class="pre">add_line</span></code></a>(line_tag[,&nbsp;velspan,&nbsp;active])</td>
+<td>Add an absorption line to the DataSet.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.add_many_lines" title="dataset.DataSet.add_many_lines"><code class="xref py py-obj docutils literal"><span class="pre">add_many_lines</span></code></a>(tags[,&nbsp;velspan])</td>
+<td>Add many lines at once.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.add_molecule" title="dataset.DataSet.add_molecule"><code class="xref py py-obj docutils literal"><span class="pre">add_molecule</span></code></a>(molecule,&nbsp;band[,&nbsp;J,&nbsp;velspan,&nbsp;…])</td>
+<td>Add molecular lines for a given band, e.g., “AX(0-0)” of CO.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.all_active_lines" title="dataset.DataSet.all_active_lines"><code class="xref py py-obj docutils literal"><span class="pre">all_active_lines</span></code></a>()</td>
+<td>Returns a list of all the active lines defined by their <cite>line_tag</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.copy_components" title="dataset.DataSet.copy_components"><code class="xref py py-obj docutils literal"><span class="pre">copy_components</span></code></a>(ion,&nbsp;anchor[,&nbsp;logN,&nbsp;…])</td>
+<td>Copy velocity structure to <cite>ion</cite> from the anchor.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.deactivate_all" title="dataset.DataSet.deactivate_all"><code class="xref py py-obj docutils literal"><span class="pre">deactivate_all</span></code></a>()</td>
+<td>Deactivate all lines defined in the DataSet.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.deactivate_line" title="dataset.DataSet.deactivate_line"><code class="xref py py-obj docutils literal"><span class="pre">deactivate_line</span></code></a>(line_tag)</td>
+<td>Deactivate a given line defined by its <cite>line_tag</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.deactivate_molecule" title="dataset.DataSet.deactivate_molecule"><code class="xref py py-obj docutils literal"><span class="pre">deactivate_molecule</span></code></a>(molecule,&nbsp;band)</td>
+<td>Deactivate all lines for the given band of the given molecule.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.delete_component" title="dataset.DataSet.delete_component"><code class="xref py py-obj docutils literal"><span class="pre">delete_component</span></code></a>(ion,&nbsp;index)</td>
+<td>Remove component of the given <cite>ion</cite> with the given <cite>index</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.find_line" title="dataset.DataSet.find_line"><code class="xref py py-obj docutils literal"><span class="pre">find_line</span></code></a>(line_tag)</td>
+<td>Look up the fitting region for a given line.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.fit" title="dataset.DataSet.fit"><code class="xref py py-obj docutils literal"><span class="pre">fit</span></code></a>([rebin,&nbsp;verbose,&nbsp;plot])</td>
+<td>Fit the absorption lines using chi-square minimization.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.fix_structure" title="dataset.DataSet.fix_structure"><code class="xref py py-obj docutils literal"><span class="pre">fix_structure</span></code></a>([ion])</td>
+<td>Fix the velocity structure, that is, the redshifts and the b-parameters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.get_name" title="dataset.DataSet.get_name"><code class="xref py py-obj docutils literal"><span class="pre">get_name</span></code></a>()</td>
+<td>Returns the name of the DataSet.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.get_resolution" title="dataset.DataSet.get_resolution"><code class="xref py py-obj docutils literal"><span class="pre">get_resolution</span></code></a>(line_tag[,&nbsp;verbose])</td>
+<td>Return the spectral resolution for the fitting region where the line with the given <cite>line_tag</cite> is defined, otherwise give the resolution for all fitting regions.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.interactive_components" title="dataset.DataSet.interactive_components"><code class="xref py py-obj docutils literal"><span class="pre">interactive_components</span></code></a>(line_tag)</td>
+<td>Define components interactively for a given ion.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.load_components_from_file" title="dataset.DataSet.load_components_from_file"><code class="xref py py-obj docutils literal"><span class="pre">load_components_from_file</span></code></a>(fname)</td>
+<td>Load best-fit parameters from an output file <cite>fname</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.mask_line" title="dataset.DataSet.mask_line"><code class="xref py py-obj docutils literal"><span class="pre">mask_line</span></code></a>(line_tag[,&nbsp;reset,&nbsp;mask,&nbsp;telluric])</td>
+<td>Define exclusion masks for the fitting region of a given line.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.normalize_line" title="dataset.DataSet.normalize_line"><code class="xref py py-obj docutils literal"><span class="pre">normalize_line</span></code></a>(line_tag[,&nbsp;norm_method])</td>
+<td>Normalize or re-normalize a given line</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.plot_fit" title="dataset.DataSet.plot_fit"><code class="xref py py-obj docutils literal"><span class="pre">plot_fit</span></code></a>([linestyles,&nbsp;colors,&nbsp;rebin,&nbsp;…])</td>
+<td>Plot the absorption lines and the best-fit profiles.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.plot_line" title="dataset.DataSet.plot_line"><code class="xref py py-obj docutils literal"><span class="pre">plot_line</span></code></a>(line_tag[,&nbsp;plot_fit,&nbsp;linestyles,&nbsp;…])</td>
+<td>Plot a single fitting region containing the line corresponding to the given <cite>line_tag</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.prepare_dataset" title="dataset.DataSet.prepare_dataset"><code class="xref py py-obj docutils literal"><span class="pre">prepare_dataset</span></code></a>([norm,&nbsp;mask,&nbsp;verbose])</td>
+<td>Prepare the data for fitting.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.print_abundance" title="dataset.DataSet.print_abundance"><code class="xref py py-obj docutils literal"><span class="pre">print_abundance</span></code></a>()</td>
+<td>Print the total column densities of all components.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.print_cont_parameters" title="dataset.DataSet.print_cont_parameters"><code class="xref py py-obj docutils literal"><span class="pre">print_cont_parameters</span></code></a>()</td>
+<td>Print Chebyshev coefficients for the continuum fit.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.print_metallicity" title="dataset.DataSet.print_metallicity"><code class="xref py py-obj docutils literal"><span class="pre">print_metallicity</span></code></a>(logNHI[,&nbsp;err])</td>
+<td>Print the total column densities for each element relative to HI in Solar units.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.print_results" title="dataset.DataSet.print_results"><code class="xref py py-obj docutils literal"><span class="pre">print_results</span></code></a>([velocity,&nbsp;elements,&nbsp;systemic])</td>
+<td>Print the best fit parameters.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.remove_fine_lines" title="dataset.DataSet.remove_fine_lines"><code class="xref py py-obj docutils literal"><span class="pre">remove_fine_lines</span></code></a>(line_tag)</td>
+<td>Remove all lines associated to a given fine-structure complex.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.remove_line" title="dataset.DataSet.remove_line"><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></a>(tag)</td>
+<td>Remove an absorption line from the DataSet.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.remove_molecule" title="dataset.DataSet.remove_molecule"><code class="xref py py-obj docutils literal"><span class="pre">remove_molecule</span></code></a>(molecule,&nbsp;band)</td>
+<td>Remove all lines for the given band of the given molecule.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.reset_all_regions" title="dataset.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal"><span class="pre">reset_all_regions</span></code></a>()</td>
+<td>Reset the data in all regions defined in the DataSet to use the raw input data.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.reset_components" title="dataset.DataSet.reset_components"><code class="xref py py-obj docutils literal"><span class="pre">reset_components</span></code></a>([ion])</td>
+<td>Reset component structure for a given ion.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.reset_region" title="dataset.DataSet.reset_region"><code class="xref py py-obj docutils literal"><span class="pre">reset_region</span></code></a>(reg)</td>
+<td>Reset the data in a given region <cite>reg</cite> to use the raw input data.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.save" title="dataset.DataSet.save"><code class="xref py py-obj docutils literal"><span class="pre">save</span></code></a>([filename,&nbsp;verbose])</td>
+<td>Save the DataSet to file using the HDF5 format.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.save_fit_regions" title="dataset.DataSet.save_fit_regions"><code class="xref py py-obj docutils literal"><span class="pre">save_fit_regions</span></code></a>([filename,&nbsp;individual])</td>
+<td>Save the fitting regions to ASCII table output.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.set_name" title="dataset.DataSet.set_name"><code class="xref py py-obj docutils literal"><span class="pre">set_name</span></code></a>(name)</td>
+<td>Set the name of the DataSet.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.set_resolution" title="dataset.DataSet.set_resolution"><code class="xref py py-obj docutils literal"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose])</td>
+<td>Set the spectral resolution in km/s for a given region containing <cite>line_tag</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.set_systemic_redshift" title="dataset.DataSet.set_systemic_redshift"><code class="xref py py-obj docutils literal"><span class="pre">set_systemic_redshift</span></code></a>(z_sys)</td>
+<td>Update the systemic redshift of the dataset</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.velocity_plot" title="dataset.DataSet.velocity_plot"><code class="xref py py-obj docutils literal"><span class="pre">velocity_plot</span></code></a>(**kwargs)</td>
+<td>Create a velocity plot, showing all the fitting regions defined, in order to compare different lines and to identify blends and contamination.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dataset.DataSet.activate_all">
+<code class="descname">activate_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.activate_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.activate_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate all lines defined in the DataSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.activate_line">
+<code class="descname">activate_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.activate_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.activate_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate a given line defined by its <cite>line_tag</cite></p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dataset.DataSet.activate_molecule">
 <code class="descname">activate_molecule</code><span class="sig-paren">(</span><em>molecule</em>, <em>band</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.activate_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.activate_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Activate all lines for the given band of the given molecule.
-Example: activate_molecule(&#8216;CO&#8217;, &#8216;AX(0-0)&#8217;)</p>
+Example: activate_molecule(‘CO’, ‘AX(0-0)’)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_component">
+<code class="descname">add_component</code><span class="sig-paren">(</span><em>ion</em>, <em>z</em>, <em>b</em>, <em>logN</em>, <em>var_z=True</em>, <em>var_b=True</em>, <em>var_N=True</em>, <em>tie_z=None</em>, <em>tie_b=None</em>, <em>tie_N=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add component for a given ion. Each component defined will be used for all transitions
+defined for a given ion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str</p>
+<blockquote>
+<div><p>The ion for which to define a component: e.g., “FeII”, “HI”, “CIa”, etc.</p>
+</div></blockquote>
+<p><strong>z</strong> : float</p>
+<blockquote>
+<div><p>The redshift of the component.</p>
+</div></blockquote>
+<p><strong>b</strong> : float</p>
+<blockquote>
+<div><p>The effective broadening parameter for the component in km/s.
+This parameter is constrained to be in the interval [0 - 1000] km/s.</p>
+</div></blockquote>
+<p><strong>logN</strong> : float</p>
+<blockquote>
+<div><p>The 10-base logarithm of the column density of the component.
+The column density is expected in cm^-2.</p>
+</div></blockquote>
+<p><strong>var_z</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>False</cite>, the redshift of the component will be kept fixed.</p>
+</div></blockquote>
+<p><strong>var_b</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>False</cite>, the b-parameter of the component will be kept fixed.</p>
+</div></blockquote>
+<p><strong>var_N</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>False</cite>, the column density of the component will be kept fixed.</p>
+</div></blockquote>
+<p><strong>tie_z, tie_b, tie_N</strong> : str   [default = None]</p>
+<blockquote class="last">
+<div><p>Parameter constraints for the different variables.
+The ties are defined relative to the parameter names. The naming is as follows:
+The redshift of the first component of FeII is called “z0_FeII”,
+the logN of the second component of SiII is called “logN1_SiII”.
+For more information about parameter ties, see the LmFit documentation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_component_velocity">
+<code class="descname">add_component_velocity</code><span class="sig-paren">(</span><em>ion</em>, <em>v</em>, <em>b</em>, <em>logN</em>, <em>var_z=True</em>, <em>var_b=True</em>, <em>var_N=True</em>, <em>tie_z=None</em>, <em>tie_b=None</em>, <em>tie_N=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_component_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_component_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as for <cite>add_component()</cite> but input is given as relative velocity instead of redshift.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.add_data">
 <code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add spectral data chunk to Absorption Line System.</p>
+<dd><p>Add spectral data to the DataSet. This will be used to define fitting regions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>wl</strong> : ndarray, shape (n)</p>
 <blockquote>
-<div>&#8211; input &#8211;</div></blockquote>
-<p>Give wavelength, flux and error as np.arrays.</p>
-<p>The spectrum should be helio-vacuum corrected!
-Flux and error should be given in the same units.</p>
-<p>The resolution &#8216;res&#8217; of the spectrum should be specified in km/s</p>
+<div><p>Input vacuum wavelength array in Angstroms</p>
+</div></blockquote>
+<p><strong>flux</strong> : ndarray, shape (n)</p>
+<blockquote>
+<div><p>Input flux array, should be same length as wl</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Spectral resolution in km/s  (c/R)</p>
+</div></blockquote>
+<p><strong>err</strong> : ndarray, shape (n)   [default = None]</p>
+<blockquote>
+<div><p>Error array, should be same length as wl
+If <cite>None</cite> is given, a constant uncertainty of 1. is given to all pixels.</p>
+</div></blockquote>
+<p><strong>normalized</strong> : bool   [default = False]</p>
+<blockquote class="last">
+<div><p>If the input spectrum is normalized this should be given as True
+in order to skip normalization steps.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.add_fine_lines">
 <code class="descname">add_fine_lines</code><span class="sig-paren">(</span><em>line_tag</em>, <em>levels=None</em>, <em>full_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_fine_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_fine_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add fine-structure line complexes by providing only the main transition.
-The exact fine-structure leves to include is controlled by <em>levels</em>.
-By default all levels are included.
-Valid entries are:</p>
+This function is mainly useful for the CI complexes, where the many lines are closely
+located and often blended.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
 <blockquote>
-<div>levels=&#8217;a&#8217;, levels=&#8217;b&#8217;, levels=&#8217;c&#8217;...</div></blockquote>
-<p>for first, second, and third levels.
-Several levels can be included at once:</p>
+<div><p>Line tag for the ground state transition, e.g., “CI_1656”</p>
+</div></blockquote>
+<p><strong>levels</strong> : str, list(str)    [default = None]</p>
 <blockquote>
-<div>levels=[&#8216;a&#8217;,&#8217;b&#8217;]</div></blockquote>
+<div><p>The levels of the fine-structure complexes to add, starting with “a” referring
+to the first excited level, “b” is the second, etc..
+Several levels can be given at once: [‘a’, ‘b’]
+By default, all levels are included.</p>
+</div></blockquote>
+<p><strong>full_label</strong> : bool   [default = False]</p>
+<blockquote class="last">
+<div><p>If <cite>True</cite>, the label will be translated to the full quantum mechanical description
+of the state.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_line">
+<code class="descname">add_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>velspan=None</em>, <em>active=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an absorption line to the DataSet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>The line tag for the transition which should be defined: e.g., “FeII_2374”</p>
+</div></blockquote>
+<p><strong>velspan</strong> : float   [default = None]</p>
+<blockquote>
+<div><p>The velocity span around the line center, which will be included in the fit.
+If <cite>None</cite> is given, use the default <cite>self.velspan</cite> defined (500 km/s).</p>
+</div></blockquote>
+<p><strong>active</strong> : bool   [default = True]</p>
+<blockquote class="last">
+<div><p>Set the line as active (i.e., included in the fit).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This will initiate a <cite>Line</cite> class with the atomic data for the transition,
+as well as creating a fitting region (<cite>Region</cite> class) containing the data cutout
+around the line center.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.add_many_lines">
+<code class="descname">add_many_lines</code><span class="sig-paren">(</span><em>tags</em>, <em>velspan=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_many_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_many_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add many lines at once.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tags</strong> : list(str)</p>
+<blockquote>
+<div><p>A list of line tags for the transitions that should be added.</p>
+</div></blockquote>
+<p><strong>velspan</strong> : float   [default = None]</p>
+<blockquote class="last">
+<div><p>The velocity span around the line center, which will be included in the fit.
+If <cite>None</cite> is given, use the default <cite>self.velspan</cite> defined (500 km/s).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.add_molecule">
 <code class="descname">add_molecule</code><span class="sig-paren">(</span><em>molecule</em>, <em>band</em>, <em>J=0</em>, <em>velspan=None</em>, <em>full_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.add_molecule" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add molecular lines for a given band, e.g., AX(0-0).
-All rotational levels up to and including <em>J</em> will be included.
-If full_label is set, the regions label will be translated to the full
-description of the quantum mechanical state.</p>
+<dd><p>Add molecular lines for a given band, e.g., “AX(0-0)” of CO.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>molecule</strong> : str</p>
+<blockquote>
+<div><p>The molecular identifier, e.g., ‘CO’, ‘H2’</p>
+</div></blockquote>
+<p><strong>band</strong> : str</p>
+<blockquote>
+<div><p>The vibrational band of the molecule, e.g., for CO: “AX(0-0)”
+These bands are defined in the <cite>line_complexes</cite>.</p>
+</div></blockquote>
+<p><strong>J</strong> : int   [default = 0]</p>
+<blockquote>
+<div><p>The maximal rotational level to include. All levels up to and including <cite>J</cite>
+will be included.</p>
+</div></blockquote>
+<p><strong>velspan</strong> : float   [default = None]</p>
+<blockquote>
+<div><p>The velocity span around the line center, which will be included in the fit.
+If <cite>None</cite> is given, use the default <cite>self.velspan</cite> defined (500 km/s).</p>
+</div></blockquote>
+<p><strong>full_label</strong> : bool   [default = False]</p>
+<blockquote class="last">
+<div><p>If <cite>True</cite>, the label will be translated to the full quantum mechanical description
+of the state.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="dataset.DataSet.conf_interval">
-<code class="descname">conf_interval</code><span class="sig-paren">(</span><em>nsim=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.conf_interval" title="Permalink to this definition">¶</a></dt>
-<dd><p>The method is deprecated and has not been carefully tested!</p>
+<dt id="dataset.DataSet.all_active_lines">
+<code class="descname">all_active_lines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.all_active_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.all_active_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all the active lines defined by their <cite>line_tag</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.copy_components">
 <code class="descname">copy_components</code><span class="sig-paren">(</span><em>ion</em>, <em>anchor</em>, <em>logN=0</em>, <em>ref_comp=None</em>, <em>tie_z=True</em>, <em>tie_b=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.copy_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.copy_components" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy velocity structure from one element to another.
-Input: &#8216;ion&#8217; is the new ion to define, which will</p>
+<dd><p>Copy velocity structure to <cite>ion</cite> from the anchor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str</p>
 <blockquote>
-<div><p>be linked to the ion &#8216;anchor&#8217;.
-If logN is given the starting guess is defined
-from this value following the pattern of the
-component number &#8216;ref_comp&#8217; of the anchor ion.</p>
-<p>If &#8216;tie_z&#8217; or &#8216;tie_b&#8217; is set, then <em>all</em> components
-of the new element will be linked to the anchor.</p>
+<div><p>The new ion to define, which will be linked to the <cite>anchor</cite> ion.</p>
 </div></blockquote>
+<p><strong>anchor</strong> : str</p>
+<blockquote>
+<div><p>The baes ion which will be used for the linking.</p>
+</div></blockquote>
+<p><strong>logN</strong> : float</p>
+<blockquote>
+<div><p>If logN is given the starting guess is defined from this value
+following the pattern of the components defined for <cite>anchor</cite> relative to the
+<cite>ref_comp</cite> (default: the first component).</p>
+</div></blockquote>
+<p><strong>ref_comp</strong> : int</p>
+<blockquote>
+<div><p>The reference component to which logN will be scaled.</p>
+</div></blockquote>
+<p><strong>tie_z</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, the redshifts for all components of the two ions will be tied together.</p>
+</div></blockquote>
+<p><strong>tie_b</strong> : bool   [default = True]</p>
+<blockquote class="last">
+<div><p>If <cite>True</cite>, the b-parameters for all components of the two ions will be tied together.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.deactivate_all">
+<code class="descname">deactivate_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.deactivate_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.deactivate_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deactivate all lines defined in the DataSet. This will not remove the lines.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.deactivate_line">
+<code class="descname">deactivate_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.deactivate_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.deactivate_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deactivate a given line defined by its <cite>line_tag</cite>.
+This will exclude the line during the fit.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.deactivate_molecule">
 <code class="descname">deactivate_molecule</code><span class="sig-paren">(</span><em>molecule</em>, <em>band</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.deactivate_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.deactivate_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deactivate all lines for the given band of the given molecule.
-To see the available molecular bands defined, see the manual pdf.</p>
+To see the available molecular bands defined, see the manual pdf or the <cite>line_complexes</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.delete_component">
-<code class="descname">delete_component</code><span class="sig-paren">(</span><em>element</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.delete_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.delete_component" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove component with the given <a href="#id1"><span class="problematic" id="id2">`</span></a>index&#8217;.</p>
+<code class="descname">delete_component</code><span class="sig-paren">(</span><em>ion</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.delete_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.delete_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove component of the given <cite>ion</cite> with the given <cite>index</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.find_line">
+<code class="descname">find_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.find_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.find_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look up the fitting region for a given line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>The line tag of the line whose region will be returned.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>region</strong> : Region instance</p>
+<blockquote class="last">
+<div><p>The fitting region containing the given line.
+This is an instance of the regions.Region class.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>verbose=True</em>, <em>plot=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit the absorption lines using chi-square minimization.
-Returns the best fitting parameters for each component
-of each line.</p>
-<dl class="docutils">
-<dt>rebin <span class="classifier-delimiter">:</span> <span class="classifier">integer   [default = 1]</span></dt>
-<dd>Rebin data by a factor <em>rebin</em> before fitting.</dd>
-<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">boolean   [default = True]</span></dt>
-<dd>This will print the fit results to terminal.</dd>
-<dt>plot <span class="classifier-delimiter">:</span> <span class="classifier">boolean   [default = False]</span></dt>
-<dd>This will make the best-fit solution show up in a new window.</dd>
-<dt>kwargs <span class="classifier-delimiter">:</span> <span class="classifier">dictionary of keyword arguments</span></dt>
-<dd>Options are derived from the scipy.optimize minimization methods.
-The default method is &#8216;leastsq&#8217;, used in lmfit.
-This can be changed with method=&#8217;nelder&#8217;, to use Nelder-Mead minimization.
-See documentation in LmFit and SciPy.optimize.</dd>
-</dl>
+<dd><p>Fit the absorption lines using chi-square minimization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rebin</strong> : int   [default = 1]</p>
+<blockquote>
+<div><p>Rebin data by a factor <em>rebin</em> before fitting.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>This will print the fit results to terminal.</p>
+</div></blockquote>
+<p><strong>plot</strong> : bool   [default = False]</p>
+<blockquote>
+<div><p>This will make the best-fit solution show up in a new window.</p>
+</div></blockquote>
+<p><strong>**kwargs</strong></p>
+<blockquote>
+<div><p>Keyword arguments are derived from the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html">scipy.optimize</a> minimization methods.
+The default method is <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html">leastsq</a>, used in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.
+This can be changed using the <cite>method</cite> keyword.
+See documentation in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> and <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html">scipy.optimize</a>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>popt</strong> : <a class="reference external" href="https://lmfit.github.io/lmfit-py/fitting.html#lmfit.minimizer.MinimizerResult">lmfit.MinimizerResult</a></p>
+<blockquote>
+<div><p>The minimzer results from <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> containing best-fit parameters
+and fit details, e.g., exit status and reduced chi squared.
+See documentation for <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.</p>
+</div></blockquote>
+<p><strong>chi2</strong> : float</p>
+<blockquote class="last">
+<div><p>The chi squared value of the best-fit. Note that this value is <strong>not</strong>
+the reduced chi squared. This value, and the number of degrees of freedom,
+are available under the <cite>popt</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.fix_structure">
+<code class="descname">fix_structure</code><span class="sig-paren">(</span><em>ion=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.fix_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.fix_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix the velocity structure, that is, the redshifts and the b-parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
+<blockquote class="last">
+<div><p>The ion for which the structure should be fixed.
+If None is given, the structure is fixed for all ions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.get_name">
+<code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.get_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the DataSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.get_resolution">
+<code class="descname">get_resolution</code><span class="sig-paren">(</span><em>line_tag</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.get_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.get_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spectral resolution for the fitting region where the line with
+the given <cite>line_tag</cite> is defined, otherwise give the resolution for all fitting regions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str   [default = None]</p>
+<blockquote>
+<div><p>The line-tag for the line to look up: e.g., “FeII_2374”</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool   [default = False]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, print the returned spectral resolution to std out.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>res</strong> : float</p>
+<blockquote class="last">
+<div><p>The spectral resolution of the fitting region where the given line is defined.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.interactive_components">
+<code class="descname">interactive_components</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.interactive_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.interactive_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define components interactively for a given ion. The components will be defined on the
+basis of the single given line for that ion. Previously defined components for the
+ion will be overwritten.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote class="last">
+<div><p>Line tag for the line belonging to the ion for which components should be defined.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This will launch an interactive plot showing the fitting region of the given line.
+The user can then click on the positions of the components which. At the end, the
+redshifts and estimated column densities are printed to terminal. The b-parameter
+is assumed to be unresolved, i.e., taken from the resolution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.load_components_from_file">
+<code class="descname">load_components_from_file</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.load_components_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.load_components_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load best-fit parameters from an output file <cite>fname</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.mask_line">
-<code class="descname">mask_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>reset=True</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.mask_line" title="Permalink to this definition">¶</a></dt>
-<dd><p>define masked regions for a given line</p>
+<code class="descname">mask_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>reset=True</em>, <em>mask=None</em>, <em>telluric=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.mask_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define exclusion masks for the fitting region of a given line.
+Note that the masked regions are exclusion regions and will not be used for the fit.
+If components have been defined, these will be shown as vertical lines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>Line tag for the line whose region should be masked.</p>
+</div></blockquote>
+<p><strong>reset</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, clear the mask before defining a new mask.</p>
+</div></blockquote>
+<p><strong>mask</strong> : array_like, shape (n)   [default = None]</p>
+<blockquote>
+<div><p>If the mask is given, it must be a boolean array of the same length
+as the region flux, err, and wl arrays.
+Passing a mask this was supresses the interactive masking process.</p>
+</div></blockquote>
+<p><strong>telluric</strong> : bool   [default = True]</p>
+<blockquote class="last">
+<div><p>If <cite>True</cite>, a telluric absorption template and sky emission template
+is shown for reference.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.normalize_line">
 <code class="descname">normalize_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>norm_method='spline'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.normalize_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.normalize_line" title="Permalink to this definition">¶</a></dt>
-<dd><p>normalize or re-normalize a given line</p>
+<dd><p>Normalize or re-normalize a given line</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>Line tag of the line whose fitting region should be normalized.</p>
+</div></blockquote>
+<p><strong>norm_method</strong> : str   [default = ‘spline’]</p>
+<blockquote class="last">
+<div><p>Normalization method used for the interactive continuum fit.
+Options [“spline”, “linear”]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.plot_fit">
+<code class="descname">plot_fit</code><span class="sig-paren">(</span><em>linestyles=['--', ':'], colors=['RoyalBlue', 'Crimson'], rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4, filename=None, show=True, subsample_profile=1, npad=50, highlight=[], residuals=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.plot_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the absorption lines and the best-fit profiles.
+For details, see <cite>output.plot_all_lines</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.plot_line">
+<code class="descname">plot_line</code><span class="sig-paren">(</span><em>line_tag, plot_fit=False, linestyles=['--'], colors=['RoyalBlue'], loc='left', rebin=1, nolabels=False, axis=None, fontsize=12, xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50, highlight=[], residuals=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.plot_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a single fitting region containing the line corresponding to the
+given <cite>line_tag</cite>. For details, see <cite>output.plot_single_line()</cite>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -162,21 +783,118 @@ See documentation in LmFit and SciPy.optimize.</dd>
 <code class="descname">prepare_dataset</code><span class="sig-paren">(</span><em>norm=True</em>, <em>mask=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.prepare_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.prepare_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare the data for fitting. This function sets up the parameter structure,
 and handles the normalization and masking of fitting regions.</p>
-<dl class="docutils">
-<dt>norm <span class="classifier-delimiter">:</span> <span class="classifier">boolean   [default = True]</span></dt>
-<dd>Opens an interactive window to let the user normalize each region
-using the defined <em>norm_method</em>.</dd>
-<dt>mask <span class="classifier-delimiter">:</span> <span class="classifier">boolean   [default = True]</span></dt>
-<dd>Opens an interactive window to let the user mask each fitting region.</dd>
-<dt>verbose <span class="classifier-delimiter">:</span> <span class="classifier">boolean   [default = True]</span></dt>
-<dd>If this is set, the code will print small info statements during the run.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>norm</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>Opens an interactive window to let the user normalize each region
+using the defined <cite>norm_method</cite>.</p>
+</div></blockquote>
+<p><strong>mask</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>Opens an interactive window to let the user mask each fitting region.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If this is set, the code will print small info statements during the run.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">bool</p>
+<blockquote class="last">
+<div><p>The function returns <cite>True</cite> when the dataset has passed all the steps.
+If one step fails, the function returns <cite>False</cite>.
+The <code class="docutils literal"><span class="pre">ready2fit</span></code> attribute of the dataset is also
+updated accordingly.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.print_abundance">
+<code class="descname">print_abundance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.print_abundance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.print_abundance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the total column densities of all components.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.print_cont_parameters">
+<code class="descname">print_cont_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.print_cont_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.print_cont_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print Chebyshev coefficients for the continuum fit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.print_metallicity">
+<code class="descname">print_metallicity</code><span class="sig-paren">(</span><em>logNHI</em>, <em>err=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.print_metallicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.print_metallicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the total column densities for each element relative to HI in Solar units.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.print_results">
+<code class="descname">print_results</code><span class="sig-paren">(</span><em>velocity=True</em>, <em>elements='all'</em>, <em>systemic=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.print_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the best fit parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>velocity</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, show the relative velocities of each component instead of redshifts.</p>
+</div></blockquote>
+<p><strong>elements</strong> : list(str)   [default = ‘all’]</p>
+<blockquote>
+<div><p>A list of elements for which to show parameters.</p>
+</div></blockquote>
+<p><strong>systemic</strong> : float   [default = None]</p>
+<blockquote class="last">
+<div><p>The systemic redshift used as reference for the relative velocities.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.remove_fine_lines">
 <code class="descname">remove_fine_lines</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.remove_fine_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.remove_fine_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all lines associated to a given fine-structure complex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
+<blockquote class="last">
+<div><p>The line tag of the gorund state transition to remove.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.remove_line">
+<code class="descname">remove_line</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.remove_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.remove_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an absorption line from the DataSet. If this is the last line in a fitting region
+the given region will be eliminated, and if this is the last line of a given ion,
+then the components will be eliminated for that ion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tag</strong> : str</p>
+<blockquote class="last">
+<div><p>Line tag of the transitoin that should be removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -186,48 +904,339 @@ using the defined <em>norm_method</em>.</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="dataset.DataSet.reset_all_regions">
+<code class="descname">reset_all_regions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.reset_all_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.reset_all_regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the data in all regions defined in the DataSet to use the raw input data.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dataset.DataSet.reset_components">
-<code class="descname">reset_components</code><span class="sig-paren">(</span><em>element=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.reset_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.reset_components" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset components dictionary.
-If an element is given, only this element is reset.
-Otherwise all elements are reset.</p>
+<code class="descname">reset_components</code><span class="sig-paren">(</span><em>ion=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.reset_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.reset_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset component structure for a given ion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
+<blockquote class="last">
+<div><p>The ion for which to reset the components: e.g., FeII, HI, CIa, etc.
+Otherwise all components for all ions will be reset.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.reset_region">
 <code class="descname">reset_region</code><span class="sig-paren">(</span><em>reg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.reset_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.reset_region" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset the data in a given region to the raw input data.</p>
+<dd><p>Reset the data in a given region <cite>reg</cite> to use the raw input data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the DataSet to file using the HDF5 format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.save_fit_regions">
+<code class="descname">save_fit_regions</code><span class="sig-paren">(</span><em>filename=None</em>, <em>individual=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.save_fit_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.save_fit_regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the fitting regions to ASCII table output.
+The format is as follows:
+(wavelength , normalized flux , normalized error , best-fit profile , mask)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str   [default = None]</p>
+<blockquote>
+<div><p>Filename for the fitting regions. If <cite>None</cite>, the <cite>self.name</cite> parameter will be used.</p>
+</div></blockquote>
+<p><strong>individual</strong> : bool   [default = False]</p>
+<blockquote class="last">
+<div><p>Save the fitting regions to individual files. By default all regions are concatenated
+into one file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataset.DataSet.set_name">
+<code class="descname">set_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the DataSet. This parameter is used when saving the dataset.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.set_resolution">
-<code class="descname">set_resolution</code><span class="sig-paren">(</span><em>res</em>, <em>line_tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_resolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the spectral resolution in km/s for a given region containing <em>line_tag</em>.
-If not <em>line_tag</em> is given, the resolution will be set for <em>all</em> regions,
+<code class="descname">set_resolution</code><span class="sig-paren">(</span><em>res</em>, <em>line_tag=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the spectral resolution in km/s for a given region containing <cite>line_tag</cite>.
+If <cite>line_tag</cite> is not given, the resolution will be set for <em>all</em> regions,
 including the raw data chunks!</p>
-<p>WARNING: If not all data chunks have the same resolution, then this method
-should be used with caution!</p>
+<p>Note – If not all data chunks have the same resolution, this method
+should be used with caution. It is advised to check the spectral resolution beforehand
+and only update the appropriate regions using a for-loop.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.set_systemic_redshift">
 <code class="descname">set_systemic_redshift</code><span class="sig-paren">(</span><em>z_sys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_systemic_redshift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.set_systemic_redshift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the systemic redshift</p>
+<dd><p>Update the systemic redshift of the dataset</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dataset.DataSet.velocity_plot">
 <code class="descname">velocity_plot</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.velocity_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.DataSet.velocity_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parameters
-vmin=-400, vmax=400
-filename=None, max_rows=6, max_columns=2,
-rebin=1, fontsize=12,
-subsample_profile=1, npad=50, ymin=None</p>
+<dd><p>Create a velocity plot, showing all the fitting regions defined, in order to compare
+different lines and to identify blends and contamination.</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="module-voigt"></span><dl class="function">
+</div>
+<div class="section" id="class-line">
+<h2>class <strong>Line</strong><a class="headerlink" href="#class-line" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dataset.Line">
+<em class="property">class </em><code class="descclassname">dataset.</code><code class="descname">Line</code><span class="sig-paren">(</span><em>tag</em>, <em>active=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.Line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Line object containing atomic data for the given transition.
+Only the line_tag is passed, the rest of the information is
+looked up in the atomic database.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>tag</strong></td>
+<td>(str) The line tag for the line, e.g., “FeII_2374”</td>
+</tr>
+<tr class="row-even"><td><strong>ion</strong></td>
+<td>(str) The ion for the line; The ion for “FeII_2374” is “FeII”.</td>
+</tr>
+<tr class="row-odd"><td><strong>element</strong></td>
+<td>(str) Equal to <code class="docutils literal"><span class="pre">self.ion</span></code> for backwards compatibility.</td>
+</tr>
+<tr class="row-even"><td><strong>l0</strong></td>
+<td>(float) Rest-frame resonant wavelength of the transition. Unit: Angstrøm.</td>
+</tr>
+<tr class="row-odd"><td><strong>f</strong></td>
+<td>(float) The oscillator strength for the transition.</td>
+</tr>
+<tr class="row-even"><td><strong>gam</strong></td>
+<td>(float) The radiation damping constant or Einstein coefficient.</td>
+</tr>
+<tr class="row-odd"><td><strong>mass</strong></td>
+<td>(float) The atomic mass in atomic mass units.</td>
+</tr>
+<tr class="row-even"><td><strong>active</strong></td>
+<td>(bool   [default = True]) The state of the line in the dataset. Only active lines will be included in the fit.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.Line.get_properties" title="dataset.Line.get_properties"><code class="xref py py-obj docutils literal"><span class="pre">get_properties</span></code></a>()</td>
+<td>Return the principal atomic constants for the transition: <em>l0</em>, <em>f</em>, and <em>gam</em>.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_active</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_inactive</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dataset.Line.get_properties">
+<code class="descname">get_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#Line.get_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dataset.Line.get_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the principal atomic constants for the transition: <em>l0</em>, <em>f</em>, and <em>gam</em>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="class-region">
+<h2>class <strong>Region</strong><a class="headerlink" href="#class-region" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="regions.Region">
+<em class="property">class </em><code class="descclassname">regions.</code><code class="descname">Region</code><span class="sig-paren">(</span><em>v</em>, <em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fitting region object. This class contains the fit region data and line information.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.add_data_to_region" title="regions.Region.add_data_to_region"><code class="xref py py-obj docutils literal"><span class="pre">add_data_to_region</span></code></a>(data_chunk,&nbsp;cutout)</td>
+<td>Define the spectral data for the fitting region.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.clear_mask" title="regions.Region.clear_mask"><code class="xref py py-obj docutils literal"><span class="pre">clear_mask</span></code></a>()</td>
+<td>Clear the already defined mask in the region.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.define_mask" title="regions.Region.define_mask"><code class="xref py py-obj docutils literal"><span class="pre">define_mask</span></code></a>([z,&nbsp;dataset,&nbsp;telluric])</td>
+<td>Use an interactive window to define the mask for the region.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.generate_label" title="regions.Region.generate_label"><code class="xref py py-obj docutils literal"><span class="pre">generate_label</span></code></a>([active_only])</td>
+<td>Automatically generate a descriptive label for the region.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.has_active_lines" title="regions.Region.has_active_lines"><code class="xref py py-obj docutils literal"><span class="pre">has_active_lines</span></code></a>()</td>
+<td>Return <cite>True</cite> is at least one line in the region is active.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.has_line" title="regions.Region.has_line"><code class="xref py py-obj docutils literal"><span class="pre">has_line</span></code></a>(line_tag)</td>
+<td>Return <cite>True</cite> if a line with the given <cite>line_tag</cite> is defined in the region.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.is_normalized" title="regions.Region.is_normalized"><code class="xref py py-obj docutils literal"><span class="pre">is_normalized</span></code></a>()</td>
+<td>Return <cite>True</cite> if the region data is normalized.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.normalize" title="regions.Region.normalize"><code class="xref py py-obj docutils literal"><span class="pre">normalize</span></code></a>([plot,&nbsp;norm_method])</td>
+<td>Normalize the region if the data are not already normalized.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.remove_line" title="regions.Region.remove_line"><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></a>(line_tag)</td>
+<td>Remove absorption line with the given <cite>line_tag</cite> from the region.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.set_label" title="regions.Region.set_label"><code class="xref py py-obj docutils literal"><span class="pre">set_label</span></code></a>(text)</td>
+<td>Set descriptive text label for the given region.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.unpack" title="regions.Region.unpack"><code class="xref py py-obj docutils literal"><span class="pre">unpack</span></code></a>()</td>
+<td>Return the data of the region (wl, flux, error, mask)</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="regions.Region.add_data_to_region">
+<code class="descname">add_data_to_region</code><span class="sig-paren">(</span><em>data_chunk</em>, <em>cutout</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.add_data_to_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.add_data_to_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the spectral data for the fitting region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_chunk</strong> : dict()</p>
+<blockquote>
+<div><p>A <cite>data_chunk</cite> as defined in the data structure of <cite>DataSet.data</cite>.</p>
+</div></blockquote>
+<p><strong>cutout</strong> : bool array</p>
+<blockquote class="last">
+<div><p>A boolean array defining the subset of the <cite>data_chunk</cite> which makes up the fitting region.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.clear_mask">
+<code class="descname">clear_mask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.clear_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.clear_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the already defined mask in the region.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.define_mask">
+<code class="descname">define_mask</code><span class="sig-paren">(</span><em>z=None</em>, <em>dataset=None</em>, <em>telluric=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.define_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.define_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use an interactive window to define the mask for the region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>z</strong> : float   [default = None]</p>
+<blockquote>
+<div><p>If a redshift is given, the lines in the region are shown as vertical lines
+at the given redshift.</p>
+</div></blockquote>
+<p><strong>dataset</strong> : class DataSet   [default = None]</p>
+<blockquote>
+<div><p>A dataset with components defined for the lines in the region.
+If a dataset is passed, the components of the lines in the region are shown.</p>
+</div></blockquote>
+<p><strong>telluric</strong> : bool   [default = True]</p>
+<blockquote class="last">
+<div><p>Show telluric absorption and sky emission line templates during the masking.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.generate_label">
+<code class="descname">generate_label</code><span class="sig-paren">(</span><em>active_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.generate_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.generate_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically generate a descriptive label for the region.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.has_active_lines">
+<code class="descname">has_active_lines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.has_active_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.has_active_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>True</cite> is at least one line in the region is active.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.has_line">
+<code class="descname">has_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.has_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.has_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>True</cite> if a line with the given <cite>line_tag</cite> is defined in the region.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.is_normalized">
+<code class="descname">is_normalized</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.is_normalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.is_normalized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>True</cite> if the region data is normalized.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>plot=True</em>, <em>norm_method='linear'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the region if the data are not already normalized.
+Choose from two methods:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>1:  define left and right continuum regions</dt>
+<dd>and fit a linear continuum.</dd>
+<dt>2:  define the continuum as a range of points</dt>
+<dd>and use spline interpolation to infer the
+continuum.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.remove_line">
+<code class="descname">remove_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.remove_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.remove_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove absorption line with the given <cite>line_tag</cite> from the region.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.set_label">
+<code class="descname">set_label</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.set_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.set_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set descriptive text label for the given region.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="regions.Region.unpack">
+<code class="descname">unpack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the data of the region (wl, flux, error, mask)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-voigt">
+<span id="module-voigt"></span><h2>module <strong>voigt</strong><a class="headerlink" href="#module-voigt" title="Permalink to this headline">¶</a></h2>
+<p>The module contains functions to evaluate the optical depth,
+to convert this to observed transmission and to convolve the
+observed spectrum with the instrumental profile.</p>
+<dl class="function">
 <dt id="voigt.H">
 <code class="descclassname">voigt.</code><code class="descname">H</code><span class="sig-paren">(</span><em>a</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#H"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.H" title="Permalink to this definition">¶</a></dt>
 <dd><p>Voigt Profile Approximation from T. Tepper-Garcia 2006, 2007.</p>
@@ -236,50 +1245,142 @@ subsample_profile=1, npad=50, ymin=None</p>
 <dl class="function">
 <dt id="voigt.Voigt">
 <code class="descclassname">voigt.</code><code class="descname">Voigt</code><span class="sig-paren">(</span><em>l</em>, <em>l0</em>, <em>f</em>, <em>N</em>, <em>b</em>, <em>gam</em>, <em>z=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#Voigt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.Voigt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the Voigt profile of transition with
-rest frame transition wavelength: &#8216;l0&#8217;
-oscillator strength: &#8216;f&#8217;
-column density: N  cm^-2
-velocity width: b  cm/s</p>
+<dd><p>Calculate the optical depth Voigt profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>l</strong> : array_like, shape (N)</p>
+<blockquote>
+<div><p>Wavelength grid in Angstroms at which to evaluate the optical depth.</p>
+</div></blockquote>
+<p><strong>l0</strong> : float</p>
+<blockquote>
+<div><p>Rest frame transition wavelength in Angstroms.</p>
+</div></blockquote>
+<p><strong>f</strong> : float</p>
+<blockquote>
+<div><p>Oscillator strength.</p>
+</div></blockquote>
+<p><strong>N</strong> : float</p>
+<blockquote>
+<div><p>Column density in units of cm^-2.</p>
+</div></blockquote>
+<p><strong>b</strong> : float</p>
+<blockquote>
+<div><p>Velocity width of the Voigt profile in cm/s.</p>
+</div></blockquote>
+<p><strong>gam</strong> : float</p>
+<blockquote>
+<div><p>Radiation damping constant, inverse Einstein constant (A_ul)</p>
+</div></blockquote>
+<p><strong>z</strong> : float</p>
+<blockquote>
+<div><p>The redshift of the observed wavelength grid <cite>l</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tau</strong> : array_like, shape (N)</p>
+<blockquote class="last">
+<div><p>Optical depth array evaluated at the input grid wavelengths <cite>l</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="voigt.evaluate_continuum">
 <code class="descclassname">voigt.</code><code class="descname">evaluate_continuum</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>reg_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_continuum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_continuum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to evaluate the continuum model using Chebyshev polynomials.
+<dd><p>Evaluate the continuum model using Chebyshev polynomials.
 All regions are fitted with the same order of polynomials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
+<blockquote>
+<div><p>Input wavelength grid in Angstroms.</p>
+</div></blockquote>
+<p><strong>pars</strong> : dict(parameters)</p>
+<blockquote>
+<div><p>An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.</p>
+</div></blockquote>
+<p><strong>reg_num</strong> : int</p>
+<blockquote>
+<div><p>The region number, i.e., the index of the region in the list <cite>DataSet.regions</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cont_model</strong> : array_like, shape (N)</p>
+<blockquote class="last">
+<div><p>The continuum Chebyshev polynomial evaluated at the input wavelengths <cite>x</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="voigt.evaluate_profile">
 <code class="descclassname">voigt.</code><code class="descname">evaluate_profile</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>z_sys</em>, <em>lines</em>, <em>components</em>, <em>res</em>, <em>dv=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to evaluate Voigt profile for a fitting <a href="#id3"><span class="problematic" id="id4">`</span></a>Region&#8217;.</p>
-<dl class="docutils">
-<dt>x <span class="classifier-delimiter">:</span> <span class="classifier">np.array</span></dt>
-<dd>Wavelength array to evaluate the profile on</dd>
-<dt>pars <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
-<dd>Dictionary containing fit parameters from <a href="#id5"><span class="problematic" id="id6">`</span></a>lmfit&#8217;</dd>
-<dt>lines <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>List of lines in the region to evaluate.
-Should be a list of <a href="#id7"><span class="problematic" id="id8">`</span></a>Line&#8217; instances.</dd>
-<dt>components <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
-<dd>Dictionary containing component data for the defined ions.</dd>
-<dt>res <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Spectral resolution of the region in km/s.</dd>
-<dt>dv <span class="classifier-delimiter">:</span> <span class="classifier">float  [default=0.1]</span></dt>
-<dd>Desired pixel size of profile evaluation in km/s.</dd>
-</dl>
-<dl class="docutils">
-<dt>profile_obs <span class="classifier-delimiter">:</span> <span class="classifier">np.array</span></dt>
-<dd>Total observed line profile of all lines in the region,
-convolved with the instrument Line Spread Function.</dd>
-</dl>
+<dd><p>Evaluate the observed Voigt profile. The calculated optical depth, <cite>tau</cite>, is
+converted to observed transmission, <cite>f</cite>:</p>
+<blockquote>
+<div>f = exp(-tau)</div></blockquote>
+<p>The observed transmission is subsequently convolved with the instrumental
+broadening profile assumed to be Gaussian with a full-width at half maximum
+of res. The resolving power is assumed to be constant in velocity space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
+<blockquote>
+<div><p>Wavelength array in Angstroms on which to evaluate the profile.</p>
+</div></blockquote>
+<p><strong>pars</strong> : dict(parameters)</p>
+<blockquote>
+<div><p>An instance of lmfit.Parameters containing the line parameters.</p>
+</div></blockquote>
+<p><strong>lines</strong> : list(Line)</p>
+<blockquote>
+<div><p>List of lines to evaluate. Should be a list of <cite>Line</cite> objects.</p>
+</div></blockquote>
+<p><strong>components</strong> : dict</p>
+<blockquote>
+<div><p>Dictionary containing component data for the defined ions.
+See <cite>DataSet.components</cite>.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Spectral resolving power of the data in km/s  [= c/R].</p>
+</div></blockquote>
+<p><strong>dv</strong> : float  [default=0.1]</p>
+<blockquote>
+<div><p>Desired pixel size of subsampled profile grid in km/s.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">profile_obs :array_like, shape (N)</p>
+<blockquote class="last">
+<div><p>Observed line profile convolved with the instrument profile.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<span class="target" id="module-output"></span><dl class="function">
+</div>
+<div class="section" id="module-output">
+<span id="module-output"></span><h2>module <strong>output</strong><a class="headerlink" href="#module-output" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
 <dt id="output.chunks">
 <code class="descclassname">output.</code><code class="descname">chunks</code><span class="sig-paren">(</span><em>l</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.chunks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Yield successive n-sized chunks from l.</p>
+<dd><p>Yield successive <cite>n</cite>-sized chunks from <cite>l</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -291,119 +1392,276 @@ convolved with the instrument Line Spread Function.</dd>
 <dl class="function">
 <dt id="output.plot_all_lines">
 <code class="descclassname">output.</code><code class="descname">plot_all_lines</code><span class="sig-paren">(</span><em>dataset, plot_fit=False, linestyles=['--'], colors=['b'], rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4, filename=None, show=True, subsample_profile=1, npad=50, highlight=[], residuals=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_all_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_all_lines" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot absorption line.</p>
+<dd><p>Plot all active absorption lines. This function is a wrapper of the function <cite>plot_single_line</cite>.
+For a complete description of input parameters, see the documentation for <cite>plot_single_line</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
 <blockquote>
-<div>INPUT:</div></blockquote>
-<p>dataset:  VoigtFit.DataSet instance containing the line regions</p>
-<p>plot_fit:    if True, the best-fit profile will be shown
-linestyles:  a list of linestyles to show velocity components
-colors:      a lost of colors to show the velocity components</p>
-<p>The colors and linestyles are combined to form an <a href="#id9"><span class="problematic" id="id10">`</span></a>iterator&#8217;
-which cycles through a set of (linestyle, color).</p>
-<p>loc: places the line tag (based on the plt.legend keyword <em>loc</em>)</p>
-<p>rebin: integer factor for rebinning the spectrum</p>
-<p>nolabels: show axis labels?</p>
+<div><p>Instance of class <cite>DataSet</cite> containing the line regions to plot.</p>
+</div></blockquote>
+<p><strong>max_rows</strong> : int   [default = 4]</p>
+<blockquote>
+<div><p>The maximum number of rows of figures. Each row consists of two figure panels.</p>
+</div></blockquote>
+<p><strong>filename</strong> : str</p>
+<blockquote class="last">
+<div><p>If a filename is given, the figures are saved to a pdf file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.plot_residual">
 <code class="descclassname">output.</code><code class="descname">plot_residual</code><span class="sig-paren">(</span><em>dataset</em>, <em>line_tag</em>, <em>rebin=1</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>axis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_residual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_residual" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot residuals for best-fit to absorption line.</p>
+<dd><p>Plot residuals for the best-fit to a given absorption line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
 <blockquote>
-<div>INPUT:</div></blockquote>
-<p>dataset:  VoigtFit.DataSet instance containing the line regions
-line_tag: The line tag of the line to show, e.g., &#8216;FeII_2374&#8217;</p>
-<p>rebin: integer factor for rebinning the spectrum</p>
-<p>xmin and xmax define the plotting range.</p>
+<div><p>An instance of DataSet class containing the line region to plot.</p>
+</div></blockquote>
+<p><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>The line tag of the line to show, e.g., ‘FeII_2374’</p>
+</div></blockquote>
+<p><strong>rebin: int</strong></p>
+<blockquote>
+<div><p>Integer factor for rebinning the spectral data.</p>
+</div></blockquote>
+<p><strong>xmin</strong> : float</p>
+<blockquote>
+<div><p>The lower x-limit in relative velocity (km/s).
+If nothing is given, the extent of the region is used.</p>
+</div></blockquote>
+<p><strong>xmax</strong> : float</p>
+<blockquote>
+<div><p>The upper x-limit in relative velocity (km/s).
+If nothing is given, the extent of the region is used.</p>
+</div></blockquote>
+<p><strong>axis</strong> : matplotlib.Axes.axis</p>
+<blockquote class="last">
+<div><p>The plotting axis of matplotlib. If <cite>None</cite> is given, a new figure and axis will be created.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.plot_single_line">
 <code class="descclassname">output.</code><code class="descname">plot_single_line</code><span class="sig-paren">(</span><em>dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'], loc='left', rebin=1, nolabels=False, axis=None, fontsize=12, xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50, residuals=False, highlight=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_single_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_single_line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot absorption line.</p>
+<dd><p>Plot a single absorption line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
 <blockquote>
-<div>INPUT:</div></blockquote>
-<p>dataset:  VoigtFit.DataSet instance containing the line regions
-line_tag: The line tag of the line to show, e.g., &#8216;FeII_2374&#8217;</p>
-<p>plot_fit:    if True, the best-fit profile will be shown
-linestyles:  a list of linestyles to show velocity components
-colors:      a lost of colors to show the velocity components</p>
-<p>The colors and linestyles are combined to form an <a href="#id11"><span class="problematic" id="id12">`</span></a>iterator&#8217;
+<div><p>Instance of class <cite>DataSet</cite> containing the line regions</p>
+</div></blockquote>
+<p><strong>line_tag</strong> : str</p>
+<blockquote>
+<div><p>The line tag of the line to show, e.g., ‘FeII_2374’</p>
+</div></blockquote>
+<p><strong>plot_fit</strong> : bool   [default = False]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, the best-fit profile will be shown</p>
+</div></blockquote>
+<p><strong>linestyles</strong> : list(linestyle)</p>
+<blockquote>
+<div><p>A list of matplotlib linestyles to show velocity components</p>
+</div></blockquote>
+<p><strong>colors</strong> : list(colors)</p>
+<blockquote>
+<div><p>A loit of matplotlib color strings to show the velocity components
+The colors and linestyles are combined to form an iterator
 which cycles through a set of (linestyle, color).</p>
-<p>loc: places the line tag (right or left), default <em>left</em>.</p>
-<p>rebin: integer factor for rebinning the spectrum</p>
-<p>nolabels: show axis labels?</p>
+</div></blockquote>
+<p><strong>loc</strong> : str   [default = ‘left’]</p>
+<blockquote>
+<div><p>Places the line tag (right or left).</p>
+</div></blockquote>
+<p><strong>rebin</strong> : int   [default = 1]</p>
+<blockquote>
+<div><p>Rebinning factor for the spectrum</p>
+</div></blockquote>
+<p><strong>nolabels</strong> : bool   [default = False]</p>
+<blockquote>
+<div><p>If <cite>True</cite>, show the axis x- and y-labels.</p>
+</div></blockquote>
+<p><strong>axis</strong> : matplotlib.Axes.axis</p>
+<blockquote>
+<div><p>The plotting axis of matplotlib. If <cite>None</cite> is given, a new figure and axis will be created.</p>
+</div></blockquote>
+<p><strong>fontsize</strong> : int   [default = 12]</p>
+<blockquote>
+<div><p>The fontsize of text labels.</p>
+</div></blockquote>
+<p><strong>xmin</strong> : float</p>
+<blockquote>
+<div><p>The lower x-limit in relative velocity (km/s).
+If nothing is given, the extent of the region is used.</p>
+</div></blockquote>
+<p><strong>xmax</strong> : float</p>
+<blockquote>
+<div><p>The upper x-limit in relative velocity (km/s).
+If nothing is given, the extent of the region is used.</p>
+</div></blockquote>
+<p><strong>ymin</strong> : float</p>
+<blockquote>
+<div><p>The lower y-limit in normalized flux units. Default is determined from the data.</p>
+</div></blockquote>
+<p><strong>show</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>Show the figure.</p>
+</div></blockquote>
+<p><strong>subsample_profile</strong> : int   [default = 1]</p>
+<blockquote>
+<div><p>Subsampling factor to calculate the profile on a finer grid than the data sampling.
+By default the profile is evaluated on the same grid as the data.</p>
+</div></blockquote>
+<p><strong>npad</strong> : int   [default = 50]</p>
+<blockquote>
+<div><p>Padding added to the synthetic profile before convolution.
+This removes end artefacts from the <cite>FFT</cite> routine.</p>
+</div></blockquote>
+<p><strong>residuals</strong> : bool   [default = False]</p>
+<blockquote>
+<div><p>Add a panel above the absorption line view to show the residuals of the fit.</p>
+</div></blockquote>
+<p><strong>highlight</strong> : list(str)</p>
+<blockquote class="last">
+<div><p>A list of <cite>ions</cite> (e.g., “FeII”, “CIa”, etc.) used to calculate a separate profile
+for this subset of ions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.print_abundance">
 <code class="descclassname">output.</code><code class="descname">print_abundance</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#print_abundance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.print_abundance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot best fit absorption profiles.</p>
+<dd><p>Print the total column densities of all species.
+This will sum <em>all</em> the components of a given ion. The uncertainty on the total column density
+is calculated using random resampling within the errors of each component.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.print_cont_parameters">
 <code class="descclassname">output.</code><code class="descname">print_cont_parameters</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#print_cont_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.print_cont_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to print Chebyshev coefficients</p>
+<dd><p>Print the Chebyshev coefficients of the continuum normalization.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.print_metallicity">
 <code class="descclassname">output.</code><code class="descname">print_metallicity</code><span class="sig-paren">(</span><em>dataset</em>, <em>params</em>, <em>logNHI</em>, <em>err=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#print_metallicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.print_metallicity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot best fit absorption profiles.</p>
+<dd><p>Print the metallicity derived from different species.
+This will add the column densities for all components of a given ion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
 <blockquote>
-<div>INPUT:</div></blockquote>
-<p>dataset:  VoigtFit.DataSet instance containing the line regions
-params: Output parameter dictionary from VoigtFit.DataSet.fit()
-logNHI:   Column density of neutral hydrogen
-err:      Uncertainty on logNHI</p>
+<div><p>An instance of <cite>DataSet</cite> containing the definition of data and absorption lines.</p>
+</div></blockquote>
+<p><strong>params</strong> : class lmfit.Parameters</p>
+<blockquote>
+<div><p>Output parameter dictionary, e.g., <cite>self.best_fit</cite>. See lmfit for details.</p>
+</div></blockquote>
+<p><strong>logNHI</strong> : float</p>
+<blockquote>
+<div><p>Column density of neutral hydrogen.</p>
+</div></blockquote>
+<p><strong>err</strong> : float   [default = 0.1]</p>
+<blockquote class="last">
+<div><p>Uncertainty (1-sigma) on <cite>logNHI</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.print_results">
 <code class="descclassname">output.</code><code class="descname">print_results</code><span class="sig-paren">(</span><em>dataset</em>, <em>params</em>, <em>elements='all'</em>, <em>velocity=True</em>, <em>systemic=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#print_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.print_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot best fit absorption profiles.</p>
+<dd><p>Print the parameters of the best-fit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
 <blockquote>
-<div>INPUT:</div></blockquote>
-<p>dataset:  VoigtFit.DataSet instance containing the line regions
-params: Output parameter dictionary from VoigtFit.DataSet.fit()</p>
-<p>if velocity is set to &#8216;False&#8217; the components redshift is shown instead
-of the velocity relative to the systemic redshift.</p>
-<p>if systemic is set the velocities will be relative to this redshift;
-default behaviour is to use the systemic redshift defined in the dataset.</p>
+<div><p>An instance of DataSet class containing the line region to plot.</p>
+</div></blockquote>
+<p><strong>params</strong> : class lmfit.Parameters</p>
+<blockquote>
+<div><p>Output parameter dictionary, e.g., <cite>self.best_fit</cite>. See lmfit for details.</p>
+</div></blockquote>
+<p><strong>elements</strong> : list(str)   [default = ‘all’]</p>
+<blockquote>
+<div><p>A list of ions for which to print the best-fit parameters. By default all ions are shown.</p>
+</div></blockquote>
+<p><strong>velocity</strong> : bool   [default = True]</p>
+<blockquote>
+<div><p>Show the components in relative velocity or redshift.</p>
+</div></blockquote>
+<p><strong>systemic</strong> : float   [default = 0]</p>
+<blockquote class="last">
+<div><p>Systemic redshift used to calculate the relative velocities.
+By default the systemic redshift defined in the dataset is used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.rebin_bool_array">
 <code class="descclassname">output.</code><code class="descname">rebin_bool_array</code><span class="sig-paren">(</span><em>x</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#rebin_bool_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.rebin_bool_array" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rebin input boolean array <em>x</em> by an integer factor of <em>n</em>.</p>
+<dd><p>Rebin input boolean array <cite>x</cite> by an integer factor of <cite>n</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.rebin_spectrum">
 <code class="descclassname">output.</code><code class="descname">rebin_spectrum</code><span class="sig-paren">(</span><em>wl</em>, <em>spec</em>, <em>err</em>, <em>n</em>, <em>method='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#rebin_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.rebin_spectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rebin input spectrum (wl, spec) by a factor of <em>n</em>.
+<dd><p>Rebin input spectrum (<cite>wl</cite>, <cite>spec</cite>) by a factor of <cite>n</cite>.
 Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.save_cont_parameters_to_file">
 <code class="descclassname">output.</code><code class="descname">save_cont_parameters_to_file</code><span class="sig-paren">(</span><em>dataset</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#save_cont_parameters_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.save_cont_parameters_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to save parameters to file.</p>
+<dd><p>Save Chebyshev coefficients to file.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.save_fit_regions">
 <code class="descclassname">output.</code><code class="descname">save_fit_regions</code><span class="sig-paren">(</span><em>dataset</em>, <em>filename</em>, <em>individual=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#save_fit_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.save_fit_regions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save fit regions to file</p>
+<dd><p>Save fit regions to file.
+If <cite>individual</cite> is set, then each region will be saved to a separate file.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="output.save_parameters_to_file">
 <code class="descclassname">output.</code><code class="descname">save_parameters_to_file</code><span class="sig-paren">(</span><em>dataset</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#save_parameters_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.save_parameters_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to save parameters to file.</p>
+<dd><p>Save best-fit parameters to file.</p>
 </dd></dl>
 
+</div>
 </div>
 
 
@@ -411,7 +1669,31 @@ Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Overview of the VoigtFit program</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">VoigtFit Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#class-dataset">class <strong>DataSet</strong></a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#class-line">class <strong>Line</strong></a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#class-region">class <strong>Region</strong></a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-voigt">module <strong>voigt</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-output">module <strong>output</strong></a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
@@ -444,7 +1726,7 @@ Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
