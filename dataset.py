@@ -511,6 +511,29 @@ class DataSet(object):
                 act_lines.append(line_tag)
         return act_lines
 
+    def get_lines_for_ion(self, ion):
+        """
+        Return a list of :class:`Line <dataset.Line>` objects
+        corresponding to the given *ion*.
+
+        Parameters
+        ----------
+        ion : str
+            The ion for the lines to get.
+
+        Returns
+        -------
+        lines_for_ion : list(:class:`Line <dataset.Line>`)
+            List of Lines defined for the given *ion*.
+
+        """
+        lines_for_ion = list()
+        for line in self.lines.values():
+            if line.ion == ion:
+                lines_for_ion.append(line)
+
+        return lines_for_ion
+
     def reset_components(self, ion=None):
         """
         Reset component structure for a given ion.
