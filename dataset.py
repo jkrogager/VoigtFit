@@ -230,7 +230,7 @@ class DataSet(object):
         Parameters
         ----------
         wl : ndarray, shape (n)
-            Input vacuum wavelength array in Angstroms
+            Input vacuum wavelength array in Ångstrøm.
 
         flux : ndarray, shape (n)
             Input flux array, should be same length as wl
@@ -253,7 +253,7 @@ class DataSet(object):
                           'error': err, 'res': res, 'norm': normalized})
 
     def reset_region(self, reg):
-        """Reset the data in a given region `reg` to use the raw input data."""
+        """Reset the data in a given :class:`regions.Region` to use the raw input data."""
         for chunk in self.data:
             if reg.res == chunk['res'] and (chunk['wl'].min() < reg.wl.min() < chunk['wl'].max()):
                 raw_data = chunk
@@ -266,13 +266,17 @@ class DataSet(object):
         reg.normalized = raw_data['norm']
 
     def reset_all_regions(self):
-        """Reset the data in all regions defined in the DataSet to use the raw input data."""
+        """
+        Reset the data in all :class:`Regions <regions.Region>`
+        defined in the DataSet to use the raw input data.
+        """
         for reg in self.regions:
             self.reset_region(reg)
 
     def get_resolution(self, line_tag, verbose=False):
-        """Return the spectral resolution for the fitting region where the line with
-        the given `line_tag` is defined, otherwise give the resolution for all fitting regions.
+        """Return the spectral resolution for the fitting :class:`Region <regions.Region>`
+        where the line with the given `line_tag` is defined, otherwise give the resolution
+        for all fitting regions.
 
         Parameters
         ----------
@@ -296,9 +300,10 @@ class DataSet(object):
 
     def set_resolution(self, res, line_tag=None, verbose=True):
         """
-        Set the spectral resolution in km/s for a given region containing `line_tag`.
+        Set the spectral resolution in km/s for the :class:`Region <regions.Region>`
+        containing the line with the given `line_tag`.
         If `line_tag` is not given, the resolution will be set for *all* regions,
-        including the raw data chunks!
+        including the raw data chunks defined in :attr:`dataset.DataSet.data`!
 
         Note -- If not all data chunks have the same resolution, this method
         should be used with caution. It is advised to check the spectral resolution beforehand
@@ -323,7 +328,7 @@ class DataSet(object):
         """Update the systemic redshift of the dataset"""
         self.redshift = z_sys
 
-    def remove_line(self, tag):
+    def remove_line(self, line_tag):
         """
         Remove an absorption line from the DataSet. If this is the last line in a fitting region
         the given region will be eliminated, and if this is the last line of a given ion,
@@ -331,16 +336,16 @@ class DataSet(object):
 
         Parameters
         ----------
-        tag : str
-            Line tag of the transitoin that should be removed.
+        line_tag : str
+            Line tag of the transition that should be removed.
         """
-        if tag in self.all_lines:
-            self.all_lines.remove(tag)
-            if tag in self.lines.keys():
-                self.lines.pop(tag)
+        if line_tag in self.all_lines:
+            self.all_lines.remove(line_tag)
+            if line_tag in self.lines.keys():
+                self.lines.pop(line_tag)
 
         # --- Check if the ion has transistions defined in other regions
-        ion = tag.split('_')[0]
+        ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
         for line_tag in self.all_lines:
             if line_tag.find(ion) >= 0:
@@ -352,14 +357,14 @@ class DataSet(object):
 
         remove_this = -1
         for num, region in enumerate(self.regions):
-            if region.has_line(tag):
+            if region.has_line(line_tag):
                 remove_this = num
 
         if remove_this >= 0:
             if len(self.regions[remove_this].lines) == 1:
                 self.regions.pop(remove_this)
             else:
-                self.regions[remove_this].remove_line(tag)
+                self.regions[remove_this].remove_line(line_tag)
 
         else:
             if self.verbose:
@@ -377,7 +382,7 @@ class DataSet(object):
 
         norm_method : str   [default = 'spline']
             Normalization method used for the interactive continuum fit.
-            Options ["spline", "linear"]
+            Should be on of: ["spline", "linear"]
         """
         if norm_method == 'linear':
             norm_num = 1
@@ -399,7 +404,8 @@ class DataSet(object):
         Parameters
         ----------
         line_tag : str
-            Line tag for the line whose region should be masked.
+            Line tag for the :class:`Line <dataset.DataSet.Line>` whose
+            :class:`Region <regions.Region>` should be masked.
 
         reset : bool   [default = True]
             If `True`, clear the mask before defining a new mask.
@@ -425,7 +431,7 @@ class DataSet(object):
 
     def find_line(self, line_tag):
         """
-        Look up the fitting region for a given line.
+        Look up the fitting :class:`Region <regions.Region>` for a given *line tag*.
 
         Parameters
         ----------
@@ -434,9 +440,8 @@ class DataSet(object):
 
         Returns
         -------
-        region : Region instance
+        region : :class:`Region <regions.Region>`
             The fitting region containing the given line.
-            This is an instance of the regions.Region class.
         """
         if line_tag in self.all_lines:
             for region in self.regions:
@@ -513,8 +518,8 @@ class DataSet(object):
         Parameters
         ----------
         ion : str   [default = None]
-            The ion for which to reset the components: e.g., FeII, HI, CIa, etc.
-            Otherwise all components for all ions will be reset.
+            The ion for which to reset the components: e.g., 'FeII', 'HI', 'CIa', etc.
+            If `None`is given, *all* components for *all* ions will be reset.
         """
 
         if ion:
@@ -560,10 +565,13 @@ class DataSet(object):
 
         tie_z, tie_b, tie_N : str   [default = None]
             Parameter constraints for the different variables.
-            The ties are defined relative to the parameter names. The naming is as follows:
-            The redshift of the first component of FeII is called "z0_FeII",
-            the logN of the second component of SiII is called "logN1_SiII".
-            For more information about parameter ties, see the LmFit documentation.
+
+        Notes
+        -----
+        The ties are defined relative to the parameter names. The naming is as follows:
+        The redshift of the first component of FeII is called "z0_FeII",
+        the logN of the second component of SiII is called "logN1_SiII".
+        For more information about parameter ties, see the documentation for lmfit_.
         """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
@@ -666,20 +674,20 @@ class DataSet(object):
             if self.verbose:
                 print " [ERROR] - No components defined for ion: "+ion
 
-    def copy_components(self, ion, anchor, logN=0, ref_comp=None, tie_z=True, tie_b=True):
+    def copy_components(self, to_ion='', from_ion='', logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
-        Copy velocity structure to `ion` from the anchor.
+        Copy velocity structure to `ion` from another `ion`.
 
         Parameters
         ----------
-        ion : str
-            The new ion to define, which will be linked to the `anchor` ion.
+        to_ion : str
+            The new ion to define.
 
-        anchor : str
-            The baes ion which will be used for the linking.
+        from_ion : str
+            The base ion which will be used as reference.
 
         logN : float
-            If logN is given the starting guess is defined from this value
+            If logN is given, the starting guess is defined from this value
             following the pattern of the components defined for `anchor` relative to the
             `ref_comp` (default: the first component).
 
@@ -692,17 +700,17 @@ class DataSet(object):
         tie_b : bool   [default = True]
             If `True`, the b-parameters for all components of the two ions will be tied together.
         """
-        reference = self.components[anchor]
+        reference = self.components[from_ion]
         # overwrite the components already defined for ion if they exist
-        self.components[ion] = []
+        self.components[to_ion] = []
 
         if ref_comp is not None:
             offset_N = logN - reference[ref_comp][2]
         else:
             # Strip ionization state to get element:
-            ion_tmp = ion[:1] + ion[1:].replace('I', '')
+            ion_tmp = to_ion[:1] + to_ion[1:].replace('I', '')
             element = ion_tmp[:1] + ion_tmp[1:].replace('V', '')
-            anchor_tmp = anchor[:1] + anchor[1:].replace('I', '')
+            anchor_tmp = from_ion[:1] + from_ion[1:].replace('I', '')
             element_anchor = anchor_tmp[:1] + anchor_tmp[1:].replace('V', '')
             # Use Solar abundance ratios:
             offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
@@ -711,11 +719,11 @@ class DataSet(object):
             if logN:
                 new_comp[2] += offset_N
             if tie_z:
-                new_comp[3]['tie_z'] = 'z%i_%s' % (num, anchor)
+                new_comp[3]['tie_z'] = 'z%i_%s' % (num, from_ion)
             if tie_b:
-                new_comp[3]['tie_b'] = 'b%i_%s' % (num, anchor)
+                new_comp[3]['tie_b'] = 'b%i_%s' % (num, from_ion)
 
-            self.components[ion].append(new_comp)
+            self.components[to_ion].append(new_comp)
 
     def load_components_from_file(self, fname):
         """Load best-fit parameters from an output file `fname`."""
@@ -754,7 +762,7 @@ class DataSet(object):
         ----------
         ion : str   [default = None]
             The ion for which the structure should be fixed.
-            If None is given, the structure is fixed for all ions.
+            If `None` is given, the structure is fixed for all ions.
         """
         if ion:
             for comp in self.components[ion]:
@@ -780,12 +788,14 @@ class DataSet(object):
             If `None` is given, use the default `self.velspan` defined (500 km/s).
 
         active : bool   [default = True]
-            Set the line as active (i.e., included in the fit).
+            Set the :class:`Line <dataset.DataSet.Line>` as active
+            (i.e., included in the fit).
 
         Notes
         -----
-        This will initiate a `Line` class with the atomic data for the transition,
-        as well as creating a fitting region (`Region` class) containing the data cutout
+        This will initiate a :class:`Line <dataset.DataSet.Line>` class
+        with the atomic data for the transition, as well as creating a
+        fitting :class:`Region <regions.Region>` containing the data cutout
         around the line center.
         """
 
@@ -880,7 +890,8 @@ class DataSet(object):
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None` is given, use the default `self.velspan` defined (500 km/s).
+            If `None` is given, use the default :attr:`velspan <dataset.DataSet.velspan>`
+            defined (500 km/s).
         """
 
         self.ready2fit = False
@@ -945,7 +956,7 @@ class DataSet(object):
         Parameters
         ----------
         line_tag : str
-            The line tag of the gorund state transition to remove.
+            The line tag of the ground state transition to remove.
         """
         for fineline in fine_structure_complexes[line_tag]:
             if fineline in self.all_lines:
@@ -970,7 +981,8 @@ class DataSet(object):
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None` is given, use the default `self.velspan` defined (500 km/s).
+            If `None` is given, use the default :attr:`velspan <dataset.DataSet.velspan>`
+            defined (500 km/s).
 
         full_label : bool   [default = False]
             If `True`, the label will be translated to the full quantum mechanical description
@@ -1016,7 +1028,7 @@ class DataSet(object):
     def deactivate_molecule(self, molecule, band):
         """
         Deactivate all lines for the given band of the given molecule.
-        To see the available molecular bands defined, see the manual pdf or the `line_complexes`.
+        To see the available molecular bands defined, see the manual pdf or ``line_complexes.py``.
         """
         if molecule == 'CO':
             if band not in self.molecules['CO']:
@@ -1056,7 +1068,7 @@ class DataSet(object):
         ----------
         norm : bool   [default = True]
             Opens an interactive window to let the user normalize each region
-            using the defined `norm_method`.
+            using the defined :attr:`norm_method <dataset.DataSet.norm_method>`.
 
         mask : bool   [default = True]
             Opens an interactive window to let the user mask each fitting region.
@@ -1069,7 +1081,7 @@ class DataSet(object):
         bool
             The function returns `True` when the dataset has passed all the steps.
             If one step fails, the function returns `False`.
-            The ``ready2fit`` attribute of the dataset is also
+            The :attr:`ready2fit <dataset.DataSet.ready2fit>` attribute of the dataset is also
             updated accordingly.
 
         """
@@ -1298,8 +1310,8 @@ class DataSet(object):
                  filename=None, show=True, subsample_profile=1, npad=50,
                  highlight=[], residuals=True):
         """
-        Plot the absorption lines and the best-fit profiles.
-        For details, see `output.plot_all_lines`.
+        Plot *all* the absorption lines and the best-fit profiles.
+        For details, see :func:`output.plot_all_lines`.
         """
         output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
                               colors=colors, rebin=rebin, fontsize=fontsize,
@@ -1321,8 +1333,9 @@ class DataSet(object):
                   xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1,
                   npad=50, highlight=[], residuals=True):
         """
-        Plot a single fitting region containing the line corresponding to the
-        given `line_tag`. For details, see `output.plot_single_line()`.
+        Plot a single fitting :class:`Region <regions.Region>`
+        containing the line corresponding to the given `line_tag`.
+        For details, see :func:`output.plot_single_line`.
         """
         output.plot_single_line(self, line_tag, plot_fit=plot_fit,
                                 linestyles=linestyles, colors=colors,
@@ -1370,11 +1383,12 @@ class DataSet(object):
         Parameters
         ----------
         filename : str   [default = None]
-            Filename for the fitting regions. If `None`, the `self.name` parameter will be used.
+            Filename for the fitting regions.
+            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
 
         individual : bool   [default = False]
-            Save the fitting regions to individual files. By default all regions are concatenated
-            into one file.
+            Save the fitting regions to individual files.
+            By default all regions are concatenated into one file.
         """
         if not filename:
             if self.name:

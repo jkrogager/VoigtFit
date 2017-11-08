@@ -88,7 +88,8 @@ class Region():
         Parameters
         ----------
         data_chunk : dict()
-            A `data_chunk` as defined in the data structure of `DataSet.data`.
+            A `data_chunk` as defined in the data structure of :meth:`DataSet.data
+            <dataset.DataSet.add_data>`.
 
         cutout : bool array
             A boolean array defining the subset of the `data_chunk` which makes up the fitting region.
@@ -248,7 +249,7 @@ class Region():
             If a redshift is given, the lines in the region are shown as vertical lines
             at the given redshift.
 
-        dataset : class DataSet   [default = None]
+        dataset : :class:`dataset.DataSet`   [default = None]
             A dataset with components defined for the lines in the region.
             If a dataset is passed, the components of the lines in the region are shown.
 

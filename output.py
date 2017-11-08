@@ -28,8 +28,37 @@ def chunks(l, n):
 
 def rebin_spectrum(wl, spec, err, n, method='mean'):
     """
-    Rebin input spectrum (`wl`, `spec`) by a factor of `n`.
+    Rebin input spectrum by a factor of `n`.
     Method is either *mean* or *median*, default is mean.
+
+    Parameters
+    ----------
+    wl : array_like, shape (N)
+        Input wavelength array.
+
+    spec : array_like, shape (N)
+        Input flux array.
+
+    err : array_like, shape (N)
+        Input error array.
+
+    n : int
+        Integer rebinning factor.
+
+    method : str   [default = 'mean']
+        Rebin method, either 'mean' or 'median'.
+
+    Returns
+    -------
+    wl_r : array_like, shape (M)
+        Rebinned wavelength array, the new shape will be N/n.
+
+    spec_r : array_like, shape (M)
+        Rebinned flux array, the new shape will be N/n.
+
+    err_r : array_like, shape (M)
+        Rebinned error array, the new shape will be N/n.
+
     """
     if method.lower() == 'mean':
         combine = np.mean
@@ -72,8 +101,14 @@ def rebin_bool_array(x, n):
 #  fig = plt.figure(figsize=(7, 9.899))
 
 
+# --- Deprecated Function:
 def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_columns=2,
                   rebin=1, fontsize=12, subsample_profile=1, npad=50, ymin=None):
+    """
+    Similar functionality can be acheived using :func:`plot_all_lines`.
+    This function is deprecated and will be removed in future versions.
+
+    """
     # --- First figure out which lines to plot to avoid overlap
     #     of several lines defined in the same region.
     included_lines = list()
@@ -171,13 +206,14 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                    filename=None, show=True, subsample_profile=1, npad=50,
                    highlight=[], residuals=True):
     """
-    Plot all active absorption lines. This function is a wrapper of the function `plot_single_line`.
-    For a complete description of input parameters, see the documentation for `plot_single_line`.
+    Plot all active absorption lines. This function is a wrapper of the function
+    :func:`plot_single_line`. For a complete description of input parameters,
+    see the documentation for :func:`plot_single_line`.
 
     Parameters
     ----------
-    dataset : class DataSet
-        Instance of class `DataSet` containing the line regions to plot.
+    dataset : :class:`dataset.DataSet`
+        Instance of the :class:`dataset.DataSet` class containing the line regions to plot.
 
     max_rows : int   [default = 4]
         The maximum number of rows of figures. Each row consists of two figure panels.
@@ -286,8 +322,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     Parameters
     ----------
-    dataset : class DataSet
-        Instance of class `DataSet` containing the line regions
+    dataset : :class:`dataset.DataSet`
+        Instance of the :class:`dataset.DataSet` class containing the line regions
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
@@ -312,7 +348,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     nolabels : bool   [default = False]
         If `True`, show the axis x- and y-labels.
 
-    axis : matplotlib.Axes.axis
+    axis : matplotlib.axes.Axes_
         The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
 
     fontsize : int   [default = 12]
@@ -346,6 +382,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     highlight : list(str)
         A list of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
         for this subset of ions.
+
+
+
+    .. _matplotlib.axes.Axes: https://matplotlib.org/api/axes_api.html
+
     """
 
     if line_tag not in dataset.all_lines:
@@ -590,7 +631,7 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
         The upper x-limit in relative velocity (km/s).
         If nothing is given, the extent of the region is used.
 
-    axis : matplotlib.Axes.axis
+    axis : matplotlib.axes.Axes_
         The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
     """
 
@@ -720,14 +761,17 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
     Parameters
     ----------
-    dataset : class DataSet
-        An instance of DataSet class containing the line region to plot.
+    dataset : :class:`dataset.DataSet`
+        An instance of the :class:`dataset.DataSet` class containing
+        the line region to plot.
 
-    params : class lmfit.Parameters
-        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.
+    params : lmfit.Parameters_
+        Output parameter dictionary, e.g., :attr:`dataset.Dataset.best_fit`.
+        See lmfit_ for details.
 
     elements : list(str)   [default = 'all']
-        A list of ions for which to print the best-fit parameters. By default all ions are shown.
+        A list of ions for which to print the best-fit parameters.
+        By default all ions are shown.
 
     velocity : bool   [default = True]
         Show the components in relative velocity or redshift.
@@ -852,11 +896,13 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     Parameters
     ----------
-    dataset : class DataSet
-        An instance of `DataSet` containing the definition of data and absorption lines.
+    dataset : :class:`dataset.DataSet`
+        An instance of the :class:`dataset.DataSet` class containing
+        the definition of data and absorption lines.
 
-    params : class lmfit.Parameters
-        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.
+    params : lmfit.Parameters_
+        Output parameter dictionary, e.g., :attr:`dataset.DataSet.best_fit`.
+        See lmfit_ for details.
 
     logNHI : float
         Column density of neutral hydrogen.
@@ -900,8 +946,8 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
 def print_abundance(dataset):
     """
-    Print the total column densities of all species.
-    This will sum *all* the components of a given ion. The uncertainty on the total column density
+    Print the total column densities of all species. This will sum *all*
+    the components of each ion. The uncertainty on the total column density
     is calculated using random resampling within the errors of each component.
     """
 
