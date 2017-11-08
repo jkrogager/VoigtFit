@@ -42,7 +42,7 @@ def Voigt(l, l0, f, N, b, gam, z=0):
         Velocity width of the Voigt profile in cm/s.
 
     gam : float
-        Radiation damping constant, inverse Einstein constant (A_ul)
+        Radiation damping constant, or Einstein constant (A_ul)
 
     z : float
         The redshift of the observed wavelength grid `l`.
@@ -80,13 +80,15 @@ def evaluate_continuum(x, pars, reg_num):
     Parameters
     ----------
     x : array_like, shape (N)
-        Input wavelength grid in Angstroms.
+        Input wavelength grid in Ångstrøm.
 
-    pars : dict(parameters)
-        An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.
+    pars : dict(lmfit.Parameters_)
+        An instance of lmfit.Parameters_ containing the Chebyshev
+        coefficients for each region.
 
     reg_num : int
-        The region number, i.e., the index of the region in the list `DataSet.regions`.
+        The region number, i.e., the index of the region in the list
+        :attr:`dataset.DataSet.regions`.
 
     Returns
     -------
@@ -119,7 +121,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is
     converted to observed transmission, `f`:
 
-        f = exp(-tau)
+    .. math:: f = e^{-\\tau}
 
     The observed transmission is subsequently convolved with the instrumental
     broadening profile assumed to be Gaussian with a full-width at half maximum
@@ -128,27 +130,28 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     Parameters
     ----------
     x : array_like, shape (N)
-        Wavelength array in Angstroms on which to evaluate the profile.
+        Wavelength array in Ångstrøm on which to evaluate the profile.
 
-    pars : dict(parameters)
-        An instance of lmfit.Parameters containing the line parameters.
+    pars : dict(lmfit.Parameters_)
+        An instance of lmfit.Parameters_ containing the line parameters.
 
-    lines : list(Line)
-        List of lines to evaluate. Should be a list of `Line` objects.
+    lines : list(:class:`Line <dataset.DataSet.Line>`)
+        List of lines to evaluate. Should be a list of
+        :class:`Line <dataset.DataSet.Line>` objects.
 
     components : dict
         Dictionary containing component data for the defined ions.
-        See `DataSet.components`.
+        See :attr:`dataset.DataSet.components`.
 
     res : float
-        Spectral resolving power of the data in km/s  [= c/R].
+        Spectral resolving power of the data in km/s  [= *c/R*].
 
-    dv : float  [default=0.1]
+    dv : float  [default = 0.1]
         Desired pixel size of subsampled profile grid in km/s.
 
     Returns
     -------
-    profile_obs :array_like, shape (N)
+    profile_obs : array_like, shape (N)
         Observed line profile convolved with the instrument profile.
     """
 

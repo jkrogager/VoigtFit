@@ -24,6 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -86,7 +87,7 @@
 <span class="sd">        Velocity width of the Voigt profile in cm/s.</span>
 
 <span class="sd">    gam : float</span>
-<span class="sd">        Radiation damping constant, inverse Einstein constant (A_ul)</span>
+<span class="sd">        Radiation damping constant, or Einstein constant (A_ul)</span>
 
 <span class="sd">    z : float</span>
 <span class="sd">        The redshift of the observed wavelength grid `l`.</span>
@@ -124,13 +125,15 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    x : array_like, shape (N)</span>
-<span class="sd">        Input wavelength grid in Angstroms.</span>
+<span class="sd">        Input wavelength grid in Ångstrøm.</span>
 
-<span class="sd">    pars : dict(parameters)</span>
-<span class="sd">        An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.</span>
+<span class="sd">    pars : dict(lmfit.Parameters_)</span>
+<span class="sd">        An instance of lmfit.Parameters_ containing the Chebyshev</span>
+<span class="sd">        coefficients for each region.</span>
 
 <span class="sd">    reg_num : int</span>
-<span class="sd">        The region number, i.e., the index of the region in the list `DataSet.regions`.</span>
+<span class="sd">        The region number, i.e., the index of the region in the list</span>
+<span class="sd">        :attr:`dataset.DataSet.regions`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -163,7 +166,7 @@
 <span class="sd">    Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is</span>
 <span class="sd">    converted to observed transmission, `f`:</span>
 
-<span class="sd">        f = exp(-tau)</span>
+<span class="sd">    .. math:: f = e^{-\\tau}</span>
 
 <span class="sd">    The observed transmission is subsequently convolved with the instrumental</span>
 <span class="sd">    broadening profile assumed to be Gaussian with a full-width at half maximum</span>
@@ -172,27 +175,28 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    x : array_like, shape (N)</span>
-<span class="sd">        Wavelength array in Angstroms on which to evaluate the profile.</span>
+<span class="sd">        Wavelength array in Ångstrøm on which to evaluate the profile.</span>
 
-<span class="sd">    pars : dict(parameters)</span>
-<span class="sd">        An instance of lmfit.Parameters containing the line parameters.</span>
+<span class="sd">    pars : dict(lmfit.Parameters_)</span>
+<span class="sd">        An instance of lmfit.Parameters_ containing the line parameters.</span>
 
-<span class="sd">    lines : list(Line)</span>
-<span class="sd">        List of lines to evaluate. Should be a list of `Line` objects.</span>
+<span class="sd">    lines : list(:class:`Line &lt;dataset.DataSet.Line&gt;`)</span>
+<span class="sd">        List of lines to evaluate. Should be a list of</span>
+<span class="sd">        :class:`Line &lt;dataset.DataSet.Line&gt;` objects.</span>
 
 <span class="sd">    components : dict</span>
 <span class="sd">        Dictionary containing component data for the defined ions.</span>
-<span class="sd">        See `DataSet.components`.</span>
+<span class="sd">        See :attr:`dataset.DataSet.components`.</span>
 
 <span class="sd">    res : float</span>
-<span class="sd">        Spectral resolving power of the data in km/s  [= c/R].</span>
+<span class="sd">        Spectral resolving power of the data in km/s  [= *c/R*].</span>
 
-<span class="sd">    dv : float  [default=0.1]</span>
+<span class="sd">    dv : float  [default = 0.1]</span>
 <span class="sd">        Desired pixel size of subsampled profile grid in km/s.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    profile_obs :array_like, shape (N)</span>
+<span class="sd">    profile_obs : array_like, shape (N)</span>
 <span class="sd">        Observed line profile convolved with the instrument profile.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

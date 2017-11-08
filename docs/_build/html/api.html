@@ -24,6 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Overview of VoigtFit" href="documentation.html" />
@@ -156,8 +157,13 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">delete_component</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">find_line</span></code></td>
 <td></td>
+=======
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.find_line" title="dataset.DataSet.find_line"><code class="xref py py-obj docutils literal"><span class="pre">find_line</span></code></a>(line_tag)</td>
+<td>Look up the fitting <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">Region</span></code></a> for a given <em>line tag</em>.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">fit</span></code></td>
 <td></td>
@@ -168,8 +174,13 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_lines_for_ion</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_name</span></code></td>
 <td></td>
+=======
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.get_resolution" title="dataset.DataSet.get_resolution"><code class="xref py py-obj docutils literal"><span class="pre">get_resolution</span></code></a>(line_tag[,&nbsp;verbose])</td>
+<td>Return the spectral resolution for the fitting <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">Region</span></code></a> where the line with the given <cite>line_tag</cite> is defined, otherwise give the resolution for all fitting regions.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_resolution</span></code></td>
 <td></td>
@@ -183,11 +194,19 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">mask_line</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">normalize_line</span></code></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">plot_fit</span></code></td>
 <td></td>
+=======
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.plot_fit" title="dataset.DataSet.plot_fit"><code class="xref py py-obj docutils literal"><span class="pre">plot_fit</span></code></a>([linestyles,&nbsp;colors,&nbsp;rebin,&nbsp;…])</td>
+<td>Plot <em>all</em> the absorption lines and the best-fit profiles.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dataset.DataSet.plot_line" title="dataset.DataSet.plot_line"><code class="xref py py-obj docutils literal"><span class="pre">plot_line</span></code></a>(line_tag[,&nbsp;plot_fit,&nbsp;linestyles,&nbsp;…])</td>
+<td>Plot a single fitting <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">Region</span></code></a> containing the line corresponding to the given <cite>line_tag</cite>.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">plot_line</span></code></td>
 <td></td>
@@ -207,20 +226,35 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">print_results</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">remove_fine_lines</span></code></td>
 <td></td>
+=======
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.remove_line" title="dataset.DataSet.remove_line"><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></a>(line_tag)</td>
+<td>Remove an absorption line from the DataSet.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">remove_line</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">remove_molecule</span></code></td>
 <td></td>
+=======
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.reset_all_regions" title="dataset.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal"><span class="pre">reset_all_regions</span></code></a>()</td>
+<td>Reset the data in all <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">Regions</span></code></a> defined in the DataSet to use the raw input data.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">reset_all_regions</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">reset_components</span></code></td>
 <td></td>
+=======
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.reset_region" title="dataset.DataSet.reset_region"><code class="xref py py-obj docutils literal"><span class="pre">reset_region</span></code></a>(reg)</td>
+<td>Reset the data in a given <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">regions.Region</span></code></a> to use the raw input data.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">reset_region</span></code></td>
 <td></td>
@@ -231,8 +265,13 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">save_fit_regions</span></code></td>
 <td></td>
 </tr>
+<<<<<<< Updated upstream
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_name</span></code></td>
 <td></td>
+=======
+<tr class="row-even"><td><a class="reference internal" href="#dataset.DataSet.set_resolution" title="dataset.DataSet.set_resolution"><code class="xref py py-obj docutils literal"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose])</td>
+<td>Set the spectral resolution in km/s for the <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal"><span class="pre">Region</span></code></a> containing the line with the given <cite>line_tag</cite>.</td>
+>>>>>>> Stashed changes
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_resolution</span></code></td>
 <td></td>
@@ -313,8 +352,13 @@ The column density is expected in cm^-2.</p>
 </table>
 <p class="rubric">Notes</p>
 <p>The ties are defined relative to the parameter names. The naming is as follows:
+<<<<<<< Updated upstream
 The redshift of the first component of FeII is called &#8220;z0_FeII&#8221;,
 the logN of the second component of SiII is called &#8220;logN1_SiII&#8221;.
+=======
+The redshift of the first component of FeII is called “z0_FeII”,
+the logN of the second component of SiII is called “logN1_SiII”.
+>>>>>>> Stashed changes
 For more information about parameter ties, see the documentation for <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.</p>
 </dd></dl>
 
@@ -508,7 +552,11 @@ of the state.</p>
 </div></blockquote>
 <p><strong>from_ion</strong> : str</p>
 <blockquote>
+<<<<<<< Updated upstream
 <div><p>The base ion which will be used as reference.</p>
+=======
+<div><p>The base ion which will be used for the linking.</p>
+>>>>>>> Stashed changes
 </div></blockquote>
 <p><strong>logN</strong> : float</p>
 <blockquote>
@@ -643,6 +691,7 @@ are available under the <cite>popt</cite> object.</p>
 <blockquote class="last">
 <div><p>The ion for which the structure should be fixed.
 If <cite>None</cite> is given, the structure is fixed for all ions.</p>
+<<<<<<< Updated upstream
 </div></blockquote>
 </td>
 </tr>
@@ -668,6 +717,8 @@ corresponding to the given <em>ion</em>.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lines_for_ion</strong> : list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal"><span class="pre">Line</span></code></a>)</p>
 <blockquote class="last">
 <div><p>List of Lines defined for the given <em>ion</em>.</p>
+=======
+>>>>>>> Stashed changes
 </div></blockquote>
 </td>
 </tr>
@@ -793,7 +844,11 @@ is shown for reference.</p>
 <p><strong>norm_method</strong> : str   [default = &#8216;spline&#8217;]</p>
 <blockquote class="last">
 <div><p>Normalization method used for the interactive continuum fit.
+<<<<<<< Updated upstream
 Should be on of: [&#8220;spline&#8221;, &#8220;linear&#8221;]</p>
+=======
+Should be on of: [“spline”, “linear”]</p>
+>>>>>>> Stashed changes
 </div></blockquote>
 </td>
 </tr>
@@ -958,7 +1013,11 @@ defined in the DataSet to use the raw input data.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
 <blockquote class="last">
+<<<<<<< Updated upstream
 <div><p>The ion for which to reset the components: e.g., &#8216;FeII&#8217;, &#8216;HI&#8217;, &#8216;CIa&#8217;, etc.
+=======
+<div><p>The ion for which to reset the components: e.g., ‘FeII’, ‘HI’, ‘CIa’, etc.
+>>>>>>> Stashed changes
 If <a href="#id1"><span class="problematic" id="id2">`</span></a>None`is given, <em>all</em> components for <em>all</em> ions will be reset.</p>
 </div></blockquote>
 </td>
@@ -1018,7 +1077,11 @@ By default all regions are concatenated into one file.</p>
 containing the line with the given <cite>line_tag</cite>.
 If <cite>line_tag</cite> is not given, the resolution will be set for <em>all</em> regions,
 including the raw data chunks defined in <code class="xref py py-attr docutils literal"><span class="pre">dataset.DataSet.data</span></code>!</p>
+<<<<<<< Updated upstream
 <p>Note &#8211; If not all data chunks have the same resolution, this method
+=======
+<p>Note – If not all data chunks have the same resolution, this method
+>>>>>>> Stashed changes
 should be used with caution. It is advised to check the spectral resolution beforehand
 and only update the appropriate regions using a for-loop.</p>
 </dd></dl>
@@ -1357,7 +1420,7 @@ observed spectrum with the instrumental profile.</p>
 </div></blockquote>
 <p><strong>gam</strong> : float</p>
 <blockquote>
-<div><p>Radiation damping constant, inverse Einstein constant (A_ul)</p>
+<div><p>Radiation damping constant, or Einstein constant (A_ul)</p>
 </div></blockquote>
 <p><strong>z</strong> : float</p>
 <blockquote>
@@ -1386,15 +1449,17 @@ All regions are fitted with the same order of polynomials.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
 <blockquote>
-<div><p>Input wavelength grid in Angstroms.</p>
+<div><p>Input wavelength grid in Ångstrøm.</p>
 </div></blockquote>
-<p><strong>pars</strong> : dict(parameters)</p>
+<p><strong>pars</strong> : dict(<a href="#id7"><span class="problematic" id="id8">lmfit.Parameters_</span></a>)</p>
 <blockquote>
-<div><p>An instance of lmfit.Parameters containing the Chebyshev coefficients for each region.</p>
+<div><p>An instance of <a href="#id9"><span class="problematic" id="id10">lmfit.Parameters_</span></a> containing the Chebyshev
+coefficients for each region.</p>
 </div></blockquote>
 <p><strong>reg_num</strong> : int</p>
 <blockquote>
-<div><p>The region number, i.e., the index of the region in the list <cite>DataSet.regions</cite>.</p>
+<div><p>The region number, i.e., the index of the region in the list
+<code class="xref py py-attr docutils literal"><span class="pre">dataset.DataSet.regions</span></code>.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1413,8 +1478,8 @@ All regions are fitted with the same order of polynomials.</p>
 <code class="descclassname">voigt.</code><code class="descname">evaluate_profile</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>z_sys</em>, <em>lines</em>, <em>components</em>, <em>res</em>, <em>dv=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the observed Voigt profile. The calculated optical depth, <cite>tau</cite>, is
 converted to observed transmission, <cite>f</cite>:</p>
-<blockquote>
-<div>f = exp(-tau)</div></blockquote>
+<div class="math">
+\[f = e^{-\tau}\]</div>
 <p>The observed transmission is subsequently convolved with the instrumental
 broadening profile assumed to be Gaussian with a full-width at half maximum
 of res. The resolving power is assumed to be constant in velocity space.</p>
@@ -1424,32 +1489,33 @@ of res. The resolving power is assumed to be constant in velocity space.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
 <blockquote>
-<div><p>Wavelength array in Angstroms on which to evaluate the profile.</p>
+<div><p>Wavelength array in Ångstrøm on which to evaluate the profile.</p>
 </div></blockquote>
-<p><strong>pars</strong> : dict(parameters)</p>
+<p><strong>pars</strong> : dict(<a href="#id11"><span class="problematic" id="id12">lmfit.Parameters_</span></a>)</p>
 <blockquote>
-<div><p>An instance of lmfit.Parameters containing the line parameters.</p>
+<div><p>An instance of <a href="#id13"><span class="problematic" id="id14">lmfit.Parameters_</span></a> containing the line parameters.</p>
 </div></blockquote>
-<p><strong>lines</strong> : list(Line)</p>
+<p><strong>lines</strong> : list(<code class="xref py py-class docutils literal"><span class="pre">Line</span></code>)</p>
 <blockquote>
-<div><p>List of lines to evaluate. Should be a list of <cite>Line</cite> objects.</p>
+<div><p>List of lines to evaluate. Should be a list of
+<code class="xref py py-class docutils literal"><span class="pre">Line</span></code> objects.</p>
 </div></blockquote>
 <p><strong>components</strong> : dict</p>
 <blockquote>
 <div><p>Dictionary containing component data for the defined ions.
-See <cite>DataSet.components</cite>.</p>
+See <code class="xref py py-attr docutils literal"><span class="pre">dataset.DataSet.components</span></code>.</p>
 </div></blockquote>
 <p><strong>res</strong> : float</p>
 <blockquote>
-<div><p>Spectral resolving power of the data in km/s  [= c/R].</p>
+<div><p>Spectral resolving power of the data in km/s  [= <em>c/R</em>].</p>
 </div></blockquote>
-<p><strong>dv</strong> : float  [default=0.1]</p>
+<p><strong>dv</strong> : float  [default = 0.1]</p>
 <blockquote>
 <div><p>Desired pixel size of subsampled profile grid in km/s.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">profile_obs :array_like, shape (N)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>profile_obs</strong> : array_like, shape (N)</p>
 <blockquote class="last">
 <div><p>Observed line profile convolved with the instrument profile.</p>
 </div></blockquote>
@@ -1533,7 +1599,11 @@ If nothing is given, the extent of the region is used.</p>
 <div><p>The upper x-limit in relative velocity (km/s).
 If nothing is given, the extent of the region is used.</p>
 </div></blockquote>
+<<<<<<< Updated upstream
 <p><strong>axis</strong> : <a href="#id7"><span class="problematic" id="id8">matplotlib.axes.Axes_</span></a></p>
+=======
+<p><strong>axis</strong> : <a href="#id15"><span class="problematic" id="id16">matplotlib.axes.Axes_</span></a></p>
+>>>>>>> Stashed changes
 <blockquote class="last">
 <div><p>The plotting axis of matplotlib. If <cite>None</cite> is given, a new figure and axis will be created.</p>
 </div></blockquote>
@@ -1585,7 +1655,11 @@ which cycles through a set of (linestyle, color).</p>
 <blockquote>
 <div><p>If <cite>True</cite>, show the axis x- and y-labels.</p>
 </div></blockquote>
+<<<<<<< Updated upstream
 <p><strong>axis</strong> : <a href="#id9"><span class="problematic" id="id10">matplotlib.axes.Axes_</span></a></p>
+=======
+<p><strong>axis</strong> : <a href="#id17"><span class="problematic" id="id18">matplotlib.axes.Axes_</span></a></p>
+>>>>>>> Stashed changes
 <blockquote>
 <div><p>The plotting axis of matplotlib. If <cite>None</cite> is given, a new figure and axis will be created.</p>
 </div></blockquote>
@@ -1627,7 +1701,11 @@ This removes end artefacts from the <cite>FFT</cite> routine.</p>
 </div></blockquote>
 <p><strong>highlight</strong> : list(str)</p>
 <blockquote>
+<<<<<<< Updated upstream
 <div><p>A list of <cite>ions</cite> (e.g., &#8220;FeII&#8221;, &#8220;CIa&#8221;, etc.) used to calculate a separate profile
+=======
+<div><p>A list of <cite>ions</cite> (e.g., “FeII”, “CIa”, etc.) used to calculate a separate profile
+>>>>>>> Stashed changes
 for this subset of ions.</p>
 </div></blockquote>
 <p class="last"><strong>.. _matplotlib.axes.Axes: https://matplotlib.org/api/axes_api.html</strong></p>
@@ -1665,7 +1743,11 @@ This will add the column densities for all components of a given ion.</p>
 <div><p>An instance of the <a class="reference internal" href="#dataset.DataSet" title="dataset.DataSet"><code class="xref py py-class docutils literal"><span class="pre">dataset.DataSet</span></code></a> class containing
 the definition of data and absorption lines.</p>
 </div></blockquote>
+<<<<<<< Updated upstream
 <p><strong>params</strong> : <a href="#id11"><span class="problematic" id="id12">lmfit.Parameters_</span></a></p>
+=======
+<p><strong>params</strong> : <a href="#id19"><span class="problematic" id="id20">lmfit.Parameters_</span></a></p>
+>>>>>>> Stashed changes
 <blockquote>
 <div><p>Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal"><span class="pre">dataset.DataSet.best_fit</span></code>.
 See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> for details.</p>
@@ -1697,7 +1779,11 @@ See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit
 <div><p>An instance of the <a class="reference internal" href="#dataset.DataSet" title="dataset.DataSet"><code class="xref py py-class docutils literal"><span class="pre">dataset.DataSet</span></code></a> class containing
 the line region to plot.</p>
 </div></blockquote>
+<<<<<<< Updated upstream
 <p><strong>params</strong> : <a href="#id13"><span class="problematic" id="id14">lmfit.Parameters_</span></a></p>
+=======
+<p><strong>params</strong> : <a href="#id21"><span class="problematic" id="id22">lmfit.Parameters_</span></a></p>
+>>>>>>> Stashed changes
 <blockquote>
 <div><p>Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal"><span class="pre">dataset.Dataset.best_fit</span></code>.
 See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> for details.</p>
@@ -1753,9 +1839,15 @@ Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
 <blockquote>
 <div><p>Integer rebinning factor.</p>
 </div></blockquote>
+<<<<<<< Updated upstream
 <p><strong>method</strong> : str   [default = &#8216;mean&#8217;]</p>
 <blockquote>
 <div><p>Rebin method, either &#8216;mean&#8217; or &#8216;median&#8217;.</p>
+=======
+<p><strong>method</strong> : str   [default = ‘mean’]</p>
+<blockquote>
+<div><p>Rebin method, either ‘mean’ or ‘median’.</p>
+>>>>>>> Stashed changes
 </div></blockquote>
 </td>
 </tr>
