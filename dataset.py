@@ -700,6 +700,13 @@ class DataSet(object):
         tie_b : bool   [default = True]
             If `True`, the b-parameters for all components of the two ions will be tied together.
         """
+        if to_ion == '' and from_ion == '':
+            err_msg = " [ERROR] - Must specify both 'to_ion' and 'from_ion'!"
+            raise ValueError(err_msg)
+        elif from_ion not in self.components.keys():
+            err_msg = " [ERROR] - The base ion ('from_ion') is not defined in the dataset!"
+            raise KeyError(err_msg)
+
         reference = self.components[from_ion]
         # overwrite the components already defined for ion if they exist
         self.components[to_ion] = []
