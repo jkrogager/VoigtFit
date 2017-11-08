@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>output &#8212; VoigtFit 0.7 documentation</title>
+    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -69,8 +72,37 @@
 
 <div class="viewcode-block" id="rebin_spectrum"><a class="viewcode-back" href="../api.html#output.rebin_spectrum">[docs]</a><span class="k">def</span> <span class="nf">rebin_spectrum</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rebin input spectrum (`wl`, `spec`) by a factor of `n`.</span>
+<span class="sd">    Rebin input spectrum by a factor of `n`.</span>
 <span class="sd">    Method is either *mean* or *median*, default is mean.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wl : array_like, shape (N)</span>
+<span class="sd">        Input wavelength array.</span>
+
+<span class="sd">    spec : array_like, shape (N)</span>
+<span class="sd">        Input flux array.</span>
+
+<span class="sd">    err : array_like, shape (N)</span>
+<span class="sd">        Input error array.</span>
+
+<span class="sd">    n : int</span>
+<span class="sd">        Integer rebinning factor.</span>
+
+<span class="sd">    method : str   [default = &#39;mean&#39;]</span>
+<span class="sd">        Rebin method, either &#39;mean&#39; or &#39;median&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wl_r : array_like, shape (M)</span>
+<span class="sd">        Rebinned wavelength array, the new shape will be N/n.</span>
+
+<span class="sd">    spec_r : array_like, shape (M)</span>
+<span class="sd">        Rebinned flux array, the new shape will be N/n.</span>
+
+<span class="sd">    err_r : array_like, shape (M)</span>
+<span class="sd">        Rebinned error array, the new shape will be N/n.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
         <span class="n">combine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
@@ -113,8 +145,14 @@
 <span class="c1">#  fig = plt.figure(figsize=(7, 9.899))</span>
 
 
-<span class="k">def</span> <span class="nf">velocity_plot</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">400</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="c1"># --- Deprecated Function:</span>
+<div class="viewcode-block" id="velocity_plot"><a class="viewcode-back" href="../api.html#output.velocity_plot">[docs]</a><span class="k">def</span> <span class="nf">velocity_plot</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">400</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                   <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Similar functionality can be acheived using :func:`plot_all_lines`.</span>
+<span class="sd">    This function is deprecated and will be removed in future versions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># --- First figure out which lines to plot to avoid overlap</span>
     <span class="c1">#     of several lines defined in the same region.</span>
     <span class="n">included_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -204,7 +242,7 @@
         <span class="n">pdf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Output saved to PDF file:  &quot;</span> <span class="o">+</span> <span class="n">filename</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="plot_all_lines"><a class="viewcode-back" href="../api.html#output.plot_all_lines">[docs]</a><span class="k">def</span> <span class="nf">plot_all_lines</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">],</span>
@@ -212,13 +250,14 @@
                    <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                    <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot all active absorption lines. This function is a wrapper of the function `plot_single_line`.</span>
-<span class="sd">    For a complete description of input parameters, see the documentation for `plot_single_line`.</span>
+<span class="sd">    Plot all active absorption lines. This function is a wrapper of the function</span>
+<span class="sd">    :func:`plot_single_line`. For a complete description of input parameters,</span>
+<span class="sd">    see the documentation for :func:`plot_single_line`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset : class DataSet</span>
-<span class="sd">        Instance of class `DataSet` containing the line regions to plot.</span>
+<span class="sd">    dataset : :class:`dataset.DataSet`</span>
+<span class="sd">        Instance of the :class:`dataset.DataSet` class containing the line regions to plot.</span>
 
 <span class="sd">    max_rows : int   [default = 4]</span>
 <span class="sd">        The maximum number of rows of figures. Each row consists of two figure panels.</span>
@@ -327,8 +366,8 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset : class DataSet</span>
-<span class="sd">        Instance of class `DataSet` containing the line regions</span>
+<span class="sd">    dataset : :class:`dataset.DataSet`</span>
+<span class="sd">        Instance of the :class:`dataset.DataSet` class containing the line regions</span>
 
 <span class="sd">    line_tag : str</span>
 <span class="sd">        The line tag of the line to show, e.g., &#39;FeII_2374&#39;</span>
@@ -353,7 +392,7 @@
 <span class="sd">    nolabels : bool   [default = False]</span>
 <span class="sd">        If `True`, show the axis x- and y-labels.</span>
 
-<span class="sd">    axis : matplotlib.Axes.axis</span>
+<span class="sd">    axis : matplotlib.axes.Axes_</span>
 <span class="sd">        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.</span>
 
 <span class="sd">    fontsize : int   [default = 12]</span>
@@ -387,6 +426,11 @@
 <span class="sd">    highlight : list(str)</span>
 <span class="sd">        A list of `ions` (e.g., &quot;FeII&quot;, &quot;CIa&quot;, etc.) used to calculate a separate profile</span>
 <span class="sd">        for this subset of ions.</span>
+
+
+
+<span class="sd">    .. _matplotlib.axes.Axes: https://matplotlib.org/api/axes_api.html</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
@@ -631,7 +675,7 @@
 <span class="sd">        The upper x-limit in relative velocity (km/s).</span>
 <span class="sd">        If nothing is given, the extent of the region is used.</span>
 
-<span class="sd">    axis : matplotlib.Axes.axis</span>
+<span class="sd">    axis : matplotlib.axes.Axes_</span>
 <span class="sd">        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -761,14 +805,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset : class DataSet</span>
-<span class="sd">        An instance of DataSet class containing the line region to plot.</span>
+<span class="sd">    dataset : :class:`dataset.DataSet`</span>
+<span class="sd">        An instance of the :class:`dataset.DataSet` class containing</span>
+<span class="sd">        the line region to plot.</span>
 
-<span class="sd">    params : class lmfit.Parameters</span>
-<span class="sd">        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.</span>
+<span class="sd">    params : lmfit.Parameters_</span>
+<span class="sd">        Output parameter dictionary, e.g., :attr:`dataset.Dataset.best_fit`.</span>
+<span class="sd">        See lmfit_ for details.</span>
 
 <span class="sd">    elements : list(str)   [default = &#39;all&#39;]</span>
-<span class="sd">        A list of ions for which to print the best-fit parameters. By default all ions are shown.</span>
+<span class="sd">        A list of ions for which to print the best-fit parameters.</span>
+<span class="sd">        By default all ions are shown.</span>
 
 <span class="sd">    velocity : bool   [default = True]</span>
 <span class="sd">        Show the components in relative velocity or redshift.</span>
@@ -893,11 +940,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset : class DataSet</span>
-<span class="sd">        An instance of `DataSet` containing the definition of data and absorption lines.</span>
+<span class="sd">    dataset : :class:`dataset.DataSet`</span>
+<span class="sd">        An instance of the :class:`dataset.DataSet` class containing</span>
+<span class="sd">        the definition of data and absorption lines.</span>
 
-<span class="sd">    params : class lmfit.Parameters</span>
-<span class="sd">        Output parameter dictionary, e.g., `self.best_fit`. See lmfit for details.</span>
+<span class="sd">    params : lmfit.Parameters_</span>
+<span class="sd">        Output parameter dictionary, e.g., :attr:`dataset.DataSet.best_fit`.</span>
+<span class="sd">        See lmfit_ for details.</span>
 
 <span class="sd">    logNHI : float</span>
 <span class="sd">        Column density of neutral hydrogen.</span>
@@ -941,8 +990,8 @@
 
 <div class="viewcode-block" id="print_abundance"><a class="viewcode-back" href="../api.html#output.print_abundance">[docs]</a><span class="k">def</span> <span class="nf">print_abundance</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Print the total column densities of all species.</span>
-<span class="sd">    This will sum *all* the components of a given ion. The uncertainty on the total column density</span>
+<span class="sd">    Print the total column densities of all species. This will sum *all*</span>
+<span class="sd">    the components of each ion. The uncertainty on the total column density</span>
 <span class="sd">    is calculated using random resampling within the errors of each component.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1119,7 +1168,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

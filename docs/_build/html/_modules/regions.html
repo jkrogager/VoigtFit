@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>regions &#8212; VoigtFit 0.7 documentation</title>
+    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -50,12 +53,16 @@
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="k">if</span> <span class="s1">&#39;VFITDATA&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-    <span class="n">datafile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VFITDATA&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/telluric_em_abs.dat&#39;</span>
+    <span class="n">datafile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VFITDATA&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;/telluric_em_abs.npz&#39;</span>
 
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No VFITDATA in environment ... Using relative path to static data files&quot;</span><span class="p">)</span>
-    <span class="n">datafile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/static/Asplund2009.dat&#39;</span>
-<span class="n">telluric_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+    <span class="n">source_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_dir</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">datafile</span> <span class="o">=</span> <span class="n">source_dir</span> <span class="o">+</span> <span class="s1">&#39;/static/telluric_em_abs.npz&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">datafile</span> <span class="o">=</span> <span class="s1">&#39;static/telluric_em_abs.npz&#39;</span>
+
+<span class="n">telluric_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">linfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -125,7 +132,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data_chunk : dict()</span>
-<span class="sd">            A `data_chunk` as defined in the data structure of `DataSet.data`.</span>
+<span class="sd">            A `data_chunk` as defined in the data structure of :meth:`DataSet.data</span>
+<span class="sd">            &lt;dataset.DataSet.add_data&gt;`.</span>
 
 <span class="sd">        cutout : bool array</span>
 <span class="sd">            A boolean array defining the subset of the `data_chunk` which makes up the fitting region.</span>
@@ -285,7 +293,7 @@
 <span class="sd">            If a redshift is given, the lines in the region are shown as vertical lines</span>
 <span class="sd">            at the given redshift.</span>
 
-<span class="sd">        dataset : class DataSet   [default = None]</span>
+<span class="sd">        dataset : :class:`dataset.DataSet`   [default = None]</span>
 <span class="sd">            A dataset with components defined for the lines in the region.</span>
 <span class="sd">            If a dataset is passed, the components of the lines in the region are shown.</span>
 
@@ -302,10 +310,10 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Wavelength  [${</span><span class="se">\\</span><span class="s2">rm \AA}$]&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">telluric</span><span class="p">:</span>
-            <span class="n">wl_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">wl_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">]</span>
             <span class="n">cutout</span> <span class="o">=</span> <span class="p">(</span><span class="n">wl_T</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="n">wl_T</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-            <span class="n">flux_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
-            <span class="n">abs_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
+            <span class="n">flux_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[</span><span class="s1">&#39;em&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
+            <span class="n">abs_T</span> <span class="o">=</span> <span class="n">telluric_data</span><span class="p">[</span><span class="s1">&#39;abs&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
             <span class="n">wl_T</span> <span class="o">=</span> <span class="n">wl_T</span><span class="p">[</span><span class="n">cutout</span><span class="p">]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
                 <span class="n">cont</span> <span class="o">=</span> <span class="mf">1.</span>
@@ -451,7 +459,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

@@ -1,13 +1,16 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>dataset &#8212; VoigtFit 0.7 documentation</title>
+    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
+  <body role="document">
   
 
     <div class="document">
@@ -271,7 +274,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        wl : ndarray, shape (n)</span>
-<span class="sd">            Input vacuum wavelength array in Angstroms</span>
+<span class="sd">            Input vacuum wavelength array in Ångstrøm.</span>
 
 <span class="sd">        flux : ndarray, shape (n)</span>
 <span class="sd">            Input flux array, should be same length as wl</span>
@@ -294,7 +297,7 @@
                           <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span> <span class="s1">&#39;res&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span> <span class="s1">&#39;norm&#39;</span><span class="p">:</span> <span class="n">normalized</span><span class="p">})</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_region"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_region">[docs]</a>    <span class="k">def</span> <span class="nf">reset_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reset the data in a given region `reg` to use the raw input data.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Reset the data in a given :class:`regions.Region` to use the raw input data.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reg</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">reg</span><span class="o">.</span><span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
                 <span class="n">raw_data</span> <span class="o">=</span> <span class="n">chunk</span>
@@ -307,13 +310,17 @@
         <span class="n">reg</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_all_regions"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_all_regions">[docs]</a>    <span class="k">def</span> <span class="nf">reset_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reset the data in all regions defined in the DataSet to use the raw input data.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the data in all :class:`Regions &lt;regions.Region&gt;`</span>
+<span class="sd">        defined in the DataSet to use the raw input data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_region</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.get_resolution"><a class="viewcode-back" href="../api.html#dataset.DataSet.get_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">get_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the spectral resolution for the fitting region where the line with</span>
-<span class="sd">        the given `line_tag` is defined, otherwise give the resolution for all fitting regions.</span>
+        <span class="sd">&quot;&quot;&quot;Return the spectral resolution for the fitting :class:`Region &lt;regions.Region&gt;`</span>
+<span class="sd">        where the line with the given `line_tag` is defined, otherwise give the resolution</span>
+<span class="sd">        for all fitting regions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -337,9 +344,10 @@
 
 <div class="viewcode-block" id="DataSet.set_resolution"><a class="viewcode-back" href="../api.html#dataset.DataSet.set_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">line_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the spectral resolution in km/s for a given region containing `line_tag`.</span>
+<span class="sd">        Set the spectral resolution in km/s for the :class:`Region &lt;regions.Region&gt;`</span>
+<span class="sd">        containing the line with the given `line_tag`.</span>
 <span class="sd">        If `line_tag` is not given, the resolution will be set for *all* regions,</span>
-<span class="sd">        including the raw data chunks!</span>
+<span class="sd">        including the raw data chunks defined in :attr:`dataset.DataSet.data`!</span>
 
 <span class="sd">        Note -- If not all data chunks have the same resolution, this method</span>
 <span class="sd">        should be used with caution. It is advised to check the spectral resolution beforehand</span>
@@ -364,7 +372,7 @@
         <span class="sd">&quot;&quot;&quot;Update the systemic redshift of the dataset&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">z_sys</span></div>
 
-<div class="viewcode-block" id="DataSet.remove_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.remove_line">[docs]</a>    <span class="k">def</span> <span class="nf">remove_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.remove_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.remove_line">[docs]</a>    <span class="k">def</span> <span class="nf">remove_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove an absorption line from the DataSet. If this is the last line in a fitting region</span>
 <span class="sd">        the given region will be eliminated, and if this is the last line of a given ion,</span>
@@ -372,16 +380,16 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        tag : str</span>
-<span class="sd">            Line tag of the transitoin that should be removed.</span>
+<span class="sd">        line_tag : str</span>
+<span class="sd">            Line tag of the transition that should be removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
 
         <span class="c1"># --- Check if the ion has transistions defined in other regions</span>
-        <span class="n">ion</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ion</span> <span class="o">=</span> <span class="n">line_tag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ion_defined_elsewhere</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line_tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -393,14 +401,14 @@
 
         <span class="n">remove_this</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_line</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">):</span>
                 <span class="n">remove_this</span> <span class="o">=</span> <span class="n">num</span>
 
         <span class="k">if</span> <span class="n">remove_this</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">remove_this</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">remove_this</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">remove_this</span><span class="p">]</span><span class="o">.</span><span class="n">remove_line</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">remove_this</span><span class="p">]</span><span class="o">.</span><span class="n">remove_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
@@ -418,7 +426,7 @@
 
 <span class="sd">        norm_method : str   [default = &#39;spline&#39;]</span>
 <span class="sd">            Normalization method used for the interactive continuum fit.</span>
-<span class="sd">            Options [&quot;spline&quot;, &quot;linear&quot;]</span>
+<span class="sd">            Should be on of: [&quot;spline&quot;, &quot;linear&quot;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">norm_method</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
             <span class="n">norm_num</span> <span class="o">=</span> <span class="mi">1</span>
@@ -440,7 +448,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        line_tag : str</span>
-<span class="sd">            Line tag for the line whose region should be masked.</span>
+<span class="sd">            Line tag for the :class:`Line &lt;dataset.DataSet.Line&gt;` whose</span>
+<span class="sd">            :class:`Region &lt;regions.Region&gt;` should be masked.</span>
 
 <span class="sd">        reset : bool   [default = True]</span>
 <span class="sd">            If `True`, clear the mask before defining a new mask.</span>
@@ -466,7 +475,7 @@
 
 <div class="viewcode-block" id="DataSet.find_line"><a class="viewcode-back" href="../api.html#dataset.DataSet.find_line">[docs]</a>    <span class="k">def</span> <span class="nf">find_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Look up the fitting region for a given line.</span>
+<span class="sd">        Look up the fitting :class:`Region &lt;regions.Region&gt;` for a given *line tag*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -475,9 +484,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        region : Region instance</span>
+<span class="sd">        region : :class:`Region &lt;regions.Region&gt;`</span>
 <span class="sd">            The fitting region containing the given line.</span>
-<span class="sd">            This is an instance of the regions.Region class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
@@ -547,6 +555,29 @@
                 <span class="n">act_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">act_lines</span></div>
 
+<div class="viewcode-block" id="DataSet.get_lines_for_ion"><a class="viewcode-back" href="../api.html#dataset.DataSet.get_lines_for_ion">[docs]</a>    <span class="k">def</span> <span class="nf">get_lines_for_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of :class:`Line &lt;dataset.Line&gt;` objects</span>
+<span class="sd">        corresponding to the given *ion*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ion : str</span>
+<span class="sd">            The ion for the lines to get.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lines_for_ion : list(:class:`Line &lt;dataset.Line&gt;`)</span>
+<span class="sd">            List of Lines defined for the given *ion*.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines_for_ion</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">ion</span> <span class="o">==</span> <span class="n">ion</span><span class="p">:</span>
+                <span class="n">lines_for_ion</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">lines_for_ion</span></div>
+
 <div class="viewcode-block" id="DataSet.reset_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.reset_components">[docs]</a>    <span class="k">def</span> <span class="nf">reset_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset component structure for a given ion.</span>
@@ -554,8 +585,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ion : str   [default = None]</span>
-<span class="sd">            The ion for which to reset the components: e.g., FeII, HI, CIa, etc.</span>
-<span class="sd">            Otherwise all components for all ions will be reset.</span>
+<span class="sd">            The ion for which to reset the components: e.g., &#39;FeII&#39;, &#39;HI&#39;, &#39;CIa&#39;, etc.</span>
+<span class="sd">            If `None`is given, *all* components for *all* ions will be reset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">ion</span><span class="p">:</span>
@@ -601,10 +632,13 @@
 
 <span class="sd">        tie_z, tie_b, tie_N : str   [default = None]</span>
 <span class="sd">            Parameter constraints for the different variables.</span>
-<span class="sd">            The ties are defined relative to the parameter names. The naming is as follows:</span>
-<span class="sd">            The redshift of the first component of FeII is called &quot;z0_FeII&quot;,</span>
-<span class="sd">            the logN of the second component of SiII is called &quot;logN1_SiII&quot;.</span>
-<span class="sd">            For more information about parameter ties, see the LmFit documentation.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The ties are defined relative to the parameter names. The naming is as follows:</span>
+<span class="sd">        The redshift of the first component of FeII is called &quot;z0_FeII&quot;,</span>
+<span class="sd">        the logN of the second component of SiII is called &quot;logN1_SiII&quot;.</span>
+<span class="sd">        For more information about parameter ties, see the documentation for lmfit_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;var_z&#39;</span><span class="p">:</span> <span class="n">var_z</span><span class="p">,</span> <span class="s1">&#39;var_b&#39;</span><span class="p">:</span> <span class="n">var_b</span><span class="p">,</span> <span class="s1">&#39;var_N&#39;</span><span class="p">:</span> <span class="n">var_N</span><span class="p">,</span> <span class="s1">&#39;tie_z&#39;</span><span class="p">:</span> <span class="n">tie_z</span><span class="p">,</span> <span class="s1">&#39;tie_b&#39;</span><span class="p">:</span> <span class="n">tie_b</span><span class="p">,</span>
                    <span class="s1">&#39;tie_N&#39;</span><span class="p">:</span> <span class="n">tie_N</span><span class="p">}</span>
@@ -707,20 +741,20 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: &quot;</span><span class="o">+</span><span class="n">ion</span></div>
 
-<div class="viewcode-block" id="DataSet.copy_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.copy_components">[docs]</a>    <span class="k">def</span> <span class="nf">copy_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">logN</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ref_comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.copy_components"><a class="viewcode-back" href="../api.html#dataset.DataSet.copy_components">[docs]</a>    <span class="k">def</span> <span class="nf">copy_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_ion</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">from_ion</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">logN</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ref_comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Copy velocity structure to `ion` from the anchor.</span>
+<span class="sd">        Copy velocity structure to `ion` from another `ion`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ion : str</span>
-<span class="sd">            The new ion to define, which will be linked to the `anchor` ion.</span>
+<span class="sd">        to_ion : str</span>
+<span class="sd">            The new ion to define.</span>
 
-<span class="sd">        anchor : str</span>
-<span class="sd">            The baes ion which will be used for the linking.</span>
+<span class="sd">        from_ion : str</span>
+<span class="sd">            The base ion which will be used as reference.</span>
 
 <span class="sd">        logN : float</span>
-<span class="sd">            If logN is given the starting guess is defined from this value</span>
+<span class="sd">            If logN is given, the starting guess is defined from this value</span>
 <span class="sd">            following the pattern of the components defined for `anchor` relative to the</span>
 <span class="sd">            `ref_comp` (default: the first component).</span>
 
@@ -733,17 +767,24 @@
 <span class="sd">        tie_b : bool   [default = True]</span>
 <span class="sd">            If `True`, the b-parameters for all components of the two ions will be tied together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">anchor</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">to_ion</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">from_ion</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot; [ERROR] - Must specify both &#39;to_ion&#39; and &#39;from_ion&#39;!&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">from_ion</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot; [ERROR] - The base ion (&#39;from_ion&#39;) is not defined in the dataset!&quot;</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">from_ion</span><span class="p">]</span>
         <span class="c1"># overwrite the components already defined for ion if they exist</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">to_ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">ref_comp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">offset_N</span> <span class="o">=</span> <span class="n">logN</span> <span class="o">-</span> <span class="n">reference</span><span class="p">[</span><span class="n">ref_comp</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Strip ionization state to get element:</span>
-            <span class="n">ion_tmp</span> <span class="o">=</span> <span class="n">ion</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ion</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">ion_tmp</span> <span class="o">=</span> <span class="n">to_ion</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">to_ion</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="n">element</span> <span class="o">=</span> <span class="n">ion_tmp</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ion_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="n">anchor_tmp</span> <span class="o">=</span> <span class="n">anchor</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">anchor</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">anchor_tmp</span> <span class="o">=</span> <span class="n">from_ion</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">from_ion</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="n">element_anchor</span> <span class="o">=</span> <span class="n">anchor_tmp</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">anchor_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="c1"># Use Solar abundance ratios:</span>
             <span class="n">offset_N</span> <span class="o">=</span> <span class="n">Asplund</span><span class="o">.</span><span class="n">photosphere</span><span class="p">[</span><span class="n">element</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">Asplund</span><span class="o">.</span><span class="n">photosphere</span><span class="p">[</span><span class="n">element_anchor</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -752,11 +793,11 @@
             <span class="k">if</span> <span class="n">logN</span><span class="p">:</span>
                 <span class="n">new_comp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">offset_N</span>
             <span class="k">if</span> <span class="n">tie_z</span><span class="p">:</span>
-                <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;z</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+                <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;z</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">from_ion</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tie_b</span><span class="p">:</span>
-                <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+                <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">from_ion</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_comp</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">to_ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_comp</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.load_components_from_file"><a class="viewcode-back" href="../api.html#dataset.DataSet.load_components_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_components_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load best-fit parameters from an output file `fname`.&quot;&quot;&quot;</span>
@@ -795,7 +836,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        ion : str   [default = None]</span>
 <span class="sd">            The ion for which the structure should be fixed.</span>
-<span class="sd">            If None is given, the structure is fixed for all ions.</span>
+<span class="sd">            If `None` is given, the structure is fixed for all ions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ion</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
@@ -821,12 +862,14 @@
 <span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
 
 <span class="sd">        active : bool   [default = True]</span>
-<span class="sd">            Set the line as active (i.e., included in the fit).</span>
+<span class="sd">            Set the :class:`Line &lt;dataset.DataSet.Line&gt;` as active</span>
+<span class="sd">            (i.e., included in the fit).</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        This will initiate a `Line` class with the atomic data for the transition,</span>
-<span class="sd">        as well as creating a fitting region (`Region` class) containing the data cutout</span>
+<span class="sd">        This will initiate a :class:`Line &lt;dataset.DataSet.Line&gt;` class</span>
+<span class="sd">        with the atomic data for the transition, as well as creating a</span>
+<span class="sd">        fitting :class:`Region &lt;regions.Region&gt;` containing the data cutout</span>
 <span class="sd">        around the line center.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -848,12 +891,13 @@
 
         <span class="k">if</span> <span class="n">new_line</span><span class="o">.</span><span class="n">element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c1"># Initiate component list if ion has not been defined before:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">new_line</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">new_line</span><span class="o">.</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="n">l_center</span> <span class="o">=</span> <span class="n">new_line</span><span class="o">.</span><span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
 
         <span class="c1"># Initiate new Region:</span>
-        <span class="n">new_region</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span><span class="n">velspan</span><span class="p">,</span> <span class="n">new_line</span><span class="p">)</span>
+        <span class="n">new_region</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span><span class="n">velspan</span><span class="p">)</span>
+        <span class="n">new_region</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">new_line</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
@@ -920,7 +964,8 @@
 
 <span class="sd">        velspan : float   [default = None]</span>
 <span class="sd">            The velocity span around the line center, which will be included in the fit.</span>
-<span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
+<span class="sd">            If `None` is given, use the default :attr:`velspan &lt;dataset.DataSet.velspan&gt;`</span>
+<span class="sd">            defined (500 km/s).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span>
@@ -985,7 +1030,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        line_tag : str</span>
-<span class="sd">            The line tag of the gorund state transition to remove.</span>
+<span class="sd">            The line tag of the ground state transition to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="n">fine_structure_complexes</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
@@ -1010,7 +1055,8 @@
 
 <span class="sd">        velspan : float   [default = None]</span>
 <span class="sd">            The velocity span around the line center, which will be included in the fit.</span>
-<span class="sd">            If `None` is given, use the default `self.velspan` defined (500 km/s).</span>
+<span class="sd">            If `None` is given, use the default :attr:`velspan &lt;dataset.DataSet.velspan&gt;`</span>
+<span class="sd">            defined (500 km/s).</span>
 
 <span class="sd">        full_label : bool   [default = False]</span>
 <span class="sd">            If `True`, the label will be translated to the full quantum mechanical description</span>
@@ -1056,7 +1102,7 @@
 <div class="viewcode-block" id="DataSet.deactivate_molecule"><a class="viewcode-back" href="../api.html#dataset.DataSet.deactivate_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deactivate all lines for the given band of the given molecule.</span>
-<span class="sd">        To see the available molecular bands defined, see the manual pdf or the `line_complexes`.</span>
+<span class="sd">        To see the available molecular bands defined, see the manual pdf or ``line_complexes.py``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">molecule</span> <span class="o">==</span> <span class="s1">&#39;CO&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">band</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="s1">&#39;CO&#39;</span><span class="p">]:</span>
@@ -1096,7 +1142,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        norm : bool   [default = True]</span>
 <span class="sd">            Opens an interactive window to let the user normalize each region</span>
-<span class="sd">            using the defined `norm_method`.</span>
+<span class="sd">            using the defined :attr:`norm_method &lt;dataset.DataSet.norm_method&gt;`.</span>
 
 <span class="sd">        mask : bool   [default = True]</span>
 <span class="sd">            Opens an interactive window to let the user mask each fitting region.</span>
@@ -1109,7 +1155,7 @@
 <span class="sd">        bool</span>
 <span class="sd">            The function returns `True` when the dataset has passed all the steps.</span>
 <span class="sd">            If one step fails, the function returns `False`.</span>
-<span class="sd">            The ``ready2fit`` attribute of the dataset is also</span>
+<span class="sd">            The :attr:`ready2fit &lt;dataset.DataSet.ready2fit&gt;` attribute of the dataset is also</span>
 <span class="sd">            updated accordingly.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1338,8 +1384,8 @@
                  <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                  <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the absorption lines and the best-fit profiles.</span>
-<span class="sd">        For details, see `output.plot_all_lines`.</span>
+<span class="sd">        Plot *all* the absorption lines and the best-fit profiles.</span>
+<span class="sd">        For details, see :func:`output.plot_all_lines`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">plot_all_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">,</span>
                               <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="n">rebin</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
@@ -1361,8 +1407,9 @@
                   <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                   <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="p">[],</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot a single fitting region containing the line corresponding to the</span>
-<span class="sd">        given `line_tag`. For details, see `output.plot_single_line()`.</span>
+<span class="sd">        Plot a single fitting :class:`Region &lt;regions.Region&gt;`</span>
+<span class="sd">        containing the line corresponding to the given `line_tag`.</span>
+<span class="sd">        For details, see :func:`output.plot_single_line`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output</span><span class="o">.</span><span class="n">plot_single_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="n">plot_fit</span><span class="p">,</span>
                                 <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
@@ -1410,11 +1457,12 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str   [default = None]</span>
-<span class="sd">            Filename for the fitting regions. If `None`, the `self.name` parameter will be used.</span>
+<span class="sd">            Filename for the fitting regions.</span>
+<span class="sd">            If `None`, the :attr:`name &lt;dataset.DataSet.name&gt;` attribute will be used.</span>
 
 <span class="sd">        individual : bool   [default = False]</span>
-<span class="sd">            Save the fitting regions to individual files. By default all regions are concatenated</span>
-<span class="sd">            into one file.</span>
+<span class="sd">            Save the fitting regions to individual files.</span>
+<span class="sd">            By default all regions are concatenated into one file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
@@ -1469,7 +1517,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
