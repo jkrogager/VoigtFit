@@ -41,3 +41,12 @@ Interface
    :maxdepth: 2
    	
    api.rst   	
+
+
+Examples
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   physical_model_results.rst

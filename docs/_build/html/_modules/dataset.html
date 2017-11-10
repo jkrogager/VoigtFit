@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>dataset &#8212; VoigtFit 0.7 documentation</title>
-    
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -34,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -155,13 +152,17 @@
 <div class="viewcode-block" id="DataSet"><a class="viewcode-back" href="../api.html#dataset.DataSet">[docs]</a><span class="k">class</span> <span class="nc">DataSet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redshift</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.</span>
-<span class="sd">        Spectral data must be added using the `add_data` method. Hereafter the absorption lines</span>
-<span class="sd">        to be fitted are added to the DataSet using the `add_line` or `add_many_lines` methods.</span>
-<span class="sd">        Lastly, the components of each element is defined using the `add_component` method.</span>
+<span class="sd">        Main class of the package ``VoigtFit``. The DataSet handles all the major parts of the fit.</span>
+<span class="sd">        Spectral data must be added using the :meth:`add_data &lt;dataset.DataSet.add_data&gt;` method.</span>
+<span class="sd">        Hereafter the absorption lines to be fitted are added to the DataSet using the</span>
+<span class="sd">        :meth:`add_line &lt;dataset.DataSet.add_line&gt;` or</span>
+<span class="sd">        :meth:`add_many_lines &lt;dataset.DataSet.add_many_lines&gt;` methods.</span>
+<span class="sd">        Lastly, the components of each element is defined using the</span>
+<span class="sd">        :meth:`add_component &lt;dataset.DataSet.add_component&gt;` method.</span>
 <span class="sd">        When all lines and components have been defined, the DataSet must be prepared by</span>
-<span class="sd">        calling the `prepare_dataset` method and subsequently, the lines can be fitted using</span>
-<span class="sd">        the `fit` method.</span>
+<span class="sd">        calling the :meth:`prepare_dataset &lt;dataset.DataSet.prepare_dataset&gt;`</span>
+<span class="sd">        method and subsequently, the lines can be fitted using</span>
+<span class="sd">        the :meth:`fit &lt;dataset.DataSet.fit&gt;` method.</span>
 
 <span class="sd">        .. rubric:: Attributes</span>
 
@@ -223,6 +224,9 @@
 <span class="sd">            Placeholder for the fit parameters initiated before the fit.</span>
 <span class="sd">            The parameters will be defined during the call to :meth:`DataSet.prepare_dataset</span>
 <span class="sd">            &lt;dataset.DataSet.prepare_dataset&gt;` based on the defined components.</span>
+
+
+<span class="sd">        .. _lmfit.Parameters: https://lmfit.github.io/lmfit-py/parameters.html</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Define the systemic redshift</span>
@@ -751,13 +755,8 @@
 <span class="sd">        to_ion : str</span>
 <span class="sd">            The new ion to define.</span>
 
-<<<<<<< Updated upstream
 <span class="sd">        from_ion : str</span>
 <span class="sd">            The base ion which will be used as reference.</span>
-=======
-<span class="sd">        anchor : str</span>
-<span class="sd">            The base ion which will be used for the linking.</span>
->>>>>>> Stashed changes
 
 <span class="sd">        logN : float</span>
 <span class="sd">            If logN is given, the starting guess is defined from this value</span>
@@ -1504,6 +1503,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Interface</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physical_model_results.html">Results of Physical Model</a></li>
+</ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
@@ -1523,7 +1525,7 @@
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

@@ -110,13 +110,17 @@ class Line(object):
 class DataSet(object):
     def __init__(self, redshift, name=''):
         """
-        Main class of the package VoigtFit. The DataSet handles all the major parts of the fit.
-        Spectral data must be added using the `add_data` method. Hereafter the absorption lines
-        to be fitted are added to the DataSet using the `add_line` or `add_many_lines` methods.
-        Lastly, the components of each element is defined using the `add_component` method.
+        Main class of the package ``VoigtFit``. The DataSet handles all the major parts of the fit.
+        Spectral data must be added using the :meth:`add_data <dataset.DataSet.add_data>` method.
+        Hereafter the absorption lines to be fitted are added to the DataSet using the
+        :meth:`add_line <dataset.DataSet.add_line>` or
+        :meth:`add_many_lines <dataset.DataSet.add_many_lines>` methods.
+        Lastly, the components of each element is defined using the
+        :meth:`add_component <dataset.DataSet.add_component>` method.
         When all lines and components have been defined, the DataSet must be prepared by
-        calling the `prepare_dataset` method and subsequently, the lines can be fitted using
-        the `fit` method.
+        calling the :meth:`prepare_dataset <dataset.DataSet.prepare_dataset>`
+        method and subsequently, the lines can be fitted using
+        the :meth:`fit <dataset.DataSet.fit>` method.
 
         .. rubric:: Attributes
 
@@ -178,6 +182,9 @@ class DataSet(object):
             Placeholder for the fit parameters initiated before the fit.
             The parameters will be defined during the call to :meth:`DataSet.prepare_dataset
             <dataset.DataSet.prepare_dataset>` based on the defined components.
+
+
+        .. _lmfit.Parameters: https://lmfit.github.io/lmfit-py/parameters.html
 
         """
         # Define the systemic redshift
