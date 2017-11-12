@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 from lmfit import Parameters, Minimizer
-import os
 
 from voigt import evaluate_profile, evaluate_continuum
 from regions import Region
@@ -20,15 +19,8 @@ options = {'nsamp': 1,
            'npad': 20}
 myfloat = np.float64
 
-if 'VFITDATA' in os.environ.keys():
-    atomfile = os.environ['VFITDATA'] + '/atomdata_updated.dat'
-
-else:
-    source_dir = os.path.dirname(__file__)
-    if source_dir != '':
-        atomfile = source_dir + '/static/atomdata_updated.dat'
-    else:
-        atomfile = 'static/atomdata_updated.dat'
+from pkg_resources import resource_filename
+atomfile = resource_filename('VoigtFit', '../static/atomdata_updated.dat')
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),

@@ -6,21 +6,8 @@ Levenberg--Marquardt minimization algorithm to identify the optimal parameters.
 
 Written by Jens-Kristian Krogager.
 """
-print "\n"
-print "    VoigtFit"
-print ""
-print "    by Jens-Kristian Krogager"
-print ""
-print "    Institut d'Astrophysique de Paris"
-print "    November 2017"
-print ""
-print "  ____  _           ___________________"
-print "      \/ \  _/\    /                   "
-print "          \/   \  / oigtFit            "
-print "                \/                     "
-print ""
-print ""
 __author__ = 'Jens-Kristian Krogager'
+__version__ = '1.0.0'
 
 from VoigtFit import *
 import regions

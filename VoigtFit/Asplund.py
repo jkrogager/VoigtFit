@@ -1,16 +1,11 @@
-import numpy as np
-import os
+# -*- coding: UTF-8 -*-
+
 __author__ = 'Jens-Kristian Krogager'
 
-if 'VFITDATA' in os.environ.keys():
-    datafile = os.environ['VFITDATA']+'/Asplund2009.dat'
+import numpy as np
+from pkg_resources import resource_filename
 
-else:
-    source_dir = os.path.dirname(__file__)
-    if source_dir != '':
-        datafile = source_dir + '/static/Asplund2009.dat'
-    else:
-        datafile = 'static/Asplund2009.dat'
+datafile = resource_filename('VoigtFit', '../static/Asplund2009.dat')
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)

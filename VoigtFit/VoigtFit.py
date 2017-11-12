@@ -100,34 +100,23 @@ def LoadDataSet(filename):
     return dataset
 
 
-# defined here and in dataset.py for backwards compatibility
-# TODO: Test if this is necessary with the new file format.
-class Line(object):
-    def __init__(self, tag, active=True):
-        """Line object containing atomic data for the given transition."""
-        self.tag = tag
-        index = lineList['trans'].tolist().index(tag)
-        tag, ion, l0, f, gam, mass = lineList[index]
-
-        self.tag = tag
-        self.ion = ion
-        self.element = ion
-        self.l0 = l0
-        self.f = f
-        self.mass = mass
-        self.active = active
-
-    def get_properties(self):
-        return (self.l0, self.f, self.gam)
-
-    def set_inactive(self):
-        self.active = False
-
-    def set_active(self):
-        self.active = True
-
-
 def main():
+
+    print "\n"
+    print "    VoigtFit"
+    print ""
+    print "    by Jens-Kristian Krogager"
+    print ""
+    print "    Institut d'Astrophysique de Paris"
+    print "    November 2017"
+    print ""
+    print "  ____  _           ___________________"
+    print "      \/ \  _/\    /                   "
+    print "          \/   \  / oigtFit            "
+    print "                \/                     "
+    print ""
+    print ""
+
     parser = ArgumentParser()
     parser.add_argument("input", type=str,
                         help="VoigtFit input parameter file.")

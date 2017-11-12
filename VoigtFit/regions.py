@@ -6,17 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.interpolate import spline
 
-import os
-
-if 'VFITDATA' in os.environ.keys():
-    datafile = os.environ['VFITDATA']+'/telluric_em_abs.npz'
-
-else:
-    source_dir = os.path.dirname(__file__)
-    if source_dir != '':
-        datafile = source_dir + '/static/telluric_em_abs.npz'
-    else:
-        datafile = 'static/telluric_em_abs.npz'
+from pkg_resources import resource_filename
+datafile = resource_filename('VoigtFit', '../static/telluric_em_abs.npz')
 
 telluric_data = np.load(datafile)
 
