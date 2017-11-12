@@ -11,8 +11,6 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-import VoigtFit
-
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
@@ -25,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=VoigtFit.__version__,
+    version='1.0.0',
 
     description='Voigt Profile Fitting in Python',
     long_description=long_description,
@@ -88,7 +86,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'static': ['Asplund2009.dat', 'atomdata_updated.dat', 'telluric_em_abs.npz'],
+        'VoigtFit/static': ['Asplund2009.dat', 'atomdata_updated.dat', 'telluric_em_abs.npz'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

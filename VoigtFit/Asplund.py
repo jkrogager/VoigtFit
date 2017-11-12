@@ -5,7 +5,8 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 from pkg_resources import resource_filename
 
-datafile = resource_filename('VoigtFit', 'static/Asplund2009.dat')
+datafile = resource_filename('VoigtFit', 'VoigtFit/static/Asplund2009.dat')
+print datafile
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)
