@@ -20,7 +20,7 @@ options = {'nsamp': 1,
 myfloat = np.float64
 
 from pkg_resources import resource_filename
-atomfile = resource_filename('VoigtFit', '../static/atomdata_updated.dat')
+atomfile = resource_filename('VoigtFit', 'static/atomdata_updated.dat')
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),

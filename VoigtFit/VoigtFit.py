@@ -116,6 +116,8 @@ def main():
     print "                \/                     "
     print ""
     print ""
+    print " Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
+    print ""
 
     parser = ArgumentParser()
     parser.add_argument("input", type=str,

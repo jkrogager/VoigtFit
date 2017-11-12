@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import spline
 
 from pkg_resources import resource_filename
-datafile = resource_filename('VoigtFit', '../static/telluric_em_abs.npz')
+datafile = resource_filename('VoigtFit', 'static/telluric_em_abs.npz')
 
 telluric_data = np.load(datafile)
 
