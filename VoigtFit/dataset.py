@@ -5,6 +5,8 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import os
+
 from lmfit import Parameters, Minimizer
 
 from voigt import evaluate_profile, evaluate_continuum
@@ -19,8 +21,8 @@ options = {'nsamp': 1,
            'npad': 20}
 myfloat = np.float64
 
-from pkg_resources import resource_filename
-atomfile = resource_filename('VoigtFit', 'static/atomdata_updated.dat')
+root_path = os.path.dirname(os.path.abspath(__file__))
+atomfile = root_path + '/static/atomdata_updated.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),

@@ -5,9 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.interpolate import spline
+import os
 
-from pkg_resources import resource_filename
-datafile = resource_filename('VoigtFit', 'static/telluric_em_abs.npz')
+root_path = os.path.dirname(os.path.abspath(__file__))
+datafile = root_path + '/static/telluric_em_abs.npz'
 
 telluric_data = np.load(datafile)
 

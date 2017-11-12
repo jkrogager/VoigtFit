@@ -3,10 +3,10 @@
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
-from pkg_resources import resource_filename
+import os
 
-datafile = resource_filename('VoigtFit', 'VoigtFit/static/Asplund2009.dat')
-print datafile
+root_path = os.path.dirname(os.path.abspath(__file__))
+datafile = root_path + '/static/Asplund2009.dat'
 
 dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)
