@@ -6,12 +6,17 @@ Levenberg--Marquardt minimization algorithm to identify the optimal parameters.
 
 Written by Jens-Kristian Krogager.
 """
-__author__ = 'Jens-Kristian Krogager'
-__version__ = '1.0.0'
-
+from os import path
 from VoigtFit import *
-import regions
-import output
-import voigt
 import dataset
+import hdf5_save as hdf5
 import line_complexes
+import output
+import regions
+import voigt
+
+__author__ = 'Jens-Kristian Krogager'
+
+mypackage_root_dir = path.dirname(path.abspath(__file__))
+with open(path.join(mypackage_root_dir, 'VERSION')) as version_file:
+    __version__ = version_file.read().strip()
