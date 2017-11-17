@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 __author__ = 'Jens-Kristian Krogager'
+
+import os
 from os.path import splitext
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
@@ -868,25 +870,30 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
 def print_cont_parameters(dataset):
     """ Print the Chebyshev coefficients of the continuum normalization."""
-    print ""
-    print "  Chebyshev coefficients for fitting regions:"
-    for reg_num, region in enumerate(dataset.regions):
-        lines_in_region = ", ".join([line.tag for line in region.lines])
-        print "   Region no. %i : %s" % (reg_num, lines_in_region)
-        cheb_parnames = list()
-        # Find Chebyshev parameters for this region:
-        # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
-        for parname in dataset.best_fit.keys():
-            if 'R%i_cheb' % reg_num in parname:
-                cheb_parnames.append(parname)
-        # This could be calculated at the point of generating
-        # the parameters, since this is a fixed data structure
-        # Sort the names, to arange the coefficients right:
-        cheb_parnames = sorted(cheb_parnames)
-        for i, parname in enumerate(cheb_parnames):
-            coeff = dataset.best_fit[parname]
-            line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
+    if dataset.cheb_order >= 0:
         print ""
+        print "  Chebyshev coefficients for fitting regions:"
+        for reg_num, region in enumerate(dataset.regions):
+            lines_in_region = ", ".join([line.tag for line in region.lines])
+            print "   Region no. %i : %s" % (reg_num, lines_in_region)
+            cheb_parnames = list()
+            # Find Chebyshev parameters for this region:
+            # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
+            for parname in dataset.best_fit.keys():
+                if 'R%i_cheb' % reg_num in parname:
+                    cheb_parnames.append(parname)
+            # This could be calculated at the point of generating
+            # the parameters, since this is a fixed data structure
+            # Sort the names, to arange the coefficients right:
+            cheb_parnames = sorted(cheb_parnames)
+            for i, parname in enumerate(cheb_parnames):
+                coeff = dataset.best_fit[parname]
+                line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
+                print line
+            print ""
+    else:
+        print "\n  No Chebyshev polynomials have been defined."
+        print "  cheb_order = %i " % dataset.cheb_order
 
 
 def print_metallicity(dataset, params, logNHI, err=0.1):
@@ -1023,11 +1030,44 @@ def save_cont_parameters_to_file(dataset, filename):
             output.write("\n")
 
 
-def save_fit_regions(dataset, filename, individual=False):
+def save_fit_regions(dataset, filename, individual=False, path=''):
     """
-    Save fit regions to file.
-    If `individual` is set, then each region will be saved to a separate file.
+    Save fit regions to ASCII file.
+
+    Parameters
+    ----------
+    filename : str
+        Filename to be used. If the filename already exists, it will be overwritten.
+        A `.reg` file extension will automatically be append if not present already.
+
+    individual : bool   [default = False]
+        If `True`, save each fitting region to a separate file.
+        The individual filenames will be the basename given as `filename`
+        with `_regN` appended, where `N` is an integer referring to the region number.
+
+    path : str   [default = '']
+        Specify a path to prepend to the filename in order to save output to a given
+        directory or path. Can be given both as relative or absolute path.
+        If the directory does not exist, it will be created.
+        The final filename will be:
+            `path/` + `filename` [+ `_regN`] + `.reg`
     """
+    base, file_ext = splitext(filename)
+    if file_ext != '.reg':
+        filename += '.reg'
+
+    if path:
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        if path[-1] != '/':
+            path += '/'
+
+    elif path is None:
+        path = ''
+
+    filename = path + filename
+
     if individual:
         for reg_num, region in enumerate(dataset.regions):
             wl, flux, err, mask = region.unpack()

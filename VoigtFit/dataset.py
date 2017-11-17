@@ -1405,7 +1405,7 @@ class DataSet(object):
         """Print the total column densities of all components."""
         output.print_abundance(self)
 
-    def save_fit_regions(self, filename=None, individual=False):
+    def save_fit_regions(self, filename=None, individual=False, path=''):
         """
         Save the fitting regions to ASCII table output.
         The format is as follows:
@@ -1420,14 +1420,21 @@ class DataSet(object):
         individual : bool   [default = False]
             Save the fitting regions to individual files.
             By default all regions are concatenated into one file.
+
+        path : str   [default = '']
+            Specify a path to prepend to the filename in order to save output to a given
+            directory or path. Can be given both as relative or absolute path.
+            If the path doesn't end in `/` it will be appended automatically.
+            The final filename will be:
+                `path/` + `filename` [+ `_regN`] + `.reg`
         """
         if not filename:
             if self.name:
-                filename = self.name
+                filename = self.name + '.reg'
             else:
                 print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
                 print "           or give filename [dataset.save(filename='filename')]"
-        output.save_fit_regions(self, filename, individual=individual)
+        output.save_fit_regions(self, filename, individual=individual, path=path)
 
     def save(self, filename=None, verbose=False):
         """Save the DataSet to file using the HDF5 format."""
