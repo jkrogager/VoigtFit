@@ -92,6 +92,7 @@ setup(
     package_data={
         'VoigtFit/static': ['Asplund2009.dat', 'atomdata_updated.dat', 'telluric_em_abs.npz'],
     },
+
     include_package_data=True,
 
     # Although 'package_data' is the preferred approach, in some case you may

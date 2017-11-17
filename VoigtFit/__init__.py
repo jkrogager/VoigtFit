@@ -17,6 +17,7 @@ import voigt
 
 __author__ = 'Jens-Kristian Krogager'
 
-mypackage_root_dir = path.dirname(path.abspath(__file__))
-with open(path.join(mypackage_root_dir, 'VERSION')) as version_file:
+code_dir = path.dirname(path.abspath(__file__))
+package_base_dir = '/'.join(code_dir.split('/')[:-1])
+with open(path.join(package_base_dir, 'VERSION')) as version_file:
     __version__ = version_file.read().strip()
