@@ -206,7 +206,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
 def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                    rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                    filename=None, show=True, subsample_profile=1, npad=50,
-                   highlight=[], residuals=True):
+                   highlight=[], residuals=True, norm_resid=False):
     """
     Plot all active absorption lines. This function is a wrapper of the function
     :func:`plot_single_line`. For a complete description of input parameters,
@@ -267,10 +267,14 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
             columns = 2
 
         heigth = (len(contents) + 2) / 2 * 7.5/(max_rows)
-        rows = (len(contents) + 2) / 2
+        rows = (len(contents) + 1) / 2
         if len(contents) == 1:
             heigth = 6
             columns = 1
+            rows = 1
+        elif len(contents) == 2:
+            heigth = 3
+            columns = 2
             rows = 1
 
         fig = plt.figure(figsize=(width, heigth))
@@ -287,7 +291,8 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
                                           colors=colors, rebin=rebin, nolabels=True, axis=ax,
                                           fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
                                           subsample_profile=subsample_profile, npad=npad,
-                                          highlight=highlight, residuals=residuals)
+                                          highlight=highlight, residuals=residuals,
+                                          norm_resid=norm_resid)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents)-2:
@@ -312,13 +317,13 @@ def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
         print "\n  Output saved to PDF file:  " + filename
 
     if show:
-        plt.show(block=True)
+        plt.show()
 
 
 def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                      xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
-                     residuals=False, highlight=[]):
+                     residuals=False, highlight=[], norm_resid=False):
     """
     Plot a single absorption line.
 
@@ -380,6 +385,9 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     residuals : bool   [default = False]
         Add a panel above the absorption line view to show the residuals of the fit.
+
+    norm_resid : bool   [default = False]
+        Show normalized residuals.
 
     highlight : list(str)
         A list of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
@@ -481,7 +489,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight:
                         tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
-                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls='-', color='r')
+                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458,
+                                   ls='-', lw=2.5, color='darkorange', alpha=0.7)
                         N_highlight += 1
 
                     ls, color = component_prop.next()
@@ -541,23 +550,36 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
-        ax.plot(vel_profile, profile, color='r', lw=1.5)
+        ax.plot(vel_profile, profile, color='r', lw=1.0)
         if N_highlight > 0:
-            ax.plot(vel_profile, profile_hl, color='orange', lw=1.5, ls='--')
+            ax.plot(vel_profile, profile_hl, color='orange', lw=1.0, ls='--')
 
         if residuals:
             p_data = np.interp(vel, vel_profile, profile)
-            cax.plot(vel, masked_range - p_data, color='0.7', drawstyle='steps-mid', lw=0.9)
-            cax.errorbar(vel, spectrum-p_data, err, ls='', color='gray', lw=1.)
-            cax.plot(vel, spectrum-p_data, color='k', drawstyle='steps-mid', lw=1.)
+            if norm_resid:
+                masked_resid = (masked_range - p_data)/err
+                resid = (spectrum - p_data)/err
+            else:
+                masked_resid = masked_range - p_data
+                resid = spectrum - p_data
+
+            cax.plot(vel, masked_resid, color='0.7', drawstyle='steps-mid', lw=0.9)
+            cax.plot(vel, resid, color='k', drawstyle='steps-mid', lw=1.)
+            if norm_resid:
+                cax.axhline(3, ls=':', color='crimson', lw=0.5)
+                cax.axhline(-3, ls=':', color='crimson', lw=0.5)
+                res_min = 4
+                res_max = -4
+            else:
+                cax.errorbar(vel, resid, err, ls='', color='gray', lw=1.)
+                cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
+                cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
+                res_min = np.nanmax(4*err)
+                res_max = np.nanmin(-4*err)
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
-            cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
-            cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
             # cax.set_xticklabels([''])
             cax.tick_params(labelbottom='off')
             cax.set_yticklabels([''])
-            res_min = np.nanmax(4*err)
-            res_max = np.nanmin(-4*err)
             cax.set_ylim(res_min, res_max)
 
     if nolabels:

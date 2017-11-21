@@ -1090,7 +1090,7 @@ class DataSet(object):
                     if line_tag in self.all_lines:
                         self.activate_line(line_tag)
 
-    def prepare_dataset(self, norm=True, mask=True, verbose=True):
+    def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
@@ -1176,7 +1176,8 @@ class DataSet(object):
         # --- mask spectral regions that should not be fitted
         if mask:
             for region in self.regions:
-                if region.new_mask:
+                # if region.new_mask:
+                if active_only and region.has_active_lines() and region.new_mask:
                     # region.define_mask()
                     region.define_mask(z=self.redshift, dataset=self)
             if verbose and self.verbose:
@@ -1339,7 +1340,7 @@ class DataSet(object):
     def plot_fit(self, linestyles=['--', ':'], colors=['RoyalBlue', 'Crimson'],
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
-                 highlight=[], residuals=True):
+                 highlight=[], residuals=True, norm_resid=False):
         """
         Plot *all* the absorption lines and the best-fit profiles.
         For details, see :func:`output.plot_all_lines`.
@@ -1349,7 +1350,8 @@ class DataSet(object):
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
                               filename=filename, show=show,
                               subsample_profile=subsample_profile, npad=npad,
-                              highlight=highlight, residuals=residuals)
+                              highlight=highlight, residuals=residuals,
+                              norm_resid=norm_resid)
         plt.show()
 
     def velocity_plot(self, **kwargs):
