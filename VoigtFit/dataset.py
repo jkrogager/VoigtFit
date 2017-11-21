@@ -1337,7 +1337,7 @@ class DataSet(object):
         chi2 = popt.chisqr
         return popt, chi2
 
-    def plot_fit(self, linestyles=['--', ':'], colors=['RoyalBlue', 'Crimson'],
+    def plot_fit(self, linestyles=['--'], colors=['RoyalBlue'],
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
                  highlight=[], residuals=True, norm_resid=False):

@@ -203,7 +203,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
     plt.show()
 
 
-def plot_all_lines(dataset, plot_fit=False, linestyles=['--'], colors=['b'],
+def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
                    rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                    filename=None, show=True, subsample_profile=1, npad=50,
                    highlight=[], residuals=True, norm_resid=False):
@@ -532,10 +532,6 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     # Expand mask by 1 pixel around each masked range
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
-    # if mask_idx.max() == len(mask)-1:
-    #     big_mask_idx = np.union1d(mask_idx, mask_idx-1)
-    # else:
-    #     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
@@ -543,7 +539,6 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     ax.plot(vel, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
 
     spectrum = np.ma.masked_where(~mask, y)
-    # error = np.ma.masked_where(~mask, err)
     ax.errorbar(vel, spectrum, err, ls='', color='gray', lw=1.)
     ax.plot(vel, spectrum, color='k', drawstyle='steps-mid', lw=1.)
     ax.axhline(0., ls='--', color='0.7', lw=0.7)
