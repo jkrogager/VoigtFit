@@ -965,7 +965,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print "  [%s/H] = %.3f +/- %.3f" % (element, metal, metal_err)
+        print "  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err)
 
 
 def print_abundance(dataset):
