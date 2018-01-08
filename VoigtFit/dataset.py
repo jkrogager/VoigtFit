@@ -247,11 +247,15 @@ class DataSet(object):
             If the input spectrum is normalized this should be given as True
             in order to skip normalization steps.
         """
+        # assign specid:
+        specid = "sid_%i" % len(self.data)
+
         if err is None:
             err = np.ones_like(flux)
 
         self.data.append({'wl': wl, 'flux': flux,
-                          'error': err, 'res': res, 'norm': normalized})
+                          'error': err, 'res': res,
+                          'norm': normalized, 'specID': specid})
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
@@ -852,10 +856,6 @@ class DataSet(object):
 
         l_center = new_line.l0*(self.redshift + 1.)
 
-        # Initiate new Region:
-        new_region = Region(velspan)
-        new_region.add_line(new_line)
-
         if self.data:
             success = False
             for chunk in self.data:
@@ -865,18 +865,21 @@ class DataSet(object):
                     span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
                     new_wavelength = wl[span]
 
+                    # Initiate new Region:
+                    new_region = Region(velspan, chunk['specID'])
+                    new_region.add_line(new_line)
+
                     # check if the line overlaps with another already defined region
                     if len(self.regions) > 0:
                         merge = -1
                         for num, region in enumerate(self.regions):
-                            # Add a test for data compatibility such that two different spectral
-                            # cannot be merged into one region
-                            if np.intersect1d(new_wavelength, region.wl).any():
-                                merge = num
+                            # Only allow regions arising from the same chunk to be merged:
+                            if chunk['specID'] == region.specID:
+                                if np.intersect1d(new_wavelength, region.wl).any():
+                                    merge = num
 
                         if merge >= 0:
-                            # If the region overlaps with another:
-                            # merge the list of lines in the region
+                            # If the region overlaps with another merge the two regions:
                             new_region.lines += self.regions[merge].lines
 
                             # merge the wavelength region
@@ -898,8 +901,9 @@ class DataSet(object):
                     new_region.add_data_to_region(chunk, cutout)
 
                     self.regions.append(new_region)
-                    self.all_lines.append(line_tag)
-                    self.lines[line_tag] = new_line
+                    if line_tag not in self.all_lines:
+                        self.all_lines.append(line_tag)
+                        self.lines[line_tag] = new_line
                     success = True
 
             if not success:

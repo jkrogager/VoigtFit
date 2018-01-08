@@ -75,6 +75,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
             reg_group.attrs.create('normalized', reg.normalized)
             reg_group.attrs.create('cont_err', reg.cont_err)
             reg_group.attrs.create('new_mask', reg.new_mask)
+            reg_group.attrs.create('specID', reg.specID)
             reg_group.create_dataset('wl', data=reg.wl)
             reg_group.create_dataset('flux', data=reg.flux)
             reg_group.create_dataset('mask', data=reg.mask)
@@ -166,7 +167,8 @@ def load_dataset_from_hdf(fname):
             # Instantiate the Region Class with the first Line:
             line_init = region_lines[0]
             v = reg.attrs['velspan']
-            Region = regions.Region(v, line_init)
+            specID = reg.attrs['specID']
+            Region = regions.Region(v, specID, line_init)
             if len(region_lines) == 1:
                 # The first and only line has already been loaded
                 pass
