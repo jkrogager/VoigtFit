@@ -869,11 +869,13 @@ class DataSet(object):
                     if len(self.regions) > 0:
                         merge = -1
                         for num, region in enumerate(self.regions):
+                            # Add a test for data compatibility such that two different spectral
+                            # cannot be merged into one region
                             if np.intersect1d(new_wavelength, region.wl).any():
                                 merge = num
 
                         if merge >= 0:
-                            # If the regions overlap with another:
+                            # If the region overlaps with another:
                             # merge the list of lines in the region
                             new_region.lines += self.regions[merge].lines
 
