@@ -119,11 +119,12 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
     for ref_line in dataset.lines.values():
         if ref_line.tag in included_lines:
             pass
-        elif ref_line.ion[-1].islower():
-            # do not plot individual figures for fine-structure lines
-            included_lines.append(ref_line)
+        # elif ref_line.ion[-1].islower():
+        #     # do not plot individual figures for fine-structure lines
+        #     included_lines.append(ref_line)
         else:
-            region = dataset.find_line(ref_line.tag)
+            regions_of_line = dataset.find_line(ref_line.tag)
+            region = regions_of_line[0]
             lines_to_plot.append(ref_line.tag)
             if len(region.lines) == 1:
                 included_lines.append(ref_line.tag)
@@ -236,10 +237,13 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
         if ref_line.tag in included_lines:
             pass
         else:
-            region = dataset.find_line(ref_line.tag)
-            lines_to_plot.append(ref_line.tag)
+            regions_of_line = dataset.find_line(ref_line.tag)
+            for region in regions_of_line:
+                lines_to_plot.append(ref_line.tag)
+
             if len(region.lines) == 1:
                 included_lines.append(ref_line.tag)
+
             else:
                 l_ref = ref_line.l0*(dataset.redshift + 1)
                 for line in region.lines:
@@ -285,14 +289,17 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
             if line_tag in lines_in_figure:
                 pass
             else:
-                ax = fig.add_subplot(rows, columns, num)
-                _, LIV = plot_single_line(dataset, line_tag,
-                                          plot_fit=plot_fit, linestyles=linestyles,
-                                          colors=colors, rebin=rebin, nolabels=True, axis=ax,
-                                          fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
-                                          subsample_profile=subsample_profile, npad=npad,
-                                          highlight=highlight, residuals=residuals,
-                                          norm_resid=norm_resid)
+                num_regions = len(dataset.find_line(line_tag))
+                for idx in range(num_regions):
+                    ax = fig.add_subplot(rows, columns, num)
+                    _, LIV = plot_single_line(dataset, line_tag, index=idx,
+                                              plot_fit=plot_fit, linestyles=linestyles,
+                                              colors=colors, rebin=rebin, nolabels=True, axis=ax,
+                                              fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
+                                              subsample_profile=subsample_profile, npad=npad,
+                                              highlight=highlight, residuals=residuals,
+                                              norm_resid=norm_resid)
+                    num += 1
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents)-2:
@@ -304,7 +311,7 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
 
                 if num % 2 == 1:
                     ax.set_ylabel("Normalized Flux", fontsize=12)
-                num += 1
+                # num += 1
                 # LIV is a shorthand for 'lines_in_view'
 
         if filename:
@@ -320,7 +327,7 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
         plt.show()
 
 
-def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
+def plot_single_line(dataset, line_tag, index=0, plot_fit=False, linestyles=['--'], colors=['b'],
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                      xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
                      residuals=False, highlight=[], norm_resid=False):
@@ -334,6 +341,10 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
+
+    index : int   [default = 0]
+        The line index. When fitting the same line in multiple spectra this indexed
+        points to the index of the given region to be plotted.
 
     plot_fit : bool   [default = False]
         If `True`, the best-fit profile will be shown
@@ -403,7 +414,8 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         dataset.add_line(line_tag, active=False)
         dataset.prepare_dataset()
 
-    region = dataset.find_line(line_tag)
+    regions_of_line = dataset.find_line(line_tag)
+    region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
     cont_err = region.cont_err
@@ -627,7 +639,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     return (ax, lines_in_view)
 
 
-def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
+def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axis=None):
     """
     Plot residuals for the best-fit to a given absorption line.
 
@@ -638,6 +650,10 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
+
+    index : int   [default = 0]
+        The line index. When fitting the same line in multiple spectra this indexed
+        points to the index of the given region to be plotted.
 
     rebin: int
         Integer factor for rebinning the spectral data.
@@ -658,7 +674,8 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
         dataset.add_line(line_tag, active=False)
         dataset.prepare_dataset()
 
-    region = dataset.find_line(line_tag)
+    regions_of_line = dataset.find_line(line_tag)
+    region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
     # cont_err = region.cont_err

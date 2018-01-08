@@ -183,10 +183,11 @@ def main():
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
             else:
-                reg = dataset.find_line(tag)
-                if reg.velspan != velspan:
-                    dataset.remove_line(tag)
-                    new_lines.append([tag, velspan])
+                regions_of_line = dataset.find_line(tag)
+                for reg in regions_of_line:
+                    if reg.velspan != velspan:
+                        dataset.remove_line(tag)
+                        new_lines.append([tag, velspan])
 
         for tag, velspan in new_lines:
                 dataset.add_line(tag, velspan)
@@ -369,8 +370,9 @@ def main():
     if 'reset' in parameters.keys():
         if len(parameters['reset']) > 0:
             for line_tag in parameters['reset']:
-                reg = dataset.find_line(line_tag)
-                dataset.reset_region(reg)
+                regions_of_line = dataset.find_line(line_tag)
+                for reg in regions_of_line:
+                    dataset.reset_region(reg)
         else:
             dataset.reset_all_regions()
 
