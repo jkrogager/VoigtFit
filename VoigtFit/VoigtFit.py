@@ -76,15 +76,19 @@ def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
 
 
 def air2vac(air):
-    """Air to vacuum conversion from Donald Morton 1991, ApJS 77, 119."""
-    if type(air) == float or type(air) == int:
-        air = np.array(air)
+    """
+    Air to vacuum conversion from Bengt Edlén 1953,
+    Journal of the Optical Society of America, Vol. 43, Issue 5, pp. 339-344.
+    """
+    if np.min(air) < 2000.:
+        raise ValueError("Input wavelength below valid range!")
     air = np.array(air)
     ij = (np.array(air) >= 2000)
     out = np.array(air).copy()
-    sigma2 = (1.e4/air)**2
-    # fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/( 41.0 - sigma2)
-    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - sigma2) + 2.5540e-4/(41.0 - sigma2)
+    s2 = (1.e4/air)**2
+    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - s2) + 2.5540e-4/(41.0 - s2)
+    # Alternative solution from VALD:
+    # fact = 1 + 8.336624e-5 + 0.02408927 / (130.106592 - s2) + 1.599740895e-4 / (38.925688 - s2),
     out[ij] = air[ij]*fact[ij]
     return out
 
