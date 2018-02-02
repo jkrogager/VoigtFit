@@ -236,6 +236,16 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
 
         if ref_line.tag in included_lines:
             pass
+
+        elif ref_line.ion[-1].islower():
+            # Check if the gorund state is defined in same region.
+            regions_of_line = dataset.find_line(ref_line.tag)
+            ground_state = ref_line.ion[:-1]
+            reg = regions_of_line[0]
+            ions_in_region = [line.ion for line in reg.lines]
+            if ground_state in ions_in_region:
+                included_lines.append(ref_line.tag)
+
         else:
             regions_of_line = dataset.find_line(ref_line.tag)
             for region in regions_of_line:
