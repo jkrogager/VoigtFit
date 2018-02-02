@@ -145,9 +145,10 @@ class DataSet(object):
         regions : list(:class:`regions.Region`)
             A list of the fitting regions.
 
-        cheb_order : int   [default = 1]
+        cheb_order : int   [default = -1]
             The maximum order of Chebyshev polynomials to use for the continuum
-            fitting in each region.
+            fitting in each region. If negative, the Chebyshev polynomials will
+            not be included in the fit.
 
         norm_method : str   [default = 'linear']
             Default normalization method to use for interactive normalization
@@ -202,7 +203,7 @@ class DataSet(object):
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
         self.regions = list()
-        self.cheb_order = 1
+        self.cheb_order = -1
         self.norm_method = 'linear'
 
         # Number of components in each ion
@@ -1209,9 +1210,12 @@ class DataSet(object):
         if mask:
             for region in self.regions:
                 # if region.new_mask:
-                if active_only and region.has_active_lines() and region.new_mask:
-                    # region.define_mask()
-                    region.define_mask(z=self.redshift, dataset=self)
+                if region.new_mask:
+                    if active_only and region.has_active_lines():
+                        region.define_mask(z=self.redshift, dataset=self)
+                    elif not active_only:
+                        region.define_mask(z=self.redshift, dataset=self)
+
             if verbose and self.verbose:
                 print ""
                 print " [DONE] - Spectral masks successfully created."
