@@ -19,10 +19,11 @@ def linfunc(x, a, b):
 
 
 class Region():
-    def __init__(self, velspan, line=None):
+    def __init__(self, velspan, specID, line=None):
         """
         A Region contains the fitting data, exclusion mask and line information.
-        The class is instantiated with the velocity span, `velspan`,
+        The class is instantiated with the velocity span, `velspan`, and a spectral ID
+        pointing to the raw data chunk from `DataSet.data`,
         and can include a :class:`dataset.Line` instance for the first line
         belonging to the region.
 
@@ -65,8 +66,12 @@ class Region():
         cont_err : float
             An estimate of the uncertainty in the continuum fit.
 
+        specID : str
+            A spectral identifier to point back to the raw data chunk.
+
         """
         self.velspan = velspan
+        self.specID = specID
         if line:
             self.lines = [line]
         else:

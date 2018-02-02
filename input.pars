@@ -11,7 +11,7 @@ save :  test_dataset
 C_order = 2
 
 # Skip interactive masking:
-nomask
+output velocity
 
 print metallicity logNHI = 21.31 +/- 0.01
 # The mini-language is flexible and accepts words
@@ -29,7 +29,7 @@ print metallicity logNHI = 21.31 +/- 0.01
 data  'data/Q1313+1441/1313_VIS_1d.spec' 25.4
 data  'data/Q1313+1441/1313_UVB_1d.spec' 37.0
 # reset data for all lines:
-#reset
+reset
 # or for some lines only:
 #reset SiII_1808 HI_1215
 
@@ -48,6 +48,7 @@ lines MgI_2852 MgI_2026
 #lines SiII_1808
 
 # Mask an individual line using the interactive window
+#clear mask
 #mask HI_1215
 mask FeII_2374
 
@@ -59,12 +60,20 @@ component FeII 1.794282 20. 14.3
 component FeII 1.794722 20. 14.3
 component FeII 1.795121 15. 14.5
 
+#component FeII -54.0  27.7  12.2  velocity
+#component FeII  -5.0  15.9  13.0  velocity
+#component FeII  30.0  14.0  12.2  velocity
+#component FeII  72.0   9.7  11.6  velocity
+#component FeII 115.0  20.0  11.6  velocity
+
+
 #component HI   z=1.794060 b=20. logN=21.3 var_b=False
 
 # Define components for FeII using the interactive window.
 # The transition used for defining the components should be a strong one:
 #interactive FeII_2374
 # This will overwrite the components defined above
+fit-options rebin=1
 
 # The mini-language is flexible, so all of the following are accepted:
 copy components to ZnII from FeII scale logN=12.9 of comp 1

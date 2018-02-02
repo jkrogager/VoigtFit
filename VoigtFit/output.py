@@ -4,6 +4,7 @@ __author__ = 'Jens-Kristian Krogager'
 
 import os
 from os.path import splitext
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -15,6 +16,67 @@ import voigt
 import Asplund
 
 plt.rcParams['lines.linewidth'] = 1.0
+
+
+valid_kwargs = Line2D.properties(Line2D([0], [0])).keys() + ['ymin', 'ymax']
+default_comp = {'color': 'b', 'ls': '-',
+                'alpha': 1.0, 'lw': 1.0,
+                'ymin': 0.9, 'ymax': 1.0,
+                'text': None, 'loc': 'above'}
+default_highlight_comp = {'color': 'DarkOrange', 'ls': '-',
+                          'alpha': 0.7, 'lw': 2.0,
+                          'ymin': 0.85, 'ymax': 1.0,
+                          'text': None, 'loc': 'above'}
+
+
+class CompProp(object):
+    def __init__(self, list_of_ions, prop=None):
+        self.properties = dict()
+        if prop:
+            for ion in list_of_ions:
+                self.properties[ion] = prop
+        else:
+            for ion in list_of_ions:
+                self.properties[ion] = default_comp.copy()
+
+    def set_properties(self, ion, prop):
+        """Set properties of `ion` from a dictionary."""
+        if ion not in self.properties.keys():
+            self.properties[ion] = default_comp
+
+        for key, val in prop.items():
+            self.properties[ion][key] = val
+
+    def set_value(self, ion, key, value):
+        """Set single value for the property `key` of the given `ion`."""
+        self.properties[ion][key] = value
+
+    def get_value(self, ion, key):
+        """Set single value for the property `key` of the given `ion`."""
+        return self.properties[ion][key]
+
+    def get_line_props(self, ion):
+        """Return only properties appropriate for matplotlib.axvline"""
+        vline_props = self.properties[ion].copy()
+        for key in vline_props.keys():
+            if key not in valid_kwargs:
+                vline_props.pop(key)
+        return vline_props
+
+    def get_text_props(self, ion):
+        """Return properties related to the text label"""
+        label = self.properties[ion]['text']
+        if self.properties[ion]['loc'].lower() == 'top':
+            pos = self.properties[ion]['ymax']+0.02
+            text_align = 'bottom'
+        elif self.properties[ion]['loc'].lower() == 'bottom':
+            pos = self.properties[ion]['ymin']-0.02
+            text_align = 'top'
+        else:
+            pos = self.properties[ion]['ymax']+0.02
+            text_align = 'bottom'
+
+        return label, pos, text_align
 
 
 def mad(x):
@@ -119,11 +181,12 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
     for ref_line in dataset.lines.values():
         if ref_line.tag in included_lines:
             pass
-        elif ref_line.ion[-1].islower():
-            # do not plot individual figures for fine-structure lines
-            included_lines.append(ref_line)
+        # elif ref_line.ion[-1].islower():
+        #     # do not plot individual figures for fine-structure lines
+        #     included_lines.append(ref_line)
         else:
-            region = dataset.find_line(ref_line.tag)
+            regions_of_line = dataset.find_line(ref_line.tag)
+            region = regions_of_line[0]
             lines_to_plot.append(ref_line.tag)
             if len(region.lines) == 1:
                 included_lines.append(ref_line.tag)
@@ -203,10 +266,11 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
     plt.show()
 
 
-def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
-                   rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
-                   filename=None, show=True, subsample_profile=1, npad=50,
-                   highlight=[], residuals=True, norm_resid=False):
+def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax=None,
+                   max_rows=4, filename=None, show=True, subsample_profile=1, npad=50,
+                   residuals=True, norm_resid=False, line_labels=True,
+                   default_props={}, element_props={}, highlight_props=None,
+                   label_all_ions=False):
     """
     Plot all active absorption lines. This function is a wrapper of the function
     :func:`plot_single_line`. For a complete description of input parameters,
@@ -235,11 +299,24 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
 
         if ref_line.tag in included_lines:
             pass
+
+        elif ref_line.ion[-1].islower():
+            # Check if the gorund state is defined in same region.
+            regions_of_line = dataset.find_line(ref_line.tag)
+            ground_state = ref_line.ion[:-1]
+            reg = regions_of_line[0]
+            ions_in_region = [line.ion for line in reg.lines]
+            if ground_state in ions_in_region:
+                included_lines.append(ref_line.tag)
+
         else:
-            region = dataset.find_line(ref_line.tag)
-            lines_to_plot.append(ref_line.tag)
+            regions_of_line = dataset.find_line(ref_line.tag)
+            for region in regions_of_line:
+                lines_to_plot.append(ref_line.tag)
+
             if len(region.lines) == 1:
                 included_lines.append(ref_line.tag)
+
             else:
                 l_ref = ref_line.l0*(dataset.redshift + 1)
                 for line in region.lines:
@@ -285,14 +362,17 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
             if line_tag in lines_in_figure:
                 pass
             else:
-                ax = fig.add_subplot(rows, columns, num)
-                _, LIV = plot_single_line(dataset, line_tag,
-                                          plot_fit=plot_fit, linestyles=linestyles,
-                                          colors=colors, rebin=rebin, nolabels=True, axis=ax,
-                                          fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
-                                          subsample_profile=subsample_profile, npad=npad,
-                                          highlight=highlight, residuals=residuals,
-                                          norm_resid=norm_resid)
+                num_regions = len(dataset.find_line(line_tag))
+                for idx in range(num_regions):
+                    ax = fig.add_subplot(rows, columns, num)
+                    _, LIV = plot_single_line(dataset, line_tag, index=idx,
+                                              plot_fit=plot_fit, linestyles=linestyles,
+                                              colors=colors, rebin=rebin, nolabels=True, axis=ax,
+                                              fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
+                                              subsample_profile=subsample_profile, npad=npad,
+                                              highlight=highlight, residuals=residuals,
+                                              norm_resid=norm_resid)
+                    num += 1
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents)-2:
@@ -304,7 +384,7 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
 
                 if num % 2 == 1:
                     ax.set_ylabel("Normalized Flux", fontsize=12)
-                num += 1
+                # num += 1
                 # LIV is a shorthand for 'lines_in_view'
 
         if filename:
@@ -320,10 +400,12 @@ def plot_all_lines(dataset, plot_fit=True, linestyles=['--'], colors=['b'],
         plt.show()
 
 
-def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], colors=['b'],
+def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                      xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
-                     residuals=False, highlight=[], norm_resid=False):
+                     residuals=False, norm_resid=False, line_labels=True,
+                     default_props={}, element_props={}, highlight_props=None,
+                     label_all_ions=False):
     """
     Plot a single absorption line.
 
@@ -335,16 +417,12 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
 
+    index : int   [default = 0]
+        The line index. When fitting the same line in multiple spectra this indexed
+        points to the index of the given region to be plotted.
+
     plot_fit : bool   [default = False]
         If `True`, the best-fit profile will be shown
-
-    linestyles : list(linestyle)
-        A list of matplotlib linestyles to show velocity components
-
-    colors : list(colors)
-        A loit of matplotlib color strings to show the velocity components
-        The colors and linestyles are combined to form an iterator
-        which cycles through a set of (linestyle, color).
 
     loc : str   [default = 'left']
         Places the line tag (right or left).
@@ -389,9 +467,42 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     norm_resid : bool   [default = False]
         Show normalized residuals.
 
-    highlight : list(str)
-        A list of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
-        for this subset of ions.
+    line_labels : bool   [default = True]
+        Show line labels as axis legend.
+
+    default_props : dict
+        Dictionary of transition tick marker properties. The dictionary is passed to
+        matplotlib.axes.Axes.axvline to control color, linewidth, linestyle etc.
+        Two additional keywords can be defined: 'text' and 'loc'. The keyword 'text'
+        is a string that will be printed above or below each tick mark for each element.
+        The keyword 'loc' controls the placement of the tick mark text for the transistions,
+        and must be one either  'above' or 'below'.
+
+    element_props : dict
+        Dictionary of properties for individual elements.
+        Each element defines a dictionary with individual properties following the format
+        for `default_props`.
+
+        Ex: element_props={'SiII': {'color': 'red', 'lw': 1.5}, 'FeII': {'ls': '--', 'alpha': 0.2}}
+            This will set the color and linewidth of the tick marks for SiII transitions
+            and the linestyle and alpha-parameter for FeII transitions.
+
+    highlight_props : dict/list   [default = None]
+        A dictionary of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
+        for this subset of ions. Each `ion` as a keyword must specify a dictionary which can
+        change individual properties for the given `ion`. Similar to `element_props`.
+        If an empty dictionary is given, the default parameters will be used.
+        Alternatively, a list of `ions` can be given to use default properties for all `ions`.
+
+        Ex: highlight_props={'SiII':{}, 'FeII':{'color': 'blue'}}
+            This will highlight SiII transitions with default highlight properties, and FeII
+            transistions with a user specified color.
+
+            highlight_props=['SiII', 'FeII']
+            This will highlight SiII and FeII transitions using default highlight properties.
+
+    label_all_ions : bool   [default = False]
+        Show labels for all `ions` defined. The labels will appear above the component tick marks.
 
 
 
@@ -399,11 +510,37 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
 
     """
 
+    # Convert highlight_props to dictionary if a list of `ions` is given:
+    if isinstance(highlight_props, list):
+        highlight_props = {key: {} for key in highlight_props}
+    elif highlight_props is None:
+        highlight_props = {}
+
+    # Setup the line properties:
+    ions_in_dataset = list()
+    for line in dataset.lines.values():
+        if line.ion not in ions_in_dataset:
+            ions_in_dataset.append(line.ion)
+
+    comp_props = CompProp(ions_in_dataset, default_props)
+    hl_comp_props = CompProp(ions_in_dataset)
+    for this_ion, these_props in element_props.items():
+        comp_props.set_properties(this_ion, these_props)
+
+    for this_ion, these_props in highlight_props.items():
+        hl_comp_props.set_properties(this_ion, these_props)
+
     if line_tag not in dataset.all_lines:
         dataset.add_line(line_tag, active=False)
         dataset.prepare_dataset()
 
-    region = dataset.find_line(line_tag)
+    if label_all_ions:
+        for ion in ions_in_dataset:
+            if comp_props.get_value(ion, 'text') is None:
+                comp_props.set_value(ion, 'text', ion)
+
+    regions_of_line = dataset.find_line(line_tag)
+    region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
     cont_err = region.cont_err
@@ -434,6 +571,14 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
+    if not xmin:
+        xmin = -region.velspan
+    if not xmax:
+        xmax = region.velspan
+    ax.set_xlim(xmin, xmax)
+    if np.abs(xmin) > 900 or np.abs(xmax) > 900:
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
 
@@ -461,18 +606,12 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         else:
             params = dataset.pars
 
-        # # Determine range in which to evaluate the profile:
-        # max_logN = max([val.value for key, val in params.items() if 'logN' in key])
-        # if max_logN > 19.0:
-        #     velspan = 20000.*(1. + 1.0*(max_logN-19.))
-        # else:
-        #     velspan = 20000.
-
         for line in dataset.lines.values():
             if line.active:
-                # Reset line properties for each element
-                component_prop = itertools.product(linestyles, colors)
-                component_prop = itertools.cycle(component_prop)
+                # Get transition mark properties for this element
+                component_prop = comp_props.get_line_props(line.ion)
+                comp_text, comp_y_loc, loc_string = comp_props.get_text_props(line.ion)
+                hl_component_prop = hl_comp_props.get_line_props(line.ion)
 
                 # Load line properties
                 l0, f, gam = line.get_properties()
@@ -487,14 +626,16 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
-                    if ion in highlight:
+                    if ion in highlight_props.keys():
                         tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
-                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458,
-                                   ls='-', lw=2.5, color='darkorange', alpha=0.7)
+                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, **hl_component_prop)
                         N_highlight += 1
 
-                    ls, color = component_prop.next()
-                    ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, ls=ls, color=color)
+                    ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, **component_prop)
+                    comp_x_loc = (l0*(z+1) - l_ref)/l_ref*299792.458
+                    if comp_text:
+                        ax.text((comp_x_loc - xmin)/(xmax-xmin), comp_y_loc, comp_text,
+                                transform=ax.transAxes, ha='center', va=loc_string)
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
@@ -510,14 +651,6 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
         vel_profile = (wl_line - l_ref)/l_ref*299792.458
 
     vel = (x - l_ref) / l_ref * 299792.458
-
-    if not xmin:
-        xmin = -region.velspan
-    if not xmax:
-        xmax = region.velspan
-    ax.set_xlim(xmin, xmax)
-    if np.abs(xmin) > 900 or np.abs(xmax) > 900:
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
 
     if residuals and plot_fit:
         cax.set_xlim(xmin, xmax)
@@ -611,9 +744,11 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     else:
         label_x = 0.03
         loc = 'left'
-    ax.text(label_x, 0.08, line_string, va='bottom', ha=loc,
-            transform=ax.transAxes, fontsize=fontsize,
-            bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
+
+    if line_labels:
+        ax.text(label_x, 0.08, line_string, va='bottom', ha=loc,
+                transform=ax.transAxes, fontsize=fontsize,
+                bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
 
     # plt.tight_layout()
     if axis:
@@ -627,7 +762,7 @@ def plot_single_line(dataset, line_tag, plot_fit=False, linestyles=['--'], color
     return (ax, lines_in_view)
 
 
-def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
+def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axis=None):
     """
     Plot residuals for the best-fit to a given absorption line.
 
@@ -638,6 +773,10 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
+
+    index : int   [default = 0]
+        The line index. When fitting the same line in multiple spectra this indexed
+        points to the index of the given region to be plotted.
 
     rebin: int
         Integer factor for rebinning the spectral data.
@@ -658,7 +797,8 @@ def plot_residual(dataset, line_tag, rebin=1, xmin=None, xmax=None, axis=None):
         dataset.add_line(line_tag, active=False)
         dataset.prepare_dataset()
 
-    region = dataset.find_line(line_tag)
+    regions_of_line = dataset.find_line(line_tag)
+    region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
     # cont_err = region.cont_err

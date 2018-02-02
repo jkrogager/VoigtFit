@@ -145,9 +145,10 @@ class DataSet(object):
         regions : list(:class:`regions.Region`)
             A list of the fitting regions.
 
-        cheb_order : int   [default = 1]
+        cheb_order : int   [default = -1]
             The maximum order of Chebyshev polynomials to use for the continuum
-            fitting in each region.
+            fitting in each region. If negative, the Chebyshev polynomials will
+            not be included in the fit.
 
         norm_method : str   [default = 'linear']
             Default normalization method to use for interactive normalization
@@ -202,7 +203,7 @@ class DataSet(object):
         # container for the fitting regions containing Lines
         # each region is defined as a class 'Region'
         self.regions = list()
-        self.cheb_order = 1
+        self.cheb_order = -1
         self.norm_method = 'linear'
 
         # Number of components in each ion
@@ -213,6 +214,7 @@ class DataSet(object):
 
         self.ready2fit = False
         self.best_fit = None
+        self.minimizer = None
         self.pars = None
         self.name = name
 
@@ -247,11 +249,15 @@ class DataSet(object):
             If the input spectrum is normalized this should be given as True
             in order to skip normalization steps.
         """
+        # assign specid:
+        specid = "sid_%i" % len(self.data)
+
         if err is None:
             err = np.ones_like(flux)
 
         self.data.append({'wl': wl, 'flux': flux,
-                          'error': err, 'res': res, 'norm': normalized})
+                          'error': err, 'res': res,
+                          'norm': normalized, 'specID': specid})
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
@@ -276,12 +282,11 @@ class DataSet(object):
 
     def get_resolution(self, line_tag, verbose=False):
         """Return the spectral resolution for the fitting :class:`Region <regions.Region>`
-        where the line with the given `line_tag` is defined, otherwise give the resolution
-        for all fitting regions.
+        where the line with the given `line_tag` is defined.
 
         Parameters
         ----------
-        line_tag : str   [default = None]
+        line_tag : str
             The line-tag for the line to look up: e.g., "FeII_2374"
 
         verbose : bool   [default = False]
@@ -289,20 +294,25 @@ class DataSet(object):
 
         Returns
         -------
-        res : float
-            The spectral resolution of the fitting region where the given line is defined.
+        resolutions : list of float
+            A list of the spectral resolution of the fitting regions
+            where the given line is defined.
         """
         if line_tag:
-            region = self.find_line(line_tag)
-            if verbose and self.verbose:
-                output_msg = " Spectral resolution in the region around %s is %.1f km/s."
-                print output_msg % (line_tag, region.res)
-            return region.res
+            resolutions = list()
+            regions_of_line = self.find_line(line_tag)
+            for region in regions_of_line:
+                if verbose and self.verbose:
+                    output_msg = " Spectral resolution in the region around %s is %.1f km/s."
+                    print output_msg % (line_tag, region.res)
+                resolutions.append(region.res)
+            return resolutions
 
     def set_resolution(self, res, line_tag=None, verbose=True):
         """
         Set the spectral resolution in km/s for the :class:`Region <regions.Region>`
-        containing the line with the given `line_tag`.
+        containing the line with the given `line_tag`. If multiple spectra are fitted
+        simultaneously, this method will set the same resolution for *all* spectra.
         If `line_tag` is not given, the resolution will be set for *all* regions,
         including the raw data chunks defined in :attr:`dataset.DataSet.data`!
 
@@ -311,8 +321,9 @@ class DataSet(object):
         and only update the appropriate regions using a for-loop.
         """
         if line_tag:
-            region = self.find_line(line_tag)
-            region.res = res
+            regions_of_line = self.find_line(line_tag)
+            for region in regions_of_line:
+                region.res = res
 
         else:
             if verbose:
@@ -393,8 +404,9 @@ class DataSet(object):
             err_msg = "Invalid norm_method: %r" % norm_method
             raise ValueError(err_msg)
 
-        region = self.find_line(line_tag)
-        region.normalize(norm_method=norm_num)
+        regions_of_line = self.find_line(line_tag)
+        for region in regions_of_line:
+            region.normalize(norm_method=norm_num)
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True):
         """
@@ -420,15 +432,16 @@ class DataSet(object):
             If `True`, a telluric absorption template and sky emission template
             is shown for reference.
         """
-        region = self.find_line(line_tag)
-        if reset:
-            region.clear_mask()
+        regions_of_line = self.find_line(line_tag)
+        for region in regions_of_line:
+            if reset:
+                region.clear_mask()
 
-        if hasattr(mask, '__iter__'):
-            region.mask = mask
-            region.new_mask = False
-        else:
-            region.define_mask(z=self.redshift, dataset=self, telluric=telluric)
+            if hasattr(mask, '__iter__'):
+                region.mask = mask
+                region.new_mask = False
+            else:
+                region.define_mask(z=self.redshift, dataset=self, telluric=telluric)
 
     def find_line(self, line_tag):
         """
@@ -441,13 +454,17 @@ class DataSet(object):
 
         Returns
         -------
-        region : :class:`Region <regions.Region>`
-            The fitting region containing the given line.
+        regions_of_line : list of :class:`Region <regions.Region>`
+            A list of the fitting regions containing the given line.
+            This can be more than one region in case of overlapping or multiple spectra.
         """
+        regions_of_line = list()
         if line_tag in self.all_lines:
             for region in self.regions:
                 if region.has_line(line_tag):
-                    return region
+                    regions_of_line.append(region)
+
+            return regions_of_line
 
         else:
             if self.verbose:
@@ -462,10 +479,11 @@ class DataSet(object):
             line.set_active()
 
         else:
-            region = self.find_line(line_tag)
-            for line in region.lines:
-                if line.tag == line_tag:
-                    line.set_active()
+            regions_of_line = self.find_line(line_tag)
+            for region in regions_of_line:
+                for line in region.lines:
+                    if line.tag == line_tag:
+                        line.set_active()
 
     def deactivate_line(self, line_tag):
         """
@@ -477,10 +495,11 @@ class DataSet(object):
             line.set_inactive()
 
         else:
-            region = self.find_line(line_tag)
-            for line in region.lines:
-                if line.tag == line_tag:
-                    line.set_inactive()
+            regions_of_line = self.find_line(line_tag)
+            for region in regions_of_line:
+                for line in region.lines:
+                    if line.tag == line_tag:
+                        line.set_inactive()
 
         # --- Check if the ion has transistions defined in other regions
         ion = line_tag.split('_')[0]
@@ -620,8 +639,12 @@ class DataSet(object):
     def interactive_components(self, line_tag):
         """
         Define components interactively for a given ion. The components will be defined on the
-        basis of the single given line for that ion. Previously defined components for the
-        ion will be overwritten.
+        basis of the given line for that ion. If the line is defined in several spectral
+        then the interactive window will show up for each.
+        Running the interactive mode more times for different transitions of the same ion
+        will append the components to the structure.
+        If no components should be added, then simply click `enter` to terminate the process
+        for the given transition.
 
         Parameters
         ----------
@@ -635,59 +658,65 @@ class DataSet(object):
         redshifts and estimated column densities are printed to terminal. The b-parameter
         is assumed to be unresolved, i.e., taken from the resolution.
         """
-        region = self.find_line(line_tag)
-        wl, flux, err, mask = region.unpack()
-        plt.close('all')
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        mask_idx = np.where(mask == 0)[0]
-        big_mask_idx = np.union1d(mask_idx + 1, mask_idx - 1)
-        big_mask = np.ones_like(mask, dtype=bool)
-        big_mask[big_mask_idx] = False
-        masked_range = np.ma.masked_where(big_mask, flux)
-        flux = np.ma.masked_where(~mask, flux)
+        regions_of_line = self.find_line(line_tag)
+        for region in regions_of_line:
+            wl, flux, err, mask = region.unpack()
+            plt.close('all')
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            mask_idx = np.where(mask == 0)[0]
+            big_mask_idx = np.union1d(mask_idx + 1, mask_idx - 1)
+            big_mask = np.ones_like(mask, dtype=bool)
+            big_mask[big_mask_idx] = False
+            masked_range = np.ma.masked_where(big_mask, flux)
+            flux = np.ma.masked_where(~mask, flux)
 
-        ax.plot(wl, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
-        ax.plot(wl, flux, 'k', drawstyle='steps-mid')
+            ax.plot(wl, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
+            ax.plot(wl, flux, 'k', drawstyle='steps-mid')
 
-        line = self.lines[line_tag]
-        if region.normalized:
-            c_level = 1.
-        else:
-            ax.set_title("Click to Mark Continuum Level...")
-            cont_level_point = plt.ginput(1, 30.)
-            c_level = cont_level_point[0][1]
-            ax.axhline(c_level, color='0.3', ls=':')
-
-        ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
-        ax.set_xlabel(u"Wavelength  (Å)")
-        if region.normalized:
-            ax.set_ylabel(u"Normalized Flux")
-        else:
-            ax.set_ylabel(u"Flux")
-        comps = plt.ginput(-1, 60)
-        num = 0
-        # Assume that components are unresolved:
-        b = region.res/2.35482
-        comp_list = list()
-        for x0, y0 in comps:
-            z0 = x0/line.l0 - 1.
-            # Calculate logN from peak depth:
-            y0 = max(y0/c_level, 0.01)
-            logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
-            print "Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN)
-            ax.axvline(x0, color='darkblue', alpha=0.8)
-            comp_list.append([z0, b, logN])
-            num += 1
-        plt.draw()
-
-        if len(comp_list) > 0:
+            line = self.lines[line_tag]
             if line.element in self.components.keys():
-                self.reset_components(line.element)
-            for z, b, logN in comp_list:
-                self.add_component(line.element, z, b, logN)
-        else:
-            pass
+                l0, f, gam = line.get_properties()
+                ion = line.ion
+                for comp in self.components[ion]:
+                    z = comp[0]
+                    ax.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+
+            if region.normalized:
+                c_level = 1.
+            else:
+                ax.set_title("Click to Mark Continuum Level...")
+                cont_level_point = plt.ginput(1, 30.)
+                c_level = cont_level_point[0][1]
+                ax.axhline(c_level, color='0.3', ls=':')
+
+            ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
+            ax.set_xlabel(u"Wavelength  (Å)")
+            if region.normalized:
+                ax.set_ylabel(u"Normalized Flux")
+            else:
+                ax.set_ylabel(u"Flux")
+            comps = plt.ginput(-1, 60)
+            num = 0
+            # Assume that components are unresolved:
+            b = region.res/2.35482
+            comp_list = list()
+            for x0, y0 in comps:
+                z0 = x0/line.l0 - 1.
+                # Calculate logN from peak depth:
+                y0 = max(y0/c_level, 0.01)
+                logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
+                print "Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN)
+                ax.axvline(x0, color='darkblue', alpha=0.8)
+                comp_list.append([z0, b, logN])
+                num += 1
+            plt.draw()
+
+            if len(comp_list) > 0:
+                for z, b, logN in comp_list:
+                    self.add_component(line.element, z, b, logN)
+            else:
+                pass
 
     def delete_component(self, ion, index):
         """Remove component of the given `ion` with the given `index`."""
@@ -852,10 +881,6 @@ class DataSet(object):
 
         l_center = new_line.l0*(self.redshift + 1.)
 
-        # Initiate new Region:
-        new_region = Region(velspan)
-        new_region.add_line(new_line)
-
         if self.data:
             success = False
             for chunk in self.data:
@@ -865,18 +890,21 @@ class DataSet(object):
                     span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
                     new_wavelength = wl[span]
 
+                    # Initiate new Region:
+                    new_region = Region(velspan, chunk['specID'])
+                    new_region.add_line(new_line)
+
                     # check if the line overlaps with another already defined region
                     if len(self.regions) > 0:
                         merge = -1
                         for num, region in enumerate(self.regions):
-                            # Add a test for data compatibility such that two different spectral
-                            # cannot be merged into one region
-                            if np.intersect1d(new_wavelength, region.wl).any():
-                                merge = num
+                            # Only allow regions arising from the same chunk to be merged:
+                            if chunk['specID'] == region.specID:
+                                if np.intersect1d(new_wavelength, region.wl).any():
+                                    merge = num
 
                         if merge >= 0:
-                            # If the region overlaps with another:
-                            # merge the list of lines in the region
+                            # If the region overlaps with another merge the two regions:
                             new_region.lines += self.regions[merge].lines
 
                             # merge the wavelength region
@@ -898,8 +926,9 @@ class DataSet(object):
                     new_region.add_data_to_region(chunk, cutout)
 
                     self.regions.append(new_region)
-                    self.all_lines.append(line_tag)
-                    self.lines[line_tag] = new_line
+                    if line_tag not in self.all_lines:
+                        self.all_lines.append(line_tag)
+                        self.lines[line_tag] = new_line
                     success = True
 
             if not success:
@@ -976,11 +1005,12 @@ class DataSet(object):
                     self.add_line(fineline, self.velspan)
 
         # Set label:
-        reg = self.find_line(line_tag)
-        if full_label:
-            reg.label = line_complexes.CI_full_labels[line_tag]
-        else:
-            reg.label = line_complexes.CI_labels[line_tag]
+        regions_of_line = self.find_line(line_tag)
+        for reg in regions_of_line:
+            if full_label:
+                reg.label = line_complexes.CI_full_labels[line_tag]
+            else:
+                reg.label = line_complexes.CI_labels[line_tag]
 
     def remove_fine_lines(self, line_tag):
         """
@@ -1027,13 +1057,14 @@ class DataSet(object):
                 self.add_many_lines(transitions, velspan=velspan)
 
             ref_J0 = line_complexes.CO[band][0][0]
-            region = self.find_line(ref_J0)
-            if full_label:
-                label = line_complexes.CO_full_labels[band]
-                region.label = label
+            regions_of_line = self.find_line(ref_J0)
+            for region in regions_of_line:
+                if full_label:
+                    label = line_complexes.CO_full_labels[band]
+                    region.label = label
 
-            else:
-                region.label = "${\\rm CO\ %s}$" % band
+                else:
+                    region.label = "${\\rm CO\ %s}$" % band
 
         if molecule in self.molecules.keys():
             self.molecules[molecule].append(band)
@@ -1179,9 +1210,12 @@ class DataSet(object):
         if mask:
             for region in self.regions:
                 # if region.new_mask:
-                if active_only and region.has_active_lines() and region.new_mask:
-                    # region.define_mask()
-                    region.define_mask(z=self.redshift, dataset=self)
+                if region.new_mask:
+                    if active_only and region.has_active_lines():
+                        region.define_mask(z=self.redshift, dataset=self)
+                    elif not active_only:
+                        region.define_mask(z=self.redshift, dataset=self)
+
             if verbose and self.verbose:
                 print ""
                 print " [DONE] - Spectral masks successfully created."
@@ -1312,8 +1346,8 @@ class DataSet(object):
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-        minimizer = Minimizer(chi, self.pars, nan_policy='omit')
-        popt = minimizer.minimize(**kwargs)
+        self.minimizer = Minimizer(chi, self.pars, nan_policy='omit')
+        popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
 
         if self.cheb_order >= 0:
@@ -1339,21 +1373,25 @@ class DataSet(object):
         chi2 = popt.chisqr
         return popt, chi2
 
-    def plot_fit(self, linestyles=['--'], colors=['RoyalBlue'],
+    def plot_fit(self,
                  rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  filename=None, show=True, subsample_profile=1, npad=50,
-                 highlight=[], residuals=True, norm_resid=False):
+                 highlight_props=None, residuals=True, norm_resid=False,
+                 default_props={}, element_props={}, line_labels=True,
+                 label_all_ions=False):
         """
         Plot *all* the absorption lines and the best-fit profiles.
         For details, see :func:`output.plot_all_lines`.
         """
-        output.plot_all_lines(self, plot_fit=True, linestyles=linestyles,
-                              colors=colors, rebin=rebin, fontsize=fontsize,
+
+        output.plot_all_lines(self, plot_fit=True, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
                               filename=filename, show=show,
                               subsample_profile=subsample_profile, npad=npad,
-                              highlight=highlight, residuals=residuals,
-                              norm_resid=norm_resid)
+                              residuals=residuals, norm_resid=norm_resid,
+                              line_labels=line_labels, label_all_ions=label_all_ions,
+                              default_props=default_props, element_props=element_props,
+                              highlight_props=highlight_props)
         plt.show()
 
     def velocity_plot(self, **kwargs):
