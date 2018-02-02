@@ -213,6 +213,7 @@ class DataSet(object):
 
         self.ready2fit = False
         self.best_fit = None
+        self.minimizer = None
         self.pars = None
         self.name = name
 
@@ -1341,8 +1342,8 @@ class DataSet(object):
             residual = data_spectrum - model_spectrum
             return residual/error_spectrum
 
-        minimizer = Minimizer(chi, self.pars, nan_policy='omit')
-        popt = minimizer.minimize(**kwargs)
+        self.minimizer = Minimizer(chi, self.pars, nan_policy='omit')
+        popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
 
         if self.cheb_order >= 0:

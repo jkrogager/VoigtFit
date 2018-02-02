@@ -1,0 +1,150 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+
+\title{Quickstart Guide to \textbf{\textsc{VoigtFit}}}
+%\title{\noindent\_\_\_~\_~~~~~~~~~~~~\_\_\_\_\_\_ \\ ~~~ \noindent\textbackslash/}
+\author{J.-K. Krogager, K. E. Heintz, J. Selsing, J. P. U. Fynbo, C. Th{\"o}ne,\\ L. Izzo, A. de Ugarte-Postigo, L. Christensen}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\textsc{VoigtFit} is a fully Python-based, self-contained and user-friendly tool for modelling Voigt profiles of absorption lines using a least-square approach. The code is available and maintained at GitHub, allowing for a quick and easy way of updating the code and report bugs. This document provides a brief tutorial on how to get started using \textsc{VoigtFit}. \\
+
+The details of the the code is implemented is given in \citet{VoigtFit}. When using the code, please refer to this article to properly cite \textsc{VoigtFit}. This document contains a tutorial demonstrating how to run the different example input files available in the \textsc{VoigtFit} git repository. 
+\end{abstract}
+
+\section{Download and Setup} \label{sec:setup}
+
+\subsection{Python requirements}
+
+The code is only compatible with Python version 2.7 (no Python 3 support yet). The following Python packages are needed to run the code:
+
+\begin{itemize}[label={}]
+	\setlength\itemsep{0.3em}
+	\item \texttt{numpy}
+	\item \texttt{matplotlib}
+	\item \texttt{scipy}
+	\item \texttt{lmfit}
+	\item \texttt{h5py}
+\end{itemize}
+
+
+\subsection{Installing VoigtFit}
+
+The \textsc{VoigtFit} package is available on GitHub:\\
+
+\url{https://github.com/jkrogager/VoigtFit}\\
+
+\noindent
+or can be installed using \texttt{pip}.
+For more information regarding the installation, we refer to the documentation on the GitHub page.
+
+
+\clearpage
+
+
+\section{Quick tutorial of \textsc{VoigtFit}} \label{sec:tutorial}
+
+After the \textsc{VoigtFit} package has been successfully installed it is possible to run a few example input parameter files which are available under the \texttt{test\_data} directory of the GitHub repository.
+We recommend simply copying these input files for future use of the code to examine own data. The user testing data rely on the spectrum of the quasar Q\,1313+1441, for which the analysis is presented in \citet{Krogager2017}. The simplest test case, can be run from the terminal by typing:\\
+
+\texttt{VoigtFit test\_input\_noint.pars} \\
+
+\noindent
+This input file is defined such that no user interaction is required. The normalization is automatically fitted and the different ions and velocity components have already been defined in the parameter file. After the continuum and the different ions and velocity components have been fitted the window shown in Fig.~\ref{fig:spec} will appear on the screen. A pdf file will be saved with the same output. Moreover, the best-fit parameters (\texttt{.fit}) and the inferred line profile (contained in the \texttt{.reg} file) will be saved in \texttt{ASCII} format.
+The best-fit parameters for the individual components are printed to the terminal, listing the redshifts, $b$-parameter and column density, $\log(N)$. Hereafter, the continuum parameters will be printed to the terminal, and lastly the total column densities for each element and the metallicities will be printed as well.
+
+
+\begin{figure} [!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figs/spec.pdf}
+	\caption{Illustration of the final output window which appears after the data have been automatically normalized and the line profiles have been fitted.
+	\label{fig:spec}}
+\end{figure}
+
+If you want to fit the continuum manually, the argument \texttt{C\_order} in the parameter file (\texttt{test\_input\_noint.pars}) should be set to a negative value, e.g. \texttt{C\_order = -1}. To test the manual continuum fitting, run the preconfigured input file:\\
+
+\texttt{VoigtFit test\_input\_norm.pars} \\
+
+\noindent
+Then, the window shown in Fig.~\ref{fig:cont} will appear where it is possible to mark continuum regions on the left and right side of the line. This is done by marking the left and right boundary of the estimated continuum level on each side. After selecting the regions, the normalization is performed by pressing \texttt{Enter}. Hereafter the interactive window will update and show the best fit. To accept, press \texttt{Enter} in the terminal, otherwise write \texttt{No} to redefine the continuum regions.
+
+\begin{figure} [!h]
+\centering
+\includegraphics[width=0.6\textwidth]{figs/cont.pdf}
+\caption{Illustration of the window that pops up if \texttt{C\_order} is set to a negative value, to allow for manual fitting of the continuum. \label{fig:cont}}
+\end{figure}
+
+The continuum can also be fitted by spline interpolation by setting the argument \texttt{norm\_method} to \texttt{spline} in the input parameter file. This will instead prompt the user to select a range of spline points from which to define the continuum. This is less precise and should only be used in cases where the continuum placement is very complex (i.e., not linear).
+
+
+If you instead want to mask a specific region to be removed from the fit, the argument \texttt{mask} should be defined in the input parameter file. If this argument is given alone, the user is prompted to define masks for all lines that have been defined. If only a few lines should be masked, these can be specified after the \texttt{mask} argument, e.g., \texttt{mask FeII\_2374}.
+The following input parameter file will demonstrate this functionality:\\
+
+\texttt{VoigtFit test\_input\_mask.pars} \\
+
+\noindent
+When running the above test case, the window shown in Fig.~\ref{fig:mask} will appear on the screen. The predefined velocity components for the given ion are marked by the dotted, red lines. To mask a region, mark the left and right boundary. This can be done for multiple regions. Note that incorrectly placed points can be deleted by right-clicking or by pressing \texttt{backspace}. When done, press \texttt{enter} and the masked regions (to be excluded from the fit) will be shown in red in the interactive window. Return to the terminal window to confirm the masking. If additional regions should be masked, type \texttt{no}, or to start over, type \texttt{clear}. Note that if an uneven number of mask points have been defined, the points will be deleted and the masking will start over.
+
+\begin{figure} [!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{figs/mask.pdf}
+	\caption{Illustration of the window that appears if the argument \texttt{mask} is defined in the input parameter file. The velocity components are over-plotted as the red dotted lines.  \label{fig:mask}}
+\end{figure}
+
+In the above examples, the velocity components are already defined in the input parameter. It is also possible to interactively set the different velocity components. The interactive component definition can be tested by executing the following input parameter file:\\
+
+\texttt{python VoigtFit.py test\_input\_comp.pars} \\
+
+\noindent
+When running the example, the window shown in Fig.~\ref{fig:comp} will appear where it is possible to mark the different initial guesses of the redshifts, $z$, and column densities, $N$ for each component. If the data are not normalized at the input stage, the user will have to first mark a rough continuum level in order to correctly calculate the initial guess of $N$.
+By marking the peak of absorption for the given components, the $N$ is calculated assuming a $b$-parameter determined by the spectral resolution.
+Again, it is possible to remove points by pressing \texttt{backspace} or right-clicking. When all the components are defined, press \texttt{enter} in the interactive window to fit the data.
+
+\begin{figure} [!ht]
+	\centering
+	\includegraphics[width=0.6\textwidth]{figs/comp.pdf}
+	\caption{Illustration of the window that appears if the velocity components are set to be defined interactively. The interactive window is sensitive to where the component points are marked, both as a function of wavelength and normalized flux. \label{fig:comp}}
+\end{figure}
+
+It is of course possible to fit the continuum, mark the masks and define the components all interactively by writing the specific keywords (see next section for the descriptions).
+
+When you want to try \textsc{VoigtFit} on your own data, you can simply copy any of these input parameter files that best suits your needs. It is then important to update the name of the output file (to avoid overwriting existing output files), update the systemic redshift and set the path to your data. If you want to mark the velocity components interactively you need to set this parameter, otherwise the new components should be defined in the input parameter file.\\
+
+You should be ready to get started on your own data now! For a more detailed description of the required and optional parameters in the input file, check the documentation on the webpage\footnote{\url{http://voigtfit.readthedocs.io}}. For a detailed description of how the code works, we refer to \citet{VoigtFit}.
+
+\def\aap{A\&A}
+\def\mnras{MNRAS}
+
+
+\bibliographystyle{mn}
+\begin{thebibliography}{2}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{Krogager} {et~al.}(2017){Krogager}, {M{\o}ller}, {Fynbo}, \& {Noterdaeme}}]{Krogager2017}
+{Krogager}, J.-K., {M{\o}ller}, P., {Fynbo}, J.~P.~U., \& {Noterdaeme}, P., 2017, \mnras, 469, 2954
+
+\bibitem[{{Krogager} {et~al.}(2017){Krogager}}]{VoigtFit}
+{Krogager}, J.-K., 2017, in prep
+
+\end{thebibliography}
+
+\end{document}
