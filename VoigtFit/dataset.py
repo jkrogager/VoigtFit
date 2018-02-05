@@ -351,16 +351,23 @@ class DataSet(object):
         line_tag : str
             Line tag of the transition that should be removed.
         """
-        if line_tag in self.all_lines:
+        if line_tag in self.all_lines and line_tag in self.lines.keys():
             self.all_lines.remove(line_tag)
-            if line_tag in self.lines.keys():
-                self.lines.pop(line_tag)
+            self.lines.pop(line_tag)
+        else:
+            in_all_lines = "" if line_tag in self.all_lines else "not "
+            in_lines = "" if line_tag in self.lines.keys() else "not "
+            print ""
+            print " [ERROR] - Problem detected in database."
+            print " The line %s is %sdefined in `self.all_lines`." % (line_tag, in_all_lines)
+            print " The line %s is %sdefined in `self.lines`." % (line_tag, in_lines)
+            print ""
 
         # --- Check if the ion has transistions defined in other regions
         ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
-        for line_tag in self.all_lines:
-            if line_tag.find(ion) >= 0:
+        for this_line_tag in self.all_lines:
+            if this_line_tag.find(ion) >= 0:
                 ion_defined_elsewhere = True
 
         # --- If it is not defined elsewhere, remove it from components
@@ -381,7 +388,7 @@ class DataSet(object):
         else:
             if self.verbose:
                 print ""
-                print " The line is not defined. Nothing to remove."
+                print " The line, %s, is not defined. Nothing to remove." % line_tag
 
     def normalize_line(self, line_tag, norm_method='spline'):
         """
@@ -1022,8 +1029,9 @@ class DataSet(object):
             The line tag of the ground state transition to remove.
         """
         for fineline in fine_structure_complexes[line_tag]:
+            print "Removing line: %s" % fineline
             if fineline in self.all_lines:
-                self.remove_line(line_tag)
+                self.remove_line(fineline)
 
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """

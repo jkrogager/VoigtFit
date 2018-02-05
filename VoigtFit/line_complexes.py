@@ -62,7 +62,6 @@ fine_structure_complexes['CI_1277'] = ['CI_1277',
                                        'CIb_1277',
                                        'CIb_1277.7',
                                        'CIb_1277.9',
-                                       'CIa_1279',
                                        'CIb_1279.2',
                                        'CIb_1279.5']
 
