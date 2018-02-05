@@ -1373,25 +1373,26 @@ class DataSet(object):
         chi2 = popt.chisqr
         return popt, chi2
 
-    def plot_fit(self,
-                 rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
-                 filename=None, show=True, subsample_profile=1, npad=50,
+    def plot_fit(self, rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
+                 ymin=None, ymax=None, filename=None, show=True,
+                 subsample_profile=1, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, line_labels=True,
-                 label_all_ions=False):
+                 label_all_ions=False, xunit='vel'):
         """
         Plot *all* the absorption lines and the best-fit profiles.
-        For details, see :func:`output.plot_all_lines`.
+        For details, see :func:`VoigtFit.output.plot_all_lines`.
         """
 
         output.plot_all_lines(self, plot_fit=True, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
-                              filename=filename, show=show,
+                              ymin=ymin, ymax=ymax,
+                              filename=filename, show=show, loc=loc,
                               subsample_profile=subsample_profile, npad=npad,
                               residuals=residuals, norm_resid=norm_resid,
                               line_labels=line_labels, label_all_ions=label_all_ions,
                               default_props=default_props, element_props=element_props,
-                              highlight_props=highlight_props)
+                              highlight_props=highlight_props, xunit=xunit)
         plt.show()
 
     def velocity_plot(self, **kwargs):

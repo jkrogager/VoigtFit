@@ -266,13 +266,14 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
     plt.show()
 
 
-def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax=None,
-                   max_rows=4, filename=None, show=True, subsample_profile=1, npad=50,
-                   residuals=True, norm_resid=False, line_labels=True,
+def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
+                   xmax=None, ymin=None, ymax=None, max_rows=4, filename=None,
+                   subsample_profile=1, npad=50, residuals=True,
+                   norm_resid=False, line_labels=True, loc='left',
                    default_props={}, element_props={}, highlight_props=None,
-                   label_all_ions=False):
+                   label_all_ions=False, xunit='vel', show=True):
     """
-    Plot all active absorption lines. This function is a wrapper of the function
+    Plot all active absorption lines. This function is a wrapper of
     :func:`plot_single_line`. For a complete description of input parameters,
     see the documentation for :func:`plot_single_line`.
 
@@ -287,6 +288,16 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax
     filename : str
         If a filename is given, the figures are saved to a pdf file.
     """
+
+    if 'velocity'.find(xunit) == 0:
+        # X-axis units should be velocity.
+        xunit = 'vel'
+    elif 'wavelength'.find(xunit) == 0:
+        xunit = 'wl'
+    elif xunit.lower() == 'wl':
+        xunit = 'wl'
+    else:
+        xunit = 'vel'
 
     # --- First figure out which lines to plot to avoid overlap
     #     of several lines defined in the same region.
@@ -366,12 +377,17 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax
                 for idx in range(num_regions):
                     ax = fig.add_subplot(rows, columns, num)
                     _, LIV = plot_single_line(dataset, line_tag, index=idx,
-                                              plot_fit=plot_fit, linestyles=linestyles,
-                                              colors=colors, rebin=rebin, nolabels=True, axis=ax,
-                                              fontsize=fontsize, xmin=xmin, xmax=xmax, show=False,
+                                              plot_fit=plot_fit, rebin=rebin, loc=loc,
+                                              nolabels=True, axis=ax, show=False,
+                                              fontsize=fontsize, xmin=xmin, xmax=xmax,
+                                              ymin=ymin, ymax=ymax,
                                               subsample_profile=subsample_profile, npad=npad,
-                                              highlight=highlight, residuals=residuals,
-                                              norm_resid=norm_resid)
+                                              residuals=residuals, norm_resid=norm_resid,
+                                              line_labels=True, label_all_ions=False,
+                                              default_props=default_props,
+                                              element_props=element_props,
+                                              highlight_props=highlight_props,
+                                              xunit=xunit)
                     num += 1
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
@@ -380,7 +396,12 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax
                     # print [ticklabel.get_text() for ticklabel in xtl]
                     pass
                 else:
-                    ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$", fontsize=12)
+                    if xunit == 'wl':
+                        ax.set_xlabel("${\\rm Wavelength\ \ (\\AA)}$",
+                                      fontsize=12)
+                    else:
+                        ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$",
+                                      fontsize=12)
 
                 if num % 2 == 1:
                     ax.set_ylabel("Normalized Flux", fontsize=12)
@@ -402,10 +423,11 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None, xmax
 
 def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
-                     xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1, npad=50,
+                     xmin=None, xmax=None, ymin=None, ymax=None,
+                     show=True, subsample_profile=1, npad=50,
                      residuals=False, norm_resid=False, line_labels=True,
                      default_props={}, element_props={}, highlight_props=None,
-                     label_all_ions=False):
+                     label_all_ions=False, xunit='velocity'):
     """
     Plot a single absorption line.
 
@@ -447,8 +469,11 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         The upper x-limit in relative velocity (km/s).
         If nothing is given, the extent of the region is used.
 
-    ymin : float
+    ymin : float   [default = None]
         The lower y-limit in normalized flux units. Default is determined from the data.
+
+    ymax : float   [default = None]
+        The upper y-limit in normalized flux units. Default is determined from the data.
 
     show : bool   [default = True]
         Show the figure.
@@ -504,6 +529,10 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     label_all_ions : bool   [default = False]
         Show labels for all `ions` defined. The labels will appear above the component tick marks.
 
+    xunit : string   [default = ]'velocity']
+        The unit of the x-axis, must be either 'velocity' or 'wavelength'.
+        Shortenings are acceptable too, e.g., 'vel'/'v' or 'wave'/'wl'.
+
 
 
     .. _matplotlib.axes.Axes: https://matplotlib.org/api/axes_api.html
@@ -539,6 +568,16 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             if comp_props.get_value(ion, 'text') is None:
                 comp_props.set_value(ion, 'text', ion)
 
+    if 'velocity'.find(xunit) == 0:
+        # X-axis units should be velocity.
+        xunit = 'vel'
+    elif 'wavelength'.find(xunit) == 0:
+        xunit = 'wl'
+    elif xunit.lower() == 'wl':
+        xunit = 'wl'
+    else:
+        xunit = 'vel'
+
     regions_of_line = dataset.find_line(line_tag)
     region = regions_of_line[index]
 
@@ -572,9 +611,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
     if not xmin:
-        xmin = -region.velspan
+        if xunit == 'vel':
+            xmin = -region.velspan
+        else:
+            xmin = x.min()
     if not xmax:
-        xmax = region.velspan
+        if xunit == 'vel':
+            xmax = region.velspan
+        else:
+            xmax = x.max()
     ax.set_xlim(xmin, xmax)
     if np.abs(xmin) > 900 or np.abs(xmax) > 900:
         ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
@@ -655,11 +700,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     if residuals and plot_fit:
         cax.set_xlim(xmin, xmax)
 
-    view_part = (vel > xmin) * (vel < xmax)
+    if xunit == 'vel':
+        view_part = (vel > xmin) * (vel < xmax)
+    else:
+        view_part = (x > xmin) * (x < xmax)
 
-    if not ymin:
+    if ymin is None:
         ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
-    ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
+    if not ymax:
+        ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range
@@ -669,18 +718,30 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
     masked_range = np.ma.masked_where(big_mask, y)
-    ax.plot(vel, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
-
     spectrum = np.ma.masked_where(~mask, y)
-    ax.errorbar(vel, spectrum, err, ls='', color='gray', lw=1.)
-    ax.plot(vel, spectrum, color='k', drawstyle='steps-mid', lw=1.)
+    if xunit == 'wl':
+        ax.plot(x, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
+        ax.errorbar(x, spectrum, err, ls='', color='gray', lw=1.)
+        ax.plot(x, spectrum, color='k', drawstyle='steps-mid', lw=1.)
+    else:
+        ax.plot(vel, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
+        ax.errorbar(vel, spectrum, err, ls='', color='gray', lw=1.)
+        ax.plot(vel, spectrum, color='k', drawstyle='steps-mid', lw=1.)
     ax.axhline(0., ls='--', color='0.7', lw=0.7)
 
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
-        ax.plot(vel_profile, profile, color='r', lw=1.0)
+        if xunit == 'wl':
+            ax.plot(wl_line, profile, color='r', lw=1.0)
+        else:
+            ax.plot(vel_profile, profile, color='r', lw=1.0)
+
         if N_highlight > 0:
-            ax.plot(vel_profile, profile_hl, color='orange', lw=1.0, ls='--')
+            if xunit == 'wl':
+                ax.plot(wl_line, profile_hl, color='orange', lw=1.0, ls='--')
+            else:
+                ax.plot(vel_profile, profile_hl,
+                        color='orange', lw=1.0, ls='--')
 
         if residuals:
             p_data = np.interp(vel, vel_profile, profile)
@@ -691,17 +752,28 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                 masked_resid = masked_range - p_data
                 resid = spectrum - p_data
 
-            cax.plot(vel, masked_resid, color='0.7', drawstyle='steps-mid', lw=0.9)
-            cax.plot(vel, resid, color='k', drawstyle='steps-mid', lw=1.)
+            if xunit == 'wl':
+                cax.plot(x, masked_resid, color='0.7',
+                         drawstyle='steps-mid', lw=0.9)
+                cax.plot(x, resid, color='k', drawstyle='steps-mid', lw=1.)
+            else:
+                cax.plot(vel, masked_resid, color='0.7',
+                         drawstyle='steps-mid', lw=0.9)
+                cax.plot(vel, resid, color='k', drawstyle='steps-mid', lw=1.)
             if norm_resid:
                 cax.axhline(3, ls=':', color='crimson', lw=0.5)
                 cax.axhline(-3, ls=':', color='crimson', lw=0.5)
                 res_min = 4
                 res_max = -4
             else:
-                cax.errorbar(vel, resid, err, ls='', color='gray', lw=1.)
-                cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
-                cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
+                if xunit == 'wl':
+                    cax.errorbar(x, resid, err, ls='', color='gray', lw=1.)
+                    cax.plot(x, 3*err, ls=':', color='crimson', lw=1.)
+                    cax.plot(x, -3*err, ls=':', color='crimson', lw=1.)
+                else:
+                    cax.errorbar(vel, resid, err, ls='', color='gray', lw=1.)
+                    cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
+                    cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
                 res_min = np.nanmax(4*err)
                 res_max = np.nanmin(-4*err)
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
@@ -716,7 +788,10 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         else:
             fig.subplots_adjust(bottom=0.07, right=0.98, left=0.08, top=0.98)
     else:
-        ax.set_xlabel("${\\rm Rel. velocity}\ \ [{\\rm km\,s^{-1}}]$")
+        if xunit == 'wl':
+            ax.set_xlabel("${\\rm Wavelength}\ \ [{\\rm \\AA}]$")
+        else:
+            ax.set_xlabel("${\\rm Rel. velocity}\ \ [{\\rm km\,s^{-1}}]$")
         ax.set_ylabel("${\\rm Normalized\ flux}$")
 
     ax.minorticks_on()
