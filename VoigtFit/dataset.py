@@ -1029,9 +1029,40 @@ class DataSet(object):
             The line tag of the ground state transition to remove.
         """
         for fineline in fine_structure_complexes[line_tag]:
-            print "Removing line: %s" % fineline
             if fineline in self.all_lines:
+                if self.verbose:
+                    print "Removing line: %s" % fineline
                 self.remove_line(fineline)
+
+    def deactivate_fine_lines(self, line_tag):
+        """
+        Deactivate all lines associated to a given fine-structure complex.
+
+        Parameters
+        ----------
+        line_tag : str
+            The line tag of the ground state transition to deactivate.
+        """
+        for fineline in fine_structure_complexes[line_tag]:
+            if fineline in self.all_lines:
+                if self.verbose:
+                    print "Deactivating line: %s" % fineline
+                self.deactivate_line(fineline)
+
+    def activate_fine_lines(self, line_tag):
+        """
+        Activate all lines associated to a given fine-structure complex.
+
+        Parameters
+        ----------
+        line_tag : str
+            The line tag of the ground state transition to activate.
+        """
+        for fineline in fine_structure_complexes[line_tag]:
+            if fineline in self.all_lines:
+                if self.verbose:
+                    print "Deactivating line: %s" % fineline
+                self.activate_line(fineline)
 
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
