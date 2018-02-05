@@ -673,11 +673,19 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight_props.keys():
                         tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
-                        ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, **hl_component_prop)
+                        if xunit == 'vel':
+                            ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458,
+                                       **hl_component_prop)
+                        else:
+                            ax.axvline(l0*(z+1), **hl_component_prop)
                         N_highlight += 1
 
-                    ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458, **component_prop)
-                    comp_x_loc = (l0*(z+1) - l_ref)/l_ref*299792.458
+                    if xunit == 'vel':
+                        comp_x_loc = (l0*(z+1) - l_ref)/l_ref*299792.458
+                    else:
+                        comp_x_loc = l0*(z+1)
+
+                    ax.axvline(comp_x_loc, **component_prop)
                     if comp_text:
                         ax.text((comp_x_loc - xmin)/(xmax-xmin), comp_y_loc, comp_text,
                                 transform=ax.transAxes, ha='center', va=loc_string)

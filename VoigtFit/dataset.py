@@ -1402,22 +1402,27 @@ class DataSet(object):
         """
         output.velocity_plot(self, **kwargs)
 
-    def plot_line(self, line_tag, plot_fit=False, linestyles=['--'], colors=['RoyalBlue'],
-                  loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
-                  xmin=None, xmax=None, ymin=None, show=True, subsample_profile=1,
-                  npad=50, highlight=[], residuals=True):
+    def plot_line(self, line_tag, index=0, plot_fit=False, loc='left', rebin=1,
+                  nolabels=False, axis=None, fontsize=12,
+                  xmin=None, xmax=None, ymin=None, ymax=None,
+                  show=True, subsample_profile=1, npad=50,
+                  residuals=True, norm_resid=False, line_labels=True,
+                  default_props={}, element_props={}, highlight_props=None,
+                  label_all_ions=False, xunit='velocity'):
         """
         Plot a single fitting :class:`Region <regions.Region>`
         containing the line corresponding to the given `line_tag`.
         For details, see :func:`output.plot_single_line`.
         """
         output.plot_single_line(self, line_tag, plot_fit=plot_fit,
-                                linestyles=linestyles, colors=colors,
                                 loc=loc, rebin=rebin, nolabels=nolabels,
                                 axis=axis, fontsize=fontsize,
-                                xmin=xmin, xmax=xmax, ymin=ymin, show=show,
-                                subsample_profile=subsample_profile, npad=npad,
-                                highlight=highlight, residuals=residuals)
+                                xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax,
+                                show=show, subsample_profile=subsample_profile,
+                                npad=npad, residuals=residuals, norm_resid=norm_resid,
+                                line_labels=line_labels, label_all_ions=label_all_ions,
+                                default_props=default_props, element_props=element_props,
+                                highlight_props=highlight_props, xunit=xunit)
 
     def print_results(self, velocity=True, elements='all', systemic=None):
         """
