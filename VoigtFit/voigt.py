@@ -118,8 +118,8 @@ def evaluate_continuum(x, pars, reg_num):
 
 def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     """
-    Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is
-    converted to observed transmission, `f`:
+    Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
+    is converted to observed transmission, `f`:
 
     .. math:: f = e^{-\\tau}
 

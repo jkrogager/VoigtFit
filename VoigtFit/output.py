@@ -269,7 +269,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
 def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                    xmax=None, ymin=None, ymax=None, max_rows=4, filename=None,
                    subsample_profile=1, npad=50, residuals=True,
-                   norm_resid=False, line_labels=True, loc='left',
+                   norm_resid=False, legend=True, loc='left',
                    default_props={}, element_props={}, highlight_props=None,
                    label_all_ions=False, xunit='vel', show=True):
     """
@@ -383,7 +383,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                                               ymin=ymin, ymax=ymax,
                                               subsample_profile=subsample_profile, npad=npad,
                                               residuals=residuals, norm_resid=norm_resid,
-                                              line_labels=True, label_all_ions=False,
+                                              legend=legend, label_all_ions=label_all_ions,
                                               default_props=default_props,
                                               element_props=element_props,
                                               highlight_props=highlight_props,
@@ -425,7 +425,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                      loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
                      xmin=None, xmax=None, ymin=None, ymax=None,
                      show=True, subsample_profile=1, npad=50,
-                     residuals=False, norm_resid=False, line_labels=True,
+                     residuals=False, norm_resid=False, legend=True,
                      default_props={}, element_props={}, highlight_props=None,
                      label_all_ions=False, xunit='velocity'):
     """
@@ -492,7 +492,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     norm_resid : bool   [default = False]
         Show normalized residuals.
 
-    line_labels : bool   [default = True]
+    legend : bool   [default = True]
         Show line labels as axis legend.
 
     default_props : dict
@@ -723,6 +723,13 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     # to draw the lines correctly
     mask_idx = np.where(mask == 0)[0]
     big_mask_idx = np.union1d(mask_idx+1, mask_idx-1)
+
+    # Trim the edges to avoid IndexError
+    if len(mask) in big_mask_idx:
+        big_mask_idx = np.delete(big_mask_idx, -1)
+    if -1 in big_mask_idx:
+        big_mask_idx = np.delete(big_mask_idx, 0)
+
     big_mask = np.ones_like(mask, dtype=bool)
     big_mask[big_mask_idx] = False
     masked_range = np.ma.masked_where(big_mask, y)
@@ -828,7 +835,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         label_x = 0.03
         loc = 'left'
 
-    if line_labels:
+    if legend:
         ax.text(label_x, 0.08, line_string, va='bottom', ha=loc,
                 transform=ax.transAxes, fontsize=fontsize,
                 bbox=dict(facecolor='white', alpha=0.7, edgecolor='white'))
@@ -1225,6 +1232,53 @@ def print_abundance(dataset):
 
     else:
         print "\n [ERROR] - The dataset has not yet been fitted. No parameters found!"
+
+
+def sum_components(dataset, ion, components):
+    """
+    Calculate the total abundance for the given `components` of the given `ion`.
+
+    Parameters
+    ----------
+    dataset : :class:`dataset.DataSet`
+        An instance of the :class:`dataset.DataSet` class containing
+        the definition of data and absorption lines.
+
+    ion : str
+        Ion for which to calculate the summed abundance.
+
+    components : list(int)
+        List of integers corresponding to the indeces of the components to sum over.
+
+    Returns
+    -------
+    total_logN : float
+        Dictionary containing the log of total column density for each ion.
+
+    total_logN_err : float
+        Dictionary containing the error on the log of total column density for each ion.
+    """
+    if hasattr(dataset.best_fit, 'keys'):
+        pass
+    else:
+        print " [ERROR] - Best fit parameters are not found."
+        print "           Make sure the fit has converged..."
+        return None
+
+    logN = list()
+    logN_err = list()
+    for num in components:
+        parname = 'logN%i_%s' % (num, ion)
+        par = dataset.best_fit[parname]
+        logN.append(par.value)
+        logN_err.append(par.stderr)
+
+    logN_pdf = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
+    logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
+    total_logN = np.median(logsum)
+    total_logN_err = np.std(logsum)
+
+    return total_logN, total_logN_err
 
 
 def save_parameters_to_file(dataset, filename):

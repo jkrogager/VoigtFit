@@ -484,6 +484,7 @@ class DataSet(object):
         if line_tag in self.lines.keys():
             line = self.lines[line_tag]
             line.set_active()
+            self.ready2fit = False
 
         else:
             regions_of_line = self.find_line(line_tag)
@@ -511,13 +512,14 @@ class DataSet(object):
         # --- Check if the ion has transistions defined in other regions
         ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
-        for line_tag in self.all_lines:
-            if line_tag.find(ion) >= 0:
+        for this_line_tag in self.all_lines:
+            if this_line_tag.find(ion) >= 0:
                 ion_defined_elsewhere = True
 
         # --- If it is not defined elsewhere, remove it from components
         if not ion_defined_elsewhere:
             self.components.pop(ion)
+            self.ready2fit = False
 
     def deactivate_all(self):
         """Deactivate all lines defined in the DataSet. This will not remove the lines."""
@@ -1019,20 +1021,34 @@ class DataSet(object):
             else:
                 reg.label = line_complexes.CI_labels[line_tag]
 
-    def remove_fine_lines(self, line_tag):
+    def remove_fine_lines(self, line_tag, levels=None):
         """
-        Remove all lines associated to a given fine-structure complex.
+        Remove lines associated to a given fine-structure complex.
 
         Parameters
         ----------
         line_tag : str
             The line tag of the ground state transition to remove.
+
+        levels : str, list(str)   [default = None]
+            The levels of the fine-structure complexes to remove, with "a" referring
+            to the first excited level, "b" is the second, etc..
+            Several levels can be given at once as a list: ['a', 'b']
+            or as a concatenated string: 'abc'.
+            By default, all levels are included.
         """
         for fineline in fine_structure_complexes[line_tag]:
             if fineline in self.all_lines:
+                line = self.lines[fineline]
+                if levels is None:
+                    pass
+                elif line.ion[-1] in levels:
+                    pass
+                else:
+                    continue
+                self.remove_line(fineline)
                 if self.verbose:
                     print "Removing line: %s" % fineline
-                self.remove_line(fineline)
 
     def deactivate_fine_lines(self, line_tag):
         """
@@ -1339,7 +1355,7 @@ class DataSet(object):
             if self.verbose:
                 print " [Error]  - Dataset is not ready to be fitted."
                 print "            Run `.prepare_dataset()` before fitting."
-            return False
+            return None, None
 
         if rebin > 1:
             print "\n  Rebinning the data by a factor of %i \n" % rebin
@@ -1416,7 +1432,7 @@ class DataSet(object):
                  ymin=None, ymax=None, filename=None, show=True,
                  subsample_profile=1, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
-                 default_props={}, element_props={}, line_labels=True,
+                 default_props={}, element_props={}, legend=True,
                  label_all_ions=False, xunit='vel'):
         """
         Plot *all* the absorption lines and the best-fit profiles.
@@ -1429,7 +1445,7 @@ class DataSet(object):
                               filename=filename, show=show, loc=loc,
                               subsample_profile=subsample_profile, npad=npad,
                               residuals=residuals, norm_resid=norm_resid,
-                              line_labels=line_labels, label_all_ions=label_all_ions,
+                              legend=legend, label_all_ions=label_all_ions,
                               default_props=default_props, element_props=element_props,
                               highlight_props=highlight_props, xunit=xunit)
         plt.show()
@@ -1445,7 +1461,7 @@ class DataSet(object):
                   nolabels=False, axis=None, fontsize=12,
                   xmin=None, xmax=None, ymin=None, ymax=None,
                   show=True, subsample_profile=1, npad=50,
-                  residuals=True, norm_resid=False, line_labels=True,
+                  residuals=True, norm_resid=False, legend=True,
                   default_props={}, element_props={}, highlight_props=None,
                   label_all_ions=False, xunit='velocity'):
         """
@@ -1459,7 +1475,7 @@ class DataSet(object):
                                 xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax,
                                 show=show, subsample_profile=subsample_profile,
                                 npad=npad, residuals=residuals, norm_resid=norm_resid,
-                                line_labels=line_labels, label_all_ions=label_all_ions,
+                                legend=legend, label_all_ions=label_all_ions,
                                 default_props=default_props, element_props=element_props,
                                 highlight_props=highlight_props, xunit=xunit)
 
@@ -1491,6 +1507,55 @@ class DataSet(object):
     def print_abundance(self):
         """Print the total column densities of all components."""
         output.print_abundance(self)
+
+    def sum_components(self, ions, components):
+        """
+        Calculate the total abundance for the given `components` of the given `ion`.
+
+        Parameters
+        ----------
+        ions : str or list(str)
+            List of ions or a single ion for which to calculate the summed abundance.
+
+        components : list(int)
+            List of integers corresponding to the indeces of the components to sum over.
+
+        Returns
+        -------
+        total_logN : dict()
+            Dictionary containing the log of total column density for each ion.
+
+        total_logN_err : dict()
+            Dictionary containing the error on the log of total column density for each ion.
+        """
+        if hasattr(self.best_fit, 'keys'):
+            pass
+        else:
+            print " [ERROR] - Best fit parameters are not found."
+            print "           Make sure the fit has converged..."
+            return {}, {}
+
+        if hasattr(ions, '__iter__'):
+            pass
+        else:
+            ions = [ions]
+        total_logN = dict()
+        total_logN_err = dict()
+        for ion in ions:
+            logN = list()
+            logN_err = list()
+            for num in components:
+                parname = 'logN%i_%s' % (num, ion)
+                par = self.best_fit[parname]
+                logN.append(par.value)
+                logN_err.append(par.stderr)
+            logN_pdf = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
+            logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
+            total_logN[ion] = np.median(logsum)
+            total_logN_err[ion] = np.std(logsum)
+
+        return total_logN, total_logN_err
+
 
     def save_fit_regions(self, filename=None, individual=False, path=''):
         """
