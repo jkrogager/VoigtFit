@@ -976,6 +976,7 @@ class DataSet(object):
             for tag in tags:
                 self.add_line(tag, velspan)
 
+    # Fine-structure Lines:
     def add_fine_lines(self, line_tag, levels=None, full_label=False):
         """
         Add fine-structure line complexes by providing only the main transition.
@@ -1050,7 +1051,7 @@ class DataSet(object):
                 if self.verbose:
                     print "Removing line: %s" % fineline
 
-    def deactivate_fine_lines(self, line_tag):
+    def deactivate_fine_lines(self, line_tag, levels=None):
         """
         Deactivate all lines associated to a given fine-structure complex.
 
@@ -1058,14 +1059,30 @@ class DataSet(object):
         ----------
         line_tag : str
             The line tag of the ground state transition to deactivate.
+
+        levels : str, list(str)   [default = None]
+            The levels of the fine-structure complexes to deactivate,
+            with the string "a" referring to the first excited level,
+            "b" is the second, etc...
+            Several levels can be given at once as a list: ['a', 'b']
+            or as a concatenated string: 'abc'.
+            By default, all levels are included.
         """
         for fineline in fine_structure_complexes[line_tag]:
             if fineline in self.all_lines:
-                if self.verbose:
-                    print "Deactivating line: %s" % fineline
-                self.deactivate_line(fineline)
+                line = self.lines[fineline]
+                if levels is None:
+                    pass
+                elif line.ion[-1] in levels:
+                    pass
+                else:
+                    continue
 
-    def activate_fine_lines(self, line_tag):
+                self.deactivate_line(fineline)
+                if self.verbose:
+                    print "Deactivated line: %s" % fineline
+
+    def activate_fine_lines(self, line_tag, levels=None):
         """
         Activate all lines associated to a given fine-structure complex.
 
@@ -1073,13 +1090,31 @@ class DataSet(object):
         ----------
         line_tag : str
             The line tag of the ground state transition to activate.
+
+        levels : str, list(str)   [default = None]
+            The levels of the fine-structure complexes to activate,
+            with the string "a" referring to the first excited level,
+            "b" is the second, etc...
+            Several levels can be given at once as a list: ['a', 'b']
+            or as a concatenated string: 'abc'.
+            By default, all levels are included.
         """
         for fineline in fine_structure_complexes[line_tag]:
             if fineline in self.all_lines:
-                if self.verbose:
-                    print "Deactivating line: %s" % fineline
-                self.activate_line(fineline)
+                line = self.lines[fineline]
+                if levels is None:
+                    pass
+                elif line.ion[-1] in levels:
+                    pass
+                else:
+                    continue
 
+                self.activate_line(fineline)
+                if self.verbose:
+                    print "Activated line: %s" % fineline
+    # =========================================================================
+
+    # Molecules:
     def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
         """
         Add molecular lines for a given band, e.g., "AX(0-0)" of CO.
@@ -1177,6 +1212,7 @@ class DataSet(object):
                 for line_tag in transitions:
                     if line_tag in self.all_lines:
                         self.activate_line(line_tag)
+    # =========================================================================
 
     def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False):
         """
