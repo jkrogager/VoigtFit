@@ -271,7 +271,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                    subsample_profile=1, npad=50, residuals=True,
                    norm_resid=False, legend=True, loc='left',
                    default_props={}, element_props={}, highlight_props=None,
-                   label_all_ions=False, xunit='vel', show=True):
+                   label_all_ions=False, xunit='vel'):
     """
     Plot all active absorption lines. This function is a wrapper of
     :func:`plot_single_line`. For a complete description of input parameters,

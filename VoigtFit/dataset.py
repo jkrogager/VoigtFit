@@ -1429,7 +1429,7 @@ class DataSet(object):
         return popt, chi2
 
     def plot_fit(self, rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
-                 ymin=None, ymax=None, filename=None, show=True,
+                 ymin=None, ymax=None, filename=None,
                  subsample_profile=1, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, legend=True,
@@ -1442,7 +1442,7 @@ class DataSet(object):
         output.plot_all_lines(self, plot_fit=True, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
                               ymin=ymin, ymax=ymax,
-                              filename=filename, show=show, loc=loc,
+                              filename=filename, loc=loc,
                               subsample_profile=subsample_profile, npad=npad,
                               residuals=residuals, norm_resid=norm_resid,
                               legend=legend, label_all_ions=label_all_ions,
