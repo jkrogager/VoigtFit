@@ -18,10 +18,10 @@ import Asplund
 plt.rcParams['lines.linewidth'] = 1.0
 
 
-valid_kwargs = Line2D.properties(Line2D([0], [0])).keys() + ['ymin', 'ymax']
+valid_kwargs = Line2D.properties(Line2D([0], [0])).keys() + ['ymin', 'ymax', 'ls', 'lw']
 default_comp = {'color': 'b', 'ls': '-',
                 'alpha': 1.0, 'lw': 1.0,
-                'ymin': 0.9, 'ymax': 1.0,
+                'ymin': 0.87, 'ymax': 0.92,
                 'text': None, 'loc': 'above'}
 default_highlight_comp = {'color': 'DarkOrange', 'ls': '-',
                           'alpha': 0.7, 'lw': 2.0,
@@ -42,7 +42,7 @@ class CompProp(object):
     def set_properties(self, ion, prop):
         """Set properties of `ion` from a dictionary."""
         if ion not in self.properties.keys():
-            self.properties[ion] = default_comp
+            self.properties[ion] = default_comp.copy()
 
         for key, val in prop.items():
             self.properties[ion][key] = val
@@ -269,7 +269,7 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
 def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                    xmax=None, ymin=None, ymax=None, max_rows=4, filename=None,
                    subsample_profile=1, npad=50, residuals=True,
-                   norm_resid=False, legend=True, loc='left',
+                   norm_resid=False, legend=True, loc='left', show=True,
                    default_props={}, element_props={}, highlight_props=None,
                    label_all_ions=False, xunit='vel'):
     """
@@ -688,7 +688,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     ax.axvline(comp_x_loc, **component_prop)
                     if comp_text:
                         ax.text((comp_x_loc - xmin)/(xmax-xmin), comp_y_loc, comp_text,
-                                transform=ax.transAxes, ha='center', va=loc_string)
+                                transform=ax.transAxes, ha='center', va=loc_string,
+                                clip_on=True)
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
@@ -716,7 +717,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     if ymin is None:
         ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
     if not ymax:
-        ymax = max(1. + 2*np.nanmedian(err[view_part]), 1.08)
+        ymax = max(1. + 4*np.nanmedian(err[view_part]), 1.08)
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range
@@ -818,8 +819,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     if hasattr(region, 'label'):
         if region.label == '':
             region.generate_label()
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
-        region.label = "\n".join(all_trans_str)
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
+            region.label = "\n".join(all_trans_str)
         line_string = region.label
 
     else:

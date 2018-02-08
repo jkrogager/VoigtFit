@@ -340,6 +340,141 @@ class DataSet(object):
         """Update the systemic redshift of the dataset"""
         self.redshift = z_sys
 
+    def add_line(self, line_tag, velspan=None, active=True):
+        """
+        Add an absorption line to the DataSet.
+
+        Parameters
+        ----------
+        line_tag : str
+            The line tag for the transition which should be defined.
+            Ex: "FeII_2374"
+
+        velspan : float   [default = None]
+            The velocity span around the line center, which will be included
+            in the fit. If `None` is given, use the default `self.velspan`
+            defined (default = 500 km/s).
+
+        active : bool   [default = True]
+            Set the :class:`Line <dataset.DataSet.Line>` as active
+            (i.e., included in the fit).
+
+        Notes
+        -----
+        This will initiate a :class:`Line <dataset.DataSet.Line>` class
+        with the atomic data for the transition, as well as creating a
+        fitting :class:`Region <regions.Region>` containing the data cutout
+        around the line center.
+        """
+
+        self.ready2fit = False
+        if line_tag in self.all_lines:
+            if self.verbose:
+                print " [WARNING] - %s is already defined." % line_tag
+            return False
+
+        if line_tag in lineList['trans']:
+            new_line = Line(line_tag)
+        else:
+            if self.verbose:
+                print "\nThe transition (%s) not found in line list!" % line_tag
+            return False
+
+        if velspan is None:
+            velspan = self.velspan
+
+        if new_line.element not in self.components.keys():
+            # Initiate component list if ion has not been defined before:
+            self.components[new_line.ion] = list()
+
+        l_center = new_line.l0*(self.redshift + 1.)
+
+        if self.data:
+            success = False
+            for chunk in self.data:
+                if chunk['wl'].min() < l_center < chunk['wl'].max():
+                    wl = chunk['wl']
+                    vel = (wl-l_center)/l_center*299792.
+                    span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
+                    new_wavelength = wl[span]
+
+                    # Initiate new Region:
+                    new_region = Region(velspan, chunk['specID'])
+                    new_region.add_line(new_line)
+
+                    # check if the line overlaps with another already defined region
+                    if len(self.regions) > 0:
+                        merge = -1
+                        for num, region in enumerate(self.regions):
+                            # Only allow regions arising from the same chunk to be merged:
+                            if chunk['specID'] == region.specID:
+                                if np.intersect1d(new_wavelength, region.wl).any():
+                                    merge = num
+
+                        if merge >= 0:
+                            # If the region overlaps with another merge the two regions:
+                            new_region.lines += self.regions[merge].lines
+
+                            # merge the wavelength region
+                            region_wl = np.union1d(new_wavelength, self.regions[merge].wl)
+
+                            # and remove the overlapping region from the dataset
+                            self.regions.pop(merge)
+
+                        else:
+                            region_wl = new_wavelength
+
+                    else:
+                        region_wl = new_wavelength
+
+                    # Wavelength has now been defined and merged
+                    # Cutout spectral chunks and add them to the Region
+                    cutout = (wl >= region_wl.min()) * (wl <= region_wl.max())
+
+                    new_region.add_data_to_region(chunk, cutout)
+
+                    self.regions.append(new_region)
+                    if line_tag not in self.all_lines:
+                        self.all_lines.append(line_tag)
+                        self.lines[line_tag] = new_line
+                    success = True
+
+            if not success:
+                if self.verbose:
+                    print "\n [ERROR] - The given line is not covered by the spectral data: " + line_tag
+                    print ""
+                return False
+
+        else:
+            if self.verbose:
+                print " [ERROR]  No data is loaded. Run method `add_data` to add spectral data."
+
+    def add_many_lines(self, tags, velspan=None):
+        """
+        Add many lines at once.
+
+        Parameters
+        ----------
+        tags : list(str)
+            A list of line tags for the transitions that should be added.
+
+        velspan : float   [default = None]
+            The velocity span around the line center, which will be included
+            in the fit. If `None` is given, use the default
+            :attr:`velspan <dataset.DataSet.velspan>` defined (500 km/s).
+        """
+
+        self.ready2fit = False
+        if hasattr(velspan, '__iter__'):
+            for tag, v in zip(tags, velspan):
+                self.add_line(tag, v)
+        elif velspan is None:
+            for tag in tags:
+                self.add_line(tag, self.velspan)
+        else:
+            for tag in tags:
+                self.add_line(tag, velspan)
+
     def remove_line(self, line_tag):
         """
         Remove an absorption line from the DataSet. If this is the last line in a fitting region
@@ -842,139 +977,6 @@ class DataSet(object):
                 for comp in self.components[ion]:
                     comp[3]['var_b'] = False
                     comp[3]['var_z'] = False
-
-    def add_line(self, line_tag, velspan=None, active=True):
-        """
-        Add an absorption line to the DataSet.
-
-        Parameters
-        ----------
-        line_tag : str
-            The line tag for the transition which should be defined: e.g., "FeII_2374"
-
-        velspan : float   [default = None]
-            The velocity span around the line center, which will be included in the fit.
-            If `None` is given, use the default `self.velspan` defined (500 km/s).
-
-        active : bool   [default = True]
-            Set the :class:`Line <dataset.DataSet.Line>` as active
-            (i.e., included in the fit).
-
-        Notes
-        -----
-        This will initiate a :class:`Line <dataset.DataSet.Line>` class
-        with the atomic data for the transition, as well as creating a
-        fitting :class:`Region <regions.Region>` containing the data cutout
-        around the line center.
-        """
-
-        self.ready2fit = False
-        if line_tag in self.all_lines:
-            if self.verbose:
-                print " [WARNING] - %s is already defined." % line_tag
-            return False
-
-        if line_tag in lineList['trans']:
-            new_line = Line(line_tag)
-        else:
-            if self.verbose:
-                print "\nThe transition (%s) not found in line list!" % line_tag
-            return False
-
-        if velspan is None:
-            velspan = self.velspan
-
-        if new_line.element not in self.components.keys():
-            # Initiate component list if ion has not been defined before:
-            self.components[new_line.ion] = list()
-
-        l_center = new_line.l0*(self.redshift + 1.)
-
-        if self.data:
-            success = False
-            for chunk in self.data:
-                if chunk['wl'].min() < l_center < chunk['wl'].max():
-                    wl = chunk['wl']
-                    vel = (wl-l_center)/l_center*299792.
-                    span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
-                    new_wavelength = wl[span]
-
-                    # Initiate new Region:
-                    new_region = Region(velspan, chunk['specID'])
-                    new_region.add_line(new_line)
-
-                    # check if the line overlaps with another already defined region
-                    if len(self.regions) > 0:
-                        merge = -1
-                        for num, region in enumerate(self.regions):
-                            # Only allow regions arising from the same chunk to be merged:
-                            if chunk['specID'] == region.specID:
-                                if np.intersect1d(new_wavelength, region.wl).any():
-                                    merge = num
-
-                        if merge >= 0:
-                            # If the region overlaps with another merge the two regions:
-                            new_region.lines += self.regions[merge].lines
-
-                            # merge the wavelength region
-                            region_wl = np.union1d(new_wavelength, self.regions[merge].wl)
-
-                            # and remove the overlapping region from the dataset
-                            self.regions.pop(merge)
-
-                        else:
-                            region_wl = new_wavelength
-
-                    else:
-                        region_wl = new_wavelength
-
-                    # Wavelength has now been defined and merged
-                    # Cutout spectral chunks and add them to the Region
-                    cutout = (wl >= region_wl.min()) * (wl <= region_wl.max())
-
-                    new_region.add_data_to_region(chunk, cutout)
-
-                    self.regions.append(new_region)
-                    if line_tag not in self.all_lines:
-                        self.all_lines.append(line_tag)
-                        self.lines[line_tag] = new_line
-                    success = True
-
-            if not success:
-                if self.verbose:
-                    print "\n [ERROR] - The given line is not covered by the spectral data: " + line_tag
-                    print ""
-                return False
-
-        else:
-            if self.verbose:
-                print " [ERROR]  No data is loaded. Run method `add_data` to add spectral data."
-
-    def add_many_lines(self, tags, velspan=None):
-        """
-        Add many lines at once.
-
-        Parameters
-        ----------
-        tags : list(str)
-            A list of line tags for the transitions that should be added.
-
-        velspan : float   [default = None]
-            The velocity span around the line center, which will be included in the fit.
-            If `None` is given, use the default :attr:`velspan <dataset.DataSet.velspan>`
-            defined (500 km/s).
-        """
-
-        self.ready2fit = False
-        if hasattr(velspan, '__iter__'):
-            for tag, v in zip(tags, velspan):
-                self.add_line(tag, v)
-        elif velspan is None:
-            for tag in tags:
-                self.add_line(tag, self.velspan)
-        else:
-            for tag in tags:
-                self.add_line(tag, velspan)
 
     # Fine-structure Lines:
     def add_fine_lines(self, line_tag, levels=None, full_label=False):
