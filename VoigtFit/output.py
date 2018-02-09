@@ -1291,11 +1291,27 @@ def save_parameters_to_file(dataset, filename):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
                 b = dataset.best_fit['b%i_%s' % (i, ion)]
-                line = "%3i  %7s  %.6f %.6f    %6.2f %6.2f    %.3f %.3f" % (i, ion,
-                                                                            z.value, z.stderr,
-                                                                            b.value, b.stderr,
-                                                                            logN.value, logN.stderr)
-                output.write(line + "\n")
+                par_tuple = (i, ion, z.value, z.stderr,
+                             b.value, b.stderr,
+                             logN.value, logN.stderr)
+                line_fmt = "%3i  %7s  %.6f %.6f    %6.2f %6.2f    %.3f %.3f"
+                output.write(line_fmt % par_tuple + "\n")
+            output.write("\n")
+
+        # Write a python script friendly version to copy into script:
+        output.write("\n\n# Python script version:\n")
+        output.write("# The commands below can be copied directly to a script.\n")
+        z_sys = dataset.redshift
+        output.write("# dataset.redshift = %.6f.\n" % z_sys)
+        for ion in dataset.components.keys():
+            for i in range(len(dataset.components[ion])):
+                z = dataset.best_fit['z%i_%s' % (i, ion)]
+                logN = dataset.best_fit['logN%i_%s' % (i, ion)]
+                b = dataset.best_fit['b%i_%s' % (i, ion)]
+                vel_value = (z.value - z_sys)/(z_sys + 1)*299792.458
+                par_tuple = (ion, vel_value, b.value, logN.value)
+                line_fmt = "# dataset.add_component_velocity('%s', %.1f, %.1f, %.1f)"
+                output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
 
