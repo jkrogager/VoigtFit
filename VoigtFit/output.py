@@ -818,15 +818,14 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     # Check if the region has a predefined label or not:
     if hasattr(region, 'label'):
         if region.label == '':
-            region.generate_label()
             all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
-            region.label = "\n".join(all_trans_str)
-        line_string = region.label
+            line_string = "\n".join(all_trans_str)
+        else:
+            line_string = region.label
 
     else:
         all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
         line_string = "\n".join(all_trans_str)
-        region.label = line_string
 
     if loc == 'right':
         label_x = 0.97

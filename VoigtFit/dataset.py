@@ -501,13 +501,20 @@ class DataSet(object):
         # --- Check if the ion has transistions defined in other regions
         ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
+        all_ions = list()
         for this_line_tag in self.all_lines:
+            this_ion = this_line_tag.split('_')[0]
+            if this_ion not in all_ions:
+                all_ions.append(this_ion)
+
             if this_line_tag.find(ion) >= 0:
                 ion_defined_elsewhere = True
 
         # --- If it is not defined elsewhere, remove it from components
-        if not ion_defined_elsewhere:
-            self.components.pop(ion)
+        if not ion_defined_elsewhere and ion not in all_ions:
+            # Check if components have been defined for the ion:
+            if ion in self.components.keys():
+                self.components.pop(ion)
 
         remove_this = -1
         for num, region in enumerate(self.regions):
@@ -1594,6 +1601,38 @@ class DataSet(object):
 
         return total_logN, total_logN_err
 
+    def save_parameters(self, filename=None, path=''):
+        """
+        Save the best-fit parameters to ASCII table output.
+
+        Parameters
+        ----------
+        filename : str   [default = None]
+            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
+
+        path : str   [default = '']
+            Specify a path to prepend to the filename in order to save output to a given
+            directory or path. Can be given both as relative or absolute path.
+            If the path doesn't end in `/` it will be appended automatically.
+            The final filename will be:
+                `path/` + `filename`
+        """
+        if self.best_fit:
+            output.save_parameters_to_file(self, filename, path)
+        else:
+            print "\n [ERROR] - No fit parameters are defined."
+
+    def save_cont_parameters_to_file(self, filename):
+        """
+        Save the best-fit continuum parameters to ASCII table output.
+
+        Parameters
+        ----------
+        filename : str   [default = None]
+            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
+        """
+        if self.cheb_order >= 0:
+            output.save_cont_parameters_to_file(self, filename)
 
     def save_fit_regions(self, filename=None, individual=False, path=''):
         """
