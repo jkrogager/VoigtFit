@@ -985,6 +985,25 @@ class DataSet(object):
                     comp[3]['var_b'] = False
                     comp[3]['var_z'] = False
 
+    def free_structure(self, ion=None):
+        """Free the velocity structure, that is, the redshifts and the b-parameters.
+
+        Parameters
+        ----------
+        ion : str   [default = None]
+            The ion for which the structure should be released.
+            If `None` is given, the structure is released for all ions.
+        """
+        if ion:
+            for comp in self.components[ion]:
+                comp[3]['var_b'] = True
+                comp[3]['var_z'] = True
+        else:
+            for ion in self.components.keys():
+                for comp in self.components[ion]:
+                    comp[3]['var_b'] = True
+                    comp[3]['var_z'] = True
+
     # Fine-structure Lines:
     def add_fine_lines(self, line_tag, levels=None, full_label=False):
         """
@@ -1601,24 +1620,17 @@ class DataSet(object):
 
         return total_logN, total_logN_err
 
-    def save_parameters(self, filename=None, path=''):
+    def save_parameters(self, filename):
         """
         Save the best-fit parameters to ASCII table output.
 
         Parameters
         ----------
-        filename : str   [default = None]
-            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
-
-        path : str   [default = '']
-            Specify a path to prepend to the filename in order to save output to a given
-            directory or path. Can be given both as relative or absolute path.
-            If the path doesn't end in `/` it will be appended automatically.
-            The final filename will be:
-                `path/` + `filename`
+        filename : str
+            Filename for the fit parameter file.
         """
         if self.best_fit:
-            output.save_parameters_to_file(self, filename, path)
+            output.save_parameters_to_file(self, filename)
         else:
             print "\n [ERROR] - No fit parameters are defined."
 
