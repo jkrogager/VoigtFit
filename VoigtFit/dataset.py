@@ -592,6 +592,21 @@ class DataSet(object):
             else:
                 region.define_mask(z=self.redshift, dataset=self, telluric=telluric)
 
+    def clear_mask(self, line_tag, idx=None):
+        """
+        Clear the mask for the :class:`Region <regions.Region>`
+        containing the given `line_tag`.
+        If more regions are defined for the same line (when fitting multiple spectra),
+        the given region can be specified by passing an index `idx`.
+        """
+        regions_of_line = self.find_line(line_tag)
+        if idx is None:
+            for reg in regions_of_line:
+                reg.clear_mask()
+        else:
+            reg = regions_of_line[idx]
+            reg.clear_mask()
+
     def find_line(self, line_tag):
         """
         Look up the fitting :class:`Region <regions.Region>` for a given *line tag*.
