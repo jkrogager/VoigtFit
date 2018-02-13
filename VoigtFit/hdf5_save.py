@@ -88,8 +88,11 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         # .molecules:
         molecules = hdf.create_group('molecules')
         if hasattr(dataset, 'molecules'):
-            for molec, bands in dataset.molecules.items():
-                molecules.create_dataset(molec, data=np.array(bands))
+            for molecule, items in dataset.molecules.items():
+                pre_array = [tuple(item) for item in items]
+                band_data = np.array(pre_array,
+                                     dtype=[('band', 'S8'), ('Jmax', 'i4')])
+                molecules.create_dataset(molecule, data=band_data)
 
         # .components:
         components = hdf.create_group('components')
@@ -150,7 +153,8 @@ def load_dataset_from_hdf(fname):
         for chunk in data.values():
             res = chunk.attrs['res']
             norm = chunk.attrs['norm']
-            ds.add_data(chunk['wl'].value, chunk['flux'].value, res, err=chunk['error'].value, normalized=norm)
+            ds.add_data(chunk['wl'].value, chunk['flux'].value, res,
+                        err=chunk['error'].value, normalized=norm)
 
         # Load .regions:
         # --- this will be deprecated in later versions
@@ -197,9 +201,11 @@ def load_dataset_from_hdf(fname):
         # Load .molecules:
         molecules = hdf['molecules']
         if len(molecules) > 0:
-            for molecule, band_array in molecules.items():
-                bands = [m for m in band_array]
+            for molecule, band_data in molecules.items():
+                bands = [[b, J] for b, J in band_data]
                 ds.molecules[molecule] = bands
+                # No need to call ds.add_molecule
+                # lines are added above when defining the regions.
 
         # Load .components:
         components = hdf['components']
