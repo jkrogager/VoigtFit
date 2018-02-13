@@ -13,6 +13,7 @@ from voigt import evaluate_profile, evaluate_continuum
 from regions import Region
 import output
 import line_complexes
+import molecules
 from line_complexes import fine_structure_complexes
 import Asplund
 import hdf5_save
@@ -139,8 +140,9 @@ class DataSet(object):
             A list of all the defined *line tags* for easy look-up.
 
         molecules : dict
-            A dictionary holding a list of the defined molecular bands for each molecule:
-            {*molecule* : list(str)}
+            A dictionary holding a list of the defined molecular bands and Jmax
+            for each molecule:
+            ``{molecule* : [[band1, Jmax1], [band2, Jmax2], etc...]}``
 
         regions : list(:class:`regions.Region`)
             A list of the fitting regions.
@@ -1158,7 +1160,7 @@ class DataSet(object):
     # =========================================================================
 
     # Molecules:
-    def add_molecule(self, molecule, band, J=0, velspan=None, full_label=False):
+    def add_molecule(self, molecule, band, Jmax=0, velspan=None, full_label=False):
         """
         Add molecular lines for a given band, e.g., "AX(0-0)" of CO.
 
@@ -1169,9 +1171,9 @@ class DataSet(object):
 
         band : str
             The vibrational band of the molecule, e.g., for CO: "AX(0-0)"
-            These bands are defined in the `line_complexes`.
+            These bands are defined in :module:`molecules <molecules>`.
 
-        J : int   [default = 0]
+        Jmax : int   [default = 0]
             The maximal rotational level to include. All levels up to and including `J`
             will be included.
 
@@ -1181,80 +1183,112 @@ class DataSet(object):
             defined (500 km/s).
 
         full_label : bool   [default = False]
-            If `True`, the label will be translated to the full quantum mechanical description
-            of the state.
+            If `True`, the label will be translated to the full quantum
+            mechanical description of the state.
         """
         if molecule == 'CO':
-            nu_level = line_complexes.CO[band]
-            for transitions in nu_level[:J+1]:
-                self.add_many_lines(transitions, velspan=velspan)
+            full_labels = molecules.CO_full_labels
+            nu_level = molecules.CO[band]
+            ref_J0 = molecules.CO[band][0][0]
+        elif molecule == 'H2':
+            full_labels = molecules.H2_full_labels
+            nu_level = molecules.H2[band]
+            ref_J0 = molecules.H2[band][0][0]
 
-            ref_J0 = line_complexes.CO[band][0][0]
-            regions_of_line = self.find_line(ref_J0)
-            for region in regions_of_line:
-                if full_label:
-                    label = line_complexes.CO_full_labels[band]
-                    region.label = label
+        for transitions in nu_level[:Jmax+1]:
+            self.add_many_lines(transitions, velspan=velspan)
 
-                else:
-                    region.label = "${\\rm CO\ %s}$" % band
+        regions_of_line = self.find_line(ref_J0)
+        for region in regions_of_line:
+            if full_label:
+                region.label = full_labels[band]
+            else:
+                region.label = "%s %s" % (molecule, band)
 
-        if molecule in self.molecules.keys():
-            self.molecules[molecule].append(band)
-        else:
-            self.molecules[molecule] = [band]
+        if molecule not in self.molecules.keys():
+            self.molecules[molecule] = list()
+        self.molecules[molecule].append([band, Jmax])
 
     def remove_molecule(self, molecule, band):
         """Remove all lines for the given band of the given molecule."""
+        bands_for_molecule = [item[0] for item in self.molecules[molecule]]
+        if band not in bands_for_molecule:
+            if self.verbose:
+                warning_msg = " [ERROR] - The %s band for %s is not defined!"
+                print("")
+                print(warning_msg % (band, molecule))
+            return None
+
         if molecule == 'CO':
-            if band not in self.molecules['CO']:
-                if self.verbose:
-                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
-                return None
+            nu_level = molecules.CO[band]
+        elif molecule == 'H2':
+            nu_level = molecules.H2[band]
 
-            nu_level = line_complexes.CO[band]
-            for transitions in nu_level:
-                for line_tag in transitions:
-                    if line_tag in self.all_lines:
-                        self.remove_line(line_tag)
+        for transitions in nu_level:
+            for line_tag in transitions:
+                if line_tag in self.all_lines:
+                    self.remove_line(line_tag)
 
-            self.molecules['CO'].remove(band)
-            if len(self.molecules['CO']) == 0:
-                self.molecules.pop('CO')
+        remove_idx = -1
+        for num, this_item in enumerate(self.molecules[molecule]):
+            if this_item[0] == band:
+                remove_idx = num
+        if remove_idx >= 0:
+            self.molecules[molecule].pop(remove_idx)
+        else:
+            print " [ERROR] - %s was not found in self.molecules['%s']" % (band, molecule)
+
+        if len(self.molecules[molecule]) == 0:
+            self.molecules.pop(molecule)
 
     def deactivate_molecule(self, molecule, band):
         """
         Deactivate all lines for the given band of the given molecule.
-        To see the available molecular bands defined, see the manual pdf or ``line_complexes.py``.
+        To see the available molecular bands defined, see the manual pdf
+        or ``molecules.py``.
         """
-        if molecule == 'CO':
-            if band not in self.molecules['CO']:
-                if self.verbose:
-                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
-                return None
+        bands_for_molecule = [item[0] for item in self.molecules[molecule]]
+        if band not in bands_for_molecule:
+            if self.verbose:
+                warning_msg = " [ERROR] - The %s band for %s is not defined!"
+                print("")
+                print(warning_msg % (band, molecule))
+            return None
 
-            nu_level = line_complexes.CO[band]
-            for transitions in nu_level:
-                for line_tag in transitions:
-                    if line_tag in self.all_lines:
-                        self.deactivate_line(line_tag)
+        if molecule == 'CO':
+            nu_level = molecules.CO[band]
+        elif molecule == 'H2':
+            nu_level = molecules.H2[band]
+
+        for transitions in nu_level:
+            for line_tag in transitions:
+                if line_tag in self.all_lines:
+                    self.deactivate_line(line_tag)
 
     def activate_molecule(self, molecule, band):
         """
         Activate all lines for the given band of the given molecule.
-        Example: activate_molecule('CO', 'AX(0-0)')
+        Example:
+            activate_molecule('CO', 'AX(0-0)')
         """
-        if molecule == 'CO':
-            if band not in self.molecules['CO']:
-                if self.verbose:
-                    print "\n [WARNING] - The %s band for %s is not defined!" % (band, molecule)
-                return None
+        bands_for_molecule = [item[0] for item in self.molecules[molecule]]
+        if band not in bands_for_molecule:
+            if self.verbose:
+                warning_msg = " [ERROR] - The %s band for %s is not defined!"
+                print("")
+                print(warning_msg % (band, molecule))
+            return None
 
-            nu_level = line_complexes.CO[band]
-            for transitions in nu_level:
-                for line_tag in transitions:
-                    if line_tag in self.all_lines:
-                        self.activate_line(line_tag)
+        if molecule == 'CO':
+            nu_level = molecules.CO[band]
+        elif molecule == 'H2':
+            nu_level = molecules.H2[band]
+
+        for transitions in nu_level:
+            for line_tag in transitions:
+                if line_tag in self.all_lines:
+                    self.activate_line(line_tag)
+
     # =========================================================================
 
     def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False):

@@ -106,7 +106,16 @@ def parse_parameters(fname):
                         molecules['CO'] += [band, Jmax, velspan]
 
             elif 'H2' in line:
-                print " Molecule H2 is not defined yet..."
+                H2_begin = line.find('H2')
+                band_string = line[H2_begin:].replace(',', '')
+                bands = band_string.split()[1:]
+                if 'H2' in molecules.keys():
+                    for band in bands:
+                        molecules['H2'] += [band, Jmax, velspan]
+                else:
+                    molecules['H2'] = list()
+                    for band in bands:
+                        molecules['H2'] += [band, Jmax, velspan]
 
             else:
                 print "\n [ERROR] - Could not detect any molecular species to add!\n"

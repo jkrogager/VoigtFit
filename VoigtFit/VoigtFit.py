@@ -213,7 +213,7 @@ def main():
         if len(new_molecules.items()) > 0:
             for molecule, bands in new_molecules.items():
                 for band, Jmax, velspan in bands:
-                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
+                    dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
 
         # Remove old molecules which should not be fitted:
         defined_molecular_bands = list()
@@ -222,7 +222,7 @@ def main():
                 defined_molecular_bands.append(band)
 
         for molecule, bands in dataset.molecules.items():
-            for band in bands:
+            for band, Jmax in bands:
                 if band not in defined_tags:
                     dataset.deactivate_molecule(molecule, band)
 
@@ -305,7 +305,7 @@ def main():
         if len(parameters['molecules'].items()) > 0:
             for molecule, bands in parameters['molecules'].items():
                 for band, Jmax, velspan in bands:
-                    dataset.add_molecule(molecule, J=Jmax, velspan=velspan)
+                    dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
 
         # Load components from file:
         if 'load' in parameters.keys():
