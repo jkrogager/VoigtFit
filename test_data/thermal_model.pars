@@ -1,0 +1,41 @@
+# Test Parameter File for Thermal Model
+# The themal model assumes that each b-parameters
+# can be decomposed into a thermal and a turbulent contribution:
+#
+#   b_eff^2 = b_turb^2 + 2kT/m
+#
+z_sys = 0.00345
+name : test_2comp
+C_order = -1
+velspan = 100
+
+data 'synthetic_testdata/thermal_model_2comp.dat' 6.6 norm
+
+lines   FeII_2344    FeII_2374    FeII_2382
+lines   FeII_1608    FeII_1611
+lines FeII_2260
+lines FeII_2249
+lines CrII_2056
+lines CrII_2066
+lines CrII_2026
+lines ZnII_2026
+lines CrII_2062
+lines ZnII_2062
+lines CII_1036 CII_1334
+lines OI_1302 OI_1039 OI_1355
+lines SiII_1526 SiII_1808 SiII_1304
+lines SiII_1260 FeII_1260 SII_1259
+lines SII_1250 SII_1253
+
+component  FeII  0.003290  5. 14.0
+component  FeII  0.003620  5. 13.5
+
+copy components from FeII to SiII
+copy components from FeII to ZnII
+copy components from FeII to CrII
+copy components from FeII to CII
+copy components from FeII to SII
+copy components from FeII to OI
+
+thermal model FeII ZnII CrII SiII CII OI T=5000 turb=5.
+

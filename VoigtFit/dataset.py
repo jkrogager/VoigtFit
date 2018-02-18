@@ -639,7 +639,7 @@ class DataSet(object):
         return None
 
     def find_ion(self, ion):
-        """Return a list of all lines for a given ion."""
+        """Return a list of all line tags for a given ion."""
         return [l.tag for l in self.lines.values() if l.ion == ion]
 
     def has_line(self, line_tag, active_only=False):
@@ -826,7 +826,7 @@ class DataSet(object):
     def interactive_components(self, line_tag):
         """
         Define components interactively for a given ion. The components will be defined on the
-        basis of the given line for that ion. If the line is defined in several spectral
+        basis of the given line for that ion. If the line is defined in several spectra
         then the interactive window will show up for each.
         Running the interactive mode more times for different transitions of the same ion
         will append the components to the structure.
@@ -1363,22 +1363,19 @@ class DataSet(object):
         # --- Check that no components for inactive elements are defined:
         for this_ion in self.components.keys():
             lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
-            # for region in self.regions:
-            #     for line in region.lines:
-            #         if line.ion == this_ion:
-            #             lines_for_this_ion.append(line.active)
 
             if np.any(lines_for_this_ion):
                 pass
             else:
                 if self.verbose:
-                    print "\n [WARNING] - Components defined for inactive element: %s" % this_ion
+                    warn_msg = "\n [WARNING] - Components defined for inactive element: %s"
+                    print warn_msg % this_ion
 
                 if force_clean:
                     # Remove components for inactive elements
                     self.components.pop(this_ion)
                     if verbose:
-                        print "\n             The components have been removed."
+                        print "             The components have been removed."
                 print ""
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
@@ -1393,8 +1390,10 @@ class DataSet(object):
                 N_name = 'logN%i_%s' % (n, ion)
 
                 self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'])
-                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'], min=0., max=800.)
-                self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'], min=0., max=40.)
+                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'],
+                              min=0., max=800.)
+                self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'],
+                              min=0., max=40.)
 
         # - Then setup parameter links:
         for ion in self.components.keys():

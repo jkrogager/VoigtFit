@@ -1234,6 +1234,32 @@ def print_abundance(dataset):
         print "\n [ERROR] - The dataset has not yet been fitted. No parameters found!"
 
 
+def print_T_model_pars(dataset, thermal_model, filename=None):
+    """Print the turbulence and temperature parameters for physical model."""
+    print("")
+    print(u"  No:     Temperature [K]       Turbulence [km/s]")
+    if filename:
+        out_file = open(filename, 'w')
+        out_file.write(u"# No:     Temperature [K]       Turbulence [km/s] \n")
+
+    thermal_components = list(set(sum(thermal_model.values(), [])))
+
+    for comp_num in thermal_components:
+        T_name = 'T_%i' % comp_num
+        turb_name = 'turb_%i' % comp_num
+        T_fit = dataset.best_fit[T_name]
+        turb_fit = dataset.best_fit[turb_name]
+        par_tuple = (comp_num, T_fit.value, T_fit.stderr,
+                     turb_fit.value, turb_fit.stderr)
+        print(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
+        if filename:
+            out_file.write(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
+
+    print("\n")
+    if filename:
+        out_file.close()
+
+
 def sum_components(dataset, ion, components):
     """
     Calculate the total abundance for the given `components` of the given `ion`.

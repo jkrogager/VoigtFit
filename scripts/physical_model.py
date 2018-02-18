@@ -22,7 +22,7 @@ def print_T_model_pars(dataset, filename=None):
         print(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
         if filename:
             out_file.write(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e \n" % par_tuple)
-    
+
     print("")
     if filename:
         out_file.close()
@@ -54,7 +54,7 @@ dataset.verbose = True
 dataset.velspan = 150.
 dataset.cheb_order = -1
 
-### Add the data loaded from the 
+### Add the data loaded from the
 dataset.add_data(wl, spec, res, err=err, normalized=True)
 
 ### Define absorption lines:
@@ -105,7 +105,7 @@ dataset.copy_components(from_ion='FeII', to_ion='SII', tie_b=False)
 dataset.copy_components(from_ion='FeII', to_ion='CII', tie_b=False)
 dataset.copy_components(from_ion='FeII', to_ion='OI', tie_b=False)
 
-### This copies the two components defined for FeII to the other ions and keeps 
+### This copies the two components defined for FeII to the other ions and keeps
 ### the same pattern of initial guesses for column density scaled
 ### to the Solar abundance ratio.
 
@@ -167,4 +167,3 @@ print_T_model_pars(dataset)
 
 ### Save the dataset to file: taken from the dataset.name
 dataset.save()
-

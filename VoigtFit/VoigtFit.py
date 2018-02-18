@@ -144,11 +144,11 @@ def main():
         for fname, res, norm, airORvac in parameters['data']:
             if fname[-5:] == '.fits':
                 hdu = pf.open(fname)
-                spec = pf.getdata(fname)
+                spec = pf.getdata(fname, 0)
                 hdr = pf.getheader(fname)
                 wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
                 if len(hdu) > 1:
-                    err = hdu[1].data
+                    err = pf.getdata(fname, 1)
                 elif parameters['snr'] is not None:
                     # err = spec/parameters['snr']
                     err = np.ones_like(spec)*np.median(spec)/parameters['snr']
@@ -189,7 +189,7 @@ def main():
                         new_lines.append([tag, velspan])
 
         for tag, velspan in new_lines:
-                dataset.add_line(tag, velspan)
+                dataset.add_line(tag, velspan=velspan)
 
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
@@ -227,29 +227,32 @@ def main():
 
         # Define Components:
         dataset.reset_components()
-        for component in parameters['components']:
-            # ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N = component
-            # dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-            #                       tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
-            if vel:
-                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
-            else:
-                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
-
-        if 'interactive' in parameters.keys():
-            for line_tag in parameters['interactive']:
-                dataset.interactive_components(line_tag)
-
-        for component in parameters['components_to_copy']:
-            ion, anchor, logN, ref_comp, tie_z, tie_b = component
-            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                    tie_z=tie_z, tie_b=tie_b)
-
-        for component in parameters['components_to_delete']:
-            dataset.delete_component(*component)
+        # for component in parameters['components']:
+        #     (ion, z, b, logN,
+        #      var_z, var_b, var_N,
+        #      tie_z, tie_b, tie_N,
+        #      vel, thermal) = component
+        #     if vel:
+        #         dataset.add_component_velocity(ion, z, b, logN,
+        #                                        var_z=var_z, var_b=var_b,
+        #                                        var_N=var_N, tie_z=tie_z,
+        #                                        tie_b=tie_b, tie_N=tie_N)
+        #     else:
+        #         dataset.add_component(ion, z, b, logN,
+        #                               var_z=var_z, var_b=var_b, var_N=var_N,
+        #                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+        #
+        # if 'interactive' in parameters.keys():
+        #     for line_tag in parameters['interactive']:
+        #         dataset.interactive_components(line_tag)
+        #
+        # for component in parameters['components_to_copy']:
+        #     ion, anchor, logN, ref_comp, tie_z, tie_b = component
+        #     dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
+        #                             tie_z=tie_z, tie_b=tie_b)
+        #
+        # for component in parameters['components_to_delete']:
+        #     dataset.delete_component(*component)
 
     # ================================================================================
     # Generate New Dataset:
@@ -298,7 +301,7 @@ def main():
 
         # Define lines:
         for tag, velspan in parameters['lines']:
-            dataset.add_line(tag, velspan)
+            dataset.add_line(tag, velspan=velspan)
 
         # Define molecules:
         if len(parameters['molecules'].items()) > 0:
@@ -306,36 +309,79 @@ def main():
                 for band, Jmax, velspan in bands:
                     dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
 
-        # Load components from file:
-        if 'load' in parameters.keys():
-            for fname in parameters['load']:
-                print "\nLoading parameters from file: %s \n" % fname
-                dataset.load_components_from_file(fname)
+    # =========================================================================
+    # Back to Common Work Flow for all datasets:
+
+    # Load components from file:
+    if 'load' in parameters.keys():
+        for fname in parameters['load']:
+            print "\nLoading parameters from file: %s \n" % fname
+            dataset.load_components_from_file(fname)
+    else:
+        dataset.reset_components()
+
+    # Prepare thermal model:
+    if len(parameters['thermal_model']) > 0:
+        thermal_model = {ion: [] for ion in parameters['thermal_model'][0]}
+        ions_in_model = ', '.join(parameters['thermal_model'][0])
+        print ""
+        print "  Fitting Thermal Model for ions: " + ions_in_model
+    else:
+        thermal_model = dict()
+
+    # Define Components:
+    for component in parameters['components']:
+        (ion, z, b, logN,
+         var_z, var_b, var_N,
+         tie_z, tie_b, tie_N,
+         vel, thermal) = component
+
+        if vel:
+            dataset.add_component_velocity(ion, z, b, logN,
+                                           var_z=var_z, var_b=var_b,
+                                           var_N=var_N, tie_z=tie_z,
+                                           tie_b=tie_b, tie_N=tie_N)
         else:
-            dataset.reset_components()
+            dataset.add_component(ion, z, b, logN,
+                                  var_z=var_z, var_b=var_b, var_N=var_N,
+                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
-        # Define Components:
-        for component in parameters['components']:
-            ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel = component
-            if vel:
-                print "Defining component in velocity"
-                dataset.add_component_velocity(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
-            else:
-                dataset.add_component(ion, z, b, logN, var_z=var_z, var_b=var_b, var_N=var_N,
-                                      tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+        if ion in thermal_model.keys():
+            thermal_model[ion].append(thermal)
 
-        if 'interactive' in parameters.keys():
-            for line_tag in parameters['interactive']:
-                dataset.interactive_components(line_tag)
+    # Convert boolean indices to component indcides:
+    # Ex: [True, False, True, False] -> [0, 2]
+    for ion, values in thermal_model.items():
+        if np.any(values):
+            pass
+        else:
+            # If no components have been explicitly defined
+            # as part of the thermal model, assign all compooents
+            values = [True for _ in values]
+        thermal_model[ion] = list(np.nonzero(values)[0])
 
-        for component in parameters['components_to_copy']:
-            ion, anchor, logN, ref_comp, tie_z, tie_b = component
+    if 'interactive' in parameters.keys():
+        for line_tag in parameters['interactive']:
+            dataset.interactive_components(line_tag)
+
+    for component in parameters['components_to_copy']:
+        ion, anchor, logN, ref_comp, tie_z, tie_b = component
+        if anchor in thermal_model.keys():
+            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
+                                    tie_z=tie_z, tie_b=False)
+            thermal_model[ion] = thermal_model[anchor]
+        else:
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
                                     tie_z=tie_z, tie_b=tie_b)
 
-        for component in parameters['components_to_delete']:
-            dataset.delete_component(*component)
+    for component in parameters['components_to_delete']:
+        dataset.delete_component(*component)
+
+        # Also remove component from therma_model
+        ion, num = component
+        if ion in thermal_model.keys():
+            if num in thermal_model[ion]:
+                thermal_model[ion].remove(num)
 
     # Set default value of norm:
     norm = False
@@ -350,7 +396,8 @@ def main():
         if parameters['norm_method'].lower() in ['linear', 'spline']:
             dataset.norm_method = parameters['norm_method'].lower()
         else:
-            print "\n [WARNING] - Unexpected value for norm_method: %r" % parameters['norm_method']
+            warn_msg = "\n [WARNING] - Unexpected value for norm_method: %r"
+            print warn_msg % parameters['norm_method']
             print "             Using default normalization method : linear\n"
         print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
 
@@ -363,7 +410,10 @@ def main():
             order_str = "%ird" % (dataset.cheb_order)
         else:
             order_str = "%ith" % (dataset.cheb_order)
-        print "\n Continuum Fitting : Chebyshev Polynomial up to %s order\n" % (order_str)
+        stat_msg = " Continuum Fitting : Chebyshev Polynomial up to %s order"
+        print ""
+        print stat_msg % (order_str)
+        print ""
 
     # Reset data in regions:
     if 'reset' in parameters.keys():
@@ -378,6 +428,35 @@ def main():
     # prepare_dataset
     dataset.prepare_dataset(mask=False, norm=norm)
 
+    # Define thermal model
+    if len(thermal_model.keys()) > 0:
+        # Get all the indices of components that have thermal components
+        thermal_components = list(set(sum(thermal_model.values(), [])))
+        (thermal_ions, T_init, turb_init,
+         fix_T, fix_turb) = parameters['thermal_model']
+
+        var_T = not fix_T
+        var_turb = not fix_turb
+        for num in thermal_components:
+            dataset.pars.add('T_%i' % num, value=T_init, min=0.,
+                             vary=var_T)
+            dataset.pars.add('turb_%i' % num, value=turb_init, min=0.,
+                             vary=var_turb)
+
+        # 2k_B/m_u in (km/s)^2 units
+        K = 0.0166287
+        for ion in thermal_ions:
+            for comp_num in thermal_model[ion]:
+                par_name = 'b%i_%s' % (comp_num, ion)
+                lines_for_ion = dataset.get_lines_for_ion(ion)
+                m_ion = lines_for_ion[0].mass
+                T_num = dataset.pars['T_%i' % comp_num].value
+                turb_num = dataset.pars['turb_%i' % comp_num].value
+                b_eff = np.sqrt(turb_num**2 + K*T_num/m_ion)
+                mod_pars = (comp_num, K/m_ion, comp_num)
+                model_constraint = 'sqrt((turb_%i)**2 + %.6f*T_%i)' % mod_pars
+                dataset.pars[par_name].set(expr=model_constraint, value=b_eff)
+
     # Reset all masks:
     if 'clear_mask' in parameters.keys():
         for region in dataset.regions:
@@ -387,10 +466,12 @@ def main():
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
             for line_tag in parameters['mask']:
-                dataset.mask_line(line_tag)
+                dataset.mask_line(line_tag, reset=False)
         else:
             for region in dataset.regions:
-                region.define_mask(z=dataset.redshift, dataset=dataset)
+                if region.new_mask:
+                    region.define_mask(z=dataset.redshift,
+                                       dataset=dataset)
 
     # update resolution:
     if len(parameters['resolution']) > 0:
@@ -398,7 +479,8 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # Run the fit:
-    popt, chi2 = dataset.fit(verbose=False, plot=False, **parameters['fit_options'])
+    popt, chi2 = dataset.fit(verbose=False, plot=False,
+                             **parameters['fit_options'])
 
     print ""
     print popt.message
@@ -443,6 +525,10 @@ def main():
     else:
         dataset.print_results(velocity=False)
 
+    if len(thermal_model.keys()) > 0:
+        # print Thermal Model Parameters
+        output.print_T_model_pars(dataset, thermal_model)
+
     if dataset.cheb_order >= 0:
         dataset.print_cont_parameters()
 
@@ -480,7 +566,7 @@ def main():
 
     else:
         dataset.plot_fit()
-        plt.show()
+        plt.show(block=True)
 
 
 if __name__ == '__main__':

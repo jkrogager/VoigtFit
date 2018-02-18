@@ -30,6 +30,7 @@ def parse_parameters(fname):
     lines = list()
     molecules = dict()
     # fine_lines = list()
+    thermal_model = list()
 
     for line in par_file.readlines():
         if line[0] == '#':
@@ -55,13 +56,13 @@ def parse_parameters(fname):
             data.append([filename, resolution, norm, airORvac])
 
         elif 'lines' in line and 'save' not in line:
-            velspan = 500.
+            velspan = None
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             # remove parentheses:
-            if 'span' in line:
-                idx = line.find('span')
+            if 'velspan' in line:
+                idx = line.find('velspan')
                 value = line[idx:].split('=')[1]
                 velspan = float(value)
 
@@ -194,7 +195,12 @@ def parse_parameters(fname):
             else:
                 vel = False
 
-            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel])
+            if 'thermal' in line.lower():
+                thermal = True
+            else:
+                thermal = False
+
+            components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel, thermal])
 
         elif 'copy' in line:
             # strip comments:
@@ -272,7 +278,12 @@ def parse_parameters(fname):
         elif 'z_sys' in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
-            parameters['z_sys'] = float(line.split(':')[-1].strip())
+            if ':' in line:
+                parameters['z_sys'] = float(line.split(':')[-1].strip())
+            elif '=' in line:
+                parameters['z_sys'] = float(line.split('=')[-1].strip())
+            else:
+                parameters['z_sys'] = float(line.split()[-1].strip())
 
         elif 'norm_method' in line:
             comment_begin = line.find('#')
@@ -386,16 +397,17 @@ def parse_parameters(fname):
                 snr = line.split(':')[1]
             parameters['snr'] = float(snr)
 
-        elif 'velspan' in line and 'lines' not in line and 'molecules' not in line and 'save' not in line:
+        elif ('velspan' in line and 'lines' not in line
+              and 'molecules' not in line and 'save' not in line):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             if '=' in line:
                 velspan = line.split('=')[1]
-            elif ' ' in line:
-                velspan = line.split(' ')[1]
             elif ':' in line:
                 velspan = line.split(':')[1]
+            else:
+                velspan = line.split()[1]
             parameters['velspan'] = float(velspan)
 
         elif 'C_order' in line and 'name' not in line and 'save' not in line:
@@ -451,6 +463,28 @@ def parse_parameters(fname):
             else:
                 parameters['load'] = filenames
 
+        elif 'thermal model' in line.lower():
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace('"', '')
+            line = line.replace("'", '')
+            ions = list()
+            pars = line.split()
+            fix_T = False
+            fix_turb = False
+            for par in pars[2:]:
+                if 'T=' in par:
+                    T_init = float(par.split('=')[1])
+                elif 'turb=' in par:
+                    turb_init = float(par.split('=')[1])
+                elif 'fix-T' in par:
+                    fix_T = True
+                elif 'fix-turb' in par:
+                    fix_turb = True
+                else:
+                    ions.append(par)
+            thermal_model = [ions, T_init, turb_init, fix_T, fix_turb]
+
         else:
             pass
 
@@ -461,6 +495,7 @@ def parse_parameters(fname):
     parameters['components'] = components
     parameters['components_to_copy'] = components_to_copy
     parameters['components_to_delete'] = components_to_delete
+    parameters['thermal_model'] = thermal_model
     parameters['interactive'] = interactive_components
 
     return parameters

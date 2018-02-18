@@ -5,13 +5,13 @@ from VoigtFit import show_transitions
 from scipy.signal import fftconvolve, gaussian
 
 # --- INPUT ---
-SNR = 50.
+SNR = 60.
 wl = np.arange(1000., 3000., 0.010)
 R = 45000.
 
-elements = {'CII': 14.72, 'SiII': 13.95,
+elements = {'CII': 14.32, 'SiII': 13.95,
             'SII': 13.69, 'FeII': 13.59, 'ZnII': 11.54,
-            'OI': 15.16, 'AlII': 12.47, 'AlIII': 11.90,
+            'OI': 14.86, 'AlII': 12.47, 'AlIII': 11.90,
             'CrII': 12.10}
 
 z1 = 0.0033
