@@ -638,6 +638,25 @@ class DataSet(object):
 
         return None
 
+    def find_ion(self, ion):
+        """Return a list of all lines for a given ion."""
+        return [l.tag for l in self.lines.values() if l.ion == ion]
+
+    def has_line(self, line_tag, active_only=False):
+        """Return True if the given line is defined."""
+        if active_only:
+            return line_tag in self.all_active_lines()
+        else:
+            return line_tag in line_tag in self.all_lines
+
+    def has_ion(self, ion, active_only=False):
+        """Return True if the dataset has lines defined for the given ion."""
+        if active_only:
+            all_ions = list(set([l.ion for l in self.lines.values() if l.active]))
+        else:
+            all_ions = list(set([l.ion for l in self.lines.values()]))
+        return ion in all_ions
+
     def activate_line(self, line_tag):
         """Activate a given line defined by its `line_tag`"""
         if line_tag in self.lines.keys():
@@ -940,8 +959,12 @@ class DataSet(object):
             element = ion_tmp[:1] + ion_tmp[1:].replace('V', '')
             anchor_tmp = from_ion[:1] + from_ion[1:].replace('I', '')
             element_anchor = anchor_tmp[:1] + anchor_tmp[1:].replace('V', '')
-            # Use Solar abundance ratios:
-            offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
+            solar_elements = Asplund.photosphere.keys()
+            if element in solar_elements and element_anchor in solar_elements:
+                # Use Solar abundance ratios:
+                offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
+            else:
+                offset_N = 0.
         for num, comp in enumerate(reference):
             new_comp = copy.deepcopy(comp)
             if logN:
@@ -1291,7 +1314,8 @@ class DataSet(object):
 
     # =========================================================================
 
-    def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False):
+    def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False,
+                        force_clean=False):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
@@ -1307,6 +1331,9 @@ class DataSet(object):
 
         verbose : bool   [default = True]
             If this is set, the code will print small info statements during the run.
+
+        force_clean : bool   [default = False]
+            If this is True, components for inactive elements will be removed.
 
         Returns
         -------
@@ -1331,6 +1358,27 @@ class DataSet(object):
             if verbose and self.verbose:
                 print ""
                 print " [DONE] - Continuum fitting successfully finished."
+                print ""
+
+        # --- Check that no components for inactive elements are defined:
+        for this_ion in self.components.keys():
+            lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
+            # for region in self.regions:
+            #     for line in region.lines:
+            #         if line.ion == this_ion:
+            #             lines_for_this_ion.append(line.active)
+
+            if np.any(lines_for_this_ion):
+                pass
+            else:
+                if self.verbose:
+                    print "\n [WARNING] - Components defined for inactive element: %s" % this_ion
+
+                if force_clean:
+                    # Remove components for inactive elements
+                    self.components.pop(this_ion)
+                    if verbose:
+                        print "\n             The components have been removed."
                 print ""
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
@@ -1403,20 +1451,6 @@ class DataSet(object):
                 self.ready2fit = False
 
                 return False
-
-        # --- Check that no components for inactive elements are defined:
-        for this_ion in self.components.keys():
-            lines_for_this_ion = list()
-            for region in self.regions:
-                for line in region.lines:
-                    if line.ion == this_ion:
-                        lines_for_this_ion.append(line.active)
-
-            if np.any(lines_for_this_ion):
-                pass
-            else:
-                if self.verbose:
-                    print "\n [WARNING] - Components defined for inactive element: %s\n" % this_ion
 
         if self.ready2fit:
             if verbose and self.verbose:
