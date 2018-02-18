@@ -445,6 +445,9 @@ rotational_constant = {'H2': 60.853,
                        'CO': 1.9313,
                        'HD': 45.655}
 
+# Centrifugal constant for H2:
+# De = 0.0471  # cm^-1
+
 hc = 1.2398e-4         # eV.cm
 k_B = 8.6173e-5        # eV/K
 
@@ -466,3 +469,22 @@ def population_of_level(element, T, J):
         B = B * hc / k_B
         n_J = (2*J + 1) * np.exp(-B*J*(J+1)/T)
         return n_J
+
+
+def calculate_T(element, logN1, logN2, J1, J2):
+    """
+    Calculate the isothermal temperature for two given column densities.
+    """
+    if element == 'H2':
+        def g(J):
+            Ij = J % 2
+            return (2*J + 1)*(2*Ij + 1)
+    elif element == 'CO':
+        def g(J):
+            return 2*J + 1
+    B = rotational_constant[element]
+    E1 = B*hc/k_B * J1*(J1+1) - hc*0.0471*J1**2*(J1+1)**2
+    E2 = B*hc/k_B * J2*(J2+1) - hc*0.0471*J2**2*(J2+1)**2
+    E12 = E2-E1
+    T = -E12/(np.log(10**(logN2 - logN1) * g(J1)/g(J2)))
+    return T
