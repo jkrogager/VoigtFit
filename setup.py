@@ -18,8 +18,8 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 mypackage_root_dir = path.dirname(path.abspath(__file__))
-with open(path.join(mypackage_root_dir, 'VERSION')) as version_file:
-    version = version_file.read().strip()
+with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
+    version = v_file.read().strip()
 
 setup(
     name='VoigtFit',
@@ -78,7 +78,8 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['matplotlib', 'numpy', 'scipy', 'lmfit', 'h5py', 'astropy'],
+    install_requires=['matplotlib', 'numpy', 'scipy',
+                      'lmfit', 'h5py', 'astropy'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -90,7 +91,9 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'VoigtFit/static': ['Asplund2009.dat', 'atomdata_updated.dat', 'telluric_em_abs.npz'],
+        'VoigtFit/static': ['Asplund2009.dat',
+                            'atomdata_updated.dat',
+                            'telluric_em_abs.npz'],
     },
 
     include_package_data=True,
