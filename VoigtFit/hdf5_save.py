@@ -11,8 +11,10 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 from os.path import splitext, basename
 import pickle
-
-import h5py
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import h5py
 from lmfit import Parameters
 
 import regions

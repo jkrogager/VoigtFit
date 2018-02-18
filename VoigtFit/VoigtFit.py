@@ -4,16 +4,15 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 import matplotlib
-# The native MacOSX backend doesn't work for all:
-matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
 import warnings
-
-try:
-    import pyfits as pf
-except:
-    from astropy.io import fits as pf
 import os
+# The native MacOSX backend doesn't work for all:
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+
+from astropy.io import fits as pf
 from argparse import ArgumentParser
 
 import output
