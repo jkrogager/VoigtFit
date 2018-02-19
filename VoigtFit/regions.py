@@ -97,7 +97,7 @@ class Region():
         self.wl = data_chunk['wl'][cutout]
         self.normalized = data_chunk['norm']
         self.cont_err = 0.
-        self.mask = np.ones_like(self.wl, dtype=bool)
+        self.mask = data_chunk['mask'][cutout]
         self.new_mask = True
 
     def add_line(self, line):
@@ -341,6 +341,11 @@ class Region():
                     self.new_mask = False
                 else:
                     ok += 1
+
+    def set_mask(self, mask):
+        err_msg = " Mask must have same size as region!"
+        assert len(mask) == len(self.flux), err_msg
+        self.mask = mask
 
     def clear_mask(self):
         """Clear the already defined mask in the region."""

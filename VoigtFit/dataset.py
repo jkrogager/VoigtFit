@@ -228,7 +228,7 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
-    def add_data(self, wl, flux, res, err=None, normalized=False):
+    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
 
@@ -245,11 +245,15 @@ class DataSet(object):
 
         err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
-            If `None` is given, a constant uncertainty of 1. is given to all pixels.
+            If `None` is given, an uncertainty of 1 is given to all pixels.
 
         normalized : bool   [default = False]
             If the input spectrum is normalized this should be given as True
             in order to skip normalization steps.
+
+        mask : array, shape (n)
+            Boolean/int array defining the fitting regions.
+            Only pixels with mask=True/1 will be included in the fit.
         """
         # assign specid:
         specid = "sid_%i" % len(self.data)
@@ -257,9 +261,15 @@ class DataSet(object):
         if err is None:
             err = np.ones_like(flux)
 
+        if mask is None:
+            mask = np.ones_like(flux, dtype=bool)
+        else:
+            mask = mask.astype(bool)
+
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
-                          'norm': normalized, 'specID': specid})
+                          'norm': normalized, 'specID': specid,
+                          'mask': mask})
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
