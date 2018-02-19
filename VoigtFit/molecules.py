@@ -443,13 +443,34 @@ CO = {
 #     E = hc * B * J(J + 1)
 rotational_constant = {'H2': 60.853,
                        'CO': 1.9313,
-                       'HD': 45.655}
+                       'HD': 45.655
+                       }
 
-# Centrifugal constant for H2:
-# De = 0.0471  # cm^-1
+# Centrifugal constants in units of cm^-1:
+centrifugal_constant = {'H2': 4.71e-2,
+                        'CO': 6.12e-6
+                        }
 
 hc = 1.2398e-4         # eV.cm
 k_B = 8.6173e-5        # eV/K
+
+
+def energy_of_level(element, J):
+    """
+    Calculate the energy of a given rotational level, `J`
+    for the given molecule with correction for centrigual
+    expansion.
+    E(J) = B_e * J * (J+1)
+
+    Returns
+    =======
+    E : float
+        The energy of the given level in units of K.
+    """
+    B_e = rotational_constant[element]
+    D_e = centrifugal_constant[element]
+    E = B_e * hc/k_B * J * (J+1) - hc*D_e * J**2 * (J+1)**2
+    return E
 
 
 def population_of_level(element, T, J):
@@ -460,15 +481,21 @@ def population_of_level(element, T, J):
     n(J) \propto g(J) e^(-E(J) / kT)
     """
     if element not in rotational_constant.keys():
-        print " Element is not in database! "
+        print(" Element is not in database! ")
         print " All elements in database are: " + ", ".join(rotational_constant.keys())
-        return -1
-    else:
-        # convert rotational constant to units of Kelvin:
-        B = rotational_constant[element]
-        B = B * hc / k_B
-        n_J = (2*J + 1) * np.exp(-B*J*(J+1)/T)
-        return n_J
+        return None
+
+    if element == 'H2':
+        def g(J):
+            Ij = J % 2
+            return (2*J + 1)*(2*Ij + 1)
+    elif element == 'CO':
+        def g(J):
+            return 2*J + 1
+
+    E = energy_of_level(element, J)
+    n_J = g(J) * np.exp(-E/T)
+    return n_J
 
 
 def calculate_T(element, logN1, logN2, J1, J2):
@@ -482,9 +509,9 @@ def calculate_T(element, logN1, logN2, J1, J2):
     elif element == 'CO':
         def g(J):
             return 2*J + 1
-    B = rotational_constant[element]
-    E1 = B*hc/k_B * J1*(J1+1) - hc*0.0471*J1**2*(J1+1)**2
-    E2 = B*hc/k_B * J2*(J2+1) - hc*0.0471*J2**2*(J2+1)**2
+
+    E1 = energy_of_level(element, J1)
+    E2 = energy_of_level(element, J2)
     E12 = E2-E1
     T = -E12/(np.log(10**(logN2 - logN1) * g(J1)/g(J2)))
     return T
