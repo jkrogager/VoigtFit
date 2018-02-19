@@ -14,6 +14,7 @@ import itertools
 
 import voigt
 import Asplund
+import molecules
 
 plt.rcParams['lines.linewidth'] = 1.0
 
@@ -997,6 +998,64 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
         plt.show(block=True)
 
     return (ax, lines_in_view)
+
+
+def plot_excitation(dataset, molecule):
+    """Plot the excitation diagram for a given `molecule`"""
+    if molecule == 'H2':
+        def g(J):
+            Ij = J % 2
+            return (2*J + 1.)*(2*Ij + 1.)
+    elif molecule == 'CO':
+        def g(J):
+            return 2*J + 1.
+    else:
+        def g(J):
+            return 2*J + 1.
+
+    if dataset.best_fit is not None:
+        pars = dataset.best_fit
+    else:
+        pars = dataset.pars
+
+    Jmax = np.max([band[1] for band in dataset.molecules[molecule]])
+    logN = list()
+    logN_err = list()
+    E = list()
+    g_J = list()
+    for num in range(Jmax + 1):
+        par_name = 'logN0_%sJ%i' % (molecule, num)
+        logN.append(pars[par_name].value)
+        err = pars[par_name].stderr if pars[par_name].stderr else 0.
+        logN_err.append(err)
+        E.append(molecules.energy_of_level(molecule, num))
+        g_J.append(g(num))
+
+    logN = np.array(logN)
+    logN_err = np.array(logN_err)
+    g_J = np.array(g_J)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    y = np.log(10**(logN-logN[0]))+np.log(g_J[0]/g_J)
+    y_err = np.log(10.) * logN_err
+    ax.errorbar(E, y, y_err, color='k', marker='s', ls='')
+    ax.set_xlabel(r"Energy ${\rm E}_J-{\rm E}_0$ (K)", fontsize=14)
+    ax.set_ylabel(r"${\rm ln}\left(\frac{N_J}{N_0}\ \frac{g_0}{g_J}\right)$",
+                  fontsize=14)
+
+    N0 = np.random.normal(logN[0], logN_err[0], 10000)
+    N1 = np.random.normal(logN[1], logN_err[1], 10000)
+    T_dist = molecules.calculate_T(molecule, N0, N1, 0, 1)
+    T_01 = np.median(T_dist)
+    T_01_err = tuple(np.percentile(T_dist, [16., 84.]) - T_01)
+    T_array = np.linspace(0., np.max(E), 100)
+    ax.plot(T_array, -T_array/T_01, 'k:')
+    ax.text(0.98, 0.98,
+            r"$T_{01} = %.0f_{%+.0f}^{%+.0f}$ K" % ((T_01,) + T_01_err),
+            ha='right', va='top', transform=ax.transAxes,
+            fontsize=14)
+    plt.tight_layout()
+
 
 # ===================================================================================
 #
