@@ -255,6 +255,16 @@ class DataSet(object):
             Boolean/int array defining the fitting regions.
             Only pixels with mask=True/1 will be included in the fit.
         """
+        mask_warning = """
+        All pixels in the spectrum have been masked out.
+        Pixels to *include* in the fit should have value = 1.
+        Pixels to *excluded* should have value = 0.
+
+        %sData have not been passed to the DataSet!%s
+        """
+        bold = '\033[1m'
+        reset = '\033[0m'
+
         # assign specid:
         specid = "sid_%i" % len(self.data)
 
@@ -265,6 +275,9 @@ class DataSet(object):
             mask = np.ones_like(flux, dtype=bool)
         else:
             mask = mask.astype(bool)
+            if np.sum(mask) == 0:
+                print(mask_warning.strip() % (bold, reset))
+                return
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
@@ -487,6 +500,10 @@ class DataSet(object):
             for tag in tags:
                 self.add_line(tag, velspan)
 
+    def add_lines(self, line_tags, velspan=None):
+        """Alias for `self.add_many_lines`."""
+        self.add_many_lines(line_tags, velspan=velspan)
+
     def remove_line(self, line_tag):
         """
         Remove an absorption line from the DataSet. If this is the last line in a fitting region
@@ -543,6 +560,10 @@ class DataSet(object):
             if self.verbose:
                 print ""
                 print " The line, %s, is not defined. Nothing to remove." % line_tag
+
+    def remove_all_lines(self):
+        for line_tag in self.all_lines:
+            self.remove_line(line_tag)
 
     def normalize_line(self, line_tag, norm_method='spline'):
         """

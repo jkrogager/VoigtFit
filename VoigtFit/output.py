@@ -9,17 +9,21 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.signal import fftconvolve, gaussian
+from scipy.ndimage import gaussian_filter1d
 import numpy as np
-import itertools
 
 import voigt
 import Asplund
 import molecules
+from dataset import Line
+from voigt import evaluate_profile
 
 plt.rcParams['lines.linewidth'] = 1.0
 
 
-valid_kwargs = Line2D.properties(Line2D([0], [0])).keys() + ['ymin', 'ymax', 'ls', 'lw']
+valid_kwargs = Line2D.properties(Line2D([0], [0])).keys()
+valid_kwargs += ['ymin', 'ymax', 'ls', 'lw']
+
 default_comp = {'color': 'b', 'ls': '-',
                 'alpha': 1.0, 'lw': 1.0,
                 'ymin': 0.87, 'ymax': 0.92,
@@ -167,8 +171,9 @@ def rebin_bool_array(x, n):
 
 
 # --- Deprecated Function:
-def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_columns=2,
-                  rebin=1, fontsize=12, subsample_profile=1, npad=50, ymin=None):
+def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6,
+                  max_columns=2, rebin=1, fontsize=12, subsample_profile=1,
+                  npad=50, ymin=None):
     """
     Similar functionality can be acheived using :func:`plot_all_lines`.
     This function is deprecated and will be removed in future versions.
@@ -195,8 +200,10 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
                 l_ref = ref_line.l0*(dataset.redshift + 1)
                 for line in region.lines:
                     l0 = line.l0
-                    delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
-                    if np.abs(delta_v) <= vrange or line.ion[-1].islower() is True:
+                    delta_lam = (l0*(dataset.redshift + 1) - l_ref)
+                    delta_v = delta_lam / l_ref * 299792.
+                    if (np.abs(delta_v) <= vrange or
+                            line.ion[-1].islower() is True):
                         included_lines.append(line.tag)
 
     # --- If a filename is given, set up a PDF container for saving to file:
@@ -221,8 +228,6 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
         # rows = (len(contents) + 1) / 2
 
         fig = plt.figure(figsize=(7, 8))
-        # fig = plt.figure(figsize=(width, heigth))
-        # fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
 
         num = 1
         for line_tag in contents:
@@ -232,16 +237,19 @@ def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6, max_c
                 ax = fig.add_subplot(max_rows, max_columns, num)
                 _, LIV = plot_single_line(dataset, line_tag,
                                           plot_fit=False, linestyles=['--'],
-                                          colors=['RoyalBlue'], rebin=rebin, nolabels=True,
-                                          axis=ax, fontsize=fontsize, xmin=vmin, xmax=vmax,
-                                          subsample_profile=subsample_profile, ymin=ymin)
+                                          colors=['RoyalBlue'], rebin=rebin,
+                                          axis=ax, fontsize=fontsize,
+                                          xmin=vmin, xmax=vmax, ymin=ymin,
+                                          subsample_profile=subsample_profile,
+                                          nolabels=True)
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 ax.grid(True, color='0.6', ls='--', lw=0.5)
                 if num < len(contents)-1:
                     ax.set_xticklabels([''])
                 else:
-                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$", fontsize=12)
+                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$",
+                                  fontsize=12)
 
                 if num % max_columns == 1:
                     ax.set_ylabel("Norm. flux", fontsize=12)
@@ -281,15 +289,16 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
     Parameters
     ----------
     dataset : :class:`dataset.DataSet`
-        Instance of the :class:`dataset.DataSet` class containing the line regions to plot.
+        Instance of the :class:`dataset.DataSet` class containing the line
+        regions to plot.
 
     max_rows : int   [default = 4]
-        The maximum number of rows of figures. Each row consists of two figure panels.
+        The maximum number of rows of figures.
+        Each row consists of two figure panels.
 
     filename : str
         If a filename is given, the figures are saved to a pdf file.
     """
-
     if 'velocity'.find(xunit) == 0:
         # X-axis units should be velocity.
         xunit = 'vel'
@@ -299,6 +308,13 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         xunit = 'wl'
     else:
         xunit = 'vel'
+
+    molecule_warning = """
+        H2 Molecules are defined in the dataset. These will be skipped
+        in the normal DataSet.plot_fit() function.
+        A figure can be generated using \033[1mDataSet.plot_molecule()\033[0m.
+    """
+    show_molecule_warning = False
 
     # --- First figure out which lines to plot to avoid overlap
     #     of several lines defined in the same region.
@@ -310,6 +326,10 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             continue
 
         if ref_line.tag in included_lines:
+            pass
+
+        elif 'H2' in ref_line.tag:
+            show_molecule_warning = True
             pass
 
         elif ref_line.ion[-1].islower():
@@ -333,9 +353,25 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 l_ref = ref_line.l0*(dataset.redshift + 1)
                 for line in region.lines:
                     l0 = line.l0
-                    delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
-                    if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
+                    delta_lam = (l0*(dataset.redshift + 1) - l_ref)
+                    delta_v = delta_lam / l_ref * 299792.458
+                    if np.abs(delta_v) <= 150 or line.ion[-1].islower():
                         included_lines.append(line.tag)
+
+    # --- Pack keyword arguments for plot_single_line:
+    plot_line_kwargs = dict(plot_fit=plot_fit, rebin=rebin,
+                            loc=loc, nolabels=True,
+                            show=False, xmin=xmin, xmax=xmax,
+                            ymin=ymin, ymax=ymax,
+                            fontsize=fontsize,
+                            subsample_profile=subsample_profile,
+                            npad=npad, residuals=residuals,
+                            norm_resid=norm_resid,
+                            legend=legend, xunit=xunit,
+                            label_all_ions=label_all_ions,
+                            default_props=default_props,
+                            element_props=element_props,
+                            highlight_props=highlight_props)
 
     # --- If *filename* is given, set up a PDF container for saving to file:
     if filename:
@@ -367,7 +403,8 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             rows = 1
 
         fig = plt.figure(figsize=(width, heigth))
-        fig.subplots_adjust(left=0.10, right=0.98, top=0.98, hspace=0.03, bottom=0.14)
+        fig.subplots_adjust(left=0.10, right=0.98, top=0.98,
+                            hspace=0.03, bottom=0.14)
 
         num = 1
         for line_tag in contents:
@@ -378,17 +415,8 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 for idx in range(num_regions):
                     ax = fig.add_subplot(rows, columns, num)
                     _, LIV = plot_single_line(dataset, line_tag, index=idx,
-                                              plot_fit=plot_fit, rebin=rebin, loc=loc,
-                                              nolabels=True, axis=ax, show=False,
-                                              fontsize=fontsize, xmin=xmin, xmax=xmax,
-                                              ymin=ymin, ymax=ymax,
-                                              subsample_profile=subsample_profile, npad=npad,
-                                              residuals=residuals, norm_resid=norm_resid,
-                                              legend=legend, label_all_ions=label_all_ions,
-                                              default_props=default_props,
-                                              element_props=element_props,
-                                              highlight_props=highlight_props,
-                                              xunit=xunit)
+                                              axis=ax, **plot_line_kwargs
+                                              )
                     num += 1
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
@@ -412,22 +440,27 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         if filename:
             pdf.savefig(fig)
 
-    # plt.tight_layout()
-    fig.set_tight_layout(True)
-    if filename:
-        pdf.close()
-        print "\n  Output saved to PDF file:  " + filename
+    if len(pages) > 0:
+        fig.set_tight_layout(True)
+        if filename:
+            pdf.close()
+            print("\n  Output saved to PDF file:  " + filename)
 
-    if show:
-        plt.show()
+        if show:
+            plt.show()
+
+    if show_molecule_warning:
+        print(molecule_warning)
 
 
 def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
-                     loc='left', rebin=1, nolabels=False, axis=None, fontsize=12,
+                     loc='left', rebin=1, nolabels=False, axis=None,
+                     fontsize=12, subsample_profile=1,
                      xmin=None, xmax=None, ymin=None, ymax=None,
-                     show=True, subsample_profile=1, npad=50,
-                     residuals=False, norm_resid=False, legend=True,
-                     default_props={}, element_props={}, highlight_props=None,
+                     show=True, npad=50, legend=True,
+                     residuals=False, norm_resid=False,
+                     default_props={}, element_props={},
+                     highlight_props=None,
                      label_all_ions=False, xunit='velocity'):
     """
     Plot a single absorption line.
@@ -435,14 +468,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     Parameters
     ----------
     dataset : :class:`dataset.DataSet`
-        Instance of the :class:`dataset.DataSet` class containing the line regions
+        Instance of the :class:`dataset.DataSet` class containing the lines
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
 
     index : int   [default = 0]
-        The line index. When fitting the same line in multiple spectra this indexed
-        points to the index of the given region to be plotted.
+        The line index. When fitting the same line in multiple
+        spectra this indexed points to the index of the given
+        region to be plotted.
 
     plot_fit : bool   [default = False]
         If `True`, the best-fit profile will be shown
@@ -457,7 +491,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         If `True`, show the axis x- and y-labels.
 
     axis : matplotlib.axes.Axes_
-        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
+        The plotting axis of matplotlib.
+        If `None` is given, a new figure and axis will be created.
 
     fontsize : int   [default = 12]
         The fontsize of text labels.
@@ -471,16 +506,19 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         If nothing is given, the extent of the region is used.
 
     ymin : float   [default = None]
-        The lower y-limit in normalized flux units. Default is determined from the data.
+        The lower y-limit in normalized flux units.
+        Default is determined from the data.
 
     ymax : float   [default = None]
-        The upper y-limit in normalized flux units. Default is determined from the data.
+        The upper y-limit in normalized flux units.
+        Default is determined from the data.
 
     show : bool   [default = True]
         Show the figure.
 
     subsample_profile : int   [default = 1]
-        Subsampling factor to calculate the profile on a finer grid than the data sampling.
+        Subsampling factor to calculate the profile on a finer grid than
+        the data sampling.
         By default the profile is evaluated on the same grid as the data.
 
     npad : int   [default = 50]
@@ -488,7 +526,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         This removes end artefacts from the `FFT` routine.
 
     residuals : bool   [default = False]
-        Add a panel above the absorption line view to show the residuals of the fit.
+        Add a panel above the absorption line to show the residuals of the fit.
 
     norm_resid : bool   [default = False]
         Show normalized residuals.
@@ -497,38 +535,45 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         Show line labels as axis legend.
 
     default_props : dict
-        Dictionary of transition tick marker properties. The dictionary is passed to
-        matplotlib.axes.Axes.axvline to control color, linewidth, linestyle etc.
-        Two additional keywords can be defined: 'text' and 'loc'. The keyword 'text'
-        is a string that will be printed above or below each tick mark for each element.
-        The keyword 'loc' controls the placement of the tick mark text for the transistions,
-        and must be one either  'above' or 'below'.
+        Dictionary of transition tick marker properties. The dictionary is
+        passed to matplotlib.axes.Axes.axvline to control color, linewidth,
+        linestyle, etc.. Two additional keywords can be defined:
+        The keyword `text` is a string that will be printed above or below
+        each tick mark for each element.
+        The keyword `loc` controls the placement of the tick mark text
+        for the transistions, and must be one either 'above' or 'below'.
 
     element_props : dict
         Dictionary of properties for individual elements.
-        Each element defines a dictionary with individual properties following the format
-        for `default_props`.
+        Each element defines a dictionary with individual properties following
+        the format for `default_props`.
 
-        Ex: element_props={'SiII': {'color': 'red', 'lw': 1.5}, 'FeII': {'ls': '--', 'alpha': 0.2}}
-            This will set the color and linewidth of the tick marks for SiII transitions
-            and the linestyle and alpha-parameter for FeII transitions.
+        Ex: element_props={'SiII': {'color': 'red', 'lw': 1.5},
+                           'FeII': {'ls': '--', 'alpha': 0.2}}
+            This will set the color and linewidth of the tick marks
+            of SiII transitions and the linestyle and alpha-parameter
+            of FeII transitions.
 
     highlight_props : dict/list   [default = None]
-        A dictionary of `ions` (e.g., "FeII", "CIa", etc.) used to calculate a separate profile
-        for this subset of ions. Each `ion` as a keyword must specify a dictionary which can
-        change individual properties for the given `ion`. Similar to `element_props`.
+        A dictionary of `ions` (e.g., "FeII", "CIa", etc.) used to calculate
+        a separate profile for this subset of ions. Each `ion` as a keyword
+        must specify a dictionary which can change individual properties for
+        the given `ion`. Similar to `element_props`.
         If an empty dictionary is given, the default parameters will be used.
-        Alternatively, a list of `ions` can be given to use default properties for all `ions`.
+        Alternatively, a list of `ions` can be given to use default properties
+        for all `ions`.
 
         Ex: highlight_props={'SiII':{}, 'FeII':{'color': 'blue'}}
-            This will highlight SiII transitions with default highlight properties, and FeII
-            transistions with a user specified color.
+            This will highlight SiII transitions with default highlight
+            properties, and FeII transistions with a user specified color.
 
             highlight_props=['SiII', 'FeII']
-            This will highlight SiII and FeII transitions using default highlight properties.
+            This will highlight SiII and FeII transitions using default
+            highlight properties.
 
     label_all_ions : bool   [default = False]
-        Show labels for all `ions` defined. The labels will appear above the component tick marks.
+        Show labels for all `ions` defined.
+        The labels will appear above the component tick marks.
 
     xunit : string   [default = ]'velocity']
         The unit of the x-axis, must be either 'velocity' or 'wavelength'.
@@ -656,7 +701,9 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             if line.active:
                 # Get transition mark properties for this element
                 component_prop = comp_props.get_line_props(line.ion)
-                comp_text, comp_y_loc, loc_string = comp_props.get_text_props(line.ion)
+                (comp_text,
+                 comp_y_loc,
+                 loc_string) = comp_props.get_text_props(line.ion)
                 hl_component_prop = hl_comp_props.get_line_props(line.ion)
 
                 # Load line properties
@@ -671,9 +718,11 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau += voigt.Voigt(wl_line, l0, f,
+                                       10**logN, 1.e5*b, gam, z=z)
                     if ion in highlight_props.keys():
-                        tau_hl += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                        tau_hl += voigt.Voigt(wl_line, l0, f,
+                                              10**logN, 1.e5*b, gam, z=z)
                         if xunit == 'vel':
                             ax.axvline((l0*(z+1) - l_ref)/l_ref*299792.458,
                                        **hl_component_prop)
@@ -688,9 +737,9 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
                     ax.axvline(comp_x_loc, **component_prop)
                     if comp_text:
-                        ax.text((comp_x_loc - xmin)/(xmax-xmin), comp_y_loc, comp_text,
-                                transform=ax.transAxes, ha='center', va=loc_string,
-                                clip_on=True)
+                        ax.text((comp_x_loc - xmin)/(xmax-xmin), comp_y_loc,
+                                comp_text, transform=ax.transAxes,
+                                ha='center', va=loc_string, clip_on=True)
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
@@ -819,13 +868,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     # Check if the region has a predefined label or not:
     if hasattr(region, 'label'):
         if region.label == '':
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
+            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$"
+                             for trans in lines_in_view]
             line_string = "\n".join(all_trans_str)
         else:
             line_string = region.label
 
     else:
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$" for trans in lines_in_view]
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$"
+                         for trans in lines_in_view]
         line_string = "\n".join(all_trans_str)
 
     if loc == 'right':
@@ -853,7 +904,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     return (ax, lines_in_view)
 
 
-def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axis=None):
+def plot_residual(dataset, line_tag, index=0, rebin=1,
+                  xmin=None, xmax=None, axis=None):
     """
     Plot residuals for the best-fit to a given absorption line.
 
@@ -866,8 +918,9 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
         The line tag of the line to show, e.g., 'FeII_2374'
 
     index : int   [default = 0]
-        The line index. When fitting the same line in multiple spectra this indexed
-        points to the index of the given region to be plotted.
+        The line index. When fitting the same line in multiple
+        spectra this indexed points to the index of the given region
+        to be plotted.
 
     rebin: int
         Integer factor for rebinning the spectral data.
@@ -881,7 +934,8 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
         If nothing is given, the extent of the region is used.
 
     axis : matplotlib.axes.Axes_
-        The plotting axis of matplotlib. If `None` is given, a new figure and axis will be created.
+        The plotting axis of matplotlib.
+        If `None` is given, a new figure and axis will be created.
     """
 
     if line_tag not in dataset.all_lines:
@@ -924,7 +978,9 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
         npad = 50
         N_pix = len(x)*3
         dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min() - npad*dx), np.log10(x.max() + npad*dx), N_pix)
+        wl_line = np.logspace(np.log10(x.min() - npad*dx),
+                              np.log10(x.max() + npad*dx),
+                              N_pix)
         pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
@@ -949,7 +1005,8 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
                     z = params['z%i_%s' % (n, ion)].value
                     b = params['b%i_%s' % (n, ion)].value
                     logN = params['logN%i_%s' % (n, ion)].value
-                    tau += voigt.Voigt(wl_line, l0, f, 10**logN, 1.e5*b, gam, z=z)
+                    tau += voigt.Voigt(wl_line, l0, f,
+                                       10**logN, 1.e5*b, gam, z=z)
 
         profile_int = np.exp(-tau)
         fwhm_instrumental = res
@@ -1057,6 +1114,241 @@ def plot_excitation(dataset, molecule):
     plt.tight_layout()
 
 
+def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
+    """
+    Add molecular H2 band identifications to a given matplotlib axis.
+
+    Parameters
+    ==========
+    ax : :class:`matplotlib.axes.Axes`
+        The axis instance to decorate with H2 line identifications.
+
+    z : float
+        The redshift of the H2 system.
+
+    bands : list(str)
+        A list of molecular bands of H2.
+        Ex: ['BX(0-0)', 'BX(1-0)']
+
+    Jmax : int or list(int)
+        The highest rotational J-level to include in the identification.
+        A list of Jmax for each band can be passed as well.
+        Lines are currently only defined up to J=7.
+
+    """
+    label_threshold = 0.01
+    lyman_bands = 'B' in [b[0] for b in bands]
+    werner_bands = 'C' in [b[0] for b in bands]
+    N_lines = 2*lyman_bands + 1*werner_bands
+
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    for band, this_Jmax in zip(bands, Jmax):
+        if band not in molecules.H2.keys():
+            print(" Invalid band name: %s" % band)
+            continue
+
+        transitions = molecules.H2[band]
+        nu = int(band.split('(')[1].split('-')[0])
+        if 'B' in band:
+            y0 = 0.55
+            # Lyman band
+            y1 = y0 + (nu % 2)*(0.90-y0)/float(N_lines)
+            y2 = y1 + (0.90-y0)/float(N_lines)
+        else:
+            if N_lines == 1:
+                y0 = 0.67
+                # Werner band
+                y1 = y0
+                y2 = y1 + (0.87-y0)/float(N_lines)
+            else:
+                y0 = 0.55
+                # Werner band
+                y1 = y0 + 2*(0.90-y0)/float(N_lines)
+                y2 = y1 + (0.89-y0)/float(N_lines)
+
+        if N_lines == 3:
+            va = 'center'
+        elif N_lines == 2:
+            va = 'bottom'
+        else:
+            va = 'bottom'
+
+        band_l0 = list()
+        labels = list()
+        for j in range(this_Jmax+1):
+            for tag in transitions[j]:
+                line = Line(tag)
+                l0 = line.l0*(z+1)
+                band_l0.append(l0)
+                label_x = (l0 - xmin)/(xmax - xmin)
+                ax.axvline(l0, y1+(y2-y1)/1.5, y2, color=color)
+                # Check overlap with other text labels:
+                for label in labels:
+                    x_0, y_0 = label.get_position()
+                    if np.fabs(x_0 - label_x) <= label_threshold:
+                        if label_x > x_0:
+                            x_new = x_0 - label_threshold/2.
+                            label_x += label_threshold/2.
+                        else:
+                            x_new = x_0 + label_threshold/2.
+                            label_x -= label_threshold/2.
+                        label.set_position((x_new, y_0))
+
+                text = ax.text(label_x, y1, "%i" % j, fontsize=10, color=color,
+                               ha='center', va=va, transform=ax.transAxes,
+                               clip_on=True)
+                labels.append(text)
+
+        # Draw horizontal line to connect the marks:
+        bar_min = (min(band_l0) - xmin)/(xmax - xmin)
+        bar_max = (max(band_l0) - xmin)/(xmax - xmin)
+        ax.axhline(y2*(ymax-ymin) + ymin, bar_min, bar_max, color=color)
+        band_x = (min(band_l0) + max(band_l0))/2.
+        if short_labels:
+            band_str = 'L%i' if 'B' in band else 'W%i'
+            band_str = band_str % nu
+        else:
+            band_str = band
+        ax.text(band_x, (y2+0.02)*(ymax-ymin) + ymin, band_str, color=color,
+                clip_on=True, ha='center')
+    plt.draw()
+
+
+def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
+            ymin=-0.1, ymax=2.5, short_labels=False,
+            rebin=1, smooth=0):
+    """
+    Generate plot for H2 absorption lines.
+
+    Parameters
+    ==========
+    dataset : :class:`dataset.DataSet`
+        An instance of the class :class:`dataset.DataSet` containing
+        the H2 lines to plot.
+
+    n_rows : int   [default = None]
+        Number of rows to show in figure.
+        If None, the number will be determined automatically.
+
+    xmin : float
+        The lower x-limit in Å.
+        If nothing is given, the extent of the fit region is used.
+
+    xmax : float
+        The upper x-limit in Å.
+        If nothing is given, the extent of the fit region is used.
+
+    ymin : float   [default = -0.1]
+        The lower y-limit in normalized flux units.
+
+    ymax : float   [default = 2.5]
+        The upper y-limit in normalized flux units.
+
+    rebin : int   [defualt = 1]
+        Rebinning factor for the spectrum, default is no binning.
+
+    smooth : float   [default = 0]
+        Width of Gaussian kernel for smoothing.
+
+    """
+    molecule = 'H2'
+
+    if len(dataset.data) > 1:
+        complex_warning = """
+        This appears to be a complex dataset.
+        Consider writing a dedicated script for plotting.
+        """
+        specIDs = list()
+        min_wl = list()
+        max_wl = list()
+        for reg in dataset.regions:
+            molecules_in_region = [molecule in l.tag for l in reg.lines]
+            if np.any(molecules_in_region):
+                specIDs.append(reg.specID)
+                min_wl.append(reg.wl.min())
+                max_wl.append(reg.wl.max())
+
+        # Remove duplicate spectral IDs:
+        specIDs = list(set(specIDs))
+        if len(specIDs) > 1:
+            print(complex_warning)
+            return
+        elif len(specIDs) == 0:
+            print("No lines for %s were found!" % molecule)
+            return
+
+        # Find the data chunk that defines the molecular lines:
+        for this_chunk in dataset.data:
+            if this_chunk['specID'] == specIDs[0]:
+                data_chunk = this_chunk
+
+    else:
+        data_chunk = dataset.data[0]
+        min_wl = list()
+        max_wl = list()
+        for reg in dataset.regions:
+            molecules_in_region = [molecule in l.tag for l in reg.lines]
+            if np.any(molecules_in_region):
+                min_wl.append(reg.wl.min())
+                max_wl.append(reg.wl.max())
+
+    if not data_chunk['norm']:
+        print("    The spectrum is not normalized")
+        print("    Consider writing a dedicated script for plotting")
+        return
+
+    wl = data_chunk['wl']
+    flux = data_chunk['flux']
+    error = data_chunk['error']
+    res = data_chunk['res']
+    wl_profile = wl.copy()
+    if rebin > 1:
+        wl, flux, error = rebin_spectrum(wl, flux, error, int(rebin))
+    if smooth > 0:
+        flux = gaussian_filter1d(flux, smooth)
+
+    bands = [item[0] for item in dataset.molecules[molecule]]
+    Jmax = [item[1] for item in dataset.molecules[molecule]]
+    molecular_lines = [line for line in dataset.lines.values()
+                       if molecule in line.tag]
+    profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
+                               molecular_lines, dataset.components, res,
+                               dv=0.1)
+    if not xmin:
+        xmin = min(min_wl)
+    if not xmax:
+        xmax = max(max_wl)
+    if not n_rows:
+        n_rows = round((xmax-xmin)/120.)
+
+    width = 10.
+    height = 2*(n_rows+0.1) + 0.1
+    fig = plt.figure(figsize=(width, height))
+    wl_range = (xmax-xmin)/n_rows
+    n_rows = int(n_rows)
+    z = dataset.best_fit['z0_H2J0'].value
+    for num in range(n_rows):
+        ax = fig.add_subplot(n_rows, 1, num+1)
+        ax.plot(wl, flux, color='k', lw=0.5, drawstyle='steps-mid')
+        ax.plot(wl_profile, profile, color='r', lw=0.8)
+        ax.axhline(0., ls=':', color='0.4')
+        ax.axhline(1., ls=':', color='0.4')
+        ax.set_xlim(xmin + num*wl_range, xmin + (num+1)*wl_range)
+        ax.set_ylim(ymin, ymax)
+        ax.set_ylabel(u"Normalized Flux", fontsize=12)
+        ax.minorticks_on()
+
+        if num == n_rows-1:
+            ax.set_xlabel(u"Observed Wavelength  (Å)", fontsize=14)
+
+        show_H2_bands(ax, z, bands, Jmax, color='blue',
+                      short_labels=short_labels)
+
+    fig.set_tight_layout(True)
+    plt.show()
+
+
 # ===================================================================================
 #
 #   Text output functions:
@@ -1104,11 +1396,13 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 if line.ion == ion and line.active:
                     lines_for_this_ion.append(line_tag)
 
-            all_transitions = [trans.split('_')[1] for trans in sorted(lines_for_this_ion)]
+            all_transitions = [trans.split('_')[1]
+                               for trans in sorted(lines_for_this_ion)]
             # Split list of transitions into chunks of length=4
             # join the transitions in each chunks
             # and join each chunk with 'newline'
-            trans_chunks = [", ".join(sublist) for sublist in list(chunks(all_transitions, 4))]
+            trans_chunks = [", ".join(sublist)
+                            for sublist in list(chunks(all_transitions, 4))]
             indent = '\n'+(len(ion)+2)*' '
             trans_string = indent.join(trans_chunks)
 
@@ -1147,7 +1441,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 if line.ion == ion and line.active:
                     lines_for_this_ion.append(line_tag)
 
-            all_transitions = ", ".join([trans.split('_')[1] for trans in sorted(lines_for_this_ion)])
+            all_transitions = [trans.split('_')[1]
+                               for trans in sorted(lines_for_this_ion)]
+            all_transitions = ", ".join(all_transitions)
             print ion + "  "+all_transitions
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
@@ -1194,7 +1490,8 @@ def print_cont_parameters(dataset):
             cheb_parnames = sorted(cheb_parnames)
             for i, parname in enumerate(cheb_parnames):
                 coeff = dataset.best_fit[parname]
-                line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
+                line = " p%-2i  =  %.3e    %.3e" % (i,
+                                                    coeff.value, coeff.stderr)
                 print line
             print ""
     else:
@@ -1236,15 +1533,13 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         for par in params.keys():
             if par.find('logN') >= 0 and par.find(ion) >= 0:
                 N_tot.append(params[par].value)
-                if params[par].stderr < 0.9:
+                if params[par].stderr < 0.8:
                     logN.append(params[par].value)
-                    if params[par].stderr < 0.01:
-                        logN_err.append(0.01)
-                    else:
-                        logN_err.append(params[par].stderr)
+                    logN_err.append(params[par].stderr)
 
         ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
-        l68, abundance, u68 = np.percentile(np.log10(np.sum(10**np.array(ION), 0)), [16, 50, 84])
+        log_sum = np.log10(np.sum(10**np.array(ION), 0))
+        l68, abundance, u68 = np.percentile(log_sum, [16, 50, 84])
         std_err = np.std(np.log10(np.sum(10**np.array(ION), 0)))
 
         logN_tot = np.random.normal(abundance, std_err, 10000)
@@ -1282,7 +1577,8 @@ def print_abundance(dataset):
                         else:
                             logN_err.append(params[par].stderr)
 
-            ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
+            ION = [np.random.normal(n, e, 10000)
+                   for n, e in zip(logN, logN_err)]
             logsum = np.log10(np.sum(10**np.array(ION), 0))
             l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
             std_err = np.std(logsum)
@@ -1290,7 +1586,10 @@ def print_abundance(dataset):
             print "  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err)
 
     else:
-        print "\n [ERROR] - The dataset has not yet been fitted. No parameters found!"
+        error_msg = """
+        [ERROR] - The dataset has not yet been fitted. No parameters found!
+        """
+        print(error_msg)
 
 
 def print_T_model_pars(dataset, thermal_model, filename=None):
@@ -1321,7 +1620,7 @@ def print_T_model_pars(dataset, thermal_model, filename=None):
 
 def sum_components(dataset, ion, components):
     """
-    Calculate the total abundance for the given `components` of the given `ion`.
+    Calculate the total abundance for given `components` of the given `ion`.
 
     Parameters
     ----------
@@ -1333,15 +1632,15 @@ def sum_components(dataset, ion, components):
         Ion for which to calculate the summed abundance.
 
     components : list(int)
-        List of integers corresponding to the indeces of the components to sum over.
+        List of indeces of the components to sum over.
 
     Returns
     -------
     total_logN : float
-        Dictionary containing the log of total column density for each ion.
+        The 10-base log of total column density.
 
     total_logN_err : float
-        Dictionary containing the error on the log of total column density for each ion.
+        The error on the 10-base log of total column density.
     """
     if hasattr(dataset.best_fit, 'keys'):
         pass
@@ -1368,8 +1667,8 @@ def sum_components(dataset, ion, components):
 
 def save_parameters_to_file(dataset, filename):
     """Save best-fit parameters to file."""
+    header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
     with open(filename, 'w') as output:
-        header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
         output.write(header + "\n")
         for ion in dataset.components.keys():
             for i in range(len(dataset.components[ion])):

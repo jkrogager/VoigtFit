@@ -9,6 +9,7 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 
+
 CO_full_labels = {
     'AX(0-0)': "${\\rm CO\ A}^1\\Pi(0) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",
     'AX(1-0)': "${\\rm CO\ A}^1\\Pi(1) \\leftarrow {\\rm X}^1\\Sigma^+(\\nu=0)$",

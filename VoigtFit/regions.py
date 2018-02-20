@@ -98,7 +98,12 @@ class Region():
         self.normalized = data_chunk['norm']
         self.cont_err = 0.
         self.mask = data_chunk['mask'][cutout]
-        self.new_mask = True
+        if np.sum(self.mask) == len(self.mask):
+            # If all pixels are 1 in the given mask,
+            # let the user define new_mask in `prepare_dataset`:
+            self.new_mask = True
+        else:
+            self.new_mask = False
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""
