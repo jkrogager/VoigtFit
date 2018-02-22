@@ -1552,7 +1552,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         print "  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err)
 
 
-def print_abundance(dataset):
+def print_total(dataset):
     """
     Print the total column densities of all species. This will sum *all*
     the components of each ion. The uncertainty on the total column density

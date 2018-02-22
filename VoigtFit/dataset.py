@@ -705,7 +705,7 @@ class DataSet(object):
     def deactivate_line(self, line_tag):
         """
         Deactivate a given line defined by its `line_tag`.
-        This will exclude the line during the fit.
+        This will exclude the line during the fit but will not remove the data.
         """
         if line_tag in self.lines.keys():
             line = self.lines[line_tag]
@@ -1678,24 +1678,28 @@ class DataSet(object):
         output.print_cont_parameters(self)
 
     def print_metallicity(self, logNHI, err=0.1):
-        """Print the total column densities for each element relative to HI in Solar units."""
+        """Print the total column densities for each element relative to
+        HI in Solar units."""
         output.print_metallicity(self, self.best_fit, logNHI, err)
 
-    def print_abundance(self):
+    def print_total(self):
         """Print the total column densities of all components."""
-        output.print_abundance(self)
+        output.print_total(self)
 
     def sum_components(self, ions, components):
         """
-        Calculate the total abundance for the given `components` of the given `ion`.
+        Calculate the total column density for the given `components`
+        of the given `ion`.
 
         Parameters
         ----------
         ions : str or list(str)
-            List of ions or a single ion for which to calculate the summed abundance.
+            List of ions or a single ion for which to calculate the total
+            column density.
 
         components : list(int)
-            List of integers corresponding to the indeces of the components to sum over.
+            List of integers corresponding to the indeces of the components
+            to sum over.
 
         Returns
         -------
@@ -1703,7 +1707,8 @@ class DataSet(object):
             Dictionary containing the log of total column density for each ion.
 
         total_logN_err : dict()
-            Dictionary containing the error on the log of total column density for each ion.
+            Dictionary containing the error on the log of total column density
+            for each ion.
         """
         if hasattr(self.best_fit, 'keys'):
             pass
@@ -1726,7 +1731,8 @@ class DataSet(object):
                 par = self.best_fit[parname]
                 logN.append(par.value)
                 logN_err.append(par.stderr)
-            logN_pdf = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
+            logN_pdf = [np.random.normal(n, e, 10000)
+                        for n, e in zip(logN, logN_err)]
             logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
             total_logN[ion] = np.median(logsum)
             total_logN_err[ion] = np.std(logsum)

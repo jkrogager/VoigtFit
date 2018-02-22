@@ -320,11 +320,16 @@ def main():
 
     # Load components from file:
     if 'load' in parameters.keys():
+        dataset.reset_components()
         for fname in parameters['load']:
             print "\nLoading parameters from file: %s \n" % fname
             dataset.load_components_from_file(fname)
     else:
         dataset.reset_components()
+
+    # Fix the velocity structure of the loaded lines:
+    if parameters['fix_velocity']:
+        dataset.fix_structure()
 
     # Prepare thermal model:
     if len(parameters['thermal_model']) > 0:
@@ -549,8 +554,8 @@ def main():
         dataset.print_metallicity(*logNHI)
 
     # print abundance
-    if parameters['show_abundance']:
-        dataset.print_abundance()
+    if parameters['show_total']:
+        dataset.print_sum()
 
     # save
     SaveDataSet(name + '.hdf5', dataset)
