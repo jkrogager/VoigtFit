@@ -3,14 +3,17 @@
 Installation
 ============
 
-VoigtFit is currently only written and tested for Python 2.7; However, the code is currently being ported to Python 3.6 -- Stay tuned!
+VoigtFit is currently only written and tested for Python 2.7;
+However, the code is currently being ported to Python 3.6 -- Stay tuned!
 
 Dependencies
 ------------
 
 VoigtFit depends on matplotlib_, numpy_, scipy_, h5py_, astropy_, and lmfit_. You
-can install these using your favorite Python package manager such as `pip <https://pip.pypa.io/en/stable/installing/>`_ or
+can install these using your favorite Python package manager such as
+`pip <https://pip.pypa.io/en/stable/installing/>`_ or
 `conda <http://conda.pydata.org/docs/>`_.
+
 
 Using pip
 ---------
@@ -20,7 +23,7 @@ using `pip <http://www.pip-installer.org/>`_:
 
 .. code-block:: bash
 
-    pip install VoigtFit
+    %] pip install VoigtFit
 
 
 From source
@@ -32,14 +35,14 @@ repository <https://github.com/jkrogager/VoigtFit>`_:
 
 .. code-block:: bash
 
-    git clone https://github.com/jkrogager/VoigtFit.git
+    %] git clone https://github.com/jkrogager/VoigtFit.git
 
 Once you've downloaded the source, you can navigate to the root
 directory and run:
 
 .. code-block:: bash
 
-    python setup.py install
+    %] python setup.py install
 
 
 
@@ -52,40 +55,26 @@ directory and run:
 .. _h5py: http://www.h5py.org/
 
 
-Setting up the environment
---------------------------
+Test the installation
+---------------------
 
-First up, you can check which shell type you are using by typing ``echo $0`` in your terminal.
-In order to run ``VoigtFit`` from any location, you should add the directory which contains VoigtFit to your ``PYTHONPATH`` environment variable:
-
-in bash:
+If the installation went smoothly, you should be able to run VoigtFit from the terminal
+by excecuting the following command:
 
 .. code-block:: bash
 
-    export PYTHONPATH='${PYTHONPATH}:/path/to/folder/with/VoigtFit'
+    %] VoigtFit
 
-or in csh:
+Running the program without any input will create an empty parameter file template.
+This way you can always set up a fresh parameter file when starting a new project.
+Moreover, as the program grows and more features are implemented, a comment about
+such new features will appear automatically in the parameter file template.
+This way you can stay updated on what is possible within the parameter file language.
 
-.. code-block:: csh
-
-    setenv PYTHONPATH $PYTHONPATH\:/path/to/folder/with/VoigtFit
-
-
-The software needs two data files in order to run. These are distributed along with the software under the directory ``static/``.
-The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create
-system variables which the software will recognize.
-
-Add the ``VFITDATA`` environment variable. This variable points to the absolute path of the ``static`` directory:
-
-in bash:
+To run the program with a given input file, simply excecute the command:
 
 .. code-block:: bash
 
-    export VFITDATA='/path/to/VoigtFit/static'
+    %] VoigtFit  input.pars
 
-or in csh:
-
-.. code-block:: csh
-
-    setenv VFITDATA path/to/VoigtFit/static
-
+Where input.pars is the name of your parameter file.

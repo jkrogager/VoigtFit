@@ -106,12 +106,12 @@ def LoadDataSet(filename):
 def main():
 
     print "\n"
-    print "    VoigtFit"
+    print "       VoigtFit                        "
     print ""
-    print "    by Jens-Kristian Krogager"
+    print "    by Jens-Kristian Krogager          "
     print ""
-    print "    Institut d'Astrophysique de Paris"
-    print "    November 2017"
+    print "    Institut d'Astrophysique de Paris  "
+    print "    November 2017                      "
     print ""
     print "  ____  _           ___________________"
     print "      \/ \  _/\    /                   "
@@ -122,19 +122,31 @@ def main():
     print " Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
     print ""
 
-    parser = ArgumentParser()
-    parser.add_argument("input", type=str,
+    descr = """VoigtFit Absorption Line Fitting.
+    Please give an input parameter file.
+    """
+    parser = ArgumentParser(description=descr)
+    parser.add_argument("input", type=str, nargs='?', default=None,
                         help="VoigtFit input parameter file.")
     parser.add_argument("-f", action="store_true",
                         help="Force new dataset to be created. This will overwrite existing data.")
 
     args = parser.parse_args()
     parfile = args.input
+    if parfile is None:
+        print("")
+        print("  No input file was given.")
+        print("  I have created a blank template for you to get started: 'vfit.pars'.")
+        print("  Please edit this file and run VoigtFit again with this file as input.")
+        print("")
+        output.create_blank_input()
+        return
+
     parameters = parse_parameters(parfile)
     print " Reading Parameters from file: " + parfile
 
-    # Define dataset:
     name = parameters['name']
+    # -- Load DataSet if the file already exists
     if os.path.exists(name+'.hdf5') and not args.f:
         dataset = LoadDataSet(name+'.hdf5')
 
@@ -231,39 +243,11 @@ def main():
                 if band not in defined_tags:
                     dataset.deactivate_molecule(molecule, band)
 
-        # Define Components:
-        dataset.reset_components()
-        # for component in parameters['components']:
-        #     (ion, z, b, logN,
-        #      var_z, var_b, var_N,
-        #      tie_z, tie_b, tie_N,
-        #      vel, thermal) = component
-        #     if vel:
-        #         dataset.add_component_velocity(ion, z, b, logN,
-        #                                        var_z=var_z, var_b=var_b,
-        #                                        var_N=var_N, tie_z=tie_z,
-        #                                        tie_b=tie_b, tie_N=tie_N)
-        #     else:
-        #         dataset.add_component(ion, z, b, logN,
-        #                               var_z=var_z, var_b=var_b, var_N=var_N,
-        #                               tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
-        #
-        # if 'interactive' in parameters.keys():
-        #     for line_tag in parameters['interactive']:
-        #         dataset.interactive_components(line_tag)
-        #
-        # for component in parameters['components_to_copy']:
-        #     ion, anchor, logN, ref_comp, tie_z, tie_b = component
-        #     dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-        #                             tie_z=tie_z, tie_b=tie_b)
-        #
-        # for component in parameters['components_to_delete']:
-        #     dataset.delete_component(*component)
-
-    # ================================================================================
-    # Generate New Dataset:
-    #
+    # -- Otherwise create a new DataSet
     else:
+        # ================================================================================
+        # Generate New Dataset:
+        #
         dataset = DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
@@ -331,7 +315,7 @@ def main():
     if parameters['fix_velocity']:
         dataset.fix_structure()
 
-    # Prepare thermal model:
+    # Prepare thermal model infrastructure:
     if len(parameters['thermal_model']) > 0:
         thermal_model = {ion: [] for ion in parameters['thermal_model'][0]}
         ions_in_model = ', '.join(parameters['thermal_model'][0])

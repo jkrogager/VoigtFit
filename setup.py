@@ -93,7 +93,8 @@ setup(
     package_data={
         'VoigtFit/static': ['Asplund2009.dat',
                             'atomdata_updated.dat',
-                            'telluric_em_abs.npz'],
+                            'telluric_em_abs.npz',
+                            'input_template.txt'],
     },
 
     include_package_data=True,

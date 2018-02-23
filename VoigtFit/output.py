@@ -162,6 +162,19 @@ def rebin_bool_array(x, n):
     return np.array(x_r, dtype=bool)
 
 
+def create_blank_input():
+    """Create a blank template input parameter file."""
+    # Read file from static
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    temp_filename = os.path.join(root_path, 'static/input_template.txt')
+    with open(temp_filename) as template:
+        parameter_lines = template.readlines()
+
+    # Save it to 'vfit.pars'
+    with open('vfit.pars', 'w') as output_file:
+        output_file.write(''.join(parameter_lines))
+
+
 # ===================================================================================
 #
 #   Graphics output functions:

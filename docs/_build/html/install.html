@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Installation &#8212; VoigtFit 0.7 documentation</title>
+    <title>Installation &#8212; VoigtFit 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.7',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -43,18 +34,20 @@
             
   <div class="section" id="installation">
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>VoigtFit is currently only written and tested for Python 2.7; However, the code is currently being ported to Python 3.6 – Stay tuned!</p>
+<p>VoigtFit is currently only written and tested for Python 2.7;
+However, the code is currently being ported to Python 3.6 – Stay tuned!</p>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>VoigtFit depends on <a class="reference external" href="https://matplotlib.org/">matplotlib</a>, <a class="reference external" href="http://www.numpy.org/">numpy</a>, <a class="reference external" href="https://scipy.org/">scipy</a>, <a class="reference external" href="http://www.h5py.org/">h5py</a>, <a class="reference external" href="http://www.astropy.org/">astropy</a>, and <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>. You
-can install these using your favorite Python package manager such as <a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> or
+can install these using your favorite Python package manager such as
+<a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> or
 <a class="reference external" href="http://conda.pydata.org/docs/">conda</a>.</p>
 </div>
 <div class="section" id="using-pip">
 <h2>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h2>
-<p>The easiest way to install the most recent stable version of <code class="docutils literal"><span class="pre">VoigtFit</span></code> is
+<p>The easiest way to install the most recent stable version of <code class="docutils literal notranslate"><span class="pre">VoigtFit</span></code> is
 using <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install VoigtFit
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> pip install VoigtFit
 </pre></div>
 </div>
 </div>
@@ -62,39 +55,32 @@ using <a class="reference external" href="http://www.pip-installer.org/">pip</a>
 <h2>From source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h2>
 <p>Alternatively, you can get the source by downloading a <a class="reference external" href="https://github.com/jkrogager/VoigtFit/tarball/master">tarball</a> or cloning <a class="reference external" href="https://github.com/jkrogager/VoigtFit">the git
 repository</a>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/jkrogager/VoigtFit.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> git clone https://github.com/jkrogager/VoigtFit.git
 </pre></div>
 </div>
 <p>Once you’ve downloaded the source, you can navigate to the root
 directory and run:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>python setup.py install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> python setup.py install
 </pre></div>
 </div>
 </div>
-<div class="section" id="setting-up-the-environment">
-<h2>Setting up the environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>First up, you can check which shell type you are using by typing <code class="docutils literal"><span class="pre">echo</span> <span class="pre">$0</span></code> in your terminal.
-In order to run <code class="docutils literal"><span class="pre">VoigtFit</span></code> from any location, you should add the directory which contains VoigtFit to your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> environment variable:</p>
-<p>in bash:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s1">&#39;${PYTHONPATH}:/path/to/folder/with/VoigtFit&#39;</span>
+<div class="section" id="test-the-installation">
+<h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
+<p>If the installation went smoothly, you should be able to run VoigtFit from the terminal
+by excecuting the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> VoigtFit
 </pre></div>
 </div>
-<p>or in csh:</p>
-<div class="highlight-csh"><div class="highlight"><pre><span></span><span class="nb">setenv </span>PYTHONPATH <span class="nv">$PYTHONPATH</span><span class="se">\:</span>/path/to/folder/with/VoigtFit
+<p>Running the program without any input will create an empty parameter file template.
+This way you can always set up a fresh parameter file when starting a new project.
+Moreover, as the program grows and more features are implemented, a comment about
+such new features will appear automatically in the parameter file template.
+This way you can stay updated on what is possible within the parameter file language.</p>
+<p>To run the program with a given input file, simply excecute the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> VoigtFit  input.pars
 </pre></div>
 </div>
-<p>The software needs two data files in order to run. These are distributed along with the software under the directory <code class="docutils literal"><span class="pre">static/</span></code>.
-The code needs the absolute paths to these two files. The easiest way is to locate the absolute path to these files and create
-system variables which the software will recognize.</p>
-<p>Add the <code class="docutils literal"><span class="pre">VFITDATA</span></code> environment variable. This variable points to the absolute path of the <code class="docutils literal"><span class="pre">static</span></code> directory:</p>
-<p>in bash:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">VFITDATA</span><span class="o">=</span><span class="s1">&#39;/path/to/VoigtFit/static&#39;</span>
-</pre></div>
-</div>
-<p>or in csh:</p>
-<div class="highlight-csh"><div class="highlight"><pre><span></span><span class="nb">setenv </span>VFITDATA path/to/VoigtFit/static
-</pre></div>
-</div>
+<p>Where input.pars is the name of your parameter file.</p>
 </div>
 </div>
 
@@ -114,15 +100,20 @@ system variables which the software will recognize.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Interface</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physical_model_results.html">Results of Physical Model</a></li>
+</ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -133,7 +124,7 @@ system variables which the software will recognize.</p>
       &copy;2017, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

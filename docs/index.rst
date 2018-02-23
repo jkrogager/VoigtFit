@@ -2,13 +2,15 @@
 VoigtFit
 =========
 
-VoigtFit is meant to inferring column densities a *breeze*. Dig in, and you will be constraining the contents of remote galaxies before you know it!
+VoigtFit is written to make absorption line fitting a *breeze*.
+Dig in, and you will be constraining the contents of metals in remote galaxies before you know it!
 
 
 
 Development of *VoigtFit* happens `on GitHub
-<https://github.com/jkrogager/VoigtFit>`_ so you can `raise any issues you have
-there <https://github.com/jkrogager/VoigtFit/issues>`_.
+<https://github.com/jkrogager/VoigtFit>`_ so if you encounter any issues or you have
+ideas for great new features, you can `raise an issue on the GitHub page
+<https://github.com/jkrogager/VoigtFit/issues>`_.
 
 
 
@@ -33,14 +35,14 @@ Documentation
 
    documentation.rst
 
-	
+
 Interface
 ---------
 
 .. toctree::
    :maxdepth: 2
-   	
-   api.rst   	
+
+   api.rst
 
 
 Examples

@@ -30,7 +30,7 @@ using pip_::
 From source
 -----------
 
-Alternatively, you can get the source by cloning the git
+Alternatively, you can get the latest version of the source by cloning the git
 repository::
 
     git clone https://github.com/jkrogager/VoigtFit.git
@@ -41,10 +41,13 @@ directory and run::
     python setup.py install
 
 
+    Note that the latest versions might be unstable.
+
+
 Further documentation and how to use it
 ---------------------------------------
 
-Check out the documentation_ for instructions of installation and use. 
+Check out the documentation_ for instructions of installation and use.
 
 .. _pip: http://www.pip-installer.org/
 .. _documentation: http://VoigtFit.readthedocs.io

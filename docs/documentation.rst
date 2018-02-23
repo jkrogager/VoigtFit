@@ -1,44 +1,80 @@
 
-Overview of VoigtFit
-====================
-
-The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
-
-The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.
-
-The transitions that should be fitted are then defined through “lines” statements and the component structure is defined through “component” statements (see also “copy component” and “delete component”). Note that components must be defined for all the ions that are defined in the “lines” statements.
-
-If the data are not already normalized, and the chebyshev polynomial fitting has been turned off (see ‘C_order’ below), a window for each line fitting region will pop up allowing the user to normalize the data by selecting a left and right continuum region. This will fit a straight line to the continuum and normalize the region. Alternatively, the user can specify a ‘norm_method’ = spline to select a set of spline points used for the continuum estimation.
-
-After the continuum normalization is done, the user can define spectral masks for each line fitting region. For each region, the user must select left and right boundaries by clicking with the mouse in the plotting window. This will mask out the region in between the two boundaries, and the data in the masked region will therefore not be used in the fit. The user can define as many masked ranges as desired. When the masking for a given line is done, the user must confirm the mask by clicking enter in the terminal. Note that if an uneven number of boundaries are given, the ranges are invalid and the user must select the ranges again.
-The masking step can be skipped by including the ‘nomask’ statement in the parameter file. Or can be run for individual lines by using the ‘mask’ statement.
-
-Lastly, the fit will be performed and the resulting best-fit parameters will be printed to the terminal. If the “save” statement is given in the parameter file, the parameters will also be saved to a file and the resulting best-fit profiles will be saved to a pdf file. Otherwise, the best-fit solution is plotted in an interactive window.
-
-If the “abundance“ or “metallicity” statements are given, the total abundance for each element or its metallicity relative to Solar is printed to the terminal.
+VoigtFit Parameter Language
+===========================
 
 
+  The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
 
-Future implementations:
- - If HI is included in the lines to be fitted, the metallicity will automatically be calculated.
- - more detailed options available for the minimization and output.
- - more molecular data to be included.
- - molecular functions like isothermal column density distribution.
+  The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.
 
-VoigtFit parameter mini-language
+  The transitions that should be fitted are then defined through “lines” statements and the component structure is defined through “component” statements (see also “copy component” and “delete component”). Note that components must be defined for all the ions that are defined in the “lines” statements.
+
+  If the data are not already normalized, and the chebyshev polynomial fitting has been turned off (see ‘C_order’ below), a window for each line fitting region will pop up allowing the user to normalize the data by selecting a left and right continuum region. This will fit a straight line to the continuum and normalize the region. Alternatively, the user can specify a ‘norm_method’ = spline to select a set of spline points used for the continuum estimation.
+
+  After the continuum normalization is done, the user can define spectral masks for each line fitting region. For each region, the user must select left and right boundaries by clicking with the mouse in the plotting window. This will mask out the region in between the two boundaries, and the data in the masked region will therefore not be used in the fit. The user can define as many masked ranges as desired. When the masking for a given line is done, the user must confirm the mask by clicking enter in the terminal. Note that if an uneven number of boundaries are given, the ranges are invalid and the user must select the ranges again.
+  The masking step can be skipped by including the ‘nomask’ statement in the parameter file. Or can be run for individual lines by using the ‘mask’ statement.
+
+  Lastly, the fit will be performed and the resulting best-fit parameters will be printed to the terminal. If the “save” statement is given in the parameter file, the parameters will also be saved to a file and the resulting best-fit profiles will be saved to a pdf file. Otherwise, the best-fit solution is plotted in an interactive window.
+
+  If the “abundance“ or “metallicity” statements are given, the total abundance for each element or its metallicity relative to Solar is printed to the terminal.
 
 
 
-The parameter mini-language allows the user to define parameters without using the python scripting which has a slightly more complex syntax. There are a few general rules for the mini-language:
-Everything that comes after a ‘#’ sign is regarded as a comment and is not included when parsing the parameters.
+  Future implementations:
+   - If HI is included in the lines to be fitted, the metallicity will automatically be calculated.
+   - more detailed options available for the minimization and output.
+   - more molecular data to be included.
+   - molecular functions like isothermal column density distribution.
+
+
+
+
+The parameter language allows the user to define parameters without using python scripting
+which has a slightly more complex syntax. There are a few general rules for the parameter language:
+Everything that comes after a `#` sign is regarded as a comment and is not parsed.
 The number of spaces in a given line between parameters and values is not important.
+The order of the statements is not important either. This will be handled by the program at runtime,
+so you can freely arrange the parameter file as you see fit.
 All optional information below is stated in brackets.
 
 
-data  filename  resolution  [ norm   air ]
+The Basics
+----------
 
-filename	specifies the path to the spectrum (should be ascii table with three columns:
-		wavelength, flux, error).
+In the following the basic and mandatory statements are presented.
+If these are not present in the parameter file, or if their values are
+not understood, the program will cause an error.
+
+  -- Note: An empty parameter file template can be created in your working directory by running `VoigtFit` with no arguments.
+
+The first part of the parameter file usually defines a bit of metadata for the dataset.
+These variables are as follows:
+
+  name :  dataset_name
+
+`dataset_name` gives the name of the dataset.
+The dataset is automatically saved (as `dataset_name.hdf5`),
+and if a dataset of the given name is present, it will be loaded automatically.
+
+  save : [ filename ]
+
+`filename` is the filename used for the graphic output and for parameter output.
+If no filename is given, the dataset `name` attribute will be used.
+The graphic output will be saved in pdf format and the parameter files will be saved as ascii files:
+The best-fit parameters will be saved to `filename.fit` and the best-fit continuum parameters will be saved to `filename`.cont.
+
+
+  z_sys :  z_sys
+
+`z_sys` gives the systemic redshift of the absorption system.
+Relative velocities are calculated with respect to this redshift.
+
+
+
+  data  filename  resolution  [ norm   air ]
+
+`filename` specifies the path to the spectrum (should be ascii table with up to four columns:
+wavelength, flux, error).
 resolution	is the spectral resolution of the given spectrum in units of km/s.
 
 Optinal arguments:
@@ -181,24 +217,7 @@ err_logNHI	the uncertainty on the logarithm of the column density of neutral hyd
 When this keyword is present, the best-fit total abundances for the defined ions in the dataset will be converted to metallicities for each ion, that is, the abundance ratio of the given ion to neutral hydrogen relative to Solar abundances from Asplund et al. (2009) is calculated.
 
 
-save  [ filename ]
 
-filename	the filename used for the graphic output and for parameter output
-		If no filename is given, the dataset ‘name’ will be used.
-
-The graphic output will be saved in pdf format and the parameter files will be saved as ascii files:
-The best-fit parameters will be saved to dataset_name.fit and the best-fit continuum parameters will be saved to dataset_name.cont.
-
-
-name :  dataset_name
-dataset_name		gives the name of the dataset.
-
-The dataset is automatically saved (as dataset_name.dataset), and if a dataset of the given name is present, it will be loaded automatically.
-
-z_sys :  z_sys
-z_sys		gives the systemic redshift of the absorption system.
-
-Relative velocities are calculated with respect to this redshift.
 
 
 nomask
