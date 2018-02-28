@@ -1,6 +1,7 @@
 
 .. include:: voigtfit_logo.rst
 
+.. _documentation:
 
 ===========================
 VoigtFit Parameter Language
@@ -8,9 +9,6 @@ VoigtFit Parameter Language
 
 .. role:: red
 
-.. note::
-
-  The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
 
 
 .. todo:
@@ -75,7 +73,12 @@ All the available statements that can be included (and parsed) in the parameter 
 are presented in detail below. For a quick overview of available statements look in the
 table of contents.
 
+A set of predefined input parameter files are available in the *test_data* folder on github_.
+
+
 .. _component: `add components`_
+
+.. _github: https://github.com/jkrogager/VoigtFit
 
 Name
 ----
@@ -488,6 +491,9 @@ Note -- The mask is an exclusion mask, so pixels that are defined in the mask, a
 
 
 
+Note -- The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
+
+
 Clear mask
 ----------
 
@@ -676,14 +682,34 @@ Output
 
 **output  individual-regions  velocity**
 
+The output statement takes two optional keywords:
+
+  *individual-regions* : which saves the best-fit profile and data into individual files for
+  all the fitting regions.
+
+  *velocity* : which prints the best-fit parameters in terms of relative velocity
+  instead of redshift. For the detailed behavior of this features, see the section on how to
+  `change systemic redshift`_.
+
 
 Load
 ----
 
 **load  fit_pars_filename**
 
+  *fit_pars_filename* gives the filename of an output file from VoigtFit, containing the best-fit
+  parameters from a previous fit. The components given in the file will be loaded to the
+  current dataset.
+
+  Note -- This will overwrite any existing components. However, additional components
+  can be added by using the component_ statement.
+
 
 Fix Velocity Structure
 ----------------------
 
 **fix-velocity**
+
+If this keyword is present in the parameter file, then the velocity structure
+(i.e., the relative velocities and broadening parameters) of all elements
+is kept fixed.
