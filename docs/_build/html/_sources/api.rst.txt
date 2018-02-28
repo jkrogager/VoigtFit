@@ -5,38 +5,32 @@ VoigtFit Interface
 class **DataSet**
 -----------------
 
-.. autoclass:: VoigtFit.dataset.DataSet
-   :members: 		
+.. autoclass:: VoigtFit.DataSet
+   :members:
 
-----
 
 class **Line**
 --------------
 
-.. autoclass:: VoigtFit.dataset.Line
-	:members: 		
+.. autoclass:: dataset.Line
+   :members:
 
-----
 
 class **Region**
 ----------------
-.. autoclass:: VoigtFit.regions.Region
-	:members: 		
+.. autoclass:: regions.Region
+   :members:
 
-----
 
 module **voigt**
 ----------------
 
-.. automodule:: VoigtFit.voigt
-	:members: 
+.. automodule:: voigt
+   :members:
 
-----
 
 module **output**
 -----------------
 
-.. automodule:: VoigtFit.output
-	:members: 
-
-
+.. automodule:: output
+   :members:

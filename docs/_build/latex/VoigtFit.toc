@@ -1,0 +1,44 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Installation instructions}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Installation}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Dependencies}{3}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Using pip}{3}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}From source}{3}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Test the installation}{3}{subsection.1.1.4}
+\contentsline {chapter}{\numberline {2}Documentation}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}VoigtFit Parameter Language}{5}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}The Basics}{6}{subsection.2.1.1}
+\contentsline {subsubsection}{name}{6}{subsubsection*.3}
+\contentsline {subsubsection}{save}{6}{subsubsection*.4}
+\contentsline {subsubsection}{z\_sys}{6}{subsubsection*.5}
+\contentsline {subsubsection}{data}{6}{subsubsection*.6}
+\contentsline {subsubsection}{lines}{7}{subsubsection*.7}
+\contentsline {subsubsection}{molecule}{7}{subsubsection*.8}
+\contentsline {subsubsection}{component}{8}{subsubsection*.9}
+\contentsline {subsubsection}{interactive components}{9}{subsubsection*.10}
+\contentsline {subsubsection}{copy components}{9}{subsubsection*.11}
+\contentsline {chapter}{\numberline {3}Interface}{13}{chapter.3}
+\contentsline {section}{\numberline {3.1}VoigtFit Interface}{13}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}class \sphinxstylestrong {DataSet}}{13}{subsection.3.1.1}
+\contentsline {paragraph}{Attributes}{13}{paragraph*.13}
+\contentsline {paragraph}{Methods}{14}{paragraph*.14}
+\contentsline {paragraph}{Notes}{16}{paragraph*.20}
+\contentsline {paragraph}{Notes}{17}{paragraph*.25}
+\contentsline {paragraph}{Notes}{21}{paragraph*.48}
+\contentsline {subsection}{\numberline {3.1.2}class \sphinxstylestrong {Line}}{24}{subsection.3.1.2}
+\contentsline {paragraph}{Attributes}{24}{paragraph*.75}
+\contentsline {paragraph}{Methods}{25}{paragraph*.76}
+\contentsline {subsection}{\numberline {3.1.3}class \sphinxstylestrong {Region}}{25}{subsection.3.1.3}
+\contentsline {paragraph}{Attributes}{25}{paragraph*.81}
+\contentsline {paragraph}{Methods}{25}{paragraph*.82}
+\contentsline {subsection}{\numberline {3.1.4}module \sphinxstylestrong {voigt}}{27}{subsection.3.1.4}
+\contentsline {subsection}{\numberline {3.1.5}module \sphinxstylestrong {output}}{28}{subsection.3.1.5}
+\contentsline {chapter}{\numberline {4}Examples}{35}{chapter.4}
+\contentsline {section}{\numberline {4.1}Results of Physical Model}{35}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Best fit parameters}{35}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Total Abundances}{36}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}Physical Parameters}{36}{subsection.4.1.3}
+\contentsline {subsection}{\numberline {4.1.4}The Input Parameters}{36}{subsection.4.1.4}
+\contentsline {subsection}{\numberline {4.1.5}Velocity Information:}{36}{subsection.4.1.5}
+\contentsline {chapter}{Python Module Index}{37}{section*.119}
+\contentsline {chapter}{Index}{39}{section*.120}

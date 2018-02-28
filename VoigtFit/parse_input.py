@@ -63,7 +63,7 @@ def parse_parameters(fname):
             airORvac = 'air' if air else 'vac'
             data.append([filename, resolution, norm, airORvac])
 
-        elif 'lines' in line and 'save' not in line:
+        elif 'lines' in line and 'save' not in line and 'fine' not in line:
             velspan = None
             # strip comments:
             comment_begin = line.find('#')
@@ -99,7 +99,7 @@ def parse_parameters(fname):
             else:
                 levels = None
 
-            fine_lines += [ground_state, levels, velspan]
+            fine_lines.append([ground_state, levels, velspan])
 
         elif 'molecule' in line:
             velspan = None

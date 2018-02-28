@@ -49,8 +49,8 @@
     <span class="sd">&quot;&quot;&quot;Voigt Profile Approximation from T. Tepper-Garcia 2006, 2007.&quot;&quot;&quot;</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
     <span class="n">H0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">Q</span> <span class="o">=</span> <span class="mf">1.5</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span>
-    <span class="k">return</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">a</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="n">P</span> <span class="o">*</span> <span class="p">(</span><span class="n">H0</span><span class="o">*</span><span class="n">H0</span><span class="o">*</span><span class="p">(</span><span class="mf">4.</span><span class="o">*</span><span class="n">P</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">7.</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">4.</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span> <span class="o">-</span> <span class="n">Q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+    <span class="n">Q</span> <span class="o">=</span> <span class="mf">1.5</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span></div>
+    <span class="k">return</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">a</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="n">P</span> <span class="o">*</span> <span class="p">(</span><span class="n">H0</span><span class="o">*</span><span class="n">H0</span><span class="o">*</span><span class="p">(</span><span class="mf">4.</span><span class="o">*</span><span class="n">P</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">7.</span><span class="o">*</span><span class="n">P</span> <span class="o">+</span> <span class="mf">4.</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span> <span class="o">-</span> <span class="n">Q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Voigt"><a class="viewcode-back" href="../api.html#voigt.Voigt">[docs]</a><span class="k">def</span> <span class="nf">Voigt</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">gam</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -88,7 +88,7 @@
     <span class="c1"># ==== PARAMETERS ==================</span>
 
     <span class="n">c</span> <span class="o">=</span> <span class="mf">2.99792e10</span>        <span class="c1"># cm/s</span>
-    <span class="n">m_e</span> <span class="o">=</span> <span class="mf">9.1095e-28</span>       <span class="c1"># g</span>
+    <span class="n">m_e</span> <span class="o">=</span> <span class="mf">9.1094e-28</span>       <span class="c1"># g</span>
     <span class="n">e</span> <span class="o">=</span> <span class="mf">4.8032e-10</span>        <span class="c1"># cgs units</span>
 
     <span class="c1"># ==================================</span>
@@ -101,8 +101,8 @@
     <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mf">1.</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="n">l0</span><span class="p">)</span><span class="o">/</span><span class="n">dl_D</span> <span class="o">+</span> <span class="mf">0.00001</span>
 
-    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">C_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tau</span></div>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">C_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">tau</span>
 
 
 <div class="viewcode-block" id="evaluate_continuum"><a class="viewcode-back" href="../api.html#voigt.evaluate_continuum">[docs]</a><span class="k">def</span> <span class="nf">evaluate_continuum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">reg_num</span><span class="p">):</span>
@@ -121,7 +121,7 @@
 
 <span class="sd">    reg_num : int</span>
 <span class="sd">        The region number, i.e., the index of the region in the list</span>
-<span class="sd">        :attr:`dataset.DataSet.regions`.</span>
+<span class="sd">        :attr:`VoigtFit.DataSet.regions`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -145,14 +145,14 @@
 
     <span class="c1"># Calculate Chebyshev polynomium in x-range:</span>
     <span class="n">cont_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Chebyshev</span><span class="p">(</span><span class="n">p_cont</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
-
-    <span class="k">return</span> <span class="n">cont_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</div>
+    <span class="k">return</span> <span class="n">cont_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="evaluate_profile"><a class="viewcode-back" href="../api.html#voigt.evaluate_profile">[docs]</a><span class="k">def</span> <span class="nf">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Evaluate the observed Voigt profile. The calculated optical depth, `tau`, is</span>
-<span class="sd">    converted to observed transmission, `f`:</span>
+<span class="sd">    Evaluate the observed Voigt profile. The calculated optical depth, `tau`,</span>
+<span class="sd">    is converted to observed transmission, `f`:</span>
 
 <span class="sd">    .. math:: f = e^{-\\tau}</span>
 
@@ -168,13 +168,13 @@
 <span class="sd">    pars : dict(lmfit.Parameters_)</span>
 <span class="sd">        An instance of lmfit.Parameters_ containing the line parameters.</span>
 
-<span class="sd">    lines : list(:class:`Line &lt;dataset.DataSet.Line&gt;`)</span>
+<span class="sd">    lines : list(:class:`Line &lt;dataset.Line&gt;`)</span>
 <span class="sd">        List of lines to evaluate. Should be a list of</span>
-<span class="sd">        :class:`Line &lt;dataset.DataSet.Line&gt;` objects.</span>
+<span class="sd">        :class:`Line &lt;dataset.Line&gt;` objects.</span>
 
 <span class="sd">    components : dict</span>
 <span class="sd">        Dictionary containing component data for the defined ions.</span>
-<span class="sd">        See :attr:`dataset.DataSet.components`.</span>
+<span class="sd">        See :attr:`VoigtFit.DataSet.components`.</span>
 
 <span class="sd">    res : float</span>
 <span class="sd">        Spectral resolving power of the data in km/s  [= *c/R*].</span>
@@ -247,8 +247,8 @@
 
     <span class="c1"># Interpolate onto the data grid:</span>
     <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">profile_wl</span><span class="p">,</span> <span class="n">profile_broad</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">profile_obs</span></div>
+</div>
+    <span class="k">return</span> <span class="n">profile_obs</span>
 </pre></div>
 
           </div>
@@ -261,7 +261,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Overview of VoigtFit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">VoigtFit Parameter Language</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">VoigtFit Interface</a></li>

@@ -20,7 +20,7 @@ Installation instructions
 -------------------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    install.rst
 
@@ -31,7 +31,7 @@ Documentation
 -------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
    documentation.rst
 

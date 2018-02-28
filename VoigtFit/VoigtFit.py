@@ -19,6 +19,7 @@ import output
 from parse_input import parse_parameters
 from dataset import DataSet, lineList
 import hdf5_save
+from line_complexes import fine_structure_complexes
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -234,7 +235,7 @@ def main():
         # -- Handle `fine-structure lines`:
         # Add new fine-structure lines that were not defined before:
         new_fine_lines = list()
-        if len(parameters['fine-lines'].items()) > 0:
+        if len(parameters['fine-lines']) > 0:
             for ground_state, levels, velspan in parameters['fine-lines']:
                 if ground_state not in dataset.all_lines:
                     new_fine_lines.append([ground_state, levels, velspan])
@@ -258,7 +259,8 @@ def main():
         input_tags = [item[0] for item in parameters['fine-lines']]
         for tag, line in dataset.lines.items():
             # Only consider fine-structure lines:
-            if line.ion[-1].islower() and tag not in input_tags:
+            fine_line_states = fine_structure_complexes.keys()
+            if tag in fine_line_states and tag not in input_tags:
                 dataset.deactivate_fine_lines(tag)
 
         # --------------------------------------------------------------------
@@ -592,7 +594,7 @@ def main():
 
     # print abundance
     if parameters['show_total']:
-        dataset.print_sum()
+        dataset.print_total()
 
     # save
     SaveDataSet(name + '.hdf5', dataset)
@@ -607,13 +609,14 @@ def main():
             rebin = parameters['fit_options']['rebin']
         else:
             rebin = 1
-        dataset.plot_fit(filename=filename, show=True, rebin=rebin)
+        dataset.plot_fit(filename=filename, rebin=rebin)
         output.save_parameters_to_file(dataset, filename+'.fit')
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
         output.save_fit_regions(dataset, filename+'.reg', individual=individual_regions)
+        plt.show(block=True)
 
     else:
-        dataset.plot_fit()
+        dataset.plot_fit(rebin=rebin)
         plt.show(block=True)
 
 

@@ -1,7 +1,11 @@
 
+===========================
 VoigtFit Parameter Language
 ===========================
 
+.. role:: red
+
+.. note::
 
   The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
 
@@ -20,7 +24,8 @@ VoigtFit Parameter Language
 
 
 
-  Future implementations:
+.. todo:
+
    - If HI is included in the lines to be fitted, the metallicity will automatically be calculated.
    - more detailed options available for the minimization and output.
    - more molecular data to be included.
@@ -31,229 +36,485 @@ VoigtFit Parameter Language
 
 The parameter language allows the user to define parameters without using python scripting
 which has a slightly more complex syntax. There are a few general rules for the parameter language:
-Everything that comes after a `#` sign is regarded as a comment and is not parsed.
-The number of spaces in a given line between parameters and values is not important.
-The order of the statements is not important either. This will be handled by the program at runtime,
-so you can freely arrange the parameter file as you see fit.
-All optional information below is stated in brackets.
+
+  Everything that comes after a `#` sign is regarded as a comment and is not parsed.
+
+  The number of spaces in a given line between parameters and values is not important.
+
+  The order of the statements is not important either. This will be handled by the program
+  at runtime, so you can freely arrange the parameter file as you see fit.
+
+  All optional arguments below are stated in square brackets.
+
+  Double underscores below indicate an optional keyword argument to be given by the user.
 
 
 The Basics
-----------
+==========
 
 In the following the basic and mandatory statements are presented.
 If these are not present in the parameter file, or if their values are
 not understood, the program will cause an error.
 
-  -- Note: An empty parameter file template can be created in your working directory by running `VoigtFit` with no arguments.
+.. note::
+
+  A parameter file template can be created in your working directory
+  by running ``VoigtFit`` with no arguments.
 
 The first part of the parameter file usually defines a bit of metadata for the dataset.
-These variables are as follows:
+However, as stated above, the ordering of the statements is not important.
 
-  name :  dataset_name
-
-`dataset_name` gives the name of the dataset.
-The dataset is automatically saved (as `dataset_name.hdf5`),
-and if a dataset of the given name is present, it will be loaded automatically.
-
-  save : [ filename ]
-
-`filename` is the filename used for the graphic output and for parameter output.
-If no filename is given, the dataset `name` attribute will be used.
-The graphic output will be saved in pdf format and the parameter files will be saved as ascii files:
-The best-fit parameters will be saved to `filename.fit` and the best-fit continuum parameters will be saved to `filename`.cont.
+The available statements that can be included in the parameter file will be presented
+in detail in the following.
 
 
-  z_sys :  z_sys
+Name
+----
 
-`z_sys` gives the systemic redshift of the absorption system.
-Relative velocities are calculated with respect to this redshift.
+**name :  dataset_name**
 
-
-
-  data  filename  resolution  [ norm   air ]
-
-`filename` specifies the path to the spectrum (should be ascii table with up to four columns:
-wavelength, flux, error).
-resolution	is the spectral resolution of the given spectrum in units of km/s.
-
-Optinal arguments:
-
-norm	:  if present in the line, this indicates that the spectrum in filename are normalized.
-air	:  if present, the wavelengths in the spectrum will be converted from air to vacuum.
-
-Ex:
-data  ‘J2350-0052_uvb.tab’  40.  air
-	This will load the data from the file named ‘J2350-0052_uvb.tab’,
-	convert the wavelength column from air to vacuum, and assign
-	a spectral resolution of 40 km/s.
-
-data  “norm_data/norm_2350-0052_vis.tab”  32.7  norm
-	This will load the data from the file named ‘norm_2350-0052_vis.tab’
-	in the directory ‘norm_data’ and assign a spectral resolution of 32.7 km/s.
-	The keyword ‘norm’ is present, so the data will be marked as normalized,
-	and no interactive normalization will therefore pop up during data preparation.
+  *dataset_name* gives the name of the dataset.
+  The dataset is automatically saved (as *'dataset_name.hdf5'*),
+  and if a dataset of the given name is present, it will be loaded automatically.
 
 
-lines  line_tags  [ span=_ ]
+Save
+----
 
-line_tags	can be a single line or multiple lines separated by blank spaces.
-		The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526,
-		or HI_1215. For the Lyman series of hydrogen and deuterium, the following
-		notation is also accepted: HI_1 for the Ly-alpha, HI_3 for Ly-gamma, and so on.
+**save : [ filename ]**
 
-Optinal arguments:
-
-span	:  if present, the value after the equal-sign is taken as the velocity span in km/s
-	   around each line to be defined. If not, the default span of 300 km/s will be used.
-	   Can also be called as velspan=_
+  *filename* is the filename used for the graphic output and for parameter output.
+  If no filename is given, the dataset `name` attribute will be used.
+  The graphic output will be saved in pdf format and the parameter files will be saved as ascii files:
+  The best-fit parameters will be saved to `filename.fit` and the best-fit continuum parameters
+  will be saved to `filename`.cont.
 
 
-Examples:
-lines  FeII_2260  FeII_2374  SiII_1808  HI_1215
-	This will define the two singly ionized iron transitions at 2260 and 2374Å
-	together with the singly ionized silicon transition at 1808Å and the Ly-alpha line.
+z_sys
+-----
 
-lines FeII_2374  SiII_1808
-lines HI_1 HI_2  span=5000
-	This will define the iron and silicon lines with default velocity spans
-	and the Ly-alpha and Ly-beta lines with a larger 5000 km/s velocity span.
+**z_sys :  z_sys**
+
+  *z_sys* gives the systemic redshift of the absorption system.
+  Relative velocities are calculated with respect to this redshift.
 
 
-molecules
-for CO: add molecule CO AX(1-0), AX(0-0) [J=0 velspan=150]
-molecule  molecule  bands  [ J=_  velspan=_ ]
-So far only CO is defined; data for H2 and HD are not defined.
+Data
+----
 
+**data  filename  resolution  [ norm   air ]**
 
-component  ion  z  b  logN
+  *filename* specifies the path to the spectrum
+  (should be an ASCII table with up to four columns: wavelength, flux, error, mask).
 
-alt.: component  ion  z=_  b=_  logN=_  [ var_z=True/False  var_b=True/False  var_N=True/False
-		   tie_z=_  tie_b=_  tie_N=_ ]
+  *resolution*	is the spectral resolution of the given spectrum in units of km/s.
 
-ion	specifies which ion the component should be defined for, e.g., FeII, SiII.
-z	gives the redshift of the component.
-b	gives the broadening parameter of the Voigt profile.
-logN	gives the 10-base logarithm of the column density for the given ion in cm-2.
 
 Optional arguments:
 
-Fixed parameters can be set by the optinal arguments fix_z for redshift, fix_b for broadening parameter, and fix_N for column density. These are passed as keyword values which are either True or False, the default is False.
+  *norm* : if present in the line, this indicates that the spectrum in filename are normalized.
 
-Parameters for different components can be tied to each other uding the tie_z, tie_b, tie_N options. Mostly used to tie redshifts or broadening parameters for different species. The parameters are tied using the following naming rules: the name of a given parameter is made up by the base (which is either ‘z’, ‘b’, or ‘logN’), the component number (starting from 0), and the ion. Base and number are joined together with no spaces in between and the ion is added with an underscore (‘_’) as spacing.
-Ex:	z0_FeII for the redshfit of the first iron component
-	b1_SiII for the broadening parameter of the second silicon component
-	logN2_ZnII for the column density of the third zinc component
+  *air* : if present, the wavelengths in the spectrum will be converted from air to vacuum.
+
+.. topic:: Example
+
+  ``data  'J2350-0052_uvb.tab'  40.  air``
+
+    This will load the data from the file named ‘J2350-0052_uvb.tab’,
+    convert the wavelength column from air to vacuum, and assign
+    a spectral resolution of 40 km/s.
+
+  ``data  "norm_data/norm_2350-0052_vis.tab"  32.7  norm``
+
+    This will load the data from the file named ‘norm_2350-0052_vis.tab’
+    in the directory ‘norm_data’ and assign a spectral resolution of 32.7 km/s.
+    The keyword ‘norm’ is present, so the data will be marked as normalized,
+    and no interactive normalization will therefore pop up during data preparation.
 
 
-interactive  line_tags
+Lines
+-----
 
-line_tags	can be a single line or multiple lines separated by blank spaces or commas.
-		The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526.
-		The line tag must be defined in the dataset (using the lines command).
+**lines  line_tags  [ velspan=__ ]**
 
-This command will activate the interactive window for defining components for the given lines.
-Notice that any components that this will overwrite any other components for this element.
-Components can be copied to other ions using the copy components command (see below).
-copy components from ion1 to ion2  [ scale logn ref_comp  tie_z=True/False  tie_b=True/False ]
+  *line_tags* can be a single line or multiple lines separated by blank spaces.
+  The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526,
+  or HI_1215. For the Lyman series of hydrogen and deuterium, the following
+  notation is also accepted: HI_1 for the Ly-alpha, HI_3 for Ly-gamma, and so on.
 
-The components from one ion, which have already been defined, can be copied to another ion using the ‘copy components’ statement. The ion from which the components are copied are denoted as ion1 and must follow the word ‘from’, and the ion to which the components are copied is denoted as ion2 and must follow the word ‘to’. The positional order is not important.
 
 Optinal arguments:
 
-scale	:  this keyword scales the pattern of column densities from the input ion to the destination ion. The keyword takes two arguments:
-logn		gives the desired column density for the reference component
-ref_comp	gives the component number to match (starting from 0).
-
-tie_z	:  will tie all redshifts for ion2 to those of ion1. Default is True.
-tie_b	:  will tie all broadening parameters for ion2 to those of ion1. Default is True.
-
-Ex:
-copy components from FeII to SiII  scale 15.3  1
-	This will copy the component structure defined for FeII to SiII
-	and the logarithm of the column density of the 2nd component will be set to 15.3
-	while keeping the relative abundance pattern as defined for FeII.
-
-copy components to CII from FeII  tie_b=False
-	This will copy components already defined for FeII to CII,
-	however, the broadening parameters are not fixed to those of FeII.
+  *velspan* : the value after the equal-sign is taken as the velocity
+  span in km/s around each line to be defined as a fitting region.
+  The default span is 500 km/s.
 
 
-delete component  number  [from] ion
+.. topic:: Example
 
-number	gives the number of the component to delete (starting from 0).
-ion		gives the ion from which to delete the given component.
-		Note: the keyword ‘from’ before the ion is optional.
+  ``lines  FeII_2260  FeII_2374  SiII_1808  HI_1215``
 
-This function is useful for removing components that were defined using a “copy component” statement, if not all components should be fitted. For regular components, the component can simply be commented out (using ‘#’).
+    This will define the two singly ionized iron transitions at 2260 and 2374Å
+    together with the singly ionized silicon transition at 1808Å and the Ly-alpha line.
 
-Ex:
-Suppose that FeII has 5 components defined and the same component structure has been copied to ZnII, which is much weaker. Therefore, only 4 components can be constrained for ZnII. This would be defined as follows:
-component FeII  2.0456  15.5  14.6
-component FeII  2.0469  11.5  14.8
-component FeII  2.0482  17.5  13.3
-component FeII  2.0489  14.0  14.3
-component FeII  2.0495  13.5  14.7
+  ``lines FeII_2374  SiII_1808``
 
-copy components from FeII to ZnII  scale 13.2  0
-delete component 2 from ZnII
+    This will define the iron and silicon lines with default velocity spans.
+
+  ``lines HI_1  HI_2  velspan=5000``
+
+    This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.
 
 
-resolution  res  [ line_tag ]
+Fine-structure Lines
+--------------------
 
-res		gives the spectral resolution in km/s
-line_tag	specifies for which line_tag the resolution should be changed. Default is all.
+**fine-lines  ground_state  [ levels  velspan=__ ]**
 
-This function allows the user to update the spectral resolution. If some lines are defined in different spectra (loaded by different the “data” statements”) their spectral resolution will be different. Therefore, the spectral resolution should be updated for the given lines independently.
+  *ground_state* refers to the line identifier for the ground state transition
+  of the line complex, e.g., 'CI_1656'.
 
-Warning: changing the spectral resolution in the “data” statement will not update the spectral resolution, unless the dataset is overwritten.
-
-
-metallicity  logNHI  err_logNHI
-
-logNHI		the logarithm of the column density of neutral hydrogen in units of cm-2.
-err_logNHI	the uncertainty on the logarithm of the column density of neutral hydrogen.
-
-When this keyword is present, the best-fit total abundances for the defined ions in the dataset will be converted to metallicities for each ion, that is, the abundance ratio of the given ion to neutral hydrogen relative to Solar abundances from Asplund et al. (2009) is calculated.
+  This statement, if present in the parameter file, will define all the corresponding
+  transitions for the given levels of related to the given ground state. At the moment,
+  these line complexes are only defined for neutral carbon (CI) and its two fine-structure
+  levels.
 
 
+Optional arguments:
+
+  *levels* : indicates which excited fine-structure levels to include.
+  This should be given as a space separated list of letters: 'a' for the first excited level (J=1),
+  'b' for the second excited level (J=2), etc.
+  By default, all fine-structure levels will be included.
+
+  *velspan* : the value after the equal-sign is taken as the velocity
+  span in km/s around each line to be defined as a fitting region.
+  The default span is 500 km/s.
+
+
+.. topic:: Example
+
+  ``fine-lines  CI_1560``
+
+    This will define all the transitions of CI, CI\ :sup:`*` and CI\ :sup:`**` related to the
+    ground state of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P ->
+    2s 2p\ :sup:`3`  :sup:`3`\ D line complex at 1560 Å.
+
+  ``fine-lines  CI_1328  a``
+
+    This will only define the transitions of the ground state and the first excited
+    fine-structure level (*J=1*) of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P ->
+    2s 2p\ :sup:`3`  :sup:`3`\ P line complex at 1328 Å.
+
+|
+
+.. important::
+  :class: red
+
+  Components have to be defined manually for the fine-structure levels.
+  For this case, the *ion* to reference for the excited levels is the ground state ion
+  (in the example above 'CI') with the lower case letter to designate the level, see the
+  optional argument *levels*. So for the first fine-structure level of 'CI' the *ion*
+  would be 'CIa'.
+
+  For more details, see the section `add components`_ below.
+
+
+Add Molecules
+-------------
+
+**molecule  element  bands  [ J=__  velspan=__ ]**
+
+  *element* refers to the molecule to be fitted, for now only CO and H2 are defined
+  in the database.
+
+  *bands* designates a list of vibrational bands for the given molecule.
+    For CO: the A(ν) -> A(0) bands for ν up to ν=11, the C(0) -> X(0) band, the d(5) -> X(0)
+    and e(1) -> X(0). The bands are referred to as AX(ν-0), CX(0-0), dX(5-0), and eX(1-0).
+
+    For H\ :sub:`2`: the Lyman bands B(ν) -> X(0) for ν up to ν=19 (BX(ν-0)) and Werner bands
+    C(ν) -> X(0) for ν up to ν=5 (CX(ν-0)).
+
+
+Optional arguments:
+
+  *J* : the upper rotational level to include for the given bands.
+  All rotational levels from *J=0* up to (and including) *J* will be included.
+  For CO the maximum *J* level included in the database is *J=4*, for H\ :sub:`2` this is *J=7*.
+  The default value is *J=1*.
+
+  *velspan* : the value after the equal-sign is taken as the velocity
+  span in km/s around each line to be defined as a fitting region.
+  The default span is 500 km/s.
+
+.. topic:: Example
+
+  ``molecule H2  BX(0-0)  BX(1-0)  BX(2-0)  J=5``
+
+    This will define the rotational levels up to *J=5* for the three lowest vibrational
+    Lyman bands of H\ :sub:`2`.
+
+  ``molecule CO  AX(0-0)  AX(1-0)  J=4  velspan=120``
+
+    This will define the rotational levels up to *J=4* for the two lowest vibrational bands of CO.
+
+
+Add Components
+--------------
+
+**component  ion  z  b  logN  [ var_z=True/False  var_b=True/False  var_N=True/False
+tie_z=__  tie_b=__  tie_N=__  velocity]**
+
+alt.: component  ion  z=__  b=__  logN=__  [ var_z=True/False  var_b=True/False  var_N=True/False
+tie_z=__  tie_b=__  tie_N=__  velocity]
+
+  *ion* specifies for which ion the component should be defined, e.g., FeII, SiII.
+
+  *z* gives the redshift of the component.
+
+  *b* gives the broadening parameter of the given component.
+
+  *logN* gives the 10-base logarithm of the column density for the given component in cm\ :sup:`-2`.
+
+  Note: The order of the values of z, b, logN must be followed, unless the are given
+  as keyword arguments, i.e., logN=__  z=__  b=__
+
+
+Optional arguments:
+
+  Parameters which should be kept fixed can be set by the optional arguments *fix_z* for redshift,
+  *fix_b* for broadening parameter, and *fix_N* for column density.
+  These are passed as keyword values which are either *True* or *False*, the default is *False*.
+
+  Parameters for different components and ions can be tied to each other using the
+  *tie_z*, *tie_b*, *tie_N* options. This is mostly used to tie redshifts or broadening parameters
+  for different species.
+  The parameters are tied using the following naming convention:
+  the name of a given parameter is made up by the *base* (which is either ‘z’, ‘b’, or ‘logN’),
+  the component *number* (starting from 0), and the *ion* (e.g., FeII).
+  The *base* and *number* are joined together with no spaces in between,
+  and the *ion* is appended with an underscore (‘_’) as in between; e.g., 'z0_FeII' for the first
+  component of FeII.
+
+  *velocity* : if this keyword is included, the first argument (or z=) will be interpreted
+  as a velocity offset relative to *z_sys*.
+
+
+.. topic:: Example
+
+  ``component  FeII  1.957643  7.0  14.5  var_z=False``
+
+    This will define a component for FeII at z=1.957643 with *b* = 7.0 km/s and a column density
+    of 10\ :sup:`14.5` cm\ :sup:`-2`. The redshift will no be varied during the fit.
+
+  ``component  SiII  -109.5  7.0  16.0  tie_b='b0_FeII' velocity``
+
+    This will define a component for SiII at a relative velocity of -109.5 km/s
+    with *b* = 7.0 km/s and a column density 10\ :sup:`16.0`.
+    The *b*-parameter will be tied to the first component defined for *FeII*.
 
 
 
-nomask
+Interactive Components
+----------------------
 
-When this keyword is present in the parameter file (except in the dataset_name), no interactive spectral masking will be performed.
+**interactive  line_tags**
 
+  *line_tags* can be a single line or multiple lines separated by blank spaces or commas.
+  The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526.
+  The line tag must be defined in the dataset (using the ``lines`` statement).
 
-
-mask  line_tags
-
-This keyword specifies individual lines to mask interactively. Used together with nomask, it allows the user to only mask a given set of lines and not all lines in the dataset.
-
-abundance
-
-When this keword is present in the parameter file (except in the dataset_name), the total abundances for each ion will be printed to the terminal output.
+This command will activate the interactive window for defining components for the given lines.
+Notice that this will overwrite any other components defined previously for this element.
 
 
-reset  [ line_tags ]
+.. topic:: Example
 
-When this keword is present in the parameter file, the data for each region will be reset to the raw input data. This is used to update the continuum fitting so the code uses the raw data instead of the already normalized data in the regions. Note: This does not clear the spectral mask!
+  Give example screenshot here!
 
 
-C_order = 1
+Copy Components
+---------------
+
+**copy components from ion1 to ion2  [ (scale  logN  ref_comp)  tie_z=True/False  tie_b=True/False ]**
+
+  *ion1* denotes the *ion* from which to copy components (FeII, CI, etc.).
+  Components must manually be defined for this ion.
+
+  *ion2* denotes the *ion* to which the components will be copied.
+  Lines must be defined for this *ion* using a ``lines`` statement.
+
+  Note -- The order is not important. This is inferred from the position of the words *to* and *from*.
+
+
+Optinal arguments:
+
+  *scale* : this keyword activates a relative scaling of the pattern of column densities
+  from the input ion (*ion1*) to the destination ion (*ion2*).
+  The keyword takes two arguments:
+    *logN* : the desired column density for the reference component
+
+    *ref_comp* : the number of the reference component (starting from 0).
+
+    *Note -- The default scaling is set to Solar relative abundances for the two elements.*
+
+  *tie_z* : If *True*, all redshifts for *ion2* will be tied to those of *ion1*.
+  Default is *True*.
+
+  *tie_b* : If *True*, all *b*-parameters for *ion2* will be tied to those of *ion1*.
+  Default is *True*.
+
+.. topic:: Example
+
+  ``copy components from FeII to SiII  scale 15.3  1``
+    This will copy the component structure defined for FeII to SiII
+    and the logarithm of the column density of the 2nd component will be set to 15.3
+    while keeping the relative abundance pattern as defined for FeII.
+
+  ``copy components to CII from FeII  tie_b=False``
+    This will copy components already defined for FeII to CII,
+    however, the broadening parameters are not fixed to those of FeII.
+    The initial value for log(N) for CII will be set using the Solar
+    relative abundance of carbon and iron.
+
+
+Delete Components
+-----------------
+
+**delete component  number  [from] ion**
+
+  *number* gives the number of the component to delete (starting from 0).
+
+  *ion* gives the ion from which to delete the given component.
+
+  Note -- the word 'from' before the ion is optional.
+
+This function is useful for removing components that were defined using a `copy components`_
+statement, if not all components for the new ion should be fitted.
+For components defined via the explicit component statement,
+a component can simply be commented out (using ‘#’) to delete it from the fit.
+
+
+.. topic:: Example
+
+  Suppose that FeII has 5 components defined and the same component structure has been copied to
+  ZnII; However, the zinc lines are much weaker and therefore only 4 components can be
+  constrained for ZnII. This would be defined as follows:
+
+    | ``component FeII  2.0456  15.5  14.6``
+    | ``component FeII  2.0469  11.5  14.8``
+    | ``component FeII  2.0482  17.5  13.3``
+    | ``component FeII  2.0489  14.0  14.3``
+    | ``component FeII  2.0495  13.5  14.7``
+
+    | ``copy components from FeII to ZnII  scale 13.2  0``
+    | ``delete component 1 from ZnII``
+
+
+Continuum Normalization
+-----------------------
+
+**C_order = __**
 
 This keyword indicates the max order of Chebyshev polynomials to include for the continuum model. The default is 1, i.e., a straight line fit. The continuum is automatically optimized together with the line fitting.
 By giving a negative order, the code will ask to manually normalize the fitting regions using the specified norm_method, see below.
 
 
-norm_method = { ‘linear’  or  ‘spline’ }
+**norm_method = { ‘linear’  or  ‘spline’ }**
 
 The norm_method specifies how to manually normalize the fitting regions. Before fitting, each region will pop up and instructions will be given to normalize the data.
 For ‘linear’, the user must specify a continuum region on the left of the absorption line (by clicking on the left and right boundaries of this continuum region) and similarly on the right side of the absoption line. The continuum is fitted using a straight line fit.
 For ‘spline’, the user can select a range of points which will be fitted with a spline in order to create a curved continuum model.
 
 
-systemic = value
+
+Mask
+----
+
+**mask  [ line_tags ]**
+
+Optional arguments:
+
+  *line_tags* : either a single line identifier (e.g., 'FeII_2374') or a space separated list
+  of identifiers for which to run the interactive masking procedure.
+  Default is to define masks for all lines.
+
+This statement allows the user to define mask interactively for all lines or individual lines.
+
+Note -- The mask is an exclusion mask, so pixels that are defined in the mask, are *not* fitted.
+
+.. topic:: Example
+
+  Show image of masking process.
+
+
+Clear mask
+----------
+
+**clear mask**
+
+If this statement is present in the parameter file, the masks for all fitting regions will be reset
+before eventually defining new masks.
+
+
+Abundance
+---------
+
+**abundance**
+
+When this keword is present in the parameter file (except in the dataset_name), the total abundances for each ion will be printed to the terminal output.
+
+
+Metallicity
+-----------
+
+**metallicity  logNHI  err_logNHI**
+
+  *logNHI* gives the logarithm of the column density of neutral hydrogen in units of cm\ :sup:`-2`.
+
+  *err_logNHI* gives the associated uncertainty on the logarithm of the column density of neutral hydrogen.
+
+When this statement is present, the best-fit total abundances for the defined ions in the dataset
+will be converted to metallicities for each ion, that is, the abundance ratios of the given ions
+to neutral hydrogen relative to Solar abundances from
+`Asplund et al. (2009) <https://ui.adsabs.harvard.edu/#abs/2009ARA&A..47..481A/abstract>`_
+are calculated.
+
+
+Reset Fit Regions
+-----------------
+
+**reset  [ line_tags ]**
+
+When this keword is present in the parameter file, the data for each region will be reset to the raw input data. This is used to update the continuum fitting so the code uses the raw data instead of the already normalized data in the regions. Note: This does not clear the spectral mask!
+
+
+Resolution
+----------
+
+**resolution  res  [ line_tag ]**
+
+  *res* gives the desired spectral resolution in km/s.
+
+  Note -- this will change the resolution for *all* the loaded spectra.
+
+Optional arguments:
+
+  *line_tag* : specifies the line in a fitting region whose resolution should be changed.
+  Default is all.
+
+
+.. important::
+  :class: red
+
+  Changing the spectral resolution in the data_ statement will not update the spectral
+  resolution in the fit, unless the dataset is deleted or overwritten (run ``VoigtFit -f``).
+
+
+Change Output Systemic Redshift
+-------------------------------
+
+**systemic = value**
 
 This keyword defines how to update the systemic redshift after fitting.
 Possible input values: ‘auto’, ‘none’ or  [num, ‘ion’]
@@ -269,8 +530,3 @@ systemic  2   FeII
 	this defines the systemic redshift as the 3rd component of FeII
 systemic  -1  SiII
 	this defines the systemic redshift as the last component of SiII
-
-
-clear mask
-
-This command will clear all the spectral masks that have been defined.

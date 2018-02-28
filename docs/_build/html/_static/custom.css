@@ -58,6 +58,7 @@ body {
     font-family: {{ theme_font_family }};
     font-size: {{ theme_font_size }};
     background-color: {{ theme_base_bg }};
+    -webkit-font-smoothing: antialiased;
     color: {{ theme_base_text }};
     margin: 0;
     padding: 0;
@@ -278,8 +279,8 @@ div.admonition tt.xref, div.admonition code.xref, div.admonition a tt {
 
 div.admonition p.admonition-title {
     font-family: {{ theme_head_font_family }};
-    font-weight: normal;
-    font-size: 24px;
+    font-weight: bold;
+    font-size: 20px;
     margin: 0 0 10px 0;
     padding: 0;
     line-height: 1;
@@ -707,4 +708,8 @@ table.docutils.citation, table.docutils.citation td, table.docutils.citation th 
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
   box-shadow: none;
+}
+
+.red {
+      color: crimson;
 }
