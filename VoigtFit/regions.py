@@ -59,7 +59,7 @@ class Region():
             1/`True` = pixel is included in the fit.
 
         new_mask : bool
-            Internal parameter for :meth:`dataset.DataSet.prepare_dataset`.
+            Internal parameter for :meth:`VoigtFit.DataSet.prepare_dataset`.
             If `True`, an interactive masking process will be initiated in the
             preparation stage.
 
@@ -86,7 +86,7 @@ class Region():
         ----------
         data_chunk : dict()
             A `data_chunk` as defined in the data structure of :meth:`DataSet.data
-            <dataset.DataSet.add_data>`.
+            <VoigtFit.DataSet.add_data>`.
 
         cutout : bool array
             A boolean array defining the subset of the `data_chunk` which makes up the fitting region.
@@ -137,8 +137,10 @@ class Region():
         """
         Normalize the region if the data are not already normalized.
         Choose from two methods:
+
             1:  define left and right continuum regions
                 and fit a linear continuum.
+
             2:  define the continuum as a range of points
                 and use spline interpolation to infer the
                 continuum.
@@ -251,7 +253,7 @@ class Region():
             If a redshift is given, the lines in the region are shown as vertical lines
             at the given redshift.
 
-        dataset : :class:`dataset.DataSet`   [default = None]
+        dataset : :class:`VoigtFit.DataSet`   [default = None]
             A dataset with components defined for the lines in the region.
             If a dataset is passed, the components of the lines in the region are shown.
 

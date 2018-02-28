@@ -4,6 +4,17 @@ __author__ = 'Jens-Kristian Krogager'
 import re
 
 
+def clean_line(line):
+    """Remove comments and parentheses from the input line."""
+    # strip comments:
+    comment_begin = line.find('#')
+    line = line[:comment_begin]
+    # remove parentheses:
+    line = line.replace('[', '').replace(']', '')
+    line = line.replace('(', '').replace(')', '')
+    return line
+
+
 def parse_parameters(fname):
     """Parse parameters from input file."""
     parameters = dict()
@@ -29,6 +40,7 @@ def parse_parameters(fname):
     components_to_delete = list()
     interactive_components = list()
     lines = list()
+    fine_lines = list()
     molecules = dict()
     # fine_lines = list()
     thermal_model = list()
@@ -38,12 +50,7 @@ def parse_parameters(fname):
             continue
 
         elif 'data' in line and 'name' not in line and 'save' not in line:
-            # strip comments:
-            comment_begin = line.find('#')
-            line = line[:comment_begin]
-            # remove parentheses:
-            line = line.replace('[', '').replace(']', '')
-            line = line.replace('(', '').replace(')', '')
+            line = clean_line(line)
             pars = line.split()
             # get first two values:
             filename = pars[1]
@@ -61,7 +68,6 @@ def parse_parameters(fname):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
-            # remove parentheses:
             if 'velspan' in line:
                 idx = line.find('velspan')
                 value = line[idx:].split('=')[1]
@@ -77,10 +83,28 @@ def parse_parameters(fname):
 
             lines += all_lines
 
+        elif 'fine-lines' in line:
+            velspan = None
+            line = clean_line(line)
+            if 'velspan' in line:
+                idx = line.find('velspan')
+                value = line[idx:].split('=')[1]
+                velspan = float(value)
+                line = line[:idx]
+
+            pars = line.split()
+            ground_state = pars[1]
+            if len(pars) > 2:
+                levels = pars[2:]
+            else:
+                levels = None
+
+            fine_lines += [ground_state, levels, velspan]
+
         elif 'molecule' in line:
             velspan = None
-            Jmax = 0
-            # Ex.  add molecule CO AX(1-0), AX(0-0) [J=0 velspan=150]
+            Jmax = 1
+            # Ex.  add molecule CO AX(1-0), AX(0-0) [J=1 velspan=150]
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -88,8 +112,8 @@ def parse_parameters(fname):
                 if '=' in item:
                     parname, parval = item.split('=')
                     if parname.strip().upper() == 'J':
-                        Jmax = parval
-                    elif 'span' in parname.lower():
+                        Jmax = int(parval)
+                    elif 'velspan' in parname.lower():
                         velspan = float(parval)
                     idx = line.find(item)
                     if idx > 0:
@@ -498,6 +522,7 @@ def parse_parameters(fname):
     par_file.close()
     parameters['data'] = data
     parameters['lines'] = lines
+    parameters['fine-lines'] = fine_lines
     parameters['molecules'] = molecules
     parameters['components'] = components
     parameters['components_to_copy'] = components_to_copy

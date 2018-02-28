@@ -194,27 +194,76 @@ def main():
             dataset.add_data(wl, spec, res,
                              err=err, normalized=norm, mask=mask)
 
+        # -- Handle `lines`:
         # Add new lines that were not defined before:
         new_lines = list()
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
             else:
+                # Check if velocity span has changed:
                 regions_of_line = dataset.find_line(tag)
                 for reg in regions_of_line:
                     if reg.velspan != velspan:
                         dataset.remove_line(tag)
                         new_lines.append([tag, velspan])
 
+                # Check if line is active:
+                this_line = dataset.lines[tag]
+                if not this_line.active:
+                    dataset.activate_line(tag)
+
         for tag, velspan in new_lines:
-                dataset.add_line(tag, velspan=velspan)
+            dataset.add_line(tag, velspan=velspan)
 
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
-        for tag in dataset.all_lines:
-            if tag not in defined_tags:
-                dataset.deactivate_line(tag)
+        for tag, line in dataset.lines.items():
+            if line.ion[-1].islower():
+                # skip this line, cause it's a fine-structure line:
+                continue
 
+            elif any([m in tag for m in dataset.molecules.keys()]):
+                # skip this line, cause it's a molecular line:
+                continue
+
+            elif tag not in defined_tags:
+                dataset.deactivate_line(tag)
+        # --------------------------------------------------------------------
+
+        # -- Handle `fine-structure lines`:
+        # Add new fine-structure lines that were not defined before:
+        new_fine_lines = list()
+        if len(parameters['fine-lines'].items()) > 0:
+            for ground_state, levels, velspan in parameters['fine-lines']:
+                if ground_state not in dataset.all_lines:
+                    new_fine_lines.append([ground_state, levels, velspan])
+                else:
+                    # Check if velocity span has changed:
+                    regions_of_line = dataset.find_line(ground_state)
+                    for reg in regions_of_line:
+                        if reg.velspan != velspan:
+                            dataset.remove_fine_lines(ground_state)
+                            new_fine_lines.append([ground_state, levels, velspan])
+
+                    # Check if this line is active:
+                    this_line = dataset.lines[ground_state]
+                    if not this_line.active:
+                        dataset.activate_fine_lines(ground_state, levels)
+
+        for ground_state, levels, velspan in new_fine_lines:
+            dataset.add_fine_lines(ground_state, levels=levels, velspan=velspan)
+
+        # Remove old fine-structure lines which should not be fitted:
+        input_tags = [item[0] for item in parameters['fine-lines']]
+        for tag, line in dataset.lines.items():
+            # Only consider fine-structure lines:
+            if line.ion[-1].islower() and tag not in input_tags:
+                dataset.deactivate_fine_lines(tag)
+
+        # --------------------------------------------------------------------
+
+        # -- Handle `molecules`:
         # Add new molecules that were not defined before:
         new_molecules = dict()
         if len(parameters['molecules'].items()) > 0:
@@ -240,7 +289,7 @@ def main():
 
         for molecule, bands in dataset.molecules.items():
             for band, Jmax in bands:
-                if band not in defined_tags:
+                if band not in defined_molecular_bands:
                     dataset.deactivate_molecule(molecule, band)
 
     # -- Otherwise create a new DataSet
@@ -292,6 +341,10 @@ def main():
         # Define lines:
         for tag, velspan in parameters['lines']:
             dataset.add_line(tag, velspan=velspan)
+
+        # Define fine-structure lines:
+        for ground_state, levels, velspan in parameters['fine-lines']:
+            dataset.add_fine_lines(ground_state, levels=levels, velspan=velspan)
 
         # Define molecules:
         if len(parameters['molecules'].items()) > 0:

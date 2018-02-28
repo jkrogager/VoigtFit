@@ -55,11 +55,11 @@ class Line(object):
             The ion for the line; The ion for "FeII_2374" is "FeII".
 
         element : str
-            Equal to ``Line.ion`` for backwards compatibility.
+            Equal to ``ion`` for backwards compatibility.
 
         l0 : float
             Rest-frame resonant wavelength of the transition.
-            Unit: Ångstrøm.
+            Unit: Angstrom.
 
         f : float
             The oscillator strength for the transition.
@@ -106,16 +106,16 @@ class DataSet(object):
     def __init__(self, redshift, name=''):
         """
         Main class of the package ``VoigtFit``. The DataSet handles all the major parts of the fit.
-        Spectral data must be added using the :meth:`add_data <dataset.DataSet.add_data>` method.
+        Spectral data must be added using the :meth:`add_data <VoigtFit.DataSet.add_data>` method.
         Hereafter the absorption lines to be fitted are added to the DataSet using the
-        :meth:`add_line <dataset.DataSet.add_line>` or
-        :meth:`add_many_lines <dataset.DataSet.add_many_lines>` methods.
+        :meth:`add_line <VoigtFit.DataSet.add_line>` or
+        :meth:`add_many_lines <VoigtFit.DataSet.add_many_lines>` methods.
         Lastly, the components of each element is defined using the
-        :meth:`add_component <dataset.DataSet.add_component>` method.
+        :meth:`add_component <VoigtFit.DataSet.add_component>` method.
         When all lines and components have been defined, the DataSet must be prepared by
-        calling the :meth:`prepare_dataset <dataset.DataSet.prepare_dataset>`
+        calling the :meth:`prepare_dataset <VoigtFit.DataSet.prepare_dataset>`
         method and subsequently, the lines can be fitted using
-        the :meth:`fit <dataset.DataSet.fit>` method.
+        the :meth:`fit <VoigtFit.DataSet.fit>` method.
 
         .. rubric:: Attributes
 
@@ -131,7 +131,7 @@ class DataSet(object):
         data : list(data_chunks)
             A list of *data chunks* defined for the dataset. A *data chunk* is
             a dictionary with keys 'wl', 'flux', 'error', 'res', 'norm'.
-            See :meth:`DataSet.add_data <dataset.DataSet.add_data>`.
+            See :meth:`DataSet.add_data <VoigtFit.DataSet.add_data>`.
 
         lines : dict
             A dictionary holding pairs of defined (*line_tag* : :class:`dataset.Line`)
@@ -159,7 +159,7 @@ class DataSet(object):
         components : dict
             A dictionary of components for each *ion* defined:
             (*ion* : [z, b, logN, options]). See :meth:`DataSet.add_component
-            <dataset.DataSet.add_component>`.
+            <VoigtFit.DataSet.add_component>`.
 
         velspan : float   [default = 500]
             The default velocity range to use for the definition
@@ -169,19 +169,21 @@ class DataSet(object):
             This attribute is checked before fitting the dataset. Only when
             the attribute has been set to `True` can the dataset be fitted.
             This will be toggled after a successful run of
-            :meth:`DataSet.prepare_dataset <dataset.DataSet.prepare_dataset>`.
+            :meth:`DataSet.prepare_dataset <VoigtFit.DataSet.prepare_dataset>`.
 
-        best_fit : lmfit.Parameters_   [default = None]
-            Best-fit parameters from lmfit_. This attribute will be `None` until
-            the dataset has been fitted.
+        best_fit : `lmfit.Parameters`_   [default = None]
+            Best-fit parameters from lmfit_.
+            This attribute will be `None` until the dataset has been fitted.
 
-        pars : lmfit.Parameters_   [default = None]
+        pars : `lmfit.Parameters`_   [default = None]
             Placeholder for the fit parameters initiated before the fit.
             The parameters will be defined during the call to :meth:`DataSet.prepare_dataset
-            <dataset.DataSet.prepare_dataset>` based on the defined components.
+            <VoigtFit.DataSet.prepare_dataset>` based on the defined components.
+
 
 
         .. _lmfit.Parameters: https://lmfit.github.io/lmfit-py/parameters.html
+        .. _lmfit: https://lmfit.github.io/lmfit-py/
 
         """
         # Define the systemic redshift
@@ -339,7 +341,7 @@ class DataSet(object):
         containing the line with the given `line_tag`. If multiple spectra are fitted
         simultaneously, this method will set the same resolution for *all* spectra.
         If `line_tag` is not given, the resolution will be set for *all* regions,
-        including the raw data chunks defined in :attr:`dataset.DataSet.data`!
+        including the raw data chunks defined in :attr:`VoigtFit.DataSet.data`!
 
         Note -- If not all data chunks have the same resolution, this method
         should be used with caution. It is advised to check the spectral resolution beforehand
@@ -381,12 +383,12 @@ class DataSet(object):
             defined (default = 500 km/s).
 
         active : bool   [default = True]
-            Set the :class:`Line <dataset.DataSet.Line>` as active
+            Set the :class:`Line <VoigtFit.DataSet.Line>` as active
             (i.e., included in the fit).
 
         Notes
         -----
-        This will initiate a :class:`Line <dataset.DataSet.Line>` class
+        This will initiate a :class:`Line <VoigtFit.DataSet.Line>` class
         with the atomic data for the transition, as well as creating a
         fitting :class:`Region <regions.Region>` containing the data cutout
         around the line center.
@@ -486,7 +488,7 @@ class DataSet(object):
         velspan : float   [default = None]
             The velocity span around the line center, which will be included
             in the fit. If `None` is given, use the default
-            :attr:`velspan <dataset.DataSet.velspan>` defined (500 km/s).
+            :attr:`velspan <VoigtFit.DataSet.velspan>` defined (500 km/s).
         """
 
         self.ready2fit = False
@@ -599,7 +601,7 @@ class DataSet(object):
         Parameters
         ----------
         line_tag : str
-            Line tag for the :class:`Line <dataset.DataSet.Line>` whose
+            Line tag for the :class:`Line <VoigtFit.DataSet.Line>` whose
             :class:`Region <regions.Region>` should be masked.
 
         reset : bool   [default = True]
@@ -833,6 +835,7 @@ class DataSet(object):
         The redshift of the first component of FeII is called "z0_FeII",
         the logN of the second component of SiII is called "logN1_SiII".
         For more information about parameter ties, see the documentation for lmfit_.
+
         """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
@@ -844,7 +847,8 @@ class DataSet(object):
     def add_component_velocity(self, ion, v, b, logN,
                                var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
         """
-        Same as for `add_component()` but input is given as relative velocity instead of redshift.
+        Same as for :meth:`add_component <VoigtFit.DataSet.add_component>`
+        but input is given as relative velocity instead of redshift.
         """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
@@ -1076,7 +1080,7 @@ class DataSet(object):
                     comp[3]['var_z'] = True
 
     # Fine-structure Lines:
-    def add_fine_lines(self, line_tag, levels=None, full_label=False):
+    def add_fine_lines(self, line_tag, levels=None, full_label=False, velspan=None):
         """
         Add fine-structure line complexes by providing only the main transition.
         This function is mainly useful for the CI complexes, where the many lines are closely
@@ -1097,21 +1101,26 @@ class DataSet(object):
             If `True`, the label will be translated to the full quantum mechanical description
             of the state.
         """
+        if velspan is None:
+            velspan = self.velspan
+        else:
+            velspan = float(velspan)
+
         if hasattr(levels, '__iter__'):
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels:
-                    self.add_line(fineline, self.velspan)
+                    self.add_line(fineline, velspan)
 
         elif levels is None:
             for fineline in fine_structure_complexes[line_tag]:
-                self.add_line(fineline, self.velspan)
+                self.add_line(fineline, velspan)
 
         else:
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels:
-                    self.add_line(fineline, self.velspan)
+                    self.add_line(fineline, velspan)
 
         # Set label:
         regions_of_line = self.find_line(line_tag)
@@ -1225,7 +1234,7 @@ class DataSet(object):
 
         band : str
             The vibrational band of the molecule, e.g., for CO: "AX(0-0)"
-            These bands are defined in :module:`molecules <molecules>`.
+            These bands are defined in :mod:`molecules`.
 
         Jmax : int   [default = 0]
             The maximal rotational level to include. All levels up to and including `J`
@@ -1233,7 +1242,7 @@ class DataSet(object):
 
         velspan : float   [default = None]
             The velocity span around the line center, which will be included in the fit.
-            If `None` is given, use the default :attr:`velspan <dataset.DataSet.velspan>`
+            If `None` is given, use the default :attr:`velspan <VoigtFit.DataSet.velspan>`
             defined (500 km/s).
 
         full_label : bool   [default = False]
@@ -1299,7 +1308,7 @@ class DataSet(object):
         """
         Deactivate all lines for the given band of the given molecule.
         To see the available molecular bands defined, see the manual pdf
-        or ``molecules.py``.
+        or :mod:`VoigtFit.molecules`.
         """
         bands_for_molecule = [item[0] for item in self.molecules[molecule]]
         if band not in bands_for_molecule:
@@ -1322,8 +1331,8 @@ class DataSet(object):
     def activate_molecule(self, molecule, band):
         """
         Activate all lines for the given band of the given molecule.
-        Example:
-            activate_molecule('CO', 'AX(0-0)')
+
+            - Ex: ``activate_molecule('CO', 'AX(0-0)')``
         """
         bands_for_molecule = [item[0] for item in self.molecules[molecule]]
         if band not in bands_for_molecule:
@@ -1355,7 +1364,7 @@ class DataSet(object):
         ----------
         norm : bool   [default = True]
             Opens an interactive window to let the user normalize each region
-            using the defined :attr:`norm_method <dataset.DataSet.norm_method>`.
+            using the defined :attr:`norm_method <VoigtFit.DataSet.norm_method>`.
 
         mask : bool   [default = True]
             Opens an interactive window to let the user mask each fitting region.
@@ -1371,7 +1380,7 @@ class DataSet(object):
         bool
             The function returns `True` when the dataset has passed all the steps.
             If one step fails, the function returns `False`.
-            The :attr:`ready2fit <dataset.DataSet.ready2fit>` attribute of the dataset is also
+            The :attr:`ready2fit <VoigtFit.DataSet.ready2fit>` attribute of the dataset is also
             updated accordingly.
 
         """
@@ -1632,7 +1641,7 @@ class DataSet(object):
         Create a velocity plot, showing all the fitting regions defined, in order to compare
         different lines and to identify blends and contamination.
         """
-        output.velocity_plot(self, **kwargs)
+        output.plot_all_lines(self, plot_fit=False, **kwargs)
 
     def plot_line(self, line_tag, index=0, plot_fit=False, loc='left', rebin=1,
                   nolabels=False, axis=None, fontsize=12,
@@ -1760,7 +1769,7 @@ class DataSet(object):
         Parameters
         ----------
         filename : str   [default = None]
-            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
+            If `None`, the :attr:`name <VoigtFit.DataSet.name>` attribute will be used.
         """
         if self.cheb_order >= 0:
             output.save_cont_parameters_to_file(self, filename)
@@ -1775,7 +1784,7 @@ class DataSet(object):
         ----------
         filename : str   [default = None]
             Filename for the fitting regions.
-            If `None`, the :attr:`name <dataset.DataSet.name>` attribute will be used.
+            If `None`, the :attr:`name <VoigtFit.DataSet.name>` attribute will be used.
 
         individual : bool   [default = False]
             Save the fitting regions to individual files.
@@ -1786,6 +1795,7 @@ class DataSet(object):
             directory or path. Can be given both as relative or absolute path.
             If the path doesn't end in `/` it will be appended automatically.
             The final filename will be:
+
                 `path/` + `filename` [+ `_regN`] + `.reg`
         """
         if not filename:

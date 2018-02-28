@@ -11,6 +11,8 @@ __author__ = 'Jens-Kristian Krogager'
 
 from os import path
 from VoigtFit import *
+from dataset import DataSet
+from dataset import Line
 import dataset
 import hdf5_save as hdf5
 import line_complexes

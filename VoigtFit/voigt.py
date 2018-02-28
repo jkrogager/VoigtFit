@@ -88,7 +88,7 @@ def evaluate_continuum(x, pars, reg_num):
 
     reg_num : int
         The region number, i.e., the index of the region in the list
-        :attr:`dataset.DataSet.regions`.
+        :attr:`VoigtFit.DataSet.regions`.
 
     Returns
     -------
@@ -135,13 +135,13 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
     pars : dict(lmfit.Parameters_)
         An instance of lmfit.Parameters_ containing the line parameters.
 
-    lines : list(:class:`Line <dataset.DataSet.Line>`)
+    lines : list(:class:`Line <dataset.Line>`)
         List of lines to evaluate. Should be a list of
-        :class:`Line <dataset.DataSet.Line>` objects.
+        :class:`Line <dataset.Line>` objects.
 
     components : dict
         Dictionary containing component data for the defined ions.
-        See :attr:`dataset.DataSet.components`.
+        See :attr:`VoigtFit.DataSet.components`.
 
     res : float
         Spectral resolving power of the data in km/s  [= *c/R*].

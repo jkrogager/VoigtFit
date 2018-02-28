@@ -183,111 +183,6 @@ def create_blank_input():
 #  fig = plt.figure(figsize=(7, 9.899))
 
 
-# --- Deprecated Function:
-def velocity_plot(dataset, vmin=-400, vmax=400, filename=None, max_rows=6,
-                  max_columns=2, rebin=1, fontsize=12, subsample_profile=1,
-                  npad=50, ymin=None):
-    """
-    Similar functionality can be acheived using :func:`plot_all_lines`.
-    This function is deprecated and will be removed in future versions.
-
-    """
-    # --- First figure out which lines to plot to avoid overlap
-    #     of several lines defined in the same region.
-    included_lines = list()
-    lines_to_plot = list()
-    vrange = (vmax - vmin)/4.
-    for ref_line in dataset.lines.values():
-        if ref_line.tag in included_lines:
-            pass
-        # elif ref_line.ion[-1].islower():
-        #     # do not plot individual figures for fine-structure lines
-        #     included_lines.append(ref_line)
-        else:
-            regions_of_line = dataset.find_line(ref_line.tag)
-            region = regions_of_line[0]
-            lines_to_plot.append(ref_line.tag)
-            if len(region.lines) == 1:
-                included_lines.append(ref_line.tag)
-            else:
-                l_ref = ref_line.l0*(dataset.redshift + 1)
-                for line in region.lines:
-                    l0 = line.l0
-                    delta_lam = (l0*(dataset.redshift + 1) - l_ref)
-                    delta_v = delta_lam / l_ref * 299792.
-                    if (np.abs(delta_v) <= vrange or
-                            line.ion[-1].islower() is True):
-                        included_lines.append(line.tag)
-
-    # --- If a filename is given, set up a PDF container for saving to file:
-    if filename:
-        if '.pdf' not in filename:
-            filename += '.pdf'
-        pdf = matplotlib.backends.backend_pdf.PdfPages(filename)
-
-    # --- Determine number of pages to create:
-    pages = list(chunks(lines_to_plot, 2*max_rows))
-    lines_in_figure = list()
-    for contents in pages:
-        # --- Determine figure size:
-        # if len(contents) > 1:
-        #     width = 10.5
-        #     columns = 2
-        # else:
-        #     width = 5.25
-        #     columns = 1
-        #
-        # heigth = (len(contents) + 1) / 2 * 15./max_rows
-        # rows = (len(contents) + 1) / 2
-
-        fig = plt.figure(figsize=(7, 8))
-
-        num = 1
-        for line_tag in contents:
-            if line_tag in lines_in_figure:
-                pass
-            else:
-                ax = fig.add_subplot(max_rows, max_columns, num)
-                _, LIV = plot_single_line(dataset, line_tag,
-                                          plot_fit=False, linestyles=['--'],
-                                          colors=['RoyalBlue'], rebin=rebin,
-                                          axis=ax, fontsize=fontsize,
-                                          xmin=vmin, xmax=vmax, ymin=ymin,
-                                          subsample_profile=subsample_profile,
-                                          nolabels=True)
-                lines_in_figure += LIV
-                ax.tick_params(length=7, labelsize=fontsize)
-                ax.grid(True, color='0.6', ls='--', lw=0.5)
-                if num < len(contents)-1:
-                    ax.set_xticklabels([''])
-                else:
-                    ax.set_xlabel("${\\rm Velocity\ \ (km\ s^{-1})}$",
-                                  fontsize=12)
-
-                if num % max_columns == 1:
-                    ax.set_ylabel("Norm. flux", fontsize=12)
-                num += 1
-                # LIV is a shorthand for 'lines_in_view'
-        # fig.text(0.5, 0.02, "${\\rm Velocity\ \ (km\ s^{-1})}$",
-        #          ha='center', va='bottom', transform=fig.transFigure,
-        #          fontsize=14)
-        # fig.text(0.01, 0.5, "Normalized flux",
-        #          ha='left', va='center', transform=fig.transFigure,
-        #          fontsize=14, rotation=90)
-
-        # plt.tight_layout()
-        fig.set_tight_layout(True)
-
-        if filename:
-            pdf.savefig(fig)
-
-    if filename:
-        pdf.close()
-        print "\n  Output saved to PDF file:  " + filename
-
-    plt.show()
-
-
 def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                    xmax=None, ymin=None, ymax=None, max_rows=4, filename=None,
                    subsample_profile=1, npad=50, residuals=True,
@@ -301,8 +196,8 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
 
     Parameters
     ----------
-    dataset : :class:`dataset.DataSet`
-        Instance of the :class:`dataset.DataSet` class containing the line
+    dataset : :class:`VoigtFit.DataSet`
+        Instance of the :class:`VoigtFit.DataSet` class containing the line
         regions to plot.
 
     max_rows : int   [default = 4]
@@ -311,6 +206,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
 
     filename : str
         If a filename is given, the figures are saved to a pdf file.
+
     """
     if 'velocity'.find(xunit) == 0:
         # X-axis units should be velocity.
@@ -480,8 +376,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
     Parameters
     ----------
-    dataset : :class:`dataset.DataSet`
-        Instance of the :class:`dataset.DataSet` class containing the lines
+    dataset : :class:`VoigtFit.DataSet`
+        Instance of the :class:`VoigtFit.DataSet` class containing the lines
 
     line_tag : str
         The line tag of the line to show, e.g., 'FeII_2374'
@@ -503,7 +399,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     nolabels : bool   [default = False]
         If `True`, show the axis x- and y-labels.
 
-    axis : matplotlib.axes.Axes_
+    axis : `matplotlib.axes.Axes <https://matplotlib.org/api/axes_api.html>`_
         The plotting axis of matplotlib.
         If `None` is given, a new figure and axis will be created.
 
@@ -561,11 +457,12 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         Each element defines a dictionary with individual properties following
         the format for `default_props`.
 
-        Ex: element_props={'SiII': {'color': 'red', 'lw': 1.5},
-                           'FeII': {'ls': '--', 'alpha': 0.2}}
-            This will set the color and linewidth of the tick marks
-            of SiII transitions and the linestyle and alpha-parameter
-            of FeII transitions.
+            Ex: ``element_props={'SiII': {'color': 'red', 'lw': 1.5},``
+                ``'FeII': {'ls': '--', 'alpha': 0.2}}``
+
+        This will set the color and linewidth of the tick marks
+        of SiII transitions and the linestyle and alpha-parameter
+        of FeII transitions.
 
     highlight_props : dict/list   [default = None]
         A dictionary of `ions` (e.g., "FeII", "CIa", etc.) used to calculate
@@ -576,13 +473,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         Alternatively, a list of `ions` can be given to use default properties
         for all `ions`.
 
-        Ex: highlight_props={'SiII':{}, 'FeII':{'color': 'blue'}}
-            This will highlight SiII transitions with default highlight
-            properties, and FeII transistions with a user specified color.
+            Ex: ``highlight_props={'SiII':{}, 'FeII':{'color': 'blue'}}``
 
-            highlight_props=['SiII', 'FeII']
-            This will highlight SiII and FeII transitions using default
-            highlight properties.
+        This will highlight SiII transitions with default highlight
+        properties, and FeII transistions with a user specified color.
+
+            Ex: ``highlight_props=['SiII', 'FeII']``
+
+        This will highlight SiII and FeII transitions using default
+        highlight properties.
 
     label_all_ions : bool   [default = False]
         Show labels for all `ions` defined.
@@ -591,10 +490,6 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     xunit : string   [default = ]'velocity']
         The unit of the x-axis, must be either 'velocity' or 'wavelength'.
         Shortenings are acceptable too, e.g., 'vel'/'v' or 'wave'/'wl'.
-
-
-
-    .. _matplotlib.axes.Axes: https://matplotlib.org/api/axes_api.html
 
     """
 
@@ -946,7 +841,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
         The upper x-limit in relative velocity (km/s).
         If nothing is given, the extent of the region is used.
 
-    axis : matplotlib.axes.Axes_
+    axis : `matplotlib.axes.Axes <https://matplotlib.org/api/axes_api.html>`_
         The plotting axis of matplotlib.
         If `None` is given, a new figure and axis will be created.
     """
@@ -1133,7 +1028,7 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
 
     Parameters
     ==========
-    ax : :class:`matplotlib.axes.Axes`
+    ax : `matplotlib.axes.Axes <https://matplotlib.org/api/axes_api.html>`_
         The axis instance to decorate with H2 line identifications.
 
     z : float
@@ -1236,8 +1131,8 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
 
     Parameters
     ==========
-    dataset : :class:`dataset.DataSet`
-        An instance of the class :class:`dataset.DataSet` containing
+    dataset : :class:`VoigtFit.DataSet`
+        An instance of the class :class:`VoigtFit.DataSet` containing
         the H2 lines to plot.
 
     n_rows : int   [default = None]
@@ -1374,8 +1269,8 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
     Parameters
     ----------
-    dataset : :class:`dataset.DataSet`
-        An instance of the :class:`dataset.DataSet` class containing
+    dataset : :class:`VoigtFit.DataSet`
+        An instance of the :class:`VoigtFit.DataSet` class containing
         the line region to plot.
 
     params : lmfit.Parameters_
@@ -1392,6 +1287,10 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     systemic : float   [default = 0]
         Systemic redshift used to calculate the relative velocities.
         By default the systemic redshift defined in the dataset is used.
+
+
+
+    .. _lmfit: https://lmfit.github.io/lmfit-py/index.html
     """
 
     if systemic:
@@ -1519,12 +1418,12 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     Parameters
     ----------
-    dataset : :class:`dataset.DataSet`
-        An instance of the :class:`dataset.DataSet` class containing
+    dataset : :class:`VoigtFit.DataSet`
+        An instance of the :class:`VoigtFit.DataSet` class containing
         the definition of data and absorption lines.
 
     params : lmfit.Parameters_
-        Output parameter dictionary, e.g., :attr:`dataset.DataSet.best_fit`.
+        Output parameter dictionary, e.g., :attr:`VoigtFit.DataSet.best_fit`.
         See lmfit_ for details.
 
     logNHI : float
@@ -1532,6 +1431,9 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     err : float   [default = 0.1]
         Uncertainty (1-sigma) on `logNHI`.
+
+
+    .. _lmfit: https://lmfit.github.io/lmfit-py/index.html
 
     """
 
@@ -1637,8 +1539,8 @@ def sum_components(dataset, ion, components):
 
     Parameters
     ----------
-    dataset : :class:`dataset.DataSet`
-        An instance of the :class:`dataset.DataSet` class containing
+    dataset : :class:`VoigtFit.DataSet`
+        An instance of the :class:`VoigtFit.DataSet` class containing
         the definition of data and absorption lines.
 
     ion : str
@@ -1757,7 +1659,9 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
         directory or path. Can be given both as relative or absolute path.
         If the directory does not exist, it will be created.
         The final filename will be:
+
             `path/` + `filename` [+ `_regN`] + `.reg`
+
     """
     base, file_ext = splitext(filename)
     if file_ext != '.reg':
