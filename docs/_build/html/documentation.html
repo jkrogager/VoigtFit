@@ -32,20 +32,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="voigtfit-parameter-language">
+  <pre class="logo literal-block">
+____  _           _________________________________________
+    \/ \  _/\    /
+        \/   \  / oigtFit
+              \/
+</pre>
+<div class="section" id="voigtfit-parameter-language">
 <h1>VoigtFit Parameter Language<a class="headerlink" href="#voigtfit-parameter-language" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>The telluric template was obtained from ESOs <a class="reference external" href="http://www.eso.org/observing/etc/skycalc">skycalc</a>.</p>
-<p>The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.</p>
-<p>The transitions that should be fitted are then defined through “lines” statements and the component structure is defined through “component” statements (see also “copy component” and “delete component”). Note that components must be defined for all the ions that are defined in the “lines” statements.</p>
-<p>If the data are not already normalized, and the chebyshev polynomial fitting has been turned off (see ‘C_order’ below), a window for each line fitting region will pop up allowing the user to normalize the data by selecting a left and right continuum region. This will fit a straight line to the continuum and normalize the region. Alternatively, the user can specify a ‘norm_method’ = spline to select a set of spline points used for the continuum estimation.</p>
-<p>After the continuum normalization is done, the user can define spectral masks for each line fitting region. For each region, the user must select left and right boundaries by clicking with the mouse in the plotting window. This will mask out the region in between the two boundaries, and the data in the masked region will therefore not be used in the fit. The user can define as many masked ranges as desired. When the masking for a given line is done, the user must confirm the mask by clicking enter in the terminal. Note that if an uneven number of boundaries are given, the ranges are invalid and the user must select the ranges again.
-The masking step can be skipped by including the ‘nomask’ statement in the parameter file. Or can be run for individual lines by using the ‘mask’ statement.</p>
-<p>Lastly, the fit will be performed and the resulting best-fit parameters will be printed to the terminal. If the “save” statement is given in the parameter file, the parameters will also be saved to a file and the resulting best-fit profiles will be saved to a pdf file. Otherwise, the best-fit solution is plotted in an interactive window.</p>
-<p class="last">If the “abundance“ or “metallicity” statements are given, the total abundance for each element or its metallicity relative to Solar is printed to the terminal.</p>
+<p class="last">The telluric template was obtained from ESOs <a class="reference external" href="http://www.eso.org/observing/etc/skycalc">skycalc</a>.</p>
 </div>
-<p>The parameter language allows the user to define parameters without using python scripting
+<p>The program can be run directly from terminal using a parameter input file to tell VoigtFit
+what to do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="p">]</span> <span class="n">VoigtFit</span>  <span class="n">input_filename</span>
+</pre></div>
+</div>
+<p>The parameter file consists of a set of easy to read <em>statements</em> that define
+things such as the data to fit, atomic or molecular transitions, or the component structure.
+All the statements are meant to be relatively intuitive and can be written rather freely in
+the so-called VoigtFit parameter language.</p>
+<p>This language allows the user to define parameters without using python scripting
 which has a slightly more complex syntax. There are a few general rules for the parameter language:</p>
 <blockquote>
 <div><p>Everything that comes after a <cite>#</cite> sign is regarded as a comment and is not parsed.</p>
@@ -55,30 +63,44 @@ at runtime, so you can freely arrange the parameter file as you see fit.</p>
 <p>All optional arguments below are stated in square brackets.</p>
 <p>Double underscores below indicate an optional keyword argument to be given by the user.</p>
 </div></blockquote>
-<div class="section" id="the-basics">
-<h2>The Basics<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h2>
-<p>In the following the basic and mandatory statements are presented.
-If these are not present in the parameter file, or if their values are
-not understood, the program will cause an error.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">A parameter file template can be created in your working directory
 by running <code class="docutils literal notranslate"><span class="pre">VoigtFit</span></code> with no arguments.</p>
 </div>
-<p>The first part of the parameter file usually defines a bit of metadata for the dataset.
-However, as stated above, the ordering of the statements is not important.</p>
-<p>The available statements that can be included in the parameter file will be presented
-in detail in the following.</p>
+<p>Many of the statements are optional, but there is a subset of statements that
+must be present in the file.
+If these are not present in the parameter file, or if their values are
+not understood, the program will cause an error.
+A minimal working example of all the mandatory statements looks something like this:</p>
+<blockquote>
+<div><p>Mandatory Statements:</p>
+<pre class="literal-block">
+<a class="reference internal" href="#name">name</a> : test_dataset
+<a class="reference internal" href="#z-sys">z_sys</a> : 1.985
+<a class="reference internal" href="#data">data</a>  'this_spectrum.tab'  35.
+<a class="reference internal" href="#lines">lines</a>  FeII_2374
+<a class="reference internal" href="#add-components">component</a>  FeII  -10.5   10.0  14.5  velocity
+<a class="reference internal" href="#add-components">component</a>  FeII    0.0   15.0  13.5  velocity
+</pre>
+</div></blockquote>
+<p>This is all you need to get started. The rest is an interactive and iterative process,
+which VoigtFit makes easy for you.</p>
+<p>All the available statements that can be included (and parsed) in the parameter file
+are presented in detail below. For a quick overview of available statements look in the
+table of contents.</p>
 <div class="section" id="name">
-<h3>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h3>
+<h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
 <p><strong>name :  dataset_name</strong></p>
 <blockquote>
 <div><em>dataset_name</em> gives the name of the dataset.
-The dataset is automatically saved (as <em>‘dataset_name.hdf5’</em>),
-and if a dataset of the given name is present, it will be loaded automatically.</div></blockquote>
+The dataset is automatically saved (as <code class="docutils literal notranslate"><span class="pre">dataset_name.hdf5</span></code>),
+and if a dataset of the given name is present in the working directory,
+it will be loaded automatically. The current dataset can be overwritten
+by running VoigtFit with the option <code class="docutils literal notranslate"><span class="pre">-f</span></code>.</div></blockquote>
 </div>
 <div class="section" id="save">
-<h3>Save<a class="headerlink" href="#save" title="Permalink to this headline">¶</a></h3>
+<h2>Save<a class="headerlink" href="#save" title="Permalink to this headline">¶</a></h2>
 <p><strong>save : [ filename ]</strong></p>
 <blockquote>
 <div><em>filename</em> is the filename used for the graphic output and for parameter output.
@@ -88,14 +110,14 @@ The best-fit parameters will be saved to <cite>filename.fit</cite> and the best-
 will be saved to <cite>filename</cite>.cont.</div></blockquote>
 </div>
 <div class="section" id="z-sys">
-<h3>z_sys<a class="headerlink" href="#z-sys" title="Permalink to this headline">¶</a></h3>
+<h2>z_sys<a class="headerlink" href="#z-sys" title="Permalink to this headline">¶</a></h2>
 <p><strong>z_sys :  z_sys</strong></p>
 <blockquote>
 <div><em>z_sys</em> gives the systemic redshift of the absorption system.
 Relative velocities are calculated with respect to this redshift.</div></blockquote>
 </div>
 <div class="section" id="data">
-<h3>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h3>
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
 <p><strong>data  filename  resolution  [ norm   air ]</strong></p>
 <blockquote>
 <div><p><em>filename</em> specifies the path to the spectrum
@@ -123,7 +145,7 @@ and no interactive normalization will therefore pop up during data preparation.<
 </div>
 </div>
 <div class="section" id="lines">
-<h3>Lines<a class="headerlink" href="#lines" title="Permalink to this headline">¶</a></h3>
+<h2>Lines<a class="headerlink" href="#lines" title="Permalink to this headline">¶</a></h2>
 <p><strong>lines  line_tags  [ velspan=__ ]</strong></p>
 <blockquote>
 <div><em>line_tags</em> can be a single line or multiple lines separated by blank spaces.
@@ -150,7 +172,7 @@ together with the singly ionized silicon transition at 1808Å and the Ly-alpha l
 </div>
 </div>
 <div class="section" id="fine-structure-lines">
-<h3>Fine-structure Lines<a class="headerlink" href="#fine-structure-lines" title="Permalink to this headline">¶</a></h3>
+<h2>Fine-structure Lines<a class="headerlink" href="#fine-structure-lines" title="Permalink to this headline">¶</a></h2>
 <p><strong>fine-lines  ground_state  [ levels  velspan=__ ]</strong></p>
 <blockquote>
 <div><p><em>ground_state</em> refers to the line identifier for the ground state transition
@@ -197,7 +219,7 @@ would be ‘CIa’.</p>
 </div>
 </div>
 <div class="section" id="add-molecules">
-<h3>Add Molecules<a class="headerlink" href="#add-molecules" title="Permalink to this headline">¶</a></h3>
+<h2>Add Molecules<a class="headerlink" href="#add-molecules" title="Permalink to this headline">¶</a></h2>
 <p><strong>molecule  element  bands  [ J=__  velspan=__ ]</strong></p>
 <blockquote>
 <div><p><em>element</em> refers to the molecule to be fitted, for now only CO and H2 are defined
@@ -233,11 +255,11 @@ Lyman bands of H<sub>2</sub>.</div></blockquote>
 </div>
 </div>
 <div class="section" id="add-components">
-<h3>Add Components<a class="headerlink" href="#add-components" title="Permalink to this headline">¶</a></h3>
+<h2>Add Components<a class="headerlink" href="#add-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>component  ion  z  b  logN  [ var_z=True/False  var_b=True/False  var_N=True/False
-tie_z=__  tie_b=__  tie_N=__  velocity]</strong></p>
+tie_z=__  tie_b=__  tie_N=__  velocity  thermal]</strong></p>
 <p>alt.: component  ion  z=__  b=__  logN=__  [ var_z=True/False  var_b=True/False  var_N=True/False
-tie_z=__  tie_b=__  tie_N=__  velocity]</p>
+tie_z=__  tie_b=__  tie_N=__  velocity  thermal]</p>
 <blockquote>
 <div><p><em>ion</em> specifies for which ion the component should be defined, e.g., FeII, SiII.</p>
 <p><em>z</em> gives the redshift of the component.</p>
@@ -262,6 +284,8 @@ and the <em>ion</em> is appended with an underscore (‘_’) as in between; e.g
 component of FeII.</p>
 <p><em>velocity</em> : if this keyword is included, the first argument (or z=) will be interpreted
 as a velocity offset relative to <em>z_sys</em>.</p>
+<p><em>thermal</em> : if this keyword is present, the given parameter will be tied to a
+<a class="reference internal" href="#thermal-model">thermal broadening model</a>.</p>
 </div></blockquote>
 <div class="topic">
 <p class="topic-title first">Example</p>
@@ -277,7 +301,7 @@ The <em>b</em>-parameter will be tied to the first component defined for <em>FeI
 </div>
 </div>
 <div class="section" id="interactive-components">
-<h3>Interactive Components<a class="headerlink" href="#interactive-components" title="Permalink to this headline">¶</a></h3>
+<h2>Interactive Components<a class="headerlink" href="#interactive-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>interactive  line_tags</strong></p>
 <blockquote>
 <div><em>line_tags</em> can be a single line or multiple lines separated by blank spaces or commas.
@@ -291,7 +315,7 @@ Notice that this will overwrite any other components defined previously for this
 </div>
 </div>
 <div class="section" id="copy-components">
-<h3>Copy Components<a class="headerlink" href="#copy-components" title="Permalink to this headline">¶</a></h3>
+<h2>Copy Components<a class="headerlink" href="#copy-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>copy components from ion1 to ion2  [ (scale  logN  ref_comp)  tie_z=True/False  tie_b=True/False ]</strong></p>
 <blockquote>
 <div><p><em>ion1</em> denotes the <em>ion</em> from which to copy components (FeII, CI, etc.).
@@ -331,7 +355,7 @@ relative abundance of carbon and iron.</dd>
 </div>
 </div>
 <div class="section" id="delete-components">
-<h3>Delete Components<a class="headerlink" href="#delete-components" title="Permalink to this headline">¶</a></h3>
+<h2>Delete Components<a class="headerlink" href="#delete-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>delete component  number  [from] ion</strong></p>
 <blockquote>
 <div><p><em>number</em> gives the number of the component to delete (starting from 0).</p>
@@ -363,17 +387,35 @@ constrained for ZnII. This would be defined as follows:</p>
 </div>
 </div>
 <div class="section" id="continuum-normalization">
-<h3>Continuum Normalization<a class="headerlink" href="#continuum-normalization" title="Permalink to this headline">¶</a></h3>
-<p><strong>C_order = __</strong></p>
-<p>This keyword indicates the max order of Chebyshev polynomials to include for the continuum model. The default is 1, i.e., a straight line fit. The continuum is automatically optimized together with the line fitting.
-By giving a negative order, the code will ask to manually normalize the fitting regions using the specified norm_method, see below.</p>
-<p><strong>norm_method = { ‘linear’  or  ‘spline’ }</strong></p>
-<p>The norm_method specifies how to manually normalize the fitting regions. Before fitting, each region will pop up and instructions will be given to normalize the data.
-For ‘linear’, the user must specify a continuum region on the left of the absorption line (by clicking on the left and right boundaries of this continuum region) and similarly on the right side of the absoption line. The continuum is fitted using a straight line fit.
-For ‘spline’, the user can select a range of points which will be fitted with a spline in order to create a curved continuum model.</p>
+<h2>Continuum Normalization<a class="headerlink" href="#continuum-normalization" title="Permalink to this headline">¶</a></h2>
+<p>Unless the input data have already been normalized (use the <em>norm</em> keyword in the <a class="reference internal" href="#data">data</a> statement),
+the user can use one of the following two methods to normalize the fitting regions before fitting.</p>
+<p><strong>norm_method :  linear  [ or  spline ]</strong></p>
+<blockquote>
+<div><p>The <em>norm_method</em> specifies how to manually normalize the fitting regions.
+Before fitting, an interactive window will pop up for each fitting region.
+It must be either ‘<em>linear</em>’ or ‘<em>spline</em>’. The default is ‘linear’</p>
+<p>If <em>norm_method</em> is set to ‘<em>linear</em>’, the user must specify a continuum region
+on either side of the absorption line (by clicking on the left and right boundaries
+of the continuum region).
+The continuum is then fitted using a straight line fit.</p>
+<p>If <em>norm_method</em> is set to ‘<em>spline</em>’, the user can select a range of points for each
+fitting region. The points will then be fitted with a 3<sup>rd</sup> order spline
+in order to create a continuum model.</p>
+</div></blockquote>
+<p><strong>C_order = order</strong></p>
+<blockquote>
+<div><em>order</em> is the highest order of <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> polynomials to include in the continuum model.
+All orders from 0 up to <em>order</em> will be included.</div></blockquote>
+<p>This statement indicates the maximum order of <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> polynomials to include
+for the continuum model. The continuum model is automatically optimized together with
+the line fitting.
+By giving a negative order, the code will ask to manually normalize the fitting regions
+using the specified <em>norm_method</em> (see above).</p>
+<p>The default is -1, i.e., no <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> model is used.</p>
 </div>
 <div class="section" id="mask">
-<h3>Mask<a class="headerlink" href="#mask" title="Permalink to this headline">¶</a></h3>
+<h2>Mask<a class="headerlink" href="#mask" title="Permalink to this headline">¶</a></h2>
 <p><strong>mask  [ line_tags ]</strong></p>
 <p>Optional arguments:</p>
 <blockquote>
@@ -388,36 +430,43 @@ Default is to define masks for all lines.</div></blockquote>
 </div>
 </div>
 <div class="section" id="clear-mask">
-<h3>Clear mask<a class="headerlink" href="#clear-mask" title="Permalink to this headline">¶</a></h3>
+<h2>Clear mask<a class="headerlink" href="#clear-mask" title="Permalink to this headline">¶</a></h2>
 <p><strong>clear mask</strong></p>
-<p>If this statement is present in the parameter file, the masks for all fitting regions will be reset
-before eventually defining new masks.</p>
+<p>If this statement is present in the parameter file, the masks for all fitting regions
+will be reset before eventually defining new masks.</p>
 </div>
-<div class="section" id="abundance">
-<h3>Abundance<a class="headerlink" href="#abundance" title="Permalink to this headline">¶</a></h3>
-<p><strong>abundance</strong></p>
-<p>When this keword is present in the parameter file (except in the dataset_name), the total abundances for each ion will be printed to the terminal output.</p>
+<div class="section" id="total-column-densities">
+<h2>Total Column Densities<a class="headerlink" href="#total-column-densities" title="Permalink to this headline">¶</a></h2>
+<p><strong>total</strong></p>
+<p>When this statement is present in the parameter file, the total abundances summed
+over all components for each ion will be printed to the terminal output.</p>
 </div>
 <div class="section" id="metallicity">
-<h3>Metallicity<a class="headerlink" href="#metallicity" title="Permalink to this headline">¶</a></h3>
+<h2>Metallicity<a class="headerlink" href="#metallicity" title="Permalink to this headline">¶</a></h2>
 <p><strong>metallicity  logNHI  err_logNHI</strong></p>
 <blockquote>
 <div><p><em>logNHI</em> gives the logarithm of the column density of neutral hydrogen in units of cm<sup>-2</sup>.</p>
 <p><em>err_logNHI</em> gives the associated uncertainty on the logarithm of the column density of neutral hydrogen.</p>
 </div></blockquote>
-<p>When this statement is present, the best-fit total abundances for the defined ions in the dataset
-will be converted to metallicities for each ion, that is, the abundance ratios of the given ions
-to neutral hydrogen relative to Solar abundances from
-<a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2009ARA&amp;A..47..481A/abstract">Asplund et al. (2009)</a>
+<p>When this statement is present in the parameter file, the best-fit total abundances
+for the defined ions in the dataset will be converted to metallicities for each ion,
+that is, the abundance ratios of the given ions to neutral hydrogen relative to Solar abundances
+from <a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2009ARA&amp;A..47..481A/abstract">Asplund et al. (2009)</a>
 are calculated.</p>
 </div>
 <div class="section" id="reset-fit-regions">
-<h3>Reset Fit Regions<a class="headerlink" href="#reset-fit-regions" title="Permalink to this headline">¶</a></h3>
+<h2>Reset Fit Regions<a class="headerlink" href="#reset-fit-regions" title="Permalink to this headline">¶</a></h2>
 <p><strong>reset  [ line_tags ]</strong></p>
-<p>When this keword is present in the parameter file, the data for each region will be reset to the raw input data. This is used to update the continuum fitting so the code uses the raw data instead of the already normalized data in the regions. Note: This does not clear the spectral mask!</p>
+<p>When this statement is present in the parameter file, the data for each fitting region
+will be reset to the raw input data. This is used to update the continuum fitting, when
+using the Chebyshev model, so the code fits the raw data instead of the already
+normalized data in the fitting regions.</p>
+<blockquote>
+<div>Note – This does not clear the spectral masks. In order to clear the spectral masks,
+use the <a class="reference internal" href="#clear-mask">clear mask</a> statement.</div></blockquote>
 </div>
 <div class="section" id="resolution">
-<h3>Resolution<a class="headerlink" href="#resolution" title="Permalink to this headline">¶</a></h3>
+<h2>Resolution<a class="headerlink" href="#resolution" title="Permalink to this headline">¶</a></h2>
 <p><strong>resolution  res  [ line_tag ]</strong></p>
 <blockquote>
 <div><p><em>res</em> gives the desired spectral resolution in km/s.</p>
@@ -430,27 +479,110 @@ Default is all.</div></blockquote>
 <div class="red admonition important">
 <p class="first admonition-title">Important</p>
 <p class="last">Changing the spectral resolution in the <a class="reference internal" href="#data">data</a> statement will not update the spectral
-resolution in the fit, unless the dataset is overwritten (run <code class="docutils literal notranslate"><span class="pre">VoigtFit</span> <span class="pre">-f</span></code>) or
-deleted.</p>
+resolution in the fit, unless the dataset is deleted or overwritten (run <code class="docutils literal notranslate"><span class="pre">VoigtFit</span> <span class="pre">-f</span></code>).</p>
 </div>
 </div>
-<div class="section" id="change-output-systemic-redshift">
-<h3>Change Output Systemic Redshift<a class="headerlink" href="#change-output-systemic-redshift" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="change-systemic-redshift">
+<h2>Change Systemic Redshift<a class="headerlink" href="#change-systemic-redshift" title="Permalink to this headline">¶</a></h2>
 <p><strong>systemic = value</strong></p>
-<p>This keyword defines how to update the systemic redshift after fitting.
-Possible input values: ‘auto’, ‘none’ or  [num, ‘ion’]</p>
-<p>Default behaviour is ‘none’: The systemic redshift will not be updated after fitting and the given systemic redshift (z_sys) will be used.</p>
-<p>If systemic is set to ‘auto’ the systemic redshift will be set to the redshift of the strongest component. The element used to identify the strongest component will be selected automatically, priority will be given to elements in the following order: ’FeII’ or ‘SiII’. If none of these are present, the first line in the dataset will be used. Warning: This may result in unexpected behaviour!</p>
-<p>By giving an integer number (num) and an ion (separated by a comma), the user can force the systemic redshift to be set to that given component of the given ion after the fit has converged. Note that the components are 0-indexed, i.e., the first component is 0. If num is set to -1 then the last component of the given ion is used.</p>
-<p>Example:
-systemic  2   FeII</p>
+<p>This statement defines how to update the systemic redshift after fitting.
+Possible input for <em>value</em>:</p>
+<blockquote>
+<div>{ ‘<em>auto</em>’, ‘<em>none</em>’ or  [ <em>num</em>, ‘<em>ion</em>’ ] }</div></blockquote>
+<p>Default behavior is ‘<em>none</em>’: The systemic redshift will not be updated after fitting
+and the redshift given through the <a class="reference internal" href="#z-sys">z_sys</a> statement will be used.</p>
+<p>If systemic is set to ‘<em>auto</em>’ the systemic redshift will be set to the redshift
+of the strongest component. The element used to identify the strongest component
+will be selected automatically, priority will be given to ions: ’FeII’ or ‘SiII’.
+If none of these is present, the first line in the dataset will be used.</p>
+<blockquote>
+<div><span class="red">Warning – This may result in unexpected behavior.</span></div></blockquote>
+<p>By giving an integer number (<em>num</em>) and an ‘<em>ion</em>’ (must be separated by a comma),
+the user can force the systemic redshift to be set to the given component number
+of the given <em>ion</em> after the fit has converged.
+Note that the components are 0-indexed, i.e., the first component is <em>num=0</em>.
+If <em>num</em> is set to -1 then the last component of the given <em>ion</em> is used.</p>
+<div class="topic">
+<p class="topic-title first">Example</p>
+<p><code class="docutils literal notranslate"><span class="pre">systemic</span>&#160; <span class="pre">2</span>&#160;&#160; <span class="pre">FeII</span></code></p>
 <blockquote>
 <div>this defines the systemic redshift as the 3rd component of FeII</div></blockquote>
-<dl class="docutils">
-<dt>systemic  -1  SiII</dt>
-<dd>this defines the systemic redshift as the last component of SiII</dd>
-</dl>
+<p><code class="docutils literal notranslate"><span class="pre">systemic</span>&#160; <span class="pre">-1</span>&#160; <span class="pre">CI</span></code></p>
+<blockquote>
+<div>this defines the systemic redshift as the last component of CI</div></blockquote>
 </div>
+</div>
+<div class="section" id="thermal-model">
+<h2>Thermal Model<a class="headerlink" href="#thermal-model" title="Permalink to this headline">¶</a></h2>
+<p><strong>thermal  ions   T=__  turb=__ [ fix-T  fix-turb ]</strong></p>
+<blockquote>
+<div><p><em>ions</em> is a list of space separated ions (e.g., SiII, CII, HI) to include in the
+thermal model. Absorption lines for all these ions must be defined using a <a class="reference internal" href="#lines">lines</a>
+statement, and components for the given ions must be defined as well.</p>
+<p><em>T</em> : this will give the intial guess for the temperature in Kelvins.</p>
+<p><em>turb</em> : this will give the intial guess for the turbulent broadening in km/s.</p>
+</div></blockquote>
+<p>Optional arguments:</p>
+<blockquote>
+<div><p><em>fix-T</em> : if this keyword is present in the line, the temperature will not be varied.</p>
+<p>Note – This will assume the same temperature for <em>all</em> components.</p>
+<p><em>fix-turb</em> : if this keyword is present in the line, the turbulent broadening will
+not be varied.</p>
+<p>Note – This will assume the same turbulent broadening for <em>all</em> components.</p>
+</div></blockquote>
+<p>By default, all components of the given ions are assumed to be part of the thermal model.
+If the user only wants to use a certain subset of components, then the given components
+should be defined with the <em>thermal</em> keyword in the <a class="reference internal" href="#add-components">component</a> statement.</p>
+<div class="topic">
+<p class="topic-title first">Example</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">0.0</span>&#160; <span class="pre">5.</span>&#160; <span class="pre">14.5</span>&#160; <span class="pre">velocity</span> <span class="pre">thermal</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">10.</span>&#160; <span class="pre">9.</span>&#160; <span class="pre">15.2</span>&#160; <span class="pre">velocity</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">from</span> <span class="pre">FeII</span> <span class="pre">to</span> <span class="pre">CII</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">from</span> <span class="pre">FeII</span> <span class="pre">to</span> <span class="pre">OI</span></code></div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">thermal</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">CII</span>&#160; <span class="pre">OI</span>&#160; <span class="pre">T=500</span>&#160; <span class="pre">turb=4.0</span></code></div>
+</div>
+<blockquote>
+<div><p>This will define a thermal model linking the broadening parameters of CII, OI and FeII
+in the first component only assuming an initial temperature of 500K
+and a turbulent broadening of 4.0 km/s.</p>
+<p>For more information, see the description of the <a class="reference internal" href="physical_model_results.html#physical-model-results"><span class="std std-ref">Results of Physical Model</span></a>.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="fit-options">
+<h2>Fit-Options<a class="headerlink" href="#fit-options" title="Permalink to this headline">¶</a></h2>
+<p><strong>fit-options   keyword=value</strong></p>
+<blockquote>
+<div><p>Set of <em>keyword</em> and <em>value</em> pairs that will be passed on to the <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> minimizer.
+For a description of these, see the <a class="reference external" href="https://lmfit.github.io/lmfit-py/fitting.html#the-minimize-function">minimize function</a> of <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> or the documentation for
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> or <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html#scipy.optimize.leastsq">scipy.optimize.leastsq</a>.</p>
+<p>Other acceptable keywords are:</p>
+<blockquote>
+<div><p>rebin=N</p>
+<p>where <em>N</em> refers to the rebinning factor used in the fit.</p>
+</div></blockquote>
+</div></blockquote>
+<div class="topic">
+<p class="topic-title first">Example</p>
+<p><code class="docutils literal notranslate"><span class="pre">fit-options</span>&#160; <span class="pre">rebin=2</span>&#160; <span class="pre">method='nelder'</span></code></p>
+<blockquote>
+<div>This will rebin the data by a factor of 2 and set the fitting method to Nelder–Mead optimization
+(instead of the default Levenberg–Marquardt).</div></blockquote>
+</div>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p><strong>output  individual-regions  velocity</strong></p>
+</div>
+<div class="section" id="load">
+<h2>Load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h2>
+<p><strong>load  fit_pars_filename</strong></p>
+</div>
+<div class="section" id="fix-velocity-structure">
+<h2>Fix Velocity Structure<a class="headerlink" href="#fix-velocity-structure" title="Permalink to this headline">¶</a></h2>
+<p><strong>fix-velocity</strong></p>
 </div>
 </div>
 
@@ -466,28 +598,30 @@ systemic  2   FeII</p>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VoigtFit Parameter Language</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#the-basics">The Basics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#name">Name</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#save">Save</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#z-sys">z_sys</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#data">Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#lines">Lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fine-structure-lines">Fine-structure Lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#add-molecules">Add Molecules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#add-components">Add Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interactive-components">Interactive Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#copy-components">Copy Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#delete-components">Delete Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#continuum-normalization">Continuum Normalization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mask">Mask</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#clear-mask">Clear mask</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#abundance">Abundance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#metallicity">Metallicity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#reset-fit-regions">Reset Fit Regions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#resolution">Resolution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#change-output-systemic-redshift">Change Output Systemic Redshift</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#name">Name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#save">Save</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#z-sys">z_sys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lines">Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fine-structure-lines">Fine-structure Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-molecules">Add Molecules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-components">Add Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-components">Interactive Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copy-components">Copy Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-components">Delete Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#continuum-normalization">Continuum Normalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mask">Mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clear-mask">Clear mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#total-column-densities">Total Column Densities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metallicity">Metallicity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reset-fit-regions">Reset Fit Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resolution">Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#change-systemic-redshift">Change Systemic Redshift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#thermal-model">Thermal Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fit-options">Fit-Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load">Load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fix-velocity-structure">Fix Velocity Structure</a></li>
 </ul>
 </li>
 </ul>

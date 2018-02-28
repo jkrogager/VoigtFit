@@ -1,3 +1,8 @@
+
+.. include:: voigtfit_logo.rst
+
+.. _physical_model_results:
+
 =========================
 Results of Physical Model
 =========================
@@ -10,15 +15,18 @@ a thermal term, :math:`\sqrt{2 k_B T / m}`:
 
 where *m* is the atomic mass of the given ion.
 The model thus expands the regular set of parameters to include
-a temperature and turbulent velocity for each component.
+a temperature and turbulent velocity for each component, however,
+these extra parameters are simultaneously constrained by several
+transitions of different elements.
 For the exact implementation of this model, see the script
-``physical_model.py``.
+``physical_model.py`` in the *scripts* folder.
+
 
 Best fit parameters
 -------------------
 
-Fitting the simulated test data with two components we recover
-the following parameters::
+Fitting the simulated test data with two components at redshifts z=0.003300
+and z=0.003600, we recover the following parameters::
 
     CrII : 2026, 2056, 2062, 2066
         z = 0.003299    b = 4.75 ± 0.01  log(N) = 12.581 ± 0.034
@@ -64,46 +72,36 @@ The total abundances from the fit are::
     logN(ZnII) = 12.15 ± 0.03
     logN(SII) = 14.30 ± 0.01
 
+Notice that the column densities for the saturated lines OI and CII are overestimated.
+This is not surprising, as it is almost impossible to accurately constrain the column densities
+for such strong lines.
+
 
 Physical Parameters
 -------------------
 
-+------------+----------------------+----------------------+
-| Comp. No:  |   Temperature [K]    |   Turbulence [km/s]  |
-+============+======================+======================+
-|  0         |     3380 ± 268       |      4.63 ± 0.02     |
-+------------+----------------------+----------------------+
-|  1         |     9280 ± 206       |      5.16 ± 0.0002   |
-+------------+----------------------+----------------------+
++------------+-----------------------+---------------------------+
+| Comp. No:  |   Temperature [K]     |   Turbulence [km/s]       |
++------------+--------------+--------+-----------------+---------+
+|            |   Best-fit   |  Input |  Best-fit       |  Input  |
++============+==============+========+=================+=========+
+|  0         |   3380 ± 268 |  4370  |  4.63 ± 0.02    |  4.60   |
++------------+--------------+--------+-----------------+---------+
+|  1         |   9280 ± 206 |  8600  |  5.16 ± 0.0002  |  5.20   |
++------------+--------------+--------+-----------------+---------+
 
 
 
-The Input Parameters
---------------------
+The Input Column Densities
+--------------------------
 
 Element Column Densities::
 
      ion   comp1  comp2  total
-     AlII  12.95  12.47  13.07
-    AlIII  12.38  11.90  12.50
-     ZnII  12.02  11.54  12.14
+     CrII  12.58  12.10  12.70
      SiII  14.43  13.95  14.55
-       OI  15.64  15.16  15.76
      FeII  14.07  13.59  14.19
       CII  15.20  14.72  15.32
+       OI  15.64  15.16  15.76
+     ZnII  12.02  11.54  12.14
       SII  14.17  13.69  14.29
-     CrII  12.58  12.10  12.70
-
-
-Velocity Information:
----------------------
-
-+----------+----------+---------+---------+
-|Comp. No: | z        | b_turb  |   T     |
-+----------+----------+---------+---------+
-|          |          | [km/s]  |   [K]   |
-+==========+==========+=========+=========+
-| 1        | 0.003300 |  4.60   |  4370   |
-+----------+----------+---------+---------+
-| 2        | 0.003600 |  5.20   |  8600   |
-+----------+----------+---------+---------+

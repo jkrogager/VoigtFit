@@ -500,6 +500,8 @@ def parse_parameters(fname):
             pars = line.split()
             fix_T = False
             fix_turb = False
+            T_init = None
+            turb_init = None
             for par in pars[2:]:
                 if 'T=' in par:
                     T_init = float(par.split('=')[1])
@@ -511,6 +513,15 @@ def parse_parameters(fname):
                     fix_turb = True
                 else:
                     ions.append(par)
+
+            if T_init is None:
+                print(" Invalid Thermal Model!")
+                print("You should give an initial temperature, e.g., T=500")
+
+            if turb_init is None:
+                print(" Invalid Thermal Model!")
+                print("You should give an initial turbulent broadening, e.g., turb=5")
+
             thermal_model = [ions, T_init, turb_init, fix_T, fix_turb]
 
         elif 'fix-velocity' in line.lower():

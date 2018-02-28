@@ -1,4 +1,7 @@
 
+.. include:: voigtfit_logo.rst
+
+
 ===========================
 VoigtFit Parameter Language
 ===========================
@@ -9,32 +12,24 @@ VoigtFit Parameter Language
 
   The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
 
-  The dataset is first initiated with data defined through a “data” statement. This sets the spectral resolution. If the spectral resolution subsequently needs to be changed, this should be done using a “resolution” statement.
-
-  The transitions that should be fitted are then defined through “lines” statements and the component structure is defined through “component” statements (see also “copy component” and “delete component”). Note that components must be defined for all the ions that are defined in the “lines” statements.
-
-  If the data are not already normalized, and the chebyshev polynomial fitting has been turned off (see ‘C_order’ below), a window for each line fitting region will pop up allowing the user to normalize the data by selecting a left and right continuum region. This will fit a straight line to the continuum and normalize the region. Alternatively, the user can specify a ‘norm_method’ = spline to select a set of spline points used for the continuum estimation.
-
-  After the continuum normalization is done, the user can define spectral masks for each line fitting region. For each region, the user must select left and right boundaries by clicking with the mouse in the plotting window. This will mask out the region in between the two boundaries, and the data in the masked region will therefore not be used in the fit. The user can define as many masked ranges as desired. When the masking for a given line is done, the user must confirm the mask by clicking enter in the terminal. Note that if an uneven number of boundaries are given, the ranges are invalid and the user must select the ranges again.
-  The masking step can be skipped by including the ‘nomask’ statement in the parameter file. Or can be run for individual lines by using the ‘mask’ statement.
-
-  Lastly, the fit will be performed and the resulting best-fit parameters will be printed to the terminal. If the “save” statement is given in the parameter file, the parameters will also be saved to a file and the resulting best-fit profiles will be saved to a pdf file. Otherwise, the best-fit solution is plotted in an interactive window.
-
-  If the “abundance“ or “metallicity” statements are given, the total abundance for each element or its metallicity relative to Solar is printed to the terminal.
-
-
 
 .. todo:
 
    - If HI is included in the lines to be fitted, the metallicity will automatically be calculated.
    - more detailed options available for the minimization and output.
    - more molecular data to be included.
-   - molecular functions like isothermal column density distribution.
 
+The program can be run directly from terminal using a parameter input file to tell VoigtFit
+what to do::
 
+  %] VoigtFit  input_filename
 
+The parameter file consists of a set of easy to read *statements* that define
+things such as the data to fit, atomic or molecular transitions, or the component structure.
+All the statements are meant to be relatively intuitive and can be written rather freely in
+the so-called VoigtFit parameter language.
 
-The parameter language allows the user to define parameters without using python scripting
+This language allows the user to define parameters without using python scripting
 which has a slightly more complex syntax. There are a few general rules for the parameter language:
 
   Everything that comes after a `#` sign is regarded as a comment and is not parsed.
@@ -49,24 +44,38 @@ which has a slightly more complex syntax. There are a few general rules for the 
   Double underscores below indicate an optional keyword argument to be given by the user.
 
 
-The Basics
-==========
-
-In the following the basic and mandatory statements are presented.
-If these are not present in the parameter file, or if their values are
-not understood, the program will cause an error.
-
 .. note::
 
   A parameter file template can be created in your working directory
   by running ``VoigtFit`` with no arguments.
 
-The first part of the parameter file usually defines a bit of metadata for the dataset.
-However, as stated above, the ordering of the statements is not important.
 
-The available statements that can be included in the parameter file will be presented
-in detail in the following.
 
+Many of the statements are optional, but there is a subset of statements that
+must be present in the file.
+If these are not present in the parameter file, or if their values are
+not understood, the program will cause an error.
+A minimal working example of all the mandatory statements looks something like this:
+
+  Mandatory Statements:
+
+  .. parsed-literal::
+
+    name_ : test_dataset
+    `z_sys`_ : 1.985
+    data_  'this_spectrum.tab'  35.
+    lines_  FeII_2374
+    component_  FeII  -10.5   10.0  14.5  velocity
+    component_  FeII    0.0   15.0  13.5  velocity
+
+This is all you need to get started. The rest is an interactive and iterative process,
+which VoigtFit makes easy for you.
+
+All the available statements that can be included (and parsed) in the parameter file
+are presented in detail below. For a quick overview of available statements look in the
+table of contents.
+
+.. _component: `add components`_
 
 Name
 ----
@@ -74,8 +83,10 @@ Name
 **name :  dataset_name**
 
   *dataset_name* gives the name of the dataset.
-  The dataset is automatically saved (as *'dataset_name.hdf5'*),
-  and if a dataset of the given name is present, it will be loaded automatically.
+  The dataset is automatically saved (as ``dataset_name.hdf5``),
+  and if a dataset of the given name is present in the working directory,
+  it will be loaded automatically. The current dataset can be overwritten
+  by running VoigtFit with the option ``-f``.
 
 
 Save
@@ -263,10 +274,10 @@ Add Components
 --------------
 
 **component  ion  z  b  logN  [ var_z=True/False  var_b=True/False  var_N=True/False
-tie_z=__  tie_b=__  tie_N=__  velocity]**
+tie_z=__  tie_b=__  tie_N=__  velocity  thermal]**
 
 alt.: component  ion  z=__  b=__  logN=__  [ var_z=True/False  var_b=True/False  var_N=True/False
-tie_z=__  tie_b=__  tie_N=__  velocity]
+tie_z=__  tie_b=__  tie_N=__  velocity  thermal]
 
   *ion* specifies for which ion the component should be defined, e.g., FeII, SiII.
 
@@ -298,6 +309,11 @@ Optional arguments:
 
   *velocity* : if this keyword is included, the first argument (or z=) will be interpreted
   as a velocity offset relative to *z_sys*.
+
+  *thermal* : if this keyword is present, the given parameter will be tied to a
+  `thermal broadening model`_.
+
+.. _thermal broadening model: `thermal model`_
 
 
 .. topic:: Example
@@ -414,18 +430,41 @@ a component can simply be commented out (using ‘#’) to delete it from the fi
 Continuum Normalization
 -----------------------
 
-**C_order = __**
-
-This keyword indicates the max order of Chebyshev polynomials to include for the continuum model. The default is 1, i.e., a straight line fit. The continuum is automatically optimized together with the line fitting.
-By giving a negative order, the code will ask to manually normalize the fitting regions using the specified norm_method, see below.
+Unless the input data have already been normalized (use the *norm* keyword in the data_ statement),
+the user can use one of the following two methods to normalize the fitting regions before fitting.
 
 
-**norm_method = { ‘linear’  or  ‘spline’ }**
+**norm_method :  linear  [ or  spline ]**
 
-The norm_method specifies how to manually normalize the fitting regions. Before fitting, each region will pop up and instructions will be given to normalize the data.
-For ‘linear’, the user must specify a continuum region on the left of the absorption line (by clicking on the left and right boundaries of this continuum region) and similarly on the right side of the absoption line. The continuum is fitted using a straight line fit.
-For ‘spline’, the user can select a range of points which will be fitted with a spline in order to create a curved continuum model.
+  The *norm_method* specifies how to manually normalize the fitting regions.
+  Before fitting, an interactive window will pop up for each fitting region.
+  It must be either '*linear*' or '*spline*'. The default is 'linear'
 
+  If *norm_method* is set to '*linear*', the user must specify a continuum region
+  on either side of the absorption line (by clicking on the left and right boundaries
+  of the continuum region).
+  The continuum is then fitted using a straight line fit.
+
+  If *norm_method* is set to '*spline*', the user can select a range of points for each
+  fitting region. The points will then be fitted with a 3\ :sup:`rd` order spline
+  in order to create a continuum model.
+
+
+**C_order = order**
+
+  *order* is the highest order of Chebyshev_ polynomials to include in the continuum model.
+  All orders from 0 up to *order* will be included.
+
+This statement indicates the maximum order of Chebyshev_ polynomials to include
+for the continuum model. The continuum model is automatically optimized together with
+the line fitting.
+By giving a negative order, the code will ask to manually normalize the fitting regions
+using the specified *norm_method* (see above).
+
+The default is -1, i.e., no Chebyshev_ model is used.
+
+
+.. _Chebyshev: https://en.wikipedia.org/wiki/Chebyshev_polynomials
 
 
 Mask
@@ -448,21 +487,25 @@ Note -- The mask is an exclusion mask, so pixels that are defined in the mask, a
   Show image of masking process.
 
 
+
 Clear mask
 ----------
 
 **clear mask**
 
-If this statement is present in the parameter file, the masks for all fitting regions will be reset
-before eventually defining new masks.
+If this statement is present in the parameter file, the masks for all fitting regions
+will be reset before eventually defining new masks.
 
 
-Abundance
----------
 
-**abundance**
+Total Column Densities
+----------------------
 
-When this keword is present in the parameter file (except in the dataset_name), the total abundances for each ion will be printed to the terminal output.
+**total**
+
+When this statement is present in the parameter file, the total abundances summed
+over all components for each ion will be printed to the terminal output.
+
 
 
 Metallicity
@@ -474,10 +517,10 @@ Metallicity
 
   *err_logNHI* gives the associated uncertainty on the logarithm of the column density of neutral hydrogen.
 
-When this statement is present, the best-fit total abundances for the defined ions in the dataset
-will be converted to metallicities for each ion, that is, the abundance ratios of the given ions
-to neutral hydrogen relative to Solar abundances from
-`Asplund et al. (2009) <https://ui.adsabs.harvard.edu/#abs/2009ARA&A..47..481A/abstract>`_
+When this statement is present in the parameter file, the best-fit total abundances
+for the defined ions in the dataset will be converted to metallicities for each ion,
+that is, the abundance ratios of the given ions to neutral hydrogen relative to Solar abundances
+from `Asplund et al. (2009) <https://ui.adsabs.harvard.edu/#abs/2009ARA&A..47..481A/abstract>`_
 are calculated.
 
 
@@ -486,7 +529,13 @@ Reset Fit Regions
 
 **reset  [ line_tags ]**
 
-When this keword is present in the parameter file, the data for each region will be reset to the raw input data. This is used to update the continuum fitting so the code uses the raw data instead of the already normalized data in the regions. Note: This does not clear the spectral mask!
+When this statement is present in the parameter file, the data for each fitting region
+will be reset to the raw input data. This is used to update the continuum fitting, when
+using the Chebyshev model, so the code fits the raw data instead of the already
+normalized data in the fitting regions.
+
+  Note -- This does not clear the spectral masks. In order to clear the spectral masks,
+  use the `clear mask`_ statement.
 
 
 Resolution
@@ -511,22 +560,130 @@ Optional arguments:
   resolution in the fit, unless the dataset is deleted or overwritten (run ``VoigtFit -f``).
 
 
-Change Output Systemic Redshift
--------------------------------
+Change Systemic Redshift
+------------------------
 
 **systemic = value**
 
-This keyword defines how to update the systemic redshift after fitting.
-Possible input values: ‘auto’, ‘none’ or  [num, ‘ion’]
+This statement defines how to update the systemic redshift after fitting.
+Possible input for *value*:
+  { ‘*auto*’, ‘*none*’ or  [ *num*, ‘*ion*’ ] }
 
-Default behaviour is ‘none’: The systemic redshift will not be updated after fitting and the given systemic redshift (z_sys) will be used.
+Default behavior is ‘*none*’: The systemic redshift will not be updated after fitting
+and the redshift given through the `z_sys`_ statement will be used.
 
-If systemic is set to ‘auto’ the systemic redshift will be set to the redshift of the strongest component. The element used to identify the strongest component will be selected automatically, priority will be given to elements in the following order: ’FeII’ or ‘SiII’. If none of these are present, the first line in the dataset will be used. Warning: This may result in unexpected behaviour!
+If systemic is set to ‘*auto*’ the systemic redshift will be set to the redshift
+of the strongest component. The element used to identify the strongest component
+will be selected automatically, priority will be given to ions: ’FeII’ or ‘SiII’.
+If none of these is present, the first line in the dataset will be used.
 
-By giving an integer number (num) and an ion (separated by a comma), the user can force the systemic redshift to be set to that given component of the given ion after the fit has converged. Note that the components are 0-indexed, i.e., the first component is 0. If num is set to -1 then the last component of the given ion is used.
+  :red:`Warning -- This may result in unexpected behavior.`
 
-Example:
-systemic  2   FeII
-	this defines the systemic redshift as the 3rd component of FeII
-systemic  -1  SiII
-	this defines the systemic redshift as the last component of SiII
+By giving an integer number (*num*) and an '*ion*' (must be separated by a comma),
+the user can force the systemic redshift to be set to the given component number
+of the given *ion* after the fit has converged.
+Note that the components are 0-indexed, i.e., the first component is *num=0*.
+If *num* is set to -1 then the last component of the given *ion* is used.
+
+.. topic:: Example
+
+  ``systemic  2   FeII``
+
+    this defines the systemic redshift as the 3rd component of FeII
+
+  ``systemic  -1  CI``
+
+    this defines the systemic redshift as the last component of CI
+
+
+Thermal Model
+-------------
+
+**thermal  ions   T=__  turb=__ [ fix-T  fix-turb ]**
+
+  *ions* is a list of space separated ions (e.g., SiII, CII, HI) to include in the
+  thermal model. Absorption lines for all these ions must be defined using a lines_
+  statement, and components for the given ions must be defined as well.
+
+  *T* : this will give the intial guess for the temperature in Kelvins.
+
+  *turb* : this will give the intial guess for the turbulent broadening in km/s.
+
+Optional arguments:
+
+  *fix-T* : if this keyword is present in the line, the temperature will not be varied.
+
+  Note -- This will assume the same temperature for *all* components.
+
+  *fix-turb* : if this keyword is present in the line, the turbulent broadening will
+  not be varied.
+
+  Note -- This will assume the same turbulent broadening for *all* components.
+
+By default, all components of the given ions are assumed to be part of the thermal model.
+If the user only wants to use a certain subset of components, then the given components
+should be defined with the *thermal* keyword in the component_ statement.
+
+.. topic:: Example
+
+  | ``component  FeII  0.0  5.  14.5  velocity thermal``
+  | ``component  FeII  10.  9.  15.2  velocity``
+  | ``copy components from FeII to CII``
+  | ``copy components from FeII to OI``
+  |
+  | ``thermal  FeII  CII  OI  T=500  turb=4.0``
+
+    This will define a thermal model linking the broadening parameters of CII, OI and FeII
+    in the first component only assuming an initial temperature of 500K
+    and a turbulent broadening of 4.0 km/s.
+
+    For more information, see the description of the :ref:`physical_model_results`.
+
+
+Fit-Options
+-----------
+
+**fit-options   keyword=value**
+
+  Set of *keyword* and *value* pairs that will be passed on to the lmfit_ minimizer.
+  For a description of these, see the `minimize function`_ of lmfit_ or the documentation for
+  `scipy.optimize.minimize`_ or `scipy.optimize.leastsq`_.
+
+  Other acceptable keywords are:
+
+    rebin=N
+
+    where *N* refers to the rebinning factor used in the fit.
+
+.. topic:: Example
+
+  ``fit-options  rebin=2  method='nelder'``
+
+    This will rebin the data by a factor of 2 and set the fitting method to Nelder--Mead optimization
+    (instead of the default Levenberg--Marquardt).
+
+.. _minimize function: https://lmfit.github.io/lmfit-py/fitting.html#the-minimize-function
+
+.. _lmfit: https://lmfit.github.io/lmfit-py/
+
+.. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+
+.. _scipy.optimize.leastsq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html#scipy.optimize.leastsq
+
+
+Output
+------
+
+**output  individual-regions  velocity**
+
+
+Load
+----
+
+**load  fit_pars_filename**
+
+
+Fix Velocity Structure
+----------------------
+
+**fix-velocity**

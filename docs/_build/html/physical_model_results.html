@@ -30,8 +30,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="results-of-physical-model">
-<h1>Results of Physical Model<a class="headerlink" href="#results-of-physical-model" title="Permalink to this headline">¶</a></h1>
+  <pre class="logo literal-block">
+____  _           _________________________________________
+    \/ \  _/\    /
+        \/   \  / oigtFit
+              \/
+</pre>
+<div class="section" id="results-of-physical-model">
+<span id="physical-model-results"></span><h1>Results of Physical Model<a class="headerlink" href="#results-of-physical-model" title="Permalink to this headline">¶</a></h1>
 <p>The physical model assumes that the b-parameter of each component
 can be described by a common turbulent term, <span class="math notranslate">\(b_{turb}\)</span>, and
 a thermal term, <span class="math notranslate">\(\sqrt{2 k_B T / m}\)</span>:</p>
@@ -41,13 +47,15 @@ a thermal term, <span class="math notranslate">\(\sqrt{2 k_B T / m}\)</span>:</p
 </div></blockquote>
 <p>where <em>m</em> is the atomic mass of the given ion.
 The model thus expands the regular set of parameters to include
-a temperature and turbulent velocity for each component.
+a temperature and turbulent velocity for each component, however,
+these extra parameters are simultaneously constrained by several
+transitions of different elements.
 For the exact implementation of this model, see the script
-<code class="docutils literal notranslate"><span class="pre">physical_model.py</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">physical_model.py</span></code> in the <em>scripts</em> folder.</p>
 <div class="section" id="best-fit-parameters">
 <h2>Best fit parameters<a class="headerlink" href="#best-fit-parameters" title="Permalink to this headline">¶</a></h2>
-<p>Fitting the simulated test data with two components we recover
-the following parameters:</p>
+<p>Fitting the simulated test data with two components at redshifts z=0.003300
+and z=0.003600, we recover the following parameters:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CrII : 2026, 2056, 2062, 2066
     z = 0.003299    b = 4.75 ± 0.01  log(N) = 12.581 ± 0.034
     z = 0.003599    b = 5.44 ± 0.01  log(N) = 12.167 ± 0.084
@@ -91,83 +99,61 @@ logN(ZnII) = 12.15 ± 0.03
 logN(SII) = 14.30 ± 0.01
 </pre></div>
 </div>
+<p>Notice that the column densities for the saturated lines OI and CII are overestimated.
+This is not surprising, as it is almost impossible to accurately constrain the column densities
+for such strong lines.</p>
 </div>
 <div class="section" id="physical-parameters">
 <h2>Physical Parameters<a class="headerlink" href="#physical-parameters" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="21%" />
-<col width="39%" />
-<col width="39%" />
+<col width="20%" />
+<col width="23%" />
+<col width="13%" />
+<col width="28%" />
+<col width="15%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Comp. No:</th>
-<th class="head">Temperature [K]</th>
-<th class="head">Turbulence [km/s]</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>0</td>
-<td>3380 ± 268</td>
-<td>4.63 ± 0.02</td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>9280 ± 206</td>
-<td>5.16 ± 0.0002</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="the-input-parameters">
-<h2>The Input Parameters<a class="headerlink" href="#the-input-parameters" title="Permalink to this headline">¶</a></h2>
-<p>Element Column Densities:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">ion</span>   <span class="n">comp1</span>  <span class="n">comp2</span>  <span class="n">total</span>
- <span class="n">AlII</span>  <span class="mf">12.95</span>  <span class="mf">12.47</span>  <span class="mf">13.07</span>
-<span class="n">AlIII</span>  <span class="mf">12.38</span>  <span class="mf">11.90</span>  <span class="mf">12.50</span>
- <span class="n">ZnII</span>  <span class="mf">12.02</span>  <span class="mf">11.54</span>  <span class="mf">12.14</span>
- <span class="n">SiII</span>  <span class="mf">14.43</span>  <span class="mf">13.95</span>  <span class="mf">14.55</span>
-   <span class="n">OI</span>  <span class="mf">15.64</span>  <span class="mf">15.16</span>  <span class="mf">15.76</span>
- <span class="n">FeII</span>  <span class="mf">14.07</span>  <span class="mf">13.59</span>  <span class="mf">14.19</span>
-  <span class="n">CII</span>  <span class="mf">15.20</span>  <span class="mf">14.72</span>  <span class="mf">15.32</span>
-  <span class="n">SII</span>  <span class="mf">14.17</span>  <span class="mf">13.69</span>  <span class="mf">14.29</span>
- <span class="n">CrII</span>  <span class="mf">12.58</span>  <span class="mf">12.10</span>  <span class="mf">12.70</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="velocity-information">
-<h2>Velocity Information:<a class="headerlink" href="#velocity-information" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="26%" />
-<col width="26%" />
-<col width="24%" />
-<col width="24%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Comp. No:</th>
-<th class="head">z</th>
-<th class="head">b_turb</th>
-<th class="head">T</th>
+<th class="head" colspan="2">Temperature [K]</th>
+<th class="head" colspan="2">Turbulence [km/s]</th>
 </tr>
 <tr class="row-even"><th class="head">&#160;</th>
-<th class="head">&#160;</th>
-<th class="head">[km/s]</th>
-<th class="head">[K]</th>
+<th class="head">Best-fit</th>
+<th class="head">Input</th>
+<th class="head">Best-fit</th>
+<th class="head">Input</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-odd"><td>1</td>
-<td>0.003300</td>
-<td>4.60</td>
+<tr class="row-odd"><td>0</td>
+<td>3380 ± 268</td>
 <td>4370</td>
+<td>4.63 ± 0.02</td>
+<td>4.60</td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td>0.003600</td>
-<td>5.20</td>
+<tr class="row-even"><td>1</td>
+<td>9280 ± 206</td>
 <td>8600</td>
+<td>5.16 ± 0.0002</td>
+<td>5.20</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="the-input-column-densities">
+<h2>The Input Column Densities<a class="headerlink" href="#the-input-column-densities" title="Permalink to this headline">¶</a></h2>
+<p>Element Column Densities:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ion</span>   <span class="n">comp1</span>  <span class="n">comp2</span>  <span class="n">total</span>
+<span class="n">CrII</span>  <span class="mf">12.58</span>  <span class="mf">12.10</span>  <span class="mf">12.70</span>
+<span class="n">SiII</span>  <span class="mf">14.43</span>  <span class="mf">13.95</span>  <span class="mf">14.55</span>
+<span class="n">FeII</span>  <span class="mf">14.07</span>  <span class="mf">13.59</span>  <span class="mf">14.19</span>
+ <span class="n">CII</span>  <span class="mf">15.20</span>  <span class="mf">14.72</span>  <span class="mf">15.32</span>
+  <span class="n">OI</span>  <span class="mf">15.64</span>  <span class="mf">15.16</span>  <span class="mf">15.76</span>
+<span class="n">ZnII</span>  <span class="mf">12.02</span>  <span class="mf">11.54</span>  <span class="mf">12.14</span>
+ <span class="n">SII</span>  <span class="mf">14.17</span>  <span class="mf">13.69</span>  <span class="mf">14.29</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -192,8 +178,7 @@ logN(SII) = 14.30 ± 0.01
 <li class="toctree-l2"><a class="reference internal" href="#best-fit-parameters">Best fit parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#total-abundances">Total Abundances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#physical-parameters">Physical Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#the-input-parameters">The Input Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#velocity-information">Velocity Information:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-input-column-densities">The Input Column Densities</a></li>
 </ul>
 </li>
 </ul>

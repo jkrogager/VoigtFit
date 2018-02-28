@@ -713,3 +713,9 @@ table.docutils.citation, table.docutils.citation td, table.docutils.citation th 
 .red {
       color: crimson;
 }
+
+.logo {
+      color: royalblue;
+      font-family: monospace;
+      font-weight: bolder;
+}

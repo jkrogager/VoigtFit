@@ -1,3 +1,6 @@
+
+.. include:: voigtfit_logo.rst
+
 ==================
 VoigtFit Interface
 ==================
