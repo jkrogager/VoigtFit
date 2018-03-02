@@ -5,6 +5,8 @@ VoigtFit
 
 Absorption line fitting implemented in Python.
 
+If you use this software, please cite my paper on arXiv:
+
 
 Installation
 ============
@@ -41,7 +43,7 @@ directory and run::
     python setup.py install
 
 
-    Note that the latest versions might be unstable.
+    If you encounter any problems, do not hesitate to raise an issue here.
 
 
 Further documentation and how to use it
