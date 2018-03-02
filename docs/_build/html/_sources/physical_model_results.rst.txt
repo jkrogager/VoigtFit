@@ -19,7 +19,8 @@ a temperature and turbulent velocity for each component, however,
 these extra parameters are simultaneously constrained by several
 transitions of different elements.
 For the exact implementation of this model, see the script
-``physical_model.py`` in the *scripts* folder.
+``physical_model.py`` in the *scripts* folder, or have a look at the predefined input file
+``thermal_model.pars`` in the *test_data* folder.
 
 
 Best fit parameters
@@ -72,10 +73,10 @@ The total abundances from the fit are::
     logN(CrII) = 12.72 ± 0.03
     logN(SiII) = 14.58 ± 0.01
     logN(FeII) = 14.19 ± 0.01
-    logN(CII) = 15.45 ± 0.01
-    logN(OI) = 15.82 ± 0.01
+    logN(CII)  = 15.45 ± 0.01
+    logN(OI)   = 15.82 ± 0.01
     logN(ZnII) = 12.15 ± 0.03
-    logN(SII) = 14.30 ± 0.01
+    logN(SII)  = 14.30 ± 0.01
 
 Notice that the column densities for the saturated lines OI and CII are overestimated.
 This is not surprising, as it is almost impossible to accurately constrain the column densities
@@ -84,6 +85,8 @@ for such strong lines.
 
 Physical Parameters
 -------------------
+
+The input physical parameters and the recovered best-fit parameters are as follows:
 
 +------------+-----------------------+---------------------------+
 | Comp. No:  |   Temperature [K]     |   Turbulence [km/s]       |
@@ -100,13 +103,23 @@ Physical Parameters
 The Input Column Densities
 --------------------------
 
-Element Column Densities::
+The table below highlights the input column densities that were used to generate
+the synthetic data:
 
-     ion   comp1  comp2  total
-     CrII  12.58  12.10  12.70
-     SiII  14.43  13.95  14.55
-     FeII  14.07  13.59  14.19
-      CII  15.20  14.72  15.32
-       OI  15.64  15.16  15.76
-     ZnII  12.02  11.54  12.14
-      SII  14.17  13.69  14.29
++--------+------------------+------------------+--------------------+
+|   Ion  | log(N\ :sub:`1`) | log(N\ :sub:`2`) | log(N\ :sub:`tot`) |
++========+==================+==================+====================+
+|   CrII |      12.58       |      12.10       |       12.70        |
++--------+------------------+------------------+--------------------+
+|   SiII |      14.43       |      13.95       |       14.55        |
++--------+------------------+------------------+--------------------+
+|   FeII |      14.07       |      13.59       |       14.19        |
++--------+------------------+------------------+--------------------+
+|    CII |      15.20       |      14.72       |       15.32        |
++--------+------------------+------------------+--------------------+
+|     OI |      15.64       |      15.16       |       15.76        |
++--------+------------------+------------------+--------------------+
+|   ZnII |      12.02       |      11.54       |       12.14        |
++--------+------------------+------------------+--------------------+
+|    SII |      14.17       |      13.69       |       14.29        |
++--------+------------------+------------------+--------------------+

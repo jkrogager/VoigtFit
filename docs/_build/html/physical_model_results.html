@@ -51,7 +51,8 @@ a temperature and turbulent velocity for each component, however,
 these extra parameters are simultaneously constrained by several
 transitions of different elements.
 For the exact implementation of this model, see the script
-<code class="docutils literal notranslate"><span class="pre">physical_model.py</span></code> in the <em>scripts</em> folder.</p>
+<code class="docutils literal notranslate"><span class="pre">physical_model.py</span></code> in the <em>scripts</em> folder, or have a look at the predefined input file
+<code class="docutils literal notranslate"><span class="pre">thermal_model.pars</span></code> in the <em>test_data</em> folder.</p>
 <div class="section" id="best-fit-parameters">
 <h2>Best fit parameters<a class="headerlink" href="#best-fit-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Fitting the simulated test data with two components at redshifts z=0.003300
@@ -95,10 +96,10 @@ SII : 1250, 1253, 1259
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>logN(CrII) = 12.72 ± 0.03
 logN(SiII) = 14.58 ± 0.01
 logN(FeII) = 14.19 ± 0.01
-logN(CII) = 15.45 ± 0.01
-logN(OI) = 15.82 ± 0.01
+logN(CII)  = 15.45 ± 0.01
+logN(OI)   = 15.82 ± 0.01
 logN(ZnII) = 12.15 ± 0.03
-logN(SII) = 14.30 ± 0.01
+logN(SII)  = 14.30 ± 0.01
 </pre></div>
 </div>
 <p>Notice that the column densities for the saturated lines OI and CII are overestimated.
@@ -107,6 +108,7 @@ for such strong lines.</p>
 </div>
 <div class="section" id="physical-parameters">
 <h2>Physical Parameters<a class="headerlink" href="#physical-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The input physical parameters and the recovered best-fit parameters are as follows:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="20%" />
@@ -145,17 +147,60 @@ for such strong lines.</p>
 </div>
 <div class="section" id="the-input-column-densities">
 <h2>The Input Column Densities<a class="headerlink" href="#the-input-column-densities" title="Permalink to this headline">¶</a></h2>
-<p>Element Column Densities:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ion</span>   <span class="n">comp1</span>  <span class="n">comp2</span>  <span class="n">total</span>
-<span class="n">CrII</span>  <span class="mf">12.58</span>  <span class="mf">12.10</span>  <span class="mf">12.70</span>
-<span class="n">SiII</span>  <span class="mf">14.43</span>  <span class="mf">13.95</span>  <span class="mf">14.55</span>
-<span class="n">FeII</span>  <span class="mf">14.07</span>  <span class="mf">13.59</span>  <span class="mf">14.19</span>
- <span class="n">CII</span>  <span class="mf">15.20</span>  <span class="mf">14.72</span>  <span class="mf">15.32</span>
-  <span class="n">OI</span>  <span class="mf">15.64</span>  <span class="mf">15.16</span>  <span class="mf">15.76</span>
-<span class="n">ZnII</span>  <span class="mf">12.02</span>  <span class="mf">11.54</span>  <span class="mf">12.14</span>
- <span class="n">SII</span>  <span class="mf">14.17</span>  <span class="mf">13.69</span>  <span class="mf">14.29</span>
-</pre></div>
-</div>
+<p>The table below highlights the input column densities that were used to generate
+the synthetic data:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="28%" />
+<col width="28%" />
+<col width="31%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Ion</th>
+<th class="head">log(N<sub>1</sub>)</th>
+<th class="head">log(N<sub>2</sub>)</th>
+<th class="head">log(N<sub>tot</sub>)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>CrII</td>
+<td>12.58</td>
+<td>12.10</td>
+<td>12.70</td>
+</tr>
+<tr class="row-odd"><td>SiII</td>
+<td>14.43</td>
+<td>13.95</td>
+<td>14.55</td>
+</tr>
+<tr class="row-even"><td>FeII</td>
+<td>14.07</td>
+<td>13.59</td>
+<td>14.19</td>
+</tr>
+<tr class="row-odd"><td>CII</td>
+<td>15.20</td>
+<td>14.72</td>
+<td>15.32</td>
+</tr>
+<tr class="row-even"><td>OI</td>
+<td>15.64</td>
+<td>15.16</td>
+<td>15.76</td>
+</tr>
+<tr class="row-odd"><td>ZnII</td>
+<td>12.02</td>
+<td>11.54</td>
+<td>12.14</td>
+</tr>
+<tr class="row-even"><td>SII</td>
+<td>14.17</td>
+<td>13.69</td>
+<td>14.29</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
