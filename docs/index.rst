@@ -9,12 +9,19 @@ Dig in, and you will be constraining the contents of metals in remote galaxies b
 
 
 
-Development of *VoigtFit* happens `on GitHub
+Development of VoigtFit happens `on GitHub
 <https://github.com/jkrogager/VoigtFit>`_ so if you encounter any issues or you have
 ideas for great new features, you can `raise an issue on the GitHub page
 <https://github.com/jkrogager/VoigtFit/issues>`_.
 
 
+Acknowledgements
+----------------
+
+If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).
+
+I want to thank Jonatan Selsing and Kasper E. Heintz
+who helped putting parts of the documentation together.
 
 
 
@@ -33,7 +40,7 @@ Documentation
 -------------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    documentation.rst
 

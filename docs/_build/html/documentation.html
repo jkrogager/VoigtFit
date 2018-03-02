@@ -194,12 +194,12 @@ The default span is 500 km/s.</p>
 <p><code class="docutils literal notranslate"><span class="pre">fine-lines</span>&#160; <span class="pre">CI_1560</span></code></p>
 <blockquote>
 <div>This will define all the transitions of CI, CI<sup>*</sup> and CI<sup>**</sup> related to the
-ground state of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P -&gt;
+ground state of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P →
 2s 2p<sup>3</sup>  <sup>3</sup>D line complex at 1560 Å.</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">fine-lines</span>&#160; <span class="pre">CI_1328</span>&#160; <span class="pre">a</span></code></p>
 <blockquote>
 <div>This will only define the transitions of the ground state and the first excited
-fine-structure level (<em>J=1</em>) of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P -&gt;
+fine-structure level (<em>J=1</em>) of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P →
 2s 2p<sup>3</sup>  <sup>3</sup>P line complex at 1328 Å.</div></blockquote>
 </div>
 <div class="line-block">
@@ -223,10 +223,11 @@ would be ‘CIa’.</p>
 in the database.</p>
 <dl class="docutils">
 <dt><em>bands</em> designates a list of vibrational bands for the given molecule.</dt>
-<dd><p class="first">For CO: the A(ν) -&gt; A(0) bands for ν up to ν=11, the C(0) -&gt; X(0) band, the d(5) -&gt; X(0)
-and e(1) -&gt; X(0). The bands are referred to as AX(ν-0), CX(0-0), dX(5-0), and eX(1-0).</p>
-<p class="last">For H<sub>2</sub>: the Lyman bands B(ν) -&gt; X(0) for ν up to ν=19 (BX(ν-0)) and Werner bands
-C(ν) -&gt; X(0) for ν up to ν=5 (CX(ν-0)).</p>
+<dd><p class="first">For CO: the A(ν) → X(0) bands for ν up to ν=11, the C(0) → X(0) band, the d(5) → X(0)
+and e(1) → X(0). The bands are referred to as ‘AX(ν-0)’, ‘CX(0-0)’, ‘dX(5-0)’, and ‘eX(1-0)’.</p>
+<p class="last">For H<sub>2</sub>: the Lyman bands B(ν) → X(0) for ν up to ν=19 and Werner bands
+C(ν) → X(0) for ν up to ν=5. The Lyman and Werner bands are referred to as
+‘BX(ν-0)’ and ‘CX(ν-0)’, respectively.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -308,7 +309,19 @@ The line tag must be defined in the dataset (using the <code class="docutils lit
 Notice that this will overwrite any other components defined previously for this element.</p>
 <div class="topic">
 <p class="topic-title first">Example</p>
-<p>Give example screenshot here!</p>
+<p>The interactive definition of components will bring up the following graphic display:</p>
+<a class="reference internal image-reference" href="_images/comp1.png"><img alt="_images/comp1.png" src="_images/comp1.png" style="width: 48%;" /></a>
+<a class="reference internal image-reference" href="_images/comp2.png"><img alt="_images/comp2.png" src="_images/comp2.png" style="width: 48%;" /></a>
+<p>If the data are already normalized, the first window will ask you to simply mark the location
+of components you want to add by clicking with the cursor (left panel).
+Otherwise, you will first be prompted to mark the continuum level (in order to estimate
+the initial column density estimate).
+You should select both the desired location and depth of the component, as this will
+allow the code to calculate a realistic starting value based on the resolution of the data.
+This will make it easier for the code to converge (especially if many components are present).
+The positions you select will progressively show up as red crosses (right panel) as you mark them.
+When you have selected the number of components you want to fit, press <em>enter</em>
+and return to the terminal to save the components.</p>
 </div>
 </div>
 <div class="section" id="copy-components">
@@ -410,6 +423,26 @@ the line fitting.
 By giving a negative order, the code will ask to manually normalize the fitting regions
 using the specified <em>norm_method</em> (see above).</p>
 <p>The default is -1, i.e., no <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> model is used.</p>
+<div class="topic">
+<p class="topic-title first">Example</p>
+<p>The interactive normalization selected through <em>norm_method</em> = ‘linear’ will open
+the following window prompting you to select a region on the left and right hand side
+of the absorption line. The continuum will then be fitted as a straight line.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/norm1.png"><img alt="_images/norm1.png" src="_images/norm1.png" style="width: 48%;" /></a>
+<a class="reference internal image-reference" href="_images/norm2.png"><img alt="_images/norm2.png" src="_images/norm2.png" style="width: 48%;" /></a>
+</div></blockquote>
+<p>The left panel shows the window which pops up asking for a selection of continnuum regions.
+You have to select a left and right boundary on the <em>left</em> hand side of the absorption line
+by clicking with the cursor at the position in the plot. The first selected point will show up
+as a red cross. If you make a mistake you can remove a red cross by right-clicking.
+After the first two boundaries have been selected, you have to repeat the selection on the
+<em>right</em> hand side of the absorption profile.
+Afterwards, the fitting region will be normalized and the normalized region will show in
+the interactive window (right panel). Then you have to acknowledge that the normalization
+was done correctly by pressing <em>enter</em> in the terminal. If you want to redo the normalization,
+type <em>no</em> or <em>n</em> in the terminal and press <em>enter</em>. This will bring you back to the beginning.</p>
+</div>
 </div>
 <div class="section" id="mask">
 <h2>Mask<a class="headerlink" href="#mask" title="Permalink to this headline">¶</a></h2>
@@ -423,7 +456,27 @@ Default is to define masks for all lines.</div></blockquote>
 <p>Note – The mask is an exclusion mask, so pixels that are defined in the mask, are <em>not</em> fitted.</p>
 <div class="topic">
 <p class="topic-title first">Example</p>
-<p>Show image of masking process.</p>
+<p>If you have included a <em>mask</em> statement in the parameter file (either for all lines or only for
+selected lines), the following window will pop up:</p>
+<a class="reference internal image-reference" href="_images/mask1.png"><img alt="_images/mask1.png" src="_images/mask1.png" style="width: 48%;" /></a>
+<a class="reference internal image-reference" href="_images/mask2.png"><img alt="_images/mask2.png" src="_images/mask2.png" style="width: 48%;" /></a>
+<p>In the first window (left panel) you are prompted to mark left and right boundaries of
+regions that should <strong>not</strong> be included in the fit. You can mark as many regions as you want.
+The orange and red lines on top of the region indicates telluric emission and absorption templates,
+respectively. The thin red lines show the position of predefined components for the given ion.
+When you are done, or you want to update the view to see the masks you have defined, press <em>enter</em>.
+This will update the graph and show masked regions in <span class="red">red</span> (right panel).
+If you want to continue adding masks, type <em>no</em> in the terminal and add new masks.
+When you are done, type <em>yes</em> or simply press <em>enter</em> in the terminal. If you have made a mistake
+you can clear the masks by typing <em>c</em> or <em>clear</em> in the terminal.</p>
+<blockquote>
+<div><div class="red admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">If an uneven number of points are selected, the masks will not be calculated and you
+have to start over. So if you are defining many masks (e.g., in the Lyman-α forest),
+it is advised to define the masks in several turns.</p>
+</div>
+</div></blockquote>
 </div>
 <p>Note – The telluric template was obtained from ESOs <a class="reference external" href="http://www.eso.org/observing/etc/skycalc">skycalc</a>.</p>
 </div>
@@ -665,7 +718,7 @@ is kept fixed.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017, Jens-Kristian Krogager.
+      &copy;2018, Jens-Kristian Krogager.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>

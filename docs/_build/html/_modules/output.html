@@ -362,10 +362,10 @@
                     <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">lines_in_figure</span> <span class="o">+=</span> <span class="n">LIV</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                     <span class="c1"># xtl = ax.get_xticklabels()</span>
                     <span class="c1"># print [ticklabel.get_text() for ticklabel in xtl]</span>
-                    <span class="k">pass</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">xunit</span> <span class="o">==</span> <span class="s1">&#39;wl&#39;</span><span class="p">:</span>
                         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm Wavelength\ \ (</span><span class="se">\\</span><span class="s2">AA)}$&quot;</span><span class="p">,</span>
@@ -374,7 +374,7 @@
                         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm Rel. velocity\ \ (km\ s^{-1})}$&quot;</span><span class="p">,</span>
                                       <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Normalized Flux&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
                 <span class="c1"># num += 1</span>
                 <span class="c1"># LIV is a shorthand for &#39;lines_in_view&#39;</span>
@@ -1810,7 +1810,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017, Jens-Kristian Krogager.
+      &copy;2018, Jens-Kristian Krogager.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>

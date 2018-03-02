@@ -205,6 +205,9 @@ def main():
                 # Check if velocity span has changed:
                 regions_of_line = dataset.find_line(tag)
                 for reg in regions_of_line:
+                    if velspan is None:
+                        velspan = dataset.velspan
+
                     if reg.velspan != velspan:
                         dataset.remove_line(tag)
                         new_lines.append([tag, velspan])
@@ -612,10 +615,15 @@ def main():
         dataset.plot_fit(filename=filename, rebin=rebin)
         output.save_parameters_to_file(dataset, filename+'.fit')
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
-        output.save_fit_regions(dataset, filename+'.reg', individual=individual_regions)
+        output.save_fit_regions(dataset, filename+'.reg',
+                                individual=individual_regions)
         plt.show(block=True)
 
     else:
+        if 'rebin' in parameters['fit_options'].keys():
+            rebin = parameters['fit_options']['rebin']
+        else:
+            rebin = 1
         dataset.plot_fit(rebin=rebin)
         plt.show(block=True)
 

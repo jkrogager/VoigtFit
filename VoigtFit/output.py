@@ -329,10 +329,10 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                     num += 1
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
-                if num <= len(contents)-2:
+                if num <= len(contents)-1:
                     # xtl = ax.get_xticklabels()
                     # print [ticklabel.get_text() for ticklabel in xtl]
-                    pass
+                    ax.set_xticklabels([''])
                 else:
                     if xunit == 'wl':
                         ax.set_xlabel("${\\rm Wavelength\ \ (\\AA)}$",
@@ -341,7 +341,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                         ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$",
                                       fontsize=12)
 
-                if num % 2 == 1:
+                if num % 2 == 0:
                     ax.set_ylabel("Normalized Flux", fontsize=12)
                 # num += 1
                 # LIV is a shorthand for 'lines_in_view'

@@ -9,6 +9,7 @@ VoigtFit Parameter Language
 
 .. role:: red
 
+.. include:: <isonum.txt>
 
 
 .. todo:
@@ -211,13 +212,13 @@ Optional arguments:
   ``fine-lines  CI_1560``
 
     This will define all the transitions of CI, CI\ :sup:`*` and CI\ :sup:`**` related to the
-    ground state of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P ->
+    ground state of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P |rarr|
     2s 2p\ :sup:`3`  :sup:`3`\ D line complex at 1560 Å.
 
   ``fine-lines  CI_1328  a``
 
     This will only define the transitions of the ground state and the first excited
-    fine-structure level (*J=1*) of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P ->
+    fine-structure level (*J=1*) of the 2s\ :sup:`2` 2p\ :sup:`2`  :sup:`3`\ P |rarr|
     2s 2p\ :sup:`3`  :sup:`3`\ P line complex at 1328 Å.
 
 |
@@ -243,11 +244,12 @@ Add Molecules
   in the database.
 
   *bands* designates a list of vibrational bands for the given molecule.
-    For CO: the A(ν) -> A(0) bands for ν up to ν=11, the C(0) -> X(0) band, the d(5) -> X(0)
-    and e(1) -> X(0). The bands are referred to as AX(ν-0), CX(0-0), dX(5-0), and eX(1-0).
+    For CO: the A(ν) |rarr| X(0) bands for ν up to ν=11, the C(0) |rarr| X(0) band, the d(5) |rarr| X(0)
+    and e(1) |rarr| X(0). The bands are referred to as 'AX(ν-0)', 'CX(0-0)', 'dX(5-0)', and 'eX(1-0)'.
 
-    For H\ :sub:`2`: the Lyman bands B(ν) -> X(0) for ν up to ν=19 (BX(ν-0)) and Werner bands
-    C(ν) -> X(0) for ν up to ν=5 (CX(ν-0)).
+    For H\ :sub:`2`: the Lyman bands B(ν) |rarr| X(0) for ν up to ν=19 and Werner bands
+    C(ν) |rarr| X(0) for ν up to ν=5. The Lyman and Werner bands are referred to as
+    'BX(ν-0)' and 'CX(ν-0)', respectively.
 
 
 Optional arguments:
@@ -349,7 +351,24 @@ Notice that this will overwrite any other components defined previously for this
 
 .. topic:: Example
 
-  Give example screenshot here!
+  The interactive definition of components will bring up the following graphic display:
+
+  .. image:: figs/comp1.png
+      :width: 48%
+  .. image:: figs/comp2.png
+      :width: 48%
+
+  If the data are already normalized, the first window will ask you to simply mark the location
+  of components you want to add by clicking with the cursor (left panel).
+  Otherwise, you will first be prompted to mark the continuum level (in order to estimate
+  the initial column density estimate).
+  You should select both the desired location and depth of the component, as this will
+  allow the code to calculate a realistic starting value based on the resolution of the data.
+  This will make it easier for the code to converge (especially if many components are present).
+  The positions you select will progressively show up as red crosses (right panel) as you mark them.
+  When you have selected the number of components you want to fit, press *enter*
+  and return to the terminal to save the components.
+
 
 
 Copy Components
@@ -467,6 +486,28 @@ using the specified *norm_method* (see above).
 The default is -1, i.e., no Chebyshev_ model is used.
 
 
+.. topic:: Example
+
+  The interactive normalization selected through *norm_method* = 'linear' will open
+  the following window prompting you to select a region on the left and right hand side
+  of the absorption line. The continuum will then be fitted as a straight line.
+
+    .. image:: figs/norm1.png
+        :width: 48%
+    .. image:: figs/norm2.png
+        :width: 48%
+
+  The left panel shows the window which pops up asking for a selection of continnuum regions.
+  You have to select a left and right boundary on the *left* hand side of the absorption line
+  by clicking with the cursor at the position in the plot. The first selected point will show up
+  as a red cross. If you make a mistake you can remove a red cross by right-clicking.
+  After the first two boundaries have been selected, you have to repeat the selection on the
+  *right* hand side of the absorption profile.
+  Afterwards, the fitting region will be normalized and the normalized region will show in
+  the interactive window (right panel). Then you have to acknowledge that the normalization
+  was done correctly by pressing *enter* in the terminal. If you want to redo the normalization,
+  type *no* or *n* in the terminal and press *enter*. This will bring you back to the beginning.
+
 .. _Chebyshev: https://en.wikipedia.org/wiki/Chebyshev_polynomials
 
 
@@ -487,8 +528,30 @@ Note -- The mask is an exclusion mask, so pixels that are defined in the mask, a
 
 .. topic:: Example
 
-  Show image of masking process.
+  If you have included a *mask* statement in the parameter file (either for all lines or only for
+  selected lines), the following window will pop up:
 
+  .. image :: figs/mask1.png
+      :width: 48%
+  .. image :: figs/mask2.png
+      :width: 48%
+
+  In the first window (left panel) you are prompted to mark left and right boundaries of
+  regions that should **not** be included in the fit. You can mark as many regions as you want.
+  The orange and red lines on top of the region indicates telluric emission and absorption templates,
+  respectively. The thin red lines show the position of predefined components for the given ion.
+  When you are done, or you want to update the view to see the masks you have defined, press *enter*.
+  This will update the graph and show masked regions in :red:`red` (right panel).
+  If you want to continue adding masks, type *no* in the terminal and add new masks.
+  When you are done, type *yes* or simply press *enter* in the terminal. If you have made a mistake
+  you can clear the masks by typing *c* or *clear* in the terminal.
+
+    .. important::
+      :class: red
+
+      If an uneven number of points are selected, the masks will not be calculated and you
+      have to start over. So if you are defining many masks (e.g., in the Lyman-α forest),
+      it is advised to define the masks in several turns.
 
 
 Note -- The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
