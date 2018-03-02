@@ -56,7 +56,12 @@ and z=0.003600, we recover the following parameters::
         z = 0.003299    b = 4.82 ± 0.01  log(N) = 14.176 ± 0.012
         z = 0.003599    b = 5.61 ± 0.01  log(N) = 13.701 ± 0.035
 
-The best-fit is plotted and saved to PDF file:  ``test_2comp.pdf``
+The best-fit is plotted and saved to PDF file:  ``test_2comp.pdf``.
+
+Below you see a screenshot of some of the fitted lines:
+
+.. image:: figs/vfit_thermal_output.png
+    :width: 75%
 
 
 Total Abundances
