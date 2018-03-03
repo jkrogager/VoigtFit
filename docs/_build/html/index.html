@@ -1,0 +1,189 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>VoigtFit &#8212; VoigtFit 0.9.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <pre class="logo literal-block">
+____  _           _________________________________________
+    \/ \  _/\    /
+        \/   \  / oigtFit
+              \/
+</pre>
+<div class="section" id="voigtfit">
+<h1>VoigtFit<a class="headerlink" href="#voigtfit" title="Permalink to this headline">¶</a></h1>
+<p>VoigtFit is written to make absorption line fitting a <em>breeze</em>.
+Dig in, and you will be constraining the contents of metals in remote galaxies before you know it!</p>
+<p>Development of VoigtFit happens <a class="reference external" href="https://github.com/jkrogager/VoigtFit">on GitHub</a> so if you encounter any issues or you have
+ideas for great new features, you can <a class="reference external" href="https://github.com/jkrogager/VoigtFit/issues">raise an issue on the GitHub page</a>.</p>
+<div class="section" id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
+<p>If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p class="boxnote">I want to thank Jonatan Selsing and Kasper E. Heintz
+who helped putting parts of the documentation together.
+I also thank Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
+Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
+the software and for their constructive feedback and ideas for new features.</p>
+</div>
+<div class="section" id="installation-instructions">
+<h2>Installation instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#using-pip">Using pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#from-source">From source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#test-the-installation">Test the installation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">VoigtFit Parameter Language</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#name">Name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#save">Save</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#z-sys">z_sys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#lines">Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#fine-structure-lines">Fine-structure Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#add-molecules">Add Molecules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#add-components">Add Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#interactive-components">Interactive Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#copy-components">Copy Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#delete-components">Delete Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#continuum-normalization">Continuum Normalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#mask">Mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#clear-mask">Clear mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#total-column-densities">Total Column Densities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#metallicity">Metallicity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#reset-fit-regions">Reset Fit Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#resolution">Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#change-systemic-redshift">Change Systemic Redshift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#thermal-model">Thermal Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#fit-options">Fit-Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#output">Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#load">Load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#fix-velocity-structure">Fix Velocity Structure</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="interface">
+<h2>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#class-dataset">class <strong>DataSet</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#class-line">class <strong>Line</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#class-region">class <strong>Region</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-voigt">module <strong>voigt</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-output">module <strong>output</strong></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physical_model_results.html">Results of Physical Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="physical_model_results.html#best-fit-parameters">Best fit parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_model_results.html#total-abundances">Total Abundances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_model_results.html#physical-parameters">Physical Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_model_results.html#the-input-column-densities">The Input Column Densities</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="#">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">VoigtFit Parameter Language</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">VoigtFit Interface</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physical_model_results.html">Results of Physical Model</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Jens-Kristian Krogager.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
