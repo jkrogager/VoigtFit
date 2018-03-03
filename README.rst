@@ -28,13 +28,12 @@ using pip_::
 
     pip install VoigtFit
 
-.. note::
 
-  If you encounter the following AttributeError when attempting to install via pip:
+If you encounter the following AttributeError when attempting to install via pip:
 
-    AttributeError: 'NoneType' object has no attribute 'splitlines'
+  AttributeError: 'NoneType' object has no attribute 'splitlines'
 
-  Try running pip with the ``--upgrade`` option::
+Try running pip with the ``--upgrade`` option::
 
     pip install --upgrade VoigtFit
 
