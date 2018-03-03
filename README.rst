@@ -28,6 +28,7 @@ using pip_::
 
     pip install VoigtFit
 
+|
 
 If you encounter the following AttributeError when attempting to install via pip:
 

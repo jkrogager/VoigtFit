@@ -1,2 +1,3 @@
-include README.rst LICENSE AUTHORS.rst VERSION
+include README.rst LICENSE AUTHORS.rst
+include VoigtFit/VERSION
 include VoigtFit/static/*

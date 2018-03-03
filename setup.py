@@ -95,6 +95,7 @@ setup(
                             'atomdata_updated.dat',
                             'telluric_em_abs.npz',
                             'input_template.txt'],
+        'VoigtFit': ['VERSION'],
     },
 
     include_package_data=True,
