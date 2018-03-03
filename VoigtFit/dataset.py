@@ -18,8 +18,6 @@ from line_complexes import fine_structure_complexes
 import Asplund
 import hdf5_save
 
-options = {'nsamp': 1,
-           'npad': 20}
 myfloat = np.float64
 
 root_path = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +28,8 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('l0', 'f4'),
                                        ('f', 'f4'),
                                        ('gam', 'f4'),
-                                       ('mass', 'f4')])
+                                       ('mass', 'f4')]
+                      )
 
 
 def calculate_velocity_bin_size(x):
@@ -1547,7 +1546,6 @@ class DataSet(object):
             print "\n  Rebinning the data by a factor of %i \n" % rebin
 
         print "  Fit is running... Please, be patient.\n"
-        # npad = options['npad']
 
         def chi(pars):
             model = list()
