@@ -171,6 +171,6 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'VoigtFit', u'VoigtFit Documentation',
-     author, 'VoigtFit', 'One line description of project.',
+     author, 'VoigtFit', 'Voigt Profile Absorption Fitting.',
      'Miscellaneous'),
 ]
