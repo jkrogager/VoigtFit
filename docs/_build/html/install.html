@@ -6,7 +6,7 @@
   <head>
         <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Installation &#8212; VoigtFit 0.9.1 documentation</title>
+    <title>Installation &#8212; VoigtFit 0.9.3 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -56,6 +56,16 @@ using <a class="reference external" href="http://www.pip-installer.org/">pip</a>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> pip install VoigtFit
 </pre></div>
 </div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>If you encounter the following AttributeError when attempting to install via pip:</p>
+<blockquote>
+<div>AttributeError: ‘NoneType’ object has no attribute ‘splitlines’</div></blockquote>
+<p>Try running pip with the <code class="docutils literal notranslate"><span class="pre">--upgrade</span></code> option:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">VoigtFit</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="from-source">
 <h2>From source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h2>
@@ -73,7 +83,7 @@ directory and run:</p>
 <div class="section" id="test-the-installation">
 <h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
 <p>If the installation went smoothly, you should be able to run VoigtFit from the terminal
-by excecuting the following command:</p>
+by executing the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> VoigtFit
 </pre></div>
 </div>
@@ -82,7 +92,7 @@ This way you can always set up a fresh parameter file when starting a new projec
 Moreover, as the program grows and more features are implemented, a comment about
 such new features will appear automatically in the parameter file template.
 This way you can stay updated on what is possible within the parameter file language.</p>
-<p>To run the program with a given input file, simply excecute the command:</p>
+<p>To run the program with a given input file, simply execute the command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> VoigtFit  input.pars
 </pre></div>
 </div>

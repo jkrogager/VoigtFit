@@ -28,6 +28,16 @@ using `pip <http://www.pip-installer.org/>`_:
 
     %] pip install VoigtFit
 
+|
+
+If you encounter the following AttributeError when attempting to install via pip:
+
+  AttributeError: 'NoneType' object has no attribute 'splitlines'
+
+Try running pip with the ``--upgrade`` option::
+
+    pip install --upgrade VoigtFit
+
 
 From source
 -----------
@@ -62,7 +72,7 @@ Test the installation
 ---------------------
 
 If the installation went smoothly, you should be able to run VoigtFit from the terminal
-by excecuting the following command:
+by executing the following command:
 
 .. code-block:: bash
 
@@ -74,7 +84,7 @@ Moreover, as the program grows and more features are implemented, a comment abou
 such new features will appear automatically in the parameter file template.
 This way you can stay updated on what is possible within the parameter file language.
 
-To run the program with a given input file, simply excecute the command:
+To run the program with a given input file, simply execute the command:
 
 .. code-block:: bash
 
