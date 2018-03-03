@@ -43,7 +43,7 @@ directory and run::
     python setup.py install
 
 
-    If you encounter any problems, do not hesitate to raise an issue here.
+If you encounter any problems, do not hesitate to raise an issue here.
 
 
 Further documentation and how to use it
