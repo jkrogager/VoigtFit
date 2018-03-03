@@ -21,3 +21,9 @@ backup
 .input.pars.swp
 
 *.swp
+
+build
+
+dist
+
+VoigtFit.egg-info
