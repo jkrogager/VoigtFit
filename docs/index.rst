@@ -18,7 +18,7 @@ ideas for great new features, you can `raise an issue on the GitHub page
 Acknowledgements
 ----------------
 
-If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).
+If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018) <http://arxiv.org/abs/1803.01187>`_.
 
 |
 
