@@ -33,6 +33,18 @@ default_highlight_comp = {'color': 'DarkOrange', 'ls': '-',
                           'ymin': 0.85, 'ymax': 1.0,
                           'text': None, 'loc': 'above'}
 
+default_line = {'color': 'r', 'ls': '-',
+                'lw': 1.0, 'alpha': 1.0}
+default_hl_line = {'color': 'orange', 'ls': '--',
+                   'lw': 1.0, 'alpha': 1.0}
+
+
+def merge_two_dicts(default, x):
+    """Merge the keys of dictionary `x` into dictionary `default`. """
+    z = default.copy()
+    z.update(x)
+    return z
+
 
 class CompProp(object):
     def __init__(self, list_of_ions, prop=None):
@@ -370,7 +382,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                      residuals=False, norm_resid=False,
                      default_props={}, element_props={},
                      highlight_props=None,
-                     label_all_ions=False, xunit='velocity'):
+                     label_all_ions=False, xunit='velocity',
+                     line_props=None, hl_line_props=None):
     """
     Plot a single absorption line.
 
@@ -487,11 +500,34 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         Show labels for all `ions` defined.
         The labels will appear above the component tick marks.
 
-    xunit : string   [default = ]'velocity']
+    xunit : string   [default = 'velocity']
         The unit of the x-axis, must be either 'velocity' or 'wavelength'.
         Shortenings are acceptable too, e.g., 'vel'/'v' or 'wave'/'wl'.
 
+    line_props : dict   [default = None]
+        A dictionary of keywords to change the default line properties
+        of the best-fit profile; e.g., 'color', 'lw', 'linestyle'.
+        All keywords will be passed to the `plot function`_ of matplotlib.
+
+    hl_line_props : dict   [default = None]
+        A dictionary of keywords to change the default line properties
+        of the best-fit profile for highlighted ions.
+        All keywords will be passed to the `plot function`_ of matplotlib.
+
+
+    .. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
+
     """
+
+    if line_props is None:
+        line_props = default_line
+    else:
+        line_props = merge_two_dicts(default_line, line_props)
+
+    if hl_line_props is None:
+        hl_line_props = default_hl_line
+    else:
+        hl_line_props = merge_two_dicts(default_hl_line, hl_line_props)
 
     # Convert highlight_props to dictionary if a list of `ions` is given:
     if isinstance(highlight_props, list):
@@ -706,16 +742,15 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
         if xunit == 'wl':
-            ax.plot(wl_line, profile, color='r', lw=1.0)
+            ax.plot(wl_line, profile, **line_props)
         else:
-            ax.plot(vel_profile, profile, color='r', lw=1.0)
+            ax.plot(vel_profile, profile, **line_props)
 
         if N_highlight > 0:
             if xunit == 'wl':
-                ax.plot(wl_line, profile_hl, color='orange', lw=1.0, ls='--')
+                ax.plot(wl_line, profile_hl, **hl_line_props)
             else:
-                ax.plot(vel_profile, profile_hl,
-                        color='orange', lw=1.0, ls='--')
+                ax.plot(vel_profile, profile_hl, **hl_line_props)
 
         if residuals:
             p_data = np.interp(vel, vel_profile, profile)
