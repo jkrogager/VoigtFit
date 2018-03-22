@@ -50,6 +50,7 @@ class CompProp(object):
     def __init__(self, list_of_ions, prop=None):
         self.properties = dict()
         if prop:
+            prop = merge_two_dicts(default_comp, prop)
             for ion in list_of_ions:
                 self.properties[ion] = prop
         else:

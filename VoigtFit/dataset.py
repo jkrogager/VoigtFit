@@ -1568,7 +1568,8 @@ class DataSet(object):
         if rebin > 1:
             print "\n  Rebinning the data by a factor of %i \n" % rebin
 
-        print "  Fit is running... Please, be patient.\n"
+        if self.verbose:
+            print "  Fit is running... Please, be patient.\n"
 
         def chi(pars):
             model = list()
@@ -1621,13 +1622,15 @@ class DataSet(object):
                 region.err /= cont_model
                 region.normalized = True
 
-        print "\n The fit has finished with the following exit message:"
-        print "  " + popt.message
-        print ""
-        if verbose and self.verbose:
-            output.print_results(self, self.best_fit, velocity=False)
-            if self.cheb_order >= 0:
-                output.print_cont_parameters(self)
+        if self.verbose:
+            print "\n The fit has finished with the following exit message:"
+            print "  " + popt.message
+            print ""
+
+            if verbose:
+                output.print_results(self, self.best_fit, velocity=False)
+                if self.cheb_order >= 0:
+                    output.print_cont_parameters(self)
 
         if plot:
             self.plot_fit(rebin=rebin, subsample_profile=rebin)
