@@ -1643,7 +1643,8 @@ class DataSet(object):
                  subsample_profile=1, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, legend=True,
-                 label_all_ions=False, xunit='vel'):
+                 label_all_ions=False, xunit='vel',
+                 line_props=None, hl_line_props=None):
         """
         Plot *all* the absorption lines and the best-fit profiles.
         For details, see :func:`VoigtFit.output.plot_all_lines`.
@@ -1657,7 +1658,8 @@ class DataSet(object):
                               residuals=residuals, norm_resid=norm_resid,
                               legend=legend, label_all_ions=label_all_ions,
                               default_props=default_props, element_props=element_props,
-                              highlight_props=highlight_props, xunit=xunit)
+                              highlight_props=highlight_props, xunit=xunit,
+                              line_props=line_props, hl_line_props=hl_line_props)
         plt.show()
 
     def velocity_plot(self, **kwargs):
@@ -1673,7 +1675,8 @@ class DataSet(object):
                   show=True, subsample_profile=1, npad=50,
                   residuals=True, norm_resid=False, legend=True,
                   default_props={}, element_props={}, highlight_props=None,
-                  label_all_ions=False, xunit='velocity'):
+                  label_all_ions=False, xunit='velocity',
+                  line_props=None, hl_line_props=None):
         """
         Plot a single fitting :class:`Region <regions.Region>`
         containing the line corresponding to the given `line_tag`.
@@ -1687,7 +1690,8 @@ class DataSet(object):
                                 npad=npad, residuals=residuals, norm_resid=norm_resid,
                                 legend=legend, label_all_ions=label_all_ions,
                                 default_props=default_props, element_props=element_props,
-                                highlight_props=highlight_props, xunit=xunit)
+                                highlight_props=highlight_props, xunit=xunit,
+                                line_props=line_props, hl_line_props=hl_line_props)
 
     def print_results(self, velocity=True, elements='all', systemic=None):
         """
