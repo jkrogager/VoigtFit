@@ -16,7 +16,7 @@ CI_full_labels = {
 }
 
 CI_labels = {'CI_1656': '${\\rm CI\ \\lambda1656}$',
-             'CI_1560': '${\\rm CI\ \\lambda1650}$',
+             'CI_1560': '${\\rm CI\ \\lambda1560}$',
              'CI_1328': '${\\rm CI\ \\lambda1328}$',
              'CI_1280': '${\\rm CI\ \\lambda1280}$',
              'CI_1277': '${\\rm CI\ \\lambda1277}$',

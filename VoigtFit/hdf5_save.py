@@ -227,13 +227,19 @@ def load_dataset_from_hdf(fname):
                         pointer = comp.name
                         fit_pointer = pointer.replace('components', 'best_fit')
                         z = hdf[fit_pointer+'/z'].value
+                        z_err = hdf[fit_pointer+'/z'].attrs['error']
                         b = hdf[fit_pointer+'/b'].value
+                        b_err = hdf[fit_pointer+'/b'].attrs['error']
                         logN = hdf[fit_pointer+'/logN'].value
+                        logN_err = hdf[fit_pointer+'/logN'].attrs['error']
 
                     else:
                         z = comp['z'].value
+                        z_err = None
                         b = comp['b'].value
+                        b_err = None
                         logN = comp['logN'].value
+                        logN_err = None
 
                     # Extract component options:
                     opts = dict()
@@ -258,8 +264,13 @@ def load_dataset_from_hdf(fname):
                         b_name = 'b%i_%s' % (n, ion)
                         N_name = 'logN%i_%s' % (n, ion)
                         ds.best_fit.add(z_name, value=z, vary=opts['var_z'])
-                        ds.best_fit.add(b_name, value=b, vary=opts['var_b'], min=0., max=500.)
-                        ds.best_fit.add(N_name, value=logN, vary=opts['var_N'], min=0., max=40.)
+                        ds.best_fit[z_name].stderr = z_err
+                        ds.best_fit.add(b_name, value=b, vary=opts['var_b'],
+                                        min=0., max=500.)
+                        ds.best_fit[b_name].stderr = b_err
+                        ds.best_fit.add(N_name, value=logN, vary=opts['var_N'],
+                                        min=0., max=40.)
+                        ds.best_fit[N_name].stderr = logN_err
 
         if 'best_fit' in hdf:
             # Now the components have been defined in ds, so I can use them for the loop

@@ -1010,34 +1010,57 @@ class DataSet(object):
 
             self.components[to_ion].append(new_comp)
 
-    def load_components_from_file(self, fname):
-        """Load best-fit parameters from an output file `fname`."""
+    def load_components_from_file(self, fname, fit_pars=True):
+        """Load best-fit parameters from an output file `fname`.
+        If `fit_pars` is True, then update the best_fit parameters."""
         parameters = open(fname)
         components_to_add = list()
         all_ions_in_file = list()
         for line in parameters.readlines():
             line = line.strip()
+            pars = line.split()
             if len(line) == 0:
                 pass
             elif line[0] == '#':
                 pass
-            else:
-                pars = line.split()
+            elif len(pars) == 8:
                 ion = pars[1]
                 z = float(pars[2])
+                z_err = float(pars[3])
                 b = float(pars[4])
+                b_err = float(pars[5])
                 logN = float(pars[6])
-                components_to_add.append([ion, z, b, logN])
+                logN_err = float(pars[7])
+                components_to_add.append([ion, z, b, logN,
+                                          z_err, b_err, logN_err])
                 if ion not in all_ions_in_file:
                     all_ions_in_file.append(ion)
 
         for ion in all_ions_in_file:
             if ion in self.components.keys():
                 self.reset_components(ion)
+                # Remove all parameters from self.best_fit
+                if isinstance(self.best_fit, dict) and fit_pars:
+                    pars_to_delete = list()
+                    for parname in self.best_fit.keys():
+                        if ion in parname:
+                            pars_to_delete.append(parname)
+                    for parname in pars_to_delete:
+                        self.best_fit.pop(parname)
 
-        for comp_pars in components_to_add:
-            ion, z, b, logN = comp_pars
+        for num, comp_pars in enumerate(components_to_add):
+            (ion, z, b, logN,
+             z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
+            if fit_pars:
+                parlist = [['z', z, z_err],
+                           ['b', b, b_err],
+                           ['logN', logN, logN_err]]
+                for base, val, err in parlist:
+                    parname = '%s%i_%s' % (base, num, ion)
+                    self.best_fit.add(parname, value=val)
+                    self.best_fit[parname].stderr = err
+
         parameters.close()
 
     def fix_structure(self, ion=None):
@@ -1545,7 +1568,8 @@ class DataSet(object):
         if rebin > 1:
             print "\n  Rebinning the data by a factor of %i \n" % rebin
 
-        print "  Fit is running... Please, be patient.\n"
+        if self.verbose:
+            print "  Fit is running... Please, be patient.\n"
 
         def chi(pars):
             model = list()
@@ -1598,13 +1622,15 @@ class DataSet(object):
                 region.err /= cont_model
                 region.normalized = True
 
-        print "\n The fit has finished with the following exit message:"
-        print "  " + popt.message
-        print ""
-        if verbose and self.verbose:
-            output.print_results(self, self.best_fit, velocity=False)
-            if self.cheb_order >= 0:
-                output.print_cont_parameters(self)
+        if self.verbose:
+            print "\n The fit has finished with the following exit message:"
+            print "  " + popt.message
+            print ""
+
+            if verbose:
+                output.print_results(self, self.best_fit, velocity=False)
+                if self.cheb_order >= 0:
+                    output.print_cont_parameters(self)
 
         if plot:
             self.plot_fit(rebin=rebin, subsample_profile=rebin)
@@ -1617,7 +1643,8 @@ class DataSet(object):
                  subsample_profile=1, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, legend=True,
-                 label_all_ions=False, xunit='vel'):
+                 label_all_ions=False, xunit='vel',
+                 line_props=None, hl_line_props=None):
         """
         Plot *all* the absorption lines and the best-fit profiles.
         For details, see :func:`VoigtFit.output.plot_all_lines`.
@@ -1631,7 +1658,8 @@ class DataSet(object):
                               residuals=residuals, norm_resid=norm_resid,
                               legend=legend, label_all_ions=label_all_ions,
                               default_props=default_props, element_props=element_props,
-                              highlight_props=highlight_props, xunit=xunit)
+                              highlight_props=highlight_props, xunit=xunit,
+                              line_props=line_props, hl_line_props=hl_line_props)
         plt.show()
 
     def velocity_plot(self, **kwargs):
@@ -1647,7 +1675,8 @@ class DataSet(object):
                   show=True, subsample_profile=1, npad=50,
                   residuals=True, norm_resid=False, legend=True,
                   default_props={}, element_props={}, highlight_props=None,
-                  label_all_ions=False, xunit='velocity'):
+                  label_all_ions=False, xunit='velocity',
+                  line_props=None, hl_line_props=None):
         """
         Plot a single fitting :class:`Region <regions.Region>`
         containing the line corresponding to the given `line_tag`.
@@ -1661,7 +1690,8 @@ class DataSet(object):
                                 npad=npad, residuals=residuals, norm_resid=norm_resid,
                                 legend=legend, label_all_ions=label_all_ions,
                                 default_props=default_props, element_props=element_props,
-                                highlight_props=highlight_props, xunit=xunit)
+                                highlight_props=highlight_props, xunit=xunit,
+                                line_props=line_props, hl_line_props=hl_line_props)
 
     def print_results(self, velocity=True, elements='all', systemic=None):
         """
