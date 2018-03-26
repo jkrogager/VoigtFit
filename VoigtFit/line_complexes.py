@@ -1,70 +1,53 @@
 """
 This module contains definitions of line-complexes which should be defined
 simulatneously. Data in this module are purely included for ease of use.
+
+"This work has made use of the VALD database, operated at Uppsala University,
+the Institute of Astronomy RAS in Moscow, and the University of Vienna."
+
+    Ryabchikova T., Piskunov, N., Kurucz, R.L., et al.,
+        Physics Scripta, vol 90, issue 5, article id. 054005 (2015), (VALD-3)
+    Kupka F., Ryabchikova T.A., Piskunov N.E., Stempels H.C., Weiss W.W., 2000,
+        Baltic Astronomy, vol. 9, 590-594 (2000), (VALD-2)
+    Kupka F., Piskunov N.E., Ryabchikova T.A., Stempels H.C., Weiss W.W.,
+        A&AS 138, 119-133 (1999), (VALD-2)
+    Ryabchikova T.A. Piskunov N.E., Stempels H.C., Kupka F., Weiss W.W.
+        Proc. of the 6th International Colloquium on Atomic Spectra and Oscillator Strengths,
+        Victoria BC, Canada, 1998, Physica Scripta T83, 162-173 (1999), (VALD-2)
+    Piskunov N.E., Kupka F., Ryabchikova T.A., Weiss W.W., Jeffery C.S.,
+        A&AS 112, 525 (1995) (VALD-1)
 """
 __author__ = 'Jens-Kristian Krogager'
+import pickle
+from os.path import dirname, abspath
+
+
+def merge_two_dicts(default, x):
+    """Merge the keys of dictionary `x` into dictionary `default`. """
+    z = default.copy()
+    z.update(x)
+    return z
+
+
+root_path = dirname(abspath(__file__))
+CI_label_file = root_path + '/static/C_full_labels.txt'
+CI_file = root_path + '/static/C_complexes.dict.pickle'
 
 fine_structure_complexes = dict()
+CI_complex = pickle.load(open(CI_file))
+# Load more complexes here and merge them with the existing dictionary:
+fine_structure_complexes = merge_two_dicts(fine_structure_complexes,
+                                           CI_complex)
+# Or define the complexes by hand, e.g.:
+# fine_structure_complexes[main_tag] = [dependent_tags]
 
-CI_full_labels = {
-    'CI_1656': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p3s\ ^3{\\rm P}\ (\\lambda1656)$',
-    'CI_1560': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm D}\ (\\lambda1560)$',
-    'CI_1328': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s2p^3\ ^3{\\rm P}\ (\\lambda1328)$',
-    'CI_1280': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p4s\ ^3{\\rm P}\ (\\lambda1280)$',
-    'CI_1277': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22s3d\ ^3{\\rm D}\ (\\lambda1277)$',
-    'CI_1276': '${\\rm C\,\i}\ ^3{\\rm P} \\rightarrow 2s^22p4s\ ^1{\\rm P}\ (\\lambda1276)$'
-}
+full_labels = dict()
+with open(CI_label_file) as labels:
+    all_lines = labels.readlines()
 
-CI_labels = {'CI_1656': '${\\rm CI\ \\lambda1656}$',
-             'CI_1560': '${\\rm CI\ \\lambda1560}$',
-             'CI_1328': '${\\rm CI\ \\lambda1328}$',
-             'CI_1280': '${\\rm CI\ \\lambda1280}$',
-             'CI_1277': '${\\rm CI\ \\lambda1277}$',
-             'CI_1276': '${\\rm CI\ \\lambda1276}$'}
-
-# - CI 1656 complex
-fine_structure_complexes['CI_1656'] = ['CIa_1656',
-                                       'CI_1656',
-                                       'CIb_1657',
-                                       'CIa_1657',
-                                       'CIa_1657.9',
-                                       'CIb_1658']
-
-# - CI 1560 complex
-fine_structure_complexes['CI_1560'] = ['CI_1560',
-                                       'CIa_1560',
-                                       'CIa_1560.7',
-                                       'CIb_1561',
-                                       'CIb_1561.3',
-                                       'CIb_1561.4']
-
-# - CI 1328 complex
-fine_structure_complexes['CI_1328'] = ['CI_1328',
-                                       'CIa_1329',
-                                       'CIa_1329.1',
-                                       'CIa_1329.12',
-                                       'CIb_1329',
-                                       'CIb_1329.6']
-
-# - CI 1280 complex
-fine_structure_complexes['CI_1280'] = ['CIa_1279',
-                                       'CI_1280',
-                                       'CIb_1280',
-                                       'CIa_1280',
-                                       'CIa_1280.5',
-                                       'CIb_1280.8']
-
-# - CI 1277 complex
-fine_structure_complexes['CI_1277'] = ['CI_1277',
-                                       'CIa_1277',
-                                       'CIa_1277.5',
-                                       'CIb_1277',
-                                       'CIb_1277.7',
-                                       'CIb_1277.9',
-                                       'CIb_1279.2',
-                                       'CIb_1279.5']
-
-# - CI 1276 complex
-fine_structure_complexes['CI_1276'] = ['CI_1276',
-                                       'CIa_1276',
-                                       'CIb_1277.2']
+for line in all_lines:
+    if line.strip()[0] == '#':
+        continue
+    else:
+        tag, label = line.strip().split('\t')
+        full_labels[tag.strip()] = label

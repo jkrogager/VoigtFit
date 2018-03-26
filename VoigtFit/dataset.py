@@ -21,13 +21,14 @@ import hdf5_save
 myfloat = np.float64
 
 root_path = os.path.dirname(os.path.abspath(__file__))
-atomfile = root_path + '/static/atomdata_updated.dat'
+# atomfile = root_path + '/static/atomdata_updated.dat'
+atomfile = root_path + '/static/linelist.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
                                        ('l0', 'f4'),
-                                       ('f', 'f4'),
-                                       ('gam', 'f4'),
+                                       ('f', 'f8'),
+                                       ('gam', 'f8'),
                                        ('mass', 'f4')]
                       )
 
@@ -1148,9 +1149,10 @@ class DataSet(object):
         regions_of_line = self.find_line(line_tag)
         for reg in regions_of_line:
             if full_label:
-                reg.label = line_complexes.CI_full_labels[line_tag]
+                reg.label = line_complexes.full_labels[line_tag]
             else:
-                reg.label = line_complexes.CI_labels[line_tag]
+                raw_label = line_tag.replace('_', '\ \\lambda')
+                reg.label = "${\\rm %s}$" % raw_label
 
     def remove_fine_lines(self, line_tag, levels=None):
         """

@@ -371,20 +371,30 @@ class Region():
         """Set descriptive text label for the given region."""
         self.label = text
 
-    def generate_label(self, active_only=True):
+    def generate_label(self, active_only=True, ignore_finelines=True):
         """Automatically generate a descriptive label for the region."""
         transition_lines = list()
-        if active_only:
+        if active_only and not ignore_finelines:
             for line in self.lines:
                 if line.active is True:
                     transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
-            line_string = "\n".join(all_trans_str)
+
+        elif active_only and ignore_finelines:
+            for line in self.lines:
+                if line.active is True and line.ion[-1].isupper():
+                    transition_lines.append(line.tag)
+
+        elif not active_only and ignore_finelines:
+            for line in self.lines:
+                if line.ion[-1].isupper():
+                    transition_lines.append(line.tag)
 
         else:
             for line in self.lines:
                 transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
-            line_string = "\n".join(all_trans_str)
+
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$"
+                         for trans in transition_lines]
+        line_string = "\n".join(all_trans_str)
 
         self.label = line_string
