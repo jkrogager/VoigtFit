@@ -508,9 +508,10 @@ class DataSet(object):
 
     def remove_line(self, line_tag):
         """
-        Remove an absorption line from the DataSet. If this is the last line in a fitting region
-        the given region will be eliminated, and if this is the last line of a given ion,
-        then the components will be eliminated for that ion.
+        Remove an absorption line from the DataSet. If this is the last line
+        in a fitting region the given region will be eliminated, and if this
+        is the last line of a given ion, then the components will be eliminated
+        for that ion.
 
         Parameters
         ----------
@@ -525,8 +526,10 @@ class DataSet(object):
             in_lines = "" if line_tag in self.lines.keys() else "not "
             print ""
             print " [ERROR] - Problem detected in database."
-            print " The line %s is %sdefined in `self.all_lines`." % (line_tag, in_all_lines)
-            print " The line %s is %sdefined in `self.lines`." % (line_tag, in_lines)
+            print(" The line %s is %sdefined in `self.all_lines`." %
+                  (line_tag, in_all_lines))
+            print(" The line %s is %sdefined in `self.lines`." %
+                  (line_tag, in_lines))
             print ""
 
         # --- Check if the ion has transistions defined in other regions
@@ -560,11 +563,13 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print ""
-                print " The line, %s, is not defined. Nothing to remove." % line_tag
+                print("")
+                print(" The line, %s, is not defined. Nothing to remove." %
+                      line_tag)
 
     def remove_all_lines(self):
-        for line_tag in self.all_lines:
+        lines_to_remove = self.lines.keys()
+        for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
     def normalize_line(self, line_tag, norm_method='spline'):
@@ -1106,8 +1111,8 @@ class DataSet(object):
     def add_fine_lines(self, line_tag, levels=None, full_label=False, velspan=None):
         """
         Add fine-structure line complexes by providing only the main transition.
-        This function is mainly useful for the CI complexes, where the many lines are closely
-        located and often blended.
+        This function is mainly useful for the CI complexes, where the many
+        lines are closely located and often blended.
 
         Parameters
         ----------
@@ -1115,14 +1120,15 @@ class DataSet(object):
             Line tag for the ground state transition, e.g., "CI_1656"
 
         levels : str, list(str)    [default = None]
-            The levels of the fine-structure complexes to add, starting with "a" referring
-            to the first excited level, "b" is the second, etc..
-            Several levels can be given at once: ['a', 'b']
-            By default, all levels are included.
+            The levels of the fine-structure complexes to add, starting with "a"
+            referring to the first excited level, "b" is the second, etc..
+            Several levels can be given at once: ['a', 'b'].
+            Note that the ground state transition is always included.
+            If `levels` is not given, all levels are included.
 
         full_label : bool   [default = False]
-            If `True`, the label will be translated to the full quantum mechanical description
-            of the state.
+            If `True`, the label will be translated to the full quantum
+            mechanical description of the state.
         """
         if velspan is None:
             velspan = self.velspan
@@ -1132,7 +1138,7 @@ class DataSet(object):
         if hasattr(levels, '__iter__'):
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
-                if ion[-1] in levels:
+                if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
 
         elif levels is None:
@@ -1142,7 +1148,7 @@ class DataSet(object):
         else:
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
-                if ion[-1] in levels:
+                if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
 
         # Set label:
@@ -1571,7 +1577,7 @@ class DataSet(object):
             print "\n  Rebinning the data by a factor of %i \n" % rebin
 
         if self.verbose:
-            print "  Fit is running... Please, be patient.\n"
+            print "\n  Fit is running... Please, be patient.\n"
 
         def chi(pars):
             model = list()
