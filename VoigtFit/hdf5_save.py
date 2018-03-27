@@ -165,10 +165,17 @@ def load_dataset_from_hdf(fname):
             region_lines = list()
             for line_tag, line_group in reg['lines'].items():
                 act = line_group.attrs['active']
-                line_instance = dataset.Line(line_tag, active=act)
-                region_lines.append(line_instance)
-                ds.all_lines.append(line_tag)
-                ds.lines[line_tag] = line_instance
+                # Add check for backward compatibility:
+                if line_tag in dataset.lineList['trans']:
+                    line_instance = dataset.Line(line_tag, active=act)
+                    region_lines.append(line_instance)
+                    ds.all_lines.append(line_tag)
+                    ds.lines[line_tag] = line_instance
+                else:
+                    print(" [WARNING] - Anomaly detected for line:")
+                    print("             %s" % line_tag)
+                    print(" I suspect that the atomic linelist has changed...")
+                    print("")
 
             # Instantiate the Region Class with the first Line:
             line_init = region_lines[0]
