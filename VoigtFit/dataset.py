@@ -404,7 +404,8 @@ class DataSet(object):
             new_line = Line(line_tag)
         else:
             if self.verbose:
-                print "\nThe transition (%s) not found in line list!" % line_tag
+                print("\nThe transition (%s) not found in line list!"
+                      % line_tag)
             return False
 
         if velspan is None:
@@ -429,23 +430,31 @@ class DataSet(object):
                     new_region = Region(velspan, chunk['specID'])
                     new_region.add_line(new_line)
 
-                    # check if the line overlaps with another already defined region
                     if len(self.regions) > 0:
                         merge = -1
                         for num, region in enumerate(self.regions):
-                            # Only allow regions arising from the same chunk to be merged:
+                            # Only allow regions arising from the same
+                            # data chunk to be merged:
                             if chunk['specID'] == region.specID:
-                                if np.intersect1d(new_wavelength, region.wl).any():
+                                wl_overlap = np.intersect1d(new_wavelength,
+                                                            region.wl)
+                                if wl_overlap.any():
                                     merge = num
 
+                        # If the region overlaps with another region
+                        # merge the two regions:
                         if merge >= 0:
-                            # If the region overlaps with another merge the two regions:
                             new_region.lines += self.regions[merge].lines
 
-                            # merge the wavelength region
-                            region_wl = np.union1d(new_wavelength, self.regions[merge].wl)
+                            # merge the wavelength ranges
+                            region_wl = np.union1d(new_wavelength,
+                                                   self.regions[merge].wl)
+                            old_mask = self.regions[merge].mask
+                            old_wl = self.regions[merge].wl
+                            tmp_mask = chunk['mask'][span]
+                            tmp_wl = chunk['wl'][span]
 
-                            # and remove the overlapping region from the dataset
+                            # remove the overlapping region from the dataset
                             self.regions.pop(merge)
 
                         else:
@@ -455,10 +464,27 @@ class DataSet(object):
                         region_wl = new_wavelength
 
                     # Wavelength has now been defined and merged
-                    # Cutout spectral chunks and add them to the Region
+                    # Cutout spectral chunks and add them to the new Region
                     cutout = (wl >= region_wl.min()) * (wl <= region_wl.max())
-
                     new_region.add_data_to_region(chunk, cutout)
+
+                    # Update the mask of the new region to include
+                    # new mask definitions from the old region:
+                    # In the overlapping region, the mask from the existing
+                    # region will overwrite any pixel mask in the data chunk
+                    old_mask_i = np.interp(new_region.wl, old_wl, old_mask,
+                                           left=1, right=1)
+                    old_mask_i = old_mask_i.astype(bool)
+                    tmp_mask_i = np.interp(new_region.wl, tmp_wl, tmp_mask,
+                                           left=1, right=1)
+                    region_overlap = np.interp(new_region.wl,
+                                               old_wl, 1+0*old_mask,
+                                               right=0, left=0)
+                    region_overlap = region_overlap.astype(bool)
+                    tmp_mask_i[region_overlap] = 1
+                    tmp_mask_i = tmp_mask_i.astype(bool)
+                    new_mask = tmp_mask_i * old_mask_i
+                    new_region.set_mask(new_mask)
 
                     self.regions.append(new_region)
                     if line_tag not in self.all_lines:
@@ -468,13 +494,15 @@ class DataSet(object):
 
             if not success:
                 if self.verbose:
-                    print "\n [ERROR] - The given line is not covered by the spectral data: " + line_tag
-                    print ""
+                    err_msg = ("\n [ERROR] - The given line is not covered"
+                               "by the spectral data: %s \n")
+                    print err_msg % line_tag
                 return False
 
         else:
             if self.verbose:
-                print " [ERROR]  No data is loaded. Run method `add_data` to add spectral data."
+                print(" [ERROR] - No data is loaded."
+                      "Run method `add_data` to add spectral data.")
 
     def add_many_lines(self, tags, velspan=None):
         """
