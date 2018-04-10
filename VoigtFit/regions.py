@@ -146,10 +146,8 @@ class Region():
                 continuum.
         """
 
-        if norm_method == 'linear':
-            norm_num = 1
-        elif norm_method == 'spline':
-            norm_num = 2
+        if norm_method in ['linear', 'spline']:
+            pass
         else:
             err_msg = "Invalid norm_method: %r" % norm_method
             raise ValueError(err_msg)
@@ -165,7 +163,7 @@ class Region():
                  label=lines_title_string)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
 
-        if norm_num == 1:
+        if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
             print "\n\n  Mark left continuum region, left and right boundary."
@@ -194,7 +192,7 @@ class Region():
             continuum = linfunc(self.wl, *popt)
             e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
 
-        elif norm_num == 2:
+        elif norm_method == 'spline':
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
@@ -222,7 +220,7 @@ class Region():
             plt.axhline(1., ls='--', color='k')
             plt.axhline(1.+e_continuum/np.mean(continuum), ls=':', color='gray')
             plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.show(block=False)
+            plt.draw()
 
             plt.title("Go back to terminal...")
             prompt = raw_input(" Is normalization correct?  (YES/no) ")
@@ -265,9 +263,13 @@ class Region():
         plt.xlim(self.wl.min(), self.wl.max())
         # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
         lines_title = ", ".join([line.tag for line in self.lines])
+
+        masked_spectrum = np.ma.masked_where(self.mask, self.flux)
         plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
                  label=lines_title)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
+        mask_line = plt.plot(self.wl, masked_spectrum, color='r', lw=1.5,
+                             drawstyle='steps-mid', zorder=0)
         plt.legend()
         if telluric:
             wl_T = telluric_data['wl']
