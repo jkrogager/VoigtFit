@@ -17,6 +17,7 @@ import molecules
 from line_complexes import fine_structure_complexes
 import Asplund
 import hdf5_save
+import terminal_attributes as term
 
 myfloat = np.float64
 
@@ -430,8 +431,8 @@ class DataSet(object):
                     new_region = Region(velspan, chunk['specID'])
                     new_region.add_line(new_line)
 
+                    merge = -1
                     if len(self.regions) > 0:
-                        merge = -1
                         for num, region in enumerate(self.regions):
                             # Only allow regions arising from the same
                             # data chunk to be merged:
@@ -472,19 +473,20 @@ class DataSet(object):
                     # new mask definitions from the old region:
                     # In the overlapping region, the mask from the existing
                     # region will overwrite any pixel mask in the data chunk
-                    old_mask_i = np.interp(new_region.wl, old_wl, old_mask,
-                                           left=1, right=1)
-                    old_mask_i = old_mask_i.astype(bool)
-                    tmp_mask_i = np.interp(new_region.wl, tmp_wl, tmp_mask,
-                                           left=1, right=1)
-                    region_overlap = np.interp(new_region.wl,
-                                               old_wl, 1+0*old_mask,
-                                               right=0, left=0)
-                    region_overlap = region_overlap.astype(bool)
-                    tmp_mask_i[region_overlap] = 1
-                    tmp_mask_i = tmp_mask_i.astype(bool)
-                    new_mask = tmp_mask_i * old_mask_i
-                    new_region.set_mask(new_mask)
+                    if merge >= 0:
+                        old_mask_i = np.interp(new_region.wl, old_wl, old_mask,
+                                               left=1, right=1)
+                        old_mask_i = old_mask_i.astype(bool)
+                        tmp_mask_i = np.interp(new_region.wl, tmp_wl, tmp_mask,
+                                               left=1, right=1)
+                        region_overlap = np.interp(new_region.wl,
+                                                   old_wl, 1+0*old_mask,
+                                                   right=0, left=0)
+                        region_overlap = region_overlap.astype(bool)
+                        tmp_mask_i[region_overlap] = 1
+                        tmp_mask_i = tmp_mask_i.astype(bool)
+                        new_mask = tmp_mask_i * old_mask_i
+                        new_region.set_mask(new_mask)
 
                     self.regions.append(new_region)
                     if line_tag not in self.all_lines:
@@ -494,14 +496,14 @@ class DataSet(object):
 
             if not success:
                 if self.verbose:
-                    err_msg = ("\n [ERROR] - The given line is not covered"
+                    err_msg = ("\n [ERROR] - The given line is not covered "
                                "by the spectral data: %s \n")
                     print err_msg % line_tag
                 return False
 
         else:
             if self.verbose:
-                print(" [ERROR] - No data is loaded."
+                print(" [ERROR] - No data is loaded. "
                       "Run method `add_data` to add spectral data.")
 
     def add_many_lines(self, tags, velspan=None):
@@ -613,17 +615,10 @@ class DataSet(object):
             Normalization method used for the interactive continuum fit.
             Should be on of: ["spline", "linear"]
         """
-        if norm_method == 'linear':
-            norm_num = 1
-        elif norm_method == 'spline':
-            norm_num = 2
-        else:
-            err_msg = "Invalid norm_method: %r" % norm_method
-            raise ValueError(err_msg)
 
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
-            region.normalize(norm_method=norm_num)
+            region.normalize(norm_method=norm_method)
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True):
         """
@@ -1086,10 +1081,11 @@ class DataSet(object):
             (ion, z, b, logN,
              z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
-            if fit_pars:
+            if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
                            ['b', b, b_err],
                            ['logN', logN, logN_err]]
+
                 for base, val, err in parlist:
                     parname = '%s%i_%s' % (base, num, ion)
                     self.best_fit.add(parname, value=val)
@@ -1412,7 +1408,8 @@ class DataSet(object):
 
     # =========================================================================
 
-    def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False,
+    def prepare_dataset(self, norm=True, mask=True, verbose=True,
+                        active_only=False,
                         force_clean=False):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
@@ -1879,3 +1876,31 @@ class DataSet(object):
                 print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
                 print "           or give filename [dataset.save(filename='filename')]"
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
+
+    def show_lines(self):
+        """
+        Print all defined lines to terminal.
+        The output shows whether the line is active or not
+        and the number of components for the given ion.
+        """
+        header = "%15s   State     " % 'Line ID'
+        print term.underline + header + term.reset
+        for line_tag, line in self.lines.items():
+            active = 'active' if line.active else 'not active'
+            fmt = '' if line.active else term.red
+            output = "%15s : %s" % (line_tag, active)
+            print fmt + output + term.reset
+
+    def show_components(self, ion=None):
+        """
+        Show the defined components for a given `ion`.
+        By default, all ions are shown.
+        """
+        z_sys = self.redshift
+        for ion, comps in self.components.items():
+            print "\n - %6s:" % ion
+            for num, comp in enumerate(comps):
+                z = comp[0]
+                vel = (z - z_sys) / (z_sys + 1) * 299792.458
+                print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                                comp[1], comp[2])
