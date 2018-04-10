@@ -17,6 +17,7 @@ import Asplund
 import molecules
 from dataset import Line
 from voigt import evaluate_profile
+import terminal_attributes as term
 
 plt.rcParams['lines.linewidth'] = 1.0
 
@@ -807,6 +808,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         ax.set_ylabel("${\\rm Normalized\ flux}$")
 
     ax.minorticks_on()
+    ax.xaxis.get_major_formatter().set_scientific(False)
     ax.axhline(1., ls='--', color='k')
     ax.axhline(1. + cont_err, ls=':', color='gray')
     ax.axhline(1. - cont_err, ls=':', color='gray')
@@ -1777,3 +1779,18 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             out_file.write("# column 4 : Best-fit profile\n")
             out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
             np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
+
+
+def show_components(self, ion=None):
+    """
+    Show the defined components for a given `ion`.
+    By default, all ions are shown.
+    """
+    z_sys = self.redshift
+    for ion, comps in self.components.items():
+        print term.underline + "  %s:" % ion + term.reset
+        for num, comp in enumerate(comps):
+            z = comp[0]
+            vel = (z - z_sys) / (z_sys + 1) * 299792.458
+            print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                            comp[1], comp[2])
