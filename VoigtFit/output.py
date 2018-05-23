@@ -1523,7 +1523,7 @@ def print_total(dataset):
             logN_err = []
             N_tot = []
             for par in params.keys():
-                if par.find('logN') >= 0 and par.find(ion) >= 0:
+                if par.find('logN') >= 0 and par.split('_')[1] == ion:
                     N_tot.append(params[par].value)
                     if params[par].stderr < 0.5:
                         logN.append(params[par].value)
