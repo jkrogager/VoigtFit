@@ -282,7 +282,10 @@ class Region():
             else:
                 cont = np.median(self.flux)
             plt.plot(wl_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
-            plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont, color='orange', alpha=0.7, lw=0.5)
+            # -- Test if telluric template is defined in this region:
+            if len(flux_T) > 0:
+                plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont,
+                         color='orange', alpha=0.7, lw=0.5)
 
         if z is not None:
             for line in self.lines:
