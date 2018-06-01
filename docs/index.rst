@@ -42,6 +42,10 @@ New in version 0.9.9:
   and for some lines not covered by VALD the damping constants have been taken from the compilation of
   `Morton et al. 2003 <https://ui.adsabs.harvard.edu/#abs/2003ApJS..149..205M/abstract>`_.
 
+  When masking lines, any predefined masks in the spectral data (loaded with the add_data statement)
+  are now retained.
+
+
 
 Installation instructions
 -------------------------
