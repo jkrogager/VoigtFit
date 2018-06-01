@@ -32,6 +32,21 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 
 
+Recent updates
+--------------
+
+New in version 0.9.9:
+
+  New atomic data consistently gathered from the `VALD <http://vald.astro.uu.se/>`_ database.
+  The linelist has additional lines from `Cashman et al. 2017 <https://ui.adsabs.harvard.edu/#abs/2017ApJS..230....8C/abstract>`_
+  and for some lines not covered by VALD the damping constants have been taken from the compilation of
+  `Morton et al. 2003 <https://ui.adsabs.harvard.edu/#abs/2003ApJS..149..205M/abstract>`_.
+
+  When masking lines, any predefined masks in the spectral data (loaded with the add_data statement)
+  are now retained.
+
+
+
 Installation instructions
 -------------------------
 

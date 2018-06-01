@@ -92,7 +92,9 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         'VoigtFit/static': ['Asplund2009.dat',
-                            'atomdata_updated.dat',
+                            'linelist.dat',
+                            'C_complexes.dict.pickle',
+                            'C_full_labels.txt',
                             'telluric_em_abs.npz',
                             'input_template.txt'],
         'VoigtFit': ['VERSION'],

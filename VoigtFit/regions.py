@@ -146,10 +146,8 @@ class Region():
                 continuum.
         """
 
-        if norm_method == 'linear':
-            norm_num = 1
-        elif norm_method == 'spline':
-            norm_num = 2
+        if norm_method in ['linear', 'spline']:
+            pass
         else:
             err_msg = "Invalid norm_method: %r" % norm_method
             raise ValueError(err_msg)
@@ -165,7 +163,7 @@ class Region():
                  label=lines_title_string)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
 
-        if norm_num == 1:
+        if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
             print "\n\n  Mark left continuum region, left and right boundary."
@@ -194,7 +192,7 @@ class Region():
             continuum = linfunc(self.wl, *popt)
             e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
 
-        elif norm_num == 2:
+        elif norm_method == 'spline':
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
@@ -222,7 +220,7 @@ class Region():
             plt.axhline(1., ls='--', color='k')
             plt.axhline(1.+e_continuum/np.mean(continuum), ls=':', color='gray')
             plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.show(block=False)
+            plt.draw()
 
             plt.title("Go back to terminal...")
             prompt = raw_input(" Is normalization correct?  (YES/no) ")
@@ -265,9 +263,13 @@ class Region():
         plt.xlim(self.wl.min(), self.wl.max())
         # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
         lines_title = ", ".join([line.tag for line in self.lines])
+
+        masked_spectrum = np.ma.masked_where(self.mask, self.flux)
         plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
                  label=lines_title)
         plt.xlabel("Wavelength  [${\\rm \AA}$]")
+        mask_line = plt.plot(self.wl, masked_spectrum, color='r', lw=1.5,
+                             drawstyle='steps-mid', zorder=0)
         plt.legend()
         if telluric:
             wl_T = telluric_data['wl']
@@ -280,7 +282,10 @@ class Region():
             else:
                 cont = np.median(self.flux)
             plt.plot(wl_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
-            plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont, color='orange', alpha=0.7, lw=0.5)
+            # -- Test if telluric template is defined in this region:
+            if len(flux_T) > 0:
+                plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont,
+                         color='orange', alpha=0.7, lw=0.5)
 
         if z is not None:
             for line in self.lines:
@@ -371,20 +376,30 @@ class Region():
         """Set descriptive text label for the given region."""
         self.label = text
 
-    def generate_label(self, active_only=True):
+    def generate_label(self, active_only=True, ignore_finelines=True):
         """Automatically generate a descriptive label for the region."""
         transition_lines = list()
-        if active_only:
+        if active_only and not ignore_finelines:
             for line in self.lines:
                 if line.active is True:
                     transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
-            line_string = "\n".join(all_trans_str)
+
+        elif active_only and ignore_finelines:
+            for line in self.lines:
+                if line.active is True and line.ion[-1].isupper():
+                    transition_lines.append(line.tag)
+
+        elif not active_only and ignore_finelines:
+            for line in self.lines:
+                if line.ion[-1].isupper():
+                    transition_lines.append(line.tag)
 
         else:
             for line in self.lines:
                 transition_lines.append(line.tag)
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$" for trans in transition_lines]
-            line_string = "\n".join(all_trans_str)
+
+        all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$"
+                         for trans in transition_lines]
+        line_string = "\n".join(all_trans_str)
 
         self.label = line_string

@@ -17,17 +17,19 @@ import molecules
 from line_complexes import fine_structure_complexes
 import Asplund
 import hdf5_save
+import terminal_attributes as term
 
 myfloat = np.float64
 
 root_path = os.path.dirname(os.path.abspath(__file__))
-atomfile = root_path + '/static/atomdata_updated.dat'
+# atomfile = root_path + '/static/atomdata_updated.dat'
+atomfile = root_path + '/static/linelist.dat'
 
 lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                                        ('ion', 'S6'),
                                        ('l0', 'f4'),
-                                       ('f', 'f4'),
-                                       ('gam', 'f4'),
+                                       ('f', 'f8'),
+                                       ('gam', 'f8'),
                                        ('mass', 'f4')]
                       )
 
@@ -403,7 +405,8 @@ class DataSet(object):
             new_line = Line(line_tag)
         else:
             if self.verbose:
-                print "\nThe transition (%s) not found in line list!" % line_tag
+                print("\nThe transition (%s) not found in line list!"
+                      % line_tag)
             return False
 
         if velspan is None:
@@ -428,23 +431,31 @@ class DataSet(object):
                     new_region = Region(velspan, chunk['specID'])
                     new_region.add_line(new_line)
 
-                    # check if the line overlaps with another already defined region
+                    merge = -1
                     if len(self.regions) > 0:
-                        merge = -1
                         for num, region in enumerate(self.regions):
-                            # Only allow regions arising from the same chunk to be merged:
+                            # Only allow regions arising from the same
+                            # data chunk to be merged:
                             if chunk['specID'] == region.specID:
-                                if np.intersect1d(new_wavelength, region.wl).any():
+                                wl_overlap = np.intersect1d(new_wavelength,
+                                                            region.wl)
+                                if wl_overlap.any():
                                     merge = num
 
+                        # If the region overlaps with another region
+                        # merge the two regions:
                         if merge >= 0:
-                            # If the region overlaps with another merge the two regions:
                             new_region.lines += self.regions[merge].lines
 
-                            # merge the wavelength region
-                            region_wl = np.union1d(new_wavelength, self.regions[merge].wl)
+                            # merge the wavelength ranges
+                            region_wl = np.union1d(new_wavelength,
+                                                   self.regions[merge].wl)
+                            old_mask = self.regions[merge].mask
+                            old_wl = self.regions[merge].wl
+                            tmp_mask = chunk['mask'][span]
+                            tmp_wl = chunk['wl'][span]
 
-                            # and remove the overlapping region from the dataset
+                            # remove the overlapping region from the dataset
                             self.regions.pop(merge)
 
                         else:
@@ -454,10 +465,28 @@ class DataSet(object):
                         region_wl = new_wavelength
 
                     # Wavelength has now been defined and merged
-                    # Cutout spectral chunks and add them to the Region
+                    # Cutout spectral chunks and add them to the new Region
                     cutout = (wl >= region_wl.min()) * (wl <= region_wl.max())
-
                     new_region.add_data_to_region(chunk, cutout)
+
+                    # Update the mask of the new region to include
+                    # new mask definitions from the old region:
+                    # In the overlapping region, the mask from the existing
+                    # region will overwrite any pixel mask in the data chunk
+                    if merge >= 0:
+                        old_mask_i = np.interp(new_region.wl, old_wl, old_mask,
+                                               left=1, right=1)
+                        old_mask_i = old_mask_i.astype(bool)
+                        tmp_mask_i = np.interp(new_region.wl, tmp_wl, tmp_mask,
+                                               left=1, right=1)
+                        region_overlap = np.interp(new_region.wl,
+                                                   old_wl, 1+0*old_mask,
+                                                   right=0, left=0)
+                        region_overlap = region_overlap.astype(bool)
+                        tmp_mask_i[region_overlap] = 1
+                        tmp_mask_i = tmp_mask_i.astype(bool)
+                        new_mask = tmp_mask_i * old_mask_i
+                        new_region.set_mask(new_mask)
 
                     self.regions.append(new_region)
                     if line_tag not in self.all_lines:
@@ -467,13 +496,15 @@ class DataSet(object):
 
             if not success:
                 if self.verbose:
-                    print "\n [ERROR] - The given line is not covered by the spectral data: " + line_tag
-                    print ""
+                    err_msg = ("\n [ERROR] - The given line is not covered "
+                               "by the spectral data: %s \n")
+                    print err_msg % line_tag
                 return False
 
         else:
             if self.verbose:
-                print " [ERROR]  No data is loaded. Run method `add_data` to add spectral data."
+                print(" [ERROR] - No data is loaded. "
+                      "Run method `add_data` to add spectral data.")
 
     def add_many_lines(self, tags, velspan=None):
         """
@@ -507,9 +538,10 @@ class DataSet(object):
 
     def remove_line(self, line_tag):
         """
-        Remove an absorption line from the DataSet. If this is the last line in a fitting region
-        the given region will be eliminated, and if this is the last line of a given ion,
-        then the components will be eliminated for that ion.
+        Remove an absorption line from the DataSet. If this is the last line
+        in a fitting region the given region will be eliminated, and if this
+        is the last line of a given ion, then the components will be eliminated
+        for that ion.
 
         Parameters
         ----------
@@ -524,8 +556,10 @@ class DataSet(object):
             in_lines = "" if line_tag in self.lines.keys() else "not "
             print ""
             print " [ERROR] - Problem detected in database."
-            print " The line %s is %sdefined in `self.all_lines`." % (line_tag, in_all_lines)
-            print " The line %s is %sdefined in `self.lines`." % (line_tag, in_lines)
+            print(" The line %s is %sdefined in `self.all_lines`." %
+                  (line_tag, in_all_lines))
+            print(" The line %s is %sdefined in `self.lines`." %
+                  (line_tag, in_lines))
             print ""
 
         # --- Check if the ion has transistions defined in other regions
@@ -559,11 +593,13 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print ""
-                print " The line, %s, is not defined. Nothing to remove." % line_tag
+                print("")
+                print(" The line, %s, is not defined. Nothing to remove." %
+                      line_tag)
 
     def remove_all_lines(self):
-        for line_tag in self.all_lines:
+        lines_to_remove = self.lines.keys()
+        for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
     def normalize_line(self, line_tag, norm_method='spline'):
@@ -579,17 +615,10 @@ class DataSet(object):
             Normalization method used for the interactive continuum fit.
             Should be on of: ["spline", "linear"]
         """
-        if norm_method == 'linear':
-            norm_num = 1
-        elif norm_method == 'spline':
-            norm_num = 2
-        else:
-            err_msg = "Invalid norm_method: %r" % norm_method
-            raise ValueError(err_msg)
 
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
-            region.normalize(norm_method=norm_num)
+            region.normalize(norm_method=norm_method)
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True):
         """
@@ -1052,10 +1081,11 @@ class DataSet(object):
             (ion, z, b, logN,
              z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
-            if fit_pars:
+            if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
                            ['b', b, b_err],
                            ['logN', logN, logN_err]]
+
                 for base, val, err in parlist:
                     parname = '%s%i_%s' % (base, num, ion)
                     self.best_fit.add(parname, value=val)
@@ -1105,8 +1135,8 @@ class DataSet(object):
     def add_fine_lines(self, line_tag, levels=None, full_label=False, velspan=None):
         """
         Add fine-structure line complexes by providing only the main transition.
-        This function is mainly useful for the CI complexes, where the many lines are closely
-        located and often blended.
+        This function is mainly useful for the CI complexes, where the many
+        lines are closely located and often blended.
 
         Parameters
         ----------
@@ -1114,14 +1144,15 @@ class DataSet(object):
             Line tag for the ground state transition, e.g., "CI_1656"
 
         levels : str, list(str)    [default = None]
-            The levels of the fine-structure complexes to add, starting with "a" referring
-            to the first excited level, "b" is the second, etc..
-            Several levels can be given at once: ['a', 'b']
-            By default, all levels are included.
+            The levels of the fine-structure complexes to add, starting with "a"
+            referring to the first excited level, "b" is the second, etc..
+            Several levels can be given at once: ['a', 'b'].
+            Note that the ground state transition is always included.
+            If `levels` is not given, all levels are included.
 
         full_label : bool   [default = False]
-            If `True`, the label will be translated to the full quantum mechanical description
-            of the state.
+            If `True`, the label will be translated to the full quantum
+            mechanical description of the state.
         """
         if velspan is None:
             velspan = self.velspan
@@ -1131,7 +1162,7 @@ class DataSet(object):
         if hasattr(levels, '__iter__'):
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
-                if ion[-1] in levels:
+                if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
 
         elif levels is None:
@@ -1141,16 +1172,17 @@ class DataSet(object):
         else:
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
-                if ion[-1] in levels:
+                if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
 
         # Set label:
         regions_of_line = self.find_line(line_tag)
         for reg in regions_of_line:
             if full_label:
-                reg.label = line_complexes.CI_full_labels[line_tag]
+                reg.label = line_complexes.full_labels[line_tag]
             else:
-                reg.label = line_complexes.CI_labels[line_tag]
+                raw_label = line_tag.replace('_', '\ \\lambda')
+                reg.label = "${\\rm %s}$" % raw_label
 
     def remove_fine_lines(self, line_tag, levels=None):
         """
@@ -1376,7 +1408,8 @@ class DataSet(object):
 
     # =========================================================================
 
-    def prepare_dataset(self, norm=True, mask=True, verbose=True, active_only=False,
+    def prepare_dataset(self, norm=True, mask=True, verbose=True,
+                        active_only=False,
                         force_clean=False):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
@@ -1569,7 +1602,7 @@ class DataSet(object):
             print "\n  Rebinning the data by a factor of %i \n" % rebin
 
         if self.verbose:
-            print "  Fit is running... Please, be patient.\n"
+            print "\n  Fit is running... Please, be patient.\n"
 
         def chi(pars):
             model = list()
@@ -1843,3 +1876,31 @@ class DataSet(object):
                 print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
                 print "           or give filename [dataset.save(filename='filename')]"
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
+
+    def show_lines(self):
+        """
+        Print all defined lines to terminal.
+        The output shows whether the line is active or not
+        and the number of components for the given ion.
+        """
+        header = "%15s   State     " % 'Line ID'
+        print term.underline + header + term.reset
+        for line_tag, line in self.lines.items():
+            active = 'active' if line.active else 'not active'
+            fmt = '' if line.active else term.red
+            output = "%15s : %s" % (line_tag, active)
+            print fmt + output + term.reset
+
+    def show_components(self, ion=None):
+        """
+        Show the defined components for a given `ion`.
+        By default, all ions are shown.
+        """
+        z_sys = self.redshift
+        for ion, comps in self.components.items():
+            print "\n - %6s:" % ion
+            for num, comp in enumerate(comps):
+                z = comp[0]
+                vel = (z - z_sys) / (z_sys + 1) * 299792.458
+                print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                                comp[1], comp[2])
