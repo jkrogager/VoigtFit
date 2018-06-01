@@ -1,0 +1,8 @@
+# Build Source Distribution:
+python setup.py sdist
+
+# Build wheel:
+python setup.py bdist_wheel
+
+# Upload to PyPI:
+twine upload dist/*
