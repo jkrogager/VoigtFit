@@ -92,7 +92,7 @@ copy components from __ion__ to __ion__ and scale logN=__ of component __
 output velocity
 
 
-# Print total abundances for each ion:
+# Print total column densities for each ion:
 total
 
 
