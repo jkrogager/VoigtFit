@@ -1715,7 +1715,7 @@ class DataSet(object):
         containing the line corresponding to the given `line_tag`.
         For details, see :func:`output.plot_single_line`.
         """
-        output.plot_single_line(self, line_tag, plot_fit=plot_fit,
+        output.plot_single_line(self, line_tag, index=index, plot_fit=plot_fit,
                                 loc=loc, rebin=rebin, nolabels=nolabels,
                                 axis=axis, fontsize=fontsize,
                                 xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax,

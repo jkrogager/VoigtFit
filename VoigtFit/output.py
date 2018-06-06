@@ -304,10 +304,14 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             filename += '.pdf'
         pdf = matplotlib.backends.backend_pdf.PdfPages(filename)
 
+    # -- Create container for multiple regions of same line:
+    regionidx_of_line = {}
+
     # --- Determine number of pages to create:
-    pages = list(chunks(lines_to_plot, 2*max_rows))
-    lines_in_figure = list()
+    pages = list(chunks(sorted(lines_to_plot), 2*max_rows))
+    # lines_in_figure = list()
     for contents in pages:
+        lines_in_figure = list()
         # --- Determine figure size:
         if len(contents) > 1:
             width = 8.5
@@ -337,12 +341,22 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 pass
             else:
                 num_regions = len(dataset.find_line(line_tag))
+                if line_tag not in regionidx_of_line.keys():
+                    regionidx_of_line[line_tag] = list()
                 for idx in range(num_regions):
-                    ax = fig.add_subplot(rows, columns, num)
-                    _, LIV = plot_single_line(dataset, line_tag, index=idx,
-                                              axis=ax, **plot_line_kwargs
-                                              )
-                    num += 1
+                    if idx in regionidx_of_line[line_tag]:
+                        # skip this region idx
+                        pass
+                    elif num > rows*columns:
+                        break
+                    else:
+                        ax = fig.add_subplot(rows, columns, num)
+                        _, LIV = plot_single_line(dataset, line_tag, index=idx,
+                                                  axis=ax, **plot_line_kwargs
+                                                  )
+                        regionidx_of_line[line_tag].append(idx)
+                        num += 1
+
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents)-1:
