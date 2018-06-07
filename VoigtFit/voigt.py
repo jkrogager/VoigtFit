@@ -65,7 +65,7 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     a = l0*1.e-8*gam/(4.*np.pi*b)
 
     dl_D = b/c*l0
-    l /= (z+1.)
+    l = l/(z+1.)
     x = (l - l0)/dl_D + 0.00001
 
     tau = np.float64(C_a) * N * H(a, x)
