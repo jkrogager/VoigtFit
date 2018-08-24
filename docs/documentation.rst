@@ -349,6 +349,14 @@ This command will activate the interactive window for defining components for th
 Notice that this will overwrite any other components defined previously for this element.
 
 
+**interactive_view : velocity  [ or wavelength ]**
+
+  The *interactive_view* keyword specifies how the data will be displayed in the interactive window.
+  If `velocity` or `vel` is given, the data will be displayed in velocity space relative
+  to the systemic redshift. Otherwise, if `wavelength` or `wave` is given, the data are
+  displayed in observed wavelength space -- this is the default view.
+
+
 .. topic:: Example
 
   The interactive definition of components will bring up the following graphic display:
@@ -472,6 +480,14 @@ the user can use one of the following two methods to normalize the fitting regio
   in order to create a continuum model.
 
 
+**norm_view : velocity  [ or wavelength ]**
+
+  The *norm_view* keyword specifies how the data will be displayed in the interactive window.
+  If `velocity` or `vel` is given, the data will be displayed in velocity space relative
+  to the systemic redshift. Otherwise, if `wavelength` or `wave` is given, the data are
+  displayed in observed wavelength space -- this is the default view.
+
+
 **C_order = order**
 
   *order* is the highest order of Chebyshev_ polynomials to include in the continuum model.
@@ -552,6 +568,14 @@ Note -- The mask is an exclusion mask, so pixels that are defined in the mask, a
       If an uneven number of points are selected, the masks will not be calculated and you
       have to start over. So if you are defining many masks (e.g., in the Lyman-α forest),
       it is advised to define the masks in several turns.
+
+
+**mask_view : velocity  [ or wavelength ]**
+
+  The *mask_view* keyword specifies how the data will be displayed in the interactive window.
+  If `velocity` or `vel` is given, the data will be displayed in velocity space relative
+  to the systemic redshift. Otherwise, if `wavelength` or `wave` is given, the data are
+  displayed in observed wavelength space -- this is the default view.
 
 
 Note -- The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.

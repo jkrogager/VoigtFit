@@ -35,6 +35,12 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.9.10:
+
+  Added two keywords to the parameter language in order to allow the user to view fit regions
+  in velocity space when defining masks, continuum normalization and components.
+  See details under sections `Mask`, `Continuum Normalization` and `Interactive Components` of the :ref:`documentation`.
+
 New in version 0.9.9:
 
   New atomic data consistently gathered from the `VALD <http://vald.astro.uu.se/>`_ database.

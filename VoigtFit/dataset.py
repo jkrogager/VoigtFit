@@ -602,7 +602,7 @@ class DataSet(object):
         for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
-    def normalize_line(self, line_tag, norm_method='spline'):
+    def normalize_line(self, line_tag, norm_method='spline', velocity=False):
         """
         Normalize or re-normalize a given line
 
@@ -614,13 +614,23 @@ class DataSet(object):
         norm_method : str   [default = 'spline']
             Normalization method used for the interactive continuum fit.
             Should be on of: ["spline", "linear"]
+
+        velocity : bool   [default = False]
+            If a `True`, the regions are displayed in velocity space
+            relative to the systemic redshift instead of in wavelength space
+            when masking and defining continuum normalization interactively.
         """
+
+        if velocity:
+            z_sys = self.redshift
+        else:
+            z_sys = None
 
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
-            region.normalize(norm_method=norm_method)
+            region.normalize(norm_method=norm_method, z_sys=z_sys)
 
-    def mask_line(self, line_tag, reset=True, mask=None, telluric=True):
+    def mask_line(self, line_tag, reset=True, mask=None, telluric=True, velocity=False):
         """
         Define exclusion masks for the fitting region of a given line.
         Note that the masked regions are exclusion regions and will not be used for the fit.
@@ -643,7 +653,17 @@ class DataSet(object):
         telluric : bool   [default = True]
             If `True`, a telluric absorption template and sky emission template
             is shown for reference.
+
+        velocity : bool   [default = False]
+            If a `True`, the regions are displayed in velocity space
+            relative to the systemic redshift instead of in wavelength space
+            when masking and defining continuum normalization interactively.
         """
+        if velocity:
+            z_sys = self.redshift
+        else:
+            z_sys = None
+
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
             if reset:
@@ -653,7 +673,8 @@ class DataSet(object):
                 region.mask = mask
                 region.new_mask = False
             else:
-                region.define_mask(z=self.redshift, dataset=self, telluric=telluric)
+                region.define_mask(z=self.redshift, dataset=self,
+                                   telluric=telluric, z_sys=z_sys)
 
     def clear_mask(self, line_tag, idx=None):
         """
@@ -886,7 +907,10 @@ class DataSet(object):
         else:
             self.components[ion] = [[z, b, logN, options]]
 
-    def interactive_components(self, line_tag):
+    # TODO:
+    # Add velocity view to interactive components...
+
+    def interactive_components(self, line_tag, velocity=False):
         """
         Define components interactively for a given ion. The components will be defined on the
         basis of the given line for that ion. If the line is defined in several spectra
@@ -900,6 +924,10 @@ class DataSet(object):
         ----------
         line_tag : str
             Line tag for the line belonging to the ion for which components should be defined.
+
+        velocity : bool   [default = False]
+            If a `True`, the region is displayed in velocity space
+            relative to the systemic redshift instead of in wavelength space.
 
         Notes
         -----
@@ -921,16 +949,28 @@ class DataSet(object):
             masked_range = np.ma.masked_where(big_mask, flux)
             flux = np.ma.masked_where(~mask, flux)
 
-            ax.plot(wl, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
-            ax.plot(wl, flux, 'k', drawstyle='steps-mid')
-
             line = self.lines[line_tag]
+
+            if velocity:
+                l_ref = line.l0 * (self.redshift + 1.)
+                x = (wl - l_ref)/l_ref * 299792.458
+                x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+            else:
+                x = wl
+                x_label = u"Wavelength  [Å]"
+
+            ax.plot(x, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
+            ax.plot(x, flux, 'k', drawstyle='steps-mid')
+
             if line.element in self.components.keys():
                 l0, f, gam = line.get_properties()
                 ion = line.ion
                 for comp in self.components[ion]:
                     z = comp[0]
-                    ax.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+                    if velocity:
+                        ax.axvline((l0*(z+1) - l_ref)/l_ref * 299792.458, ls=':', color='r', lw=0.4)
+                    else:
+                        ax.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
             if region.normalized:
                 c_level = 1.
@@ -941,7 +981,7 @@ class DataSet(object):
                 ax.axhline(c_level, color='0.3', ls=':')
 
             ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
-            ax.set_xlabel(u"Wavelength  (Å)")
+            ax.set_xlabel(x_label)
             if region.normalized:
                 ax.set_ylabel(u"Normalized Flux")
             else:
@@ -952,7 +992,10 @@ class DataSet(object):
             b = region.res/2.35482
             comp_list = list()
             for x0, y0 in comps:
-                z0 = x0/line.l0 - 1.
+                if velocity:
+                    z0 = self.redshift + x0/299792.458 * (self.redshift + 1.)
+                else:
+                    z0 = x0/line.l0 - 1.
                 # Calculate logN from peak depth:
                 y0 = max(y0/c_level, 0.01)
                 logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
@@ -1408,9 +1451,10 @@ class DataSet(object):
 
     # =========================================================================
 
-    def prepare_dataset(self, norm=True, mask=True, verbose=True,
+    def prepare_dataset(self, norm=True, mask=False, verbose=True,
                         active_only=False,
-                        force_clean=False):
+                        force_clean=False,
+                        velocity=False):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
@@ -1430,6 +1474,11 @@ class DataSet(object):
         force_clean : bool   [default = False]
             If this is True, components for inactive elements will be removed.
 
+        velocity : bool   [default = False]
+            If a `True`, the regions are displayed in velocity space
+            relative to the systemic redshift instead of in wavelength space
+            when masking and defining continuum normalization interactively.
+
         Returns
         -------
         bool
@@ -1440,6 +1489,11 @@ class DataSet(object):
 
         """
 
+        if velocity:
+            z_sys = self.redshift
+        else:
+            z_sys = None
+
         plt.close('all')
         # --- Normalize fitting regions manually, or use polynomial fitting
         if norm:
@@ -1447,7 +1501,8 @@ class DataSet(object):
                 if not region.normalized:
                     go_on = 0
                     while go_on == 0:
-                        go_on = region.normalize(norm_method=self.norm_method)
+                        go_on = region.normalize(norm_method=self.norm_method,
+                                                 z_sys=z_sys)
                         # region.normalize returns 1 when continuum is fitted
 
             if verbose and self.verbose:
@@ -1522,9 +1577,11 @@ class DataSet(object):
                 # if region.new_mask:
                 if region.new_mask:
                     if active_only and region.has_active_lines():
-                        region.define_mask(z=self.redshift, dataset=self)
+                        region.define_mask(z=self.redshift, dataset=self,
+                                           z_sys=z_sys)
                     elif not active_only:
-                        region.define_mask(z=self.redshift, dataset=self)
+                        region.define_mask(z=self.redshift, dataset=self,
+                                           z_sys=z_sys)
 
             if verbose and self.verbose:
                 print ""

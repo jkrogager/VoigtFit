@@ -133,7 +133,7 @@ class Region():
                     num_to_remove = num
             self.lines.pop(num_to_remove)
 
-    def normalize(self, plot=True, norm_method='linear'):
+    def normalize(self, plot=True, norm_method='linear', z_sys=None):
         """
         Normalize the region if the data are not already normalized.
         Choose from two methods:
@@ -144,6 +144,9 @@ class Region():
             2:  define the continuum as a range of points
                 and use spline interpolation to infer the
                 continuum.
+
+        If `z_sys` is not `None`, show the region in velocity space using
+        instead of wavelength space.
         """
 
         if norm_method in ['linear', 'spline']:
@@ -155,13 +158,22 @@ class Region():
         plt.close('all')
 
         plt.figure()
-        dx = 0.1*(self.wl.max() - self.wl.min())
+
+        x = self.wl.copy()
+        x_label = u"Wavelength  [Å]"
+        if z_sys is not None:
+            # Calculate velocity:
+            l0 = self.lines[0].l0 * (z_sys + 1.)
+            x = (x - l0)/l0 * 299792.458
+            x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+
+        dx = 0.1*(x.max() - x.min())
         lines_title_string = ", ".join([line.tag for line in self.lines])
-        plt.xlim(self.wl.min()-dx, self.wl.max()+dx)
+        plt.xlim(x.min()-dx, x.max()+dx)
         plt.ylim(0.8*self.flux.min(), 1.2*self.flux.max())
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid',
+        plt.plot(x, self.flux, color='k', drawstyle='steps-mid',
                  label=lines_title_string)
-        plt.xlabel("Wavelength  [${\\rm \AA}$]")
+        plt.xlabel(x_label)
 
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
@@ -172,8 +184,8 @@ class Region():
             bounds = plt.ginput(2, -1)
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
-            region1 = (self.wl >= left_bound)*(self.wl <= right_bound)
-            fit_wl = self.wl[region1]
+            region1 = (x >= left_bound)*(x <= right_bound)
+            fit_wl = x[region1]
             fit_flux = self.flux[region1]
 
             lines_title_string = ", ".join([line.tag for line in self.lines])
@@ -183,13 +195,13 @@ class Region():
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
-            region2 = (self.wl >= left_bound)*(self.wl <= right_bound)
-            fit_wl = np.concatenate([fit_wl, self.wl[region2]])
+            region2 = (x >= left_bound)*(x <= right_bound)
+            fit_wl = np.concatenate([fit_wl, x[region2]])
             fit_flux = np.concatenate([fit_flux, self.flux[region2]])
 
             popt, pcov = curve_fit(linfunc, fit_wl, fit_flux)
 
-            continuum = linfunc(self.wl, *popt)
+            continuum = linfunc(x, *popt)
             e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
 
         elif norm_method == 'spline':
@@ -213,13 +225,13 @@ class Region():
             new_flux = self.flux/continuum
             new_err = self.err/continuum
             plt.cla()
-            plt.plot(self.wl, new_flux, color='k', drawstyle='steps-mid',
+            plt.plot(x, new_flux, color='k', drawstyle='steps-mid',
                      label=lines_title_string)
-            plt.xlabel("Wavelength  [${\\rm \AA}$]")
+            plt.xlabel(x_label)
             plt.title("Normalized")
             plt.axhline(1., ls='--', color='k')
-            plt.axhline(1.+e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.axhline(1.-e_continuum/np.mean(continuum), ls=':', color='gray')
+            plt.axhline(1. + e_continuum/np.mean(continuum), ls=':', color='gray')
+            plt.axhline(1. - e_continuum/np.mean(continuum), ls=':', color='gray')
             plt.draw()
 
             plt.title("Go back to terminal...")
@@ -241,7 +253,7 @@ class Region():
             self.normalized = True
             return 1
 
-    def define_mask(self, z=None, dataset=None, telluric=True):
+    def define_mask(self, z=None, dataset=None, telluric=True, z_sys=None):
         """
         Use an interactive window to define the mask for the region.
 
@@ -257,34 +269,50 @@ class Region():
 
         telluric : bool   [default = True]
             Show telluric absorption and sky emission line templates during the masking.
+
+        z_sys : float   [default = None]
+            If a systemic redshift is given, the region is displayed in velocity space
+            relative to the given systemic redshift instead of in wavelength space.
         """
         plt.close('all')
 
-        plt.xlim(self.wl.min(), self.wl.max())
+        x = self.wl.copy()
+        x_label = u"Wavelength  [Å]"
+        if z_sys is not None:
+            # Calculate velocity:
+            l_ref = self.lines[0].l0 * (z_sys + 1.)
+            x = (x - l_ref)/l_ref * 299792.458
+            x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+
+        plt.xlim(x.min(), x.max())
         # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
         lines_title = ", ".join([line.tag for line in self.lines])
 
         masked_spectrum = np.ma.masked_where(self.mask, self.flux)
-        plt.plot(self.wl, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
+        plt.plot(x, self.flux, color='k', drawstyle='steps-mid', lw=0.5,
                  label=lines_title)
-        plt.xlabel("Wavelength  [${\\rm \AA}$]")
-        mask_line = plt.plot(self.wl, masked_spectrum, color='r', lw=1.5,
+        plt.xlabel(x_label)
+        mask_line = plt.plot(x, masked_spectrum, color='r', lw=1.5,
                              drawstyle='steps-mid', zorder=0)
         plt.legend()
         if telluric:
-            wl_T = telluric_data['wl']
-            cutout = (wl_T > self.wl.min()) * (wl_T < self.wl.max())
+            x_T = telluric_data['wl']
+            cutout = (x_T > self.wl.min()) * (x_T < self.wl.max())
             flux_T = telluric_data['em'][cutout]
             abs_T = telluric_data['abs'][cutout]
-            wl_T = wl_T[cutout]
+            x_T = x_T[cutout]
             if self.normalized:
                 cont = 1.
             else:
                 cont = np.median(self.flux)
-            plt.plot(wl_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
+
+            if z_sys is not None:
+                x_T = (x_T - l_ref)/l_ref * 299792.458
+
+            plt.plot(x_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
             # -- Test if telluric template is defined in this region:
             if len(flux_T) > 0:
-                plt.plot(wl_T, (flux_T/flux_T.max() + 1.2)*cont,
+                plt.plot(x_T, (flux_T/flux_T.max() + 1.2)*cont,
                          color='orange', alpha=0.7, lw=0.5)
 
         if z is not None:
@@ -297,9 +325,17 @@ class Region():
                     ion = ion.replace('*', 'x')
                     for n in range(n_comp):
                         z = dataset.pars['z%i_%s' % (n, ion)].value
-                        plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+                        if z_sys is not None:
+                            plt.axvline((l0*(z+1) - l_ref)/l_ref * 299792.458,
+                                        ls=':', color='r', lw=0.4)
+                        else:
+                            plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
                 else:
-                    plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
+                    if z_sys is not None:
+                        plt.axvline((l0*(z+1) - l_ref)/l_ref * 299792.458,
+                                    ls=':', color='r', lw=0.4)
+                    else:
+                        plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
         plt.title("Mark regions to mask, left and right boundary.")
         print "\n\n  Mark regions to mask, left and right boundary."
@@ -315,13 +351,13 @@ class Region():
                 sel = np.array(sel)
                 selections = np.column_stack([sel[::2, 0], sel[1::2, 0]])
                 for x1, x2 in selections:
-                    cutout = (self.wl >= x1)*(self.wl <= x2)
+                    cutout = (x >= x1)*(x <= x2)
                     mask[cutout] = False
                     mask_vlines.append(plt.axvline(x1, color='r', ls='--'))
                     mask_vlines.append(plt.axvline(x2, color='r', ls='--'))
 
                 masked_spectrum = np.ma.masked_where(mask, self.flux)
-                mask_line = plt.plot(self.wl, masked_spectrum, color='r', drawstyle='steps-mid')
+                mask_line = plt.plot(x, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
                 prompt = raw_input("Are the masked regions correct? (YES/no/clear)")
