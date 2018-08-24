@@ -35,6 +35,7 @@ def parse_parameters(fname):
     parameters['fix_velocity'] = False
     parameters['norm_view'] = 'wave'
     parameters['mask_view'] = 'wave'
+    parameters['interactive_view'] = 'wave'
     par_file = open(fname)
     data = list()
     components = list()
@@ -289,7 +290,7 @@ def parse_parameters(fname):
 
             components_to_delete.append([ion, comp])
 
-        elif 'interact' in line and 'save' not in line:
+        elif 'interact' in line and 'save' not in line and 'view' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -540,6 +541,12 @@ def parse_parameters(fname):
             key, value = line.split(':')
             if key.strip().lower() == 'mask_view':
                 parameters['mask_view'] = value.strip().lower()
+
+        elif 'interactive_view' in line.lower():
+            line = clean_line(line)
+            key, value = line.split(':')
+            if key.strip().lower() == 'interactive_view':
+                parameters['interactive_view'] = value.strip().lower()
 
         else:
             pass

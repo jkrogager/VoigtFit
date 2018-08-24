@@ -349,6 +349,14 @@ This command will activate the interactive window for defining components for th
 Notice that this will overwrite any other components defined previously for this element.
 
 
+**interactive_view : velocity  [ or wavelength ]**
+
+  The *interactive_view* keyword specifies how the data will be displayed in the interactive window.
+  If `velocity` or `vel` is given, the data will be displayed in velocity space relative
+  to the systemic redshift. Otherwise, if `wavelength` or `wave` is given, the data are
+  displayed in observed wavelength space -- this is the default view.
+
+
 .. topic:: Example
 
   The interactive definition of components will bring up the following graphic display:

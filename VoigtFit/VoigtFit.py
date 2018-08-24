@@ -415,7 +415,7 @@ def main():
 
     if 'interactive' in parameters.keys():
         for line_tag in parameters['interactive']:
-            dataset.interactive_components(line_tag)
+            dataset.interactive_components(line_tag, velocity=parameters['interactive_view'])
 
     for component in parameters['components_to_copy']:
         ion, anchor, logN, ref_comp, tie_z, tie_b = component
@@ -533,8 +533,6 @@ def main():
     else:
         show_vel_mask = False
 
-    print parameters['mask_view']
-    print show_vel_mask
     # Mask invidiual lines
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
