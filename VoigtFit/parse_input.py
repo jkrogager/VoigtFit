@@ -33,6 +33,8 @@ def parse_parameters(fname):
     parameters['options'] = list()
     parameters['fit_options'] = {'rebin': 1, 'method': 'leastsq'}
     parameters['fix_velocity'] = False
+    parameters['norm_view'] = 'wave'
+    parameters['mask_view'] = 'wave'
     par_file = open(fname)
     data = list()
     components = list()
@@ -322,7 +324,8 @@ def parse_parameters(fname):
         elif ('mask' in line and
               'name' not in line and
               'save' not in line and
-              'nomask' not in line):
+              'nomask' not in line and
+              'view' not in line):
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
@@ -526,6 +529,17 @@ def parse_parameters(fname):
 
         elif 'fix-velocity' in line.lower():
             parameters['fix_velocity'] = True
+
+        elif 'norm_view' in line.lower():
+            key, value = line.split(':')
+            if key.strip().lower() == 'norm_view':
+                parameters['norm_view'] = value.strip().lower()
+
+        elif 'mask_view' in line.lower():
+            line = clean_line(line)
+            key, value = line.split(':')
+            if key.strip().lower() == 'mask_view':
+                parameters['mask_view'] = value.strip().lower()
 
         else:
             pass

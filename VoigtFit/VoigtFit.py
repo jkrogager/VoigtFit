@@ -409,7 +409,7 @@ def main():
             pass
         else:
             # If no components have been explicitly defined
-            # as part of the thermal model, assign all compooents
+            # as part of the thermal model, assign all components
             values = [True for _ in values]
         thermal_model[ion] = list(np.nonzero(values)[0])
 
@@ -468,6 +468,15 @@ def main():
         print stat_msg % (order_str)
         print ""
 
+    # Parse show_vel_norm from parameter file:
+    # Ketyword 'norm_view' either vel or wave.
+    if 'vel' in parameters['norm_view'].lower():
+        show_vel_norm = True
+    elif 'wave' in parameters['norm_view'].lower():
+        show_vel_norm = False
+    else:
+        show_vel_norm = False
+
     # Reset data in regions:
     if 'reset' in parameters.keys():
         if len(parameters['reset']) > 0:
@@ -479,7 +488,7 @@ def main():
             dataset.reset_all_regions()
 
     # prepare_dataset
-    dataset.prepare_dataset(mask=False, norm=norm)
+    dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm)
 
     # Define thermal model
     if len(thermal_model.keys()) > 0:
@@ -515,16 +524,33 @@ def main():
         for region in dataset.regions:
             region.clear_mask()
 
+    # Parse show_vel_mask from parameter file:
+    # Ketyword 'mask_view' either vel or wave.
+    if 'vel' in parameters['mask_view'].lower():
+        show_vel_mask = True
+    elif 'wave' in parameters['mask_view'].lower():
+        show_vel_mask = False
+    else:
+        show_vel_mask = False
+
+    print parameters['mask_view']
+    print show_vel_mask
     # Mask invidiual lines
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
             for line_tag in parameters['mask']:
-                dataset.mask_line(line_tag, reset=False)
+                dataset.mask_line(line_tag, reset=False,
+                                  velocity=show_vel_mask)
         else:
+            if show_vel_mask:
+                z_sys = dataset.redshift
+            else:
+                z_sys = None
             for region in dataset.regions:
                 if region.new_mask:
                     region.define_mask(z=dataset.redshift,
-                                       dataset=dataset)
+                                       dataset=dataset,
+                                       z_sys=z_sys)
 
     # update resolution:
     if len(parameters['resolution']) > 0:
