@@ -36,7 +36,7 @@ If you encounter the following AttributeError when attempting to install via pip
 
 Try running pip with the ``--upgrade`` option::
 
-    pip install --upgrade VoigtFit
+    %] pip install --upgrade VoigtFit
 
 
 From source

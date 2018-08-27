@@ -18,7 +18,7 @@ ideas for great new features, you can `raise an issue on the GitHub page
 Acknowledgements
 ----------------
 
-If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).
+If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018) <http://arxiv.org/abs/1803.01187>`_.
 
 |
 
@@ -29,6 +29,27 @@ If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).
   I also thank Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
   Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
   the software and for their constructive feedback and ideas for new features.
+
+
+
+Recent updates
+--------------
+
+New in version 0.9.10:
+
+  Added two keywords to the parameter language in order to allow the user to view fit regions
+  in velocity space when defining masks, continuum normalization and components.
+  See details under sections `Mask`, `Continuum Normalization` and `Interactive Components` of the :ref:`documentation`.
+
+New in version 0.9.9:
+
+  New atomic data consistently gathered from the `VALD <http://vald.astro.uu.se/>`_ database.
+  The linelist has additional lines from `Cashman et al. 2017 <https://ui.adsabs.harvard.edu/#abs/2017ApJS..230....8C/abstract>`_
+  and for some lines not covered by VALD the damping constants have been taken from the compilation of
+  `Morton et al. 2003 <https://ui.adsabs.harvard.edu/#abs/2003ApJS..149..205M/abstract>`_.
+
+  When masking lines, any predefined masks in the spectral data (loaded with the add_data statement)
+  are now retained.
 
 
 

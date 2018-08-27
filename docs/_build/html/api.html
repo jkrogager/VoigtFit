@@ -4,12 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Interface &#8212; VoigtFit 0.9.3 documentation</title>
+    <title>VoigtFit Interface &#8212; VoigtFit 0.9.10 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -199,16 +199,16 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.has_line" title="VoigtFit.DataSet.has_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_line</span></code></a>(line_tag[,&nbsp;active_only])</td>
 <td>Return True if the given line is defined.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.interactive_components" title="VoigtFit.DataSet.interactive_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interactive_components</span></code></a>(line_tag)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.interactive_components" title="VoigtFit.DataSet.interactive_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interactive_components</span></code></a>(line_tag[,&nbsp;velocity])</td>
 <td>Define components interactively for a given ion.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.load_components_from_file" title="VoigtFit.DataSet.load_components_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_components_from_file</span></code></a>(fname)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.load_components_from_file" title="VoigtFit.DataSet.load_components_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_components_from_file</span></code></a>(fname[,&nbsp;fit_pars])</td>
 <td>Load best-fit parameters from an output file <cite>fname</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.mask_line" title="VoigtFit.DataSet.mask_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_line</span></code></a>(line_tag[,&nbsp;reset,&nbsp;mask,&nbsp;telluric])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.mask_line" title="VoigtFit.DataSet.mask_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_line</span></code></a>(line_tag[,&nbsp;reset,&nbsp;mask,&nbsp;telluric,&nbsp;…])</td>
 <td>Define exclusion masks for the fitting region of a given line.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.normalize_line" title="VoigtFit.DataSet.normalize_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_line</span></code></a>(line_tag[,&nbsp;norm_method])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.normalize_line" title="VoigtFit.DataSet.normalize_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_line</span></code></a>(line_tag[,&nbsp;norm_method,&nbsp;velocity])</td>
 <td>Normalize or re-normalize a given line</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.plot_fit" title="VoigtFit.DataSet.plot_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fit</span></code></a>([rebin,&nbsp;fontsize,&nbsp;xmin,&nbsp;xmax,&nbsp;…])</td>
@@ -232,53 +232,67 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.print_total" title="VoigtFit.DataSet.print_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_total</span></code></a>()</td>
 <td>Print the total column densities of all components.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_all_lines</span></code>()</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_fine_lines" title="VoigtFit.DataSet.remove_fine_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_fine_lines</span></code></a>(line_tag[,&nbsp;levels])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_fine_lines" title="VoigtFit.DataSet.remove_fine_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_fine_lines</span></code></a>(line_tag[,&nbsp;levels])</td>
 <td>Remove lines associated to a given fine-structure complex.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_line" title="VoigtFit.DataSet.remove_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_line</span></code></a>(line_tag)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_line" title="VoigtFit.DataSet.remove_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_line</span></code></a>(line_tag)</td>
 <td>Remove an absorption line from the DataSet.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_molecule" title="VoigtFit.DataSet.remove_molecule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_molecule</span></code></a>(molecule,&nbsp;band)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_molecule" title="VoigtFit.DataSet.remove_molecule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_molecule</span></code></a>(molecule,&nbsp;band)</td>
 <td>Remove all lines for the given band of the given molecule.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_all_regions" title="VoigtFit.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_all_regions</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_all_regions" title="VoigtFit.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_all_regions</span></code></a>()</td>
 <td>Reset the data in all <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Regions</span></code></a> defined in the DataSet to use the raw input data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_components" title="VoigtFit.DataSet.reset_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_components</span></code></a>([ion])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_components" title="VoigtFit.DataSet.reset_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_components</span></code></a>([ion])</td>
 <td>Reset component structure for a given ion.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_region" title="VoigtFit.DataSet.reset_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_region</span></code></a>(reg)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_region" title="VoigtFit.DataSet.reset_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_region</span></code></a>(reg)</td>
 <td>Reset the data in a given <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">regions.Region</span></code></a> to use the raw input data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save" title="VoigtFit.DataSet.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([filename,&nbsp;verbose])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save" title="VoigtFit.DataSet.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([filename,&nbsp;verbose])</td>
 <td>Save the DataSet to file using the HDF5 format.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_cont_parameters_to_file" title="VoigtFit.DataSet.save_cont_parameters_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cont_parameters_to_file</span></code></a>(filename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_cont_parameters_to_file" title="VoigtFit.DataSet.save_cont_parameters_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cont_parameters_to_file</span></code></a>(filename)</td>
 <td>Save the best-fit continuum parameters to ASCII table output.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_fit_regions" title="VoigtFit.DataSet.save_fit_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_fit_regions</span></code></a>([filename,&nbsp;individual,&nbsp;path])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_fit_regions" title="VoigtFit.DataSet.save_fit_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_fit_regions</span></code></a>([filename,&nbsp;individual,&nbsp;path])</td>
 <td>Save the fitting regions to ASCII table output.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_parameters" title="VoigtFit.DataSet.save_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_parameters</span></code></a>(filename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_parameters" title="VoigtFit.DataSet.save_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_parameters</span></code></a>(filename)</td>
 <td>Save the best-fit parameters to ASCII table output.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_name" title="VoigtFit.DataSet.set_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_name</span></code></a>(name)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_name" title="VoigtFit.DataSet.set_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_name</span></code></a>(name)</td>
 <td>Set the name of the DataSet.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_resolution" title="VoigtFit.DataSet.set_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_resolution" title="VoigtFit.DataSet.set_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose])</td>
 <td>Set the spectral resolution in km/s for the <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> containing the line with the given <cite>line_tag</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_systemic_redshift" title="VoigtFit.DataSet.set_systemic_redshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_systemic_redshift</span></code></a>(z_sys)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_systemic_redshift" title="VoigtFit.DataSet.set_systemic_redshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_systemic_redshift</span></code></a>(z_sys)</td>
 <td>Update the systemic redshift of the dataset</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.sum_components" title="VoigtFit.DataSet.sum_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_components</span></code></a>(ions,&nbsp;components)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.show_components" title="VoigtFit.DataSet.show_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_components</span></code></a>([ion])</td>
+<td>Show the defined components for a given <cite>ion</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.show_lines" title="VoigtFit.DataSet.show_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_lines</span></code></a>()</td>
+<td>Print all defined lines to terminal.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.sum_components" title="VoigtFit.DataSet.sum_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_components</span></code></a>(ions,&nbsp;components)</td>
 <td>Calculate the total column density for the given <cite>components</cite> of the given <cite>ion</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.velocity_plot" title="VoigtFit.DataSet.velocity_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_plot</span></code></a>(**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.velocity_plot" title="VoigtFit.DataSet.velocity_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_plot</span></code></a>(**kwargs)</td>
 <td>Create a velocity plot, showing all the fitting regions defined, in order to compare different lines and to identify blends and contamination.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="67%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>remove_all_lines</strong></td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -296,19 +310,19 @@ The parameters will be defined during the call to <a class="reference internal" 
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the ground state transition to activate.</p>
-</div></blockquote>
-<p><strong>levels</strong> : str, list(str)   [default = None]</p>
-<blockquote class="last">
-<div><p>The levels of the fine-structure complexes to activate,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the ground state transition to activate.</p>
+</dd>
+<dt><strong>levels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list(str)   [default = None]</span></dt>
+<dd><p class="first last">The levels of the fine-structure complexes to activate,
 with the string “a” referring to the first excited level,
 “b” is the second, etc…
 Several levels can be given at once as a list: [‘a’, ‘b’]
 or as a concatenated string: ‘abc’.
 By default, all levels are included.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -341,40 +355,34 @@ defined for a given ion.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str</p>
-<blockquote>
-<div><p>The ion for which to define a component: e.g., “FeII”, “HI”, “CIa”, etc.</p>
-</div></blockquote>
-<p><strong>z</strong> : float</p>
-<blockquote>
-<div><p>The redshift of the component.</p>
-</div></blockquote>
-<p><strong>b</strong> : float</p>
-<blockquote>
-<div><p>The effective broadening parameter for the component in km/s.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The ion for which to define a component: e.g., “FeII”, “HI”, “CIa”, etc.</p>
+</dd>
+<dt><strong>z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The redshift of the component.</p>
+</dd>
+<dt><strong>b</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The effective broadening parameter for the component in km/s.
 This parameter is constrained to be in the interval [0 - 1000] km/s.</p>
-</div></blockquote>
-<p><strong>logN</strong> : float</p>
-<blockquote>
-<div><p>The 10-base logarithm of the column density of the component.
+</dd>
+<dt><strong>logN</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The 10-base logarithm of the column density of the component.
 The column density is expected in cm^-2.</p>
-</div></blockquote>
-<p><strong>var_z</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>False</cite>, the redshift of the component will be kept fixed.</p>
-</div></blockquote>
-<p><strong>var_b</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>False</cite>, the b-parameter of the component will be kept fixed.</p>
-</div></blockquote>
-<p><strong>var_N</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>False</cite>, the column density of the component will be kept fixed.</p>
-</div></blockquote>
-<p><strong>tie_z, tie_b, tie_N</strong> : str   [default = None]</p>
-<blockquote class="last">
-<div><p>Parameter constraints for the different variables.</p>
-</div></blockquote>
+</dd>
+<dt><strong>var_z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>False</cite>, the redshift of the component will be kept fixed.</p>
+</dd>
+<dt><strong>var_b</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>False</cite>, the b-parameter of the component will be kept fixed.</p>
+</dd>
+<dt><strong>var_N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>False</cite>, the column density of the component will be kept fixed.</p>
+</dd>
+<dt><strong>tie_z, tie_b, tie_N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">Parameter constraints for the different variables.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -401,33 +409,29 @@ but input is given as relative velocity instead of redshift.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>wl</strong> : ndarray, shape (n)</p>
-<blockquote>
-<div><p>Input vacuum wavelength array in Ångstrøm.</p>
-</div></blockquote>
-<p><strong>flux</strong> : ndarray, shape (n)</p>
-<blockquote>
-<div><p>Input flux array, should be same length as wl</p>
-</div></blockquote>
-<p><strong>res</strong> : float</p>
-<blockquote>
-<div><p>Spectral resolution in km/s  (c/R)</p>
-</div></blockquote>
-<p><strong>err</strong> : ndarray, shape (n)   [default = None]</p>
-<blockquote>
-<div><p>Error array, should be same length as wl
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>wl</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n)</span></dt>
+<dd><p class="first last">Input vacuum wavelength array in Ångstrøm.</p>
+</dd>
+<dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n)</span></dt>
+<dd><p class="first last">Input flux array, should be same length as wl</p>
+</dd>
+<dt><strong>res</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Spectral resolution in km/s  (c/R)</p>
+</dd>
+<dt><strong>err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n)   [default = None]</span></dt>
+<dd><p class="first last">Error array, should be same length as wl
 If <cite>None</cite> is given, an uncertainty of 1 is given to all pixels.</p>
-</div></blockquote>
-<p><strong>normalized</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If the input spectrum is normalized this should be given as True
+</dd>
+<dt><strong>normalized</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If the input spectrum is normalized this should be given as True
 in order to skip normalization steps.</p>
-</div></blockquote>
-<p><strong>mask</strong> : array, shape (n)</p>
-<blockquote class="last">
-<div><p>Boolean/int array defining the fitting regions.
+</dd>
+<dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
+<dd><p class="first last">Boolean/int array defining the fitting regions.
 Only pixels with mask=True/1 will be included in the fit.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -438,28 +442,28 @@ Only pixels with mask=True/1 will be included in the fit.</p>
 <dt id="VoigtFit.DataSet.add_fine_lines">
 <code class="descname">add_fine_lines</code><span class="sig-paren">(</span><em>line_tag</em>, <em>levels=None</em>, <em>full_label=False</em>, <em>velspan=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_fine_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_fine_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add fine-structure line complexes by providing only the main transition.
-This function is mainly useful for the CI complexes, where the many lines are closely
-located and often blended.</p>
+This function is mainly useful for the CI complexes, where the many
+lines are closely located and often blended.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>Line tag for the ground state transition, e.g., “CI_1656”</p>
-</div></blockquote>
-<p><strong>levels</strong> : str, list(str)    [default = None]</p>
-<blockquote>
-<div><p>The levels of the fine-structure complexes to add, starting with “a” referring
-to the first excited level, “b” is the second, etc..
-Several levels can be given at once: [‘a’, ‘b’]
-By default, all levels are included.</p>
-</div></blockquote>
-<p><strong>full_label</strong> : bool   [default = False]</p>
-<blockquote class="last">
-<div><p>If <cite>True</cite>, the label will be translated to the full quantum mechanical description
-of the state.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Line tag for the ground state transition, e.g., “CI_1656”</p>
+</dd>
+<dt><strong>levels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list(str)    [default = None]</span></dt>
+<dd><p class="first last">The levels of the fine-structure complexes to add, starting with “a”
+referring to the first excited level, “b” is the second, etc..
+Several levels can be given at once: [‘a’, ‘b’].
+Note that the ground state transition is always included.
+If <cite>levels</cite> is not given, all levels are included.</p>
+</dd>
+<dt><strong>full_label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, the label will be translated to the full quantum
+mechanical description of the state.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -474,22 +478,21 @@ of the state.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag for the transition which should be defined.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag for the transition which should be defined.
 Ex: “FeII_2374”</p>
-</div></blockquote>
-<p><strong>velspan</strong> : float   [default = None]</p>
-<blockquote>
-<div><p>The velocity span around the line center, which will be included
+</dd>
+<dt><strong>velspan</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The velocity span around the line center, which will be included
 in the fit. If <cite>None</cite> is given, use the default <cite>self.velspan</cite>
 defined (default = 500 km/s).</p>
-</div></blockquote>
-<p><strong>active</strong> : bool   [default = True]</p>
-<blockquote class="last">
-<div><p>Set the <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> as active
+</dd>
+<dt><strong>active</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Set the <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> as active
 (i.e., included in the fit).</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -515,16 +518,16 @@ around the line center.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tags</strong> : list(str)</p>
-<blockquote>
-<div><p>A list of line tags for the transitions that should be added.</p>
-</div></blockquote>
-<p><strong>velspan</strong> : float   [default = None]</p>
-<blockquote class="last">
-<div><p>The velocity span around the line center, which will be included
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tags</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(str)</span></dt>
+<dd><p class="first last">A list of line tags for the transitions that should be added.</p>
+</dd>
+<dt><strong>velspan</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The velocity span around the line center, which will be included
 in the fit. If <cite>None</cite> is given, use the default
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">velspan</span></code> defined (500 km/s).</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -539,31 +542,28 @@ in the fit. If <cite>None</cite> is given, use the default
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>molecule</strong> : str</p>
-<blockquote>
-<div><p>The molecular identifier, e.g., ‘CO’, ‘H2’</p>
-</div></blockquote>
-<p><strong>band</strong> : str</p>
-<blockquote>
-<div><p>The vibrational band of the molecule, e.g., for CO: “AX(0-0)”
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>molecule</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The molecular identifier, e.g., ‘CO’, ‘H2’</p>
+</dd>
+<dt><strong>band</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The vibrational band of the molecule, e.g., for CO: “AX(0-0)”
 These bands are defined in <code class="xref py py-mod docutils literal notranslate"><span class="pre">molecules</span></code>.</p>
-</div></blockquote>
-<p><strong>Jmax</strong> : int   [default = 0]</p>
-<blockquote>
-<div><p>The maximal rotational level to include. All levels up to and including <cite>J</cite>
+</dd>
+<dt><strong>Jmax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 0]</span></dt>
+<dd><p class="first last">The maximal rotational level to include. All levels up to and including <cite>J</cite>
 will be included.</p>
-</div></blockquote>
-<p><strong>velspan</strong> : float   [default = None]</p>
-<blockquote>
-<div><p>The velocity span around the line center, which will be included in the fit.
+</dd>
+<dt><strong>velspan</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The velocity span around the line center, which will be included in the fit.
 If <cite>None</cite> is given, use the default <code class="xref py py-attr docutils literal notranslate"><span class="pre">velspan</span></code>
 defined (500 km/s).</p>
-</div></blockquote>
-<p><strong>full_label</strong> : bool   [default = False]</p>
-<blockquote class="last">
-<div><p>If <cite>True</cite>, the label will be translated to the full quantum
+</dd>
+<dt><strong>full_label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, the label will be translated to the full quantum
 mechanical description of the state.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -593,32 +593,28 @@ the given region can be specified by passing an index <cite>idx</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>to_ion</strong> : str</p>
-<blockquote>
-<div><p>The new ion to define.</p>
-</div></blockquote>
-<p><strong>from_ion</strong> : str</p>
-<blockquote>
-<div><p>The base ion which will be used as reference.</p>
-</div></blockquote>
-<p><strong>logN</strong> : float</p>
-<blockquote>
-<div><p>If logN is given, the starting guess is defined from this value
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>to_ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The new ion to define.</p>
+</dd>
+<dt><strong>from_ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The base ion which will be used as reference.</p>
+</dd>
+<dt><strong>logN</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">If logN is given, the starting guess is defined from this value
 following the pattern of the components defined for <cite>anchor</cite> relative to the
 <cite>ref_comp</cite> (default: the first component).</p>
-</div></blockquote>
-<p><strong>ref_comp</strong> : int</p>
-<blockquote>
-<div><p>The reference component to which logN will be scaled.</p>
-</div></blockquote>
-<p><strong>tie_z</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, the redshifts for all components of the two ions will be tied together.</p>
-</div></blockquote>
-<p><strong>tie_b</strong> : bool   [default = True]</p>
-<blockquote class="last">
-<div><p>If <cite>True</cite>, the b-parameters for all components of the two ions will be tied together.</p>
-</div></blockquote>
+</dd>
+<dt><strong>ref_comp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The reference component to which logN will be scaled.</p>
+</dd>
+<dt><strong>tie_z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, the redshifts for all components of the two ions will be tied together.</p>
+</dd>
+<dt><strong>tie_b</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, the b-parameters for all components of the two ions will be tied together.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -639,19 +635,19 @@ following the pattern of the components defined for <cite>anchor</cite> relative
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the ground state transition to deactivate.</p>
-</div></blockquote>
-<p><strong>levels</strong> : str, list(str)   [default = None]</p>
-<blockquote class="last">
-<div><p>The levels of the fine-structure complexes to deactivate,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the ground state transition to deactivate.</p>
+</dd>
+<dt><strong>levels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list(str)   [default = None]</span></dt>
+<dd><p class="first last">The levels of the fine-structure complexes to deactivate,
 with the string “a” referring to the first excited level,
 “b” is the second, etc…
 Several levels can be given at once as a list: [‘a’, ‘b’]
 or as a concatenated string: ‘abc’.
 By default, all levels are included.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -693,17 +689,19 @@ or <code class="xref py py-mod docutils literal notranslate"><span class="pre">V
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the line whose region will be returned.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the line whose region will be returned.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>regions_of_line</strong> : list of <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a></p>
-<blockquote class="last">
-<div><p>A list of the fitting regions containing the given line.
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>regions_of_line</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a></span></dt>
+<dd><p class="first last">A list of the fitting regions containing the given line.
 This can be more than one region in case of overlapping or multiple spectra.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -718,39 +716,43 @@ This can be more than one region in case of overlapping or multiple spectra.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rebin</strong> : int   [default = 1]</p>
-<blockquote>
-<div><p>Rebin data by a factor <em>rebin</em> before fitting.</p>
-</div></blockquote>
-<p><strong>verbose</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>This will print the fit results to terminal.</p>
-</div></blockquote>
-<p><strong>plot</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>This will make the best-fit solution show up in a new window.</p>
-</div></blockquote>
-<p><strong>**kwargs</strong></p>
-<blockquote>
-<div><p>Keyword arguments are derived from the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html">scipy.optimize</a> minimization methods.
-The default method is <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html">leastsq</a>, used in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>rebin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 1]</span></dt>
+<dd><p class="first last">Rebin data by a factor <em>rebin</em> before fitting.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">This will print the fit results to terminal.</p>
+</dd>
+<dt><strong>plot</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">This will make the best-fit solution show up in a new window.</p>
+</dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Keyword arguments are derived from the <a href="#id6"><span class="problematic" id="id7">`scipy.optimize`_</span></a> minimization methods.
+The default method is <a href="#id8"><span class="problematic" id="id9">leastsq_</span></a>, used in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.
 This can be changed using the <cite>method</cite> keyword.
-See documentation in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> and <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html">scipy.optimize</a>.</p>
-</div></blockquote>
+See documentation in <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> and <a href="#id10"><span class="problematic" id="id11">scipy.optimize_</span></a>.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>popt</strong> : <a class="reference external" href="https://lmfit.github.io/lmfit-py/fitting.html#lmfit.minimizer.MinimizerResult">lmfit.MinimizerResult</a></p>
-<blockquote>
-<div><p>The minimzer results from <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> containing best-fit parameters
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>popt</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a href="#id12"><span class="problematic" id="id13">lmfit.MinimizerResult_</span></a></span></dt>
+<dd><p class="first last">The minimzer results from <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> containing best-fit parameters
 and fit details, e.g., exit status and reduced chi squared.
 See documentation for <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>.</p>
-</div></blockquote>
-<p><strong>chi2</strong> : float</p>
-<blockquote class="last">
-<div><p>The chi squared value of the best-fit. Note that this value is <strong>not</strong>
+</dd>
+<dt><strong>chi2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The chi squared value of the best-fit. Note that this value is <strong>not</strong>
 the reduced chi squared. This value, and the number of degrees of freedom,
 are available under the <cite>popt</cite> object.</p>
-</div></blockquote>
+</dd>
+<dt><strong>.. _scipy.optimize: https://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html</strong></dt>
+<dd></dd>
+<dt><strong>.. _leastsq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html</strong></dt>
+<dd></dd>
+<dt><strong>.. _lmfit.MinimizerResult: https://lmfit.github.io/lmfit-py/fitting.html#lmfit.minimizer.MinimizerResult</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -765,11 +767,12 @@ are available under the <cite>popt</cite> object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
-<blockquote class="last">
-<div><p>The ion for which the structure should be fixed.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">The ion for which the structure should be fixed.
 If <cite>None</cite> is given, the structure is fixed for all ions.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -784,11 +787,12 @@ If <cite>None</cite> is given, the structure is fixed for all ions.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
-<blockquote class="last">
-<div><p>The ion for which the structure should be released.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">The ion for which the structure should be released.
 If <cite>None</cite> is given, the structure is released for all ions.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -804,16 +808,18 @@ corresponding to the given <em>ion</em>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str</p>
-<blockquote>
-<div><p>The ion for the lines to get.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The ion for the lines to get.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lines_for_ion</strong> : list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a>)</p>
-<blockquote class="last">
-<div><p>List of Lines defined for the given <em>ion</em>.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>lines_for_ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a>)</span></dt>
+<dd><p class="first last">List of Lines defined for the given <em>ion</em>.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -835,21 +841,22 @@ where the line with the given <cite>line_tag</cite> is defined.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line-tag for the line to look up: e.g., “FeII_2374”</p>
-</div></blockquote>
-<p><strong>verbose</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, print the returned spectral resolution to std out.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line-tag for the line to look up: e.g., “FeII_2374”</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, print the returned spectral resolution to std out.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>resolutions</strong> : list of float</p>
-<blockquote class="last">
-<div><p>A list of the spectral resolution of the fitting regions
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>resolutions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of float</span></dt>
+<dd><p class="first last">A list of the spectral resolution of the fitting regions
 where the given line is defined.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -870,7 +877,7 @@ where the given line is defined.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.interactive_components">
-<code class="descname">interactive_components</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.interactive_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.interactive_components" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interactive_components</code><span class="sig-paren">(</span><em>line_tag</em>, <em>velocity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.interactive_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.interactive_components" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define components interactively for a given ion. The components will be defined on the
 basis of the given line for that ion. If the line is defined in several spectra
 then the interactive window will show up for each.
@@ -882,10 +889,15 @@ for the given transition.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote class="last">
-<div><p>Line tag for the line belonging to the ion for which components should be defined.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Line tag for the line belonging to the ion for which components should be defined.</p>
+</dd>
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If a <cite>True</cite>, the region is displayed in velocity space
+relative to the systemic redshift instead of in wavelength space.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -899,13 +911,14 @@ is assumed to be unresolved, i.e., taken from the resolution.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.load_components_from_file">
-<code class="descname">load_components_from_file</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.load_components_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.load_components_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load best-fit parameters from an output file <cite>fname</cite>.</p>
+<code class="descname">load_components_from_file</code><span class="sig-paren">(</span><em>fname</em>, <em>fit_pars=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.load_components_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.load_components_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load best-fit parameters from an output file <cite>fname</cite>.
+If <cite>fit_pars</cite> is True, then update the best_fit parameters.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.mask_line">
-<code class="descname">mask_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>reset=True</em>, <em>mask=None</em>, <em>telluric=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.mask_line" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mask_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>reset=True</em>, <em>mask=None</em>, <em>telluric=True</em>, <em>velocity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.mask_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define exclusion masks for the fitting region of a given line.
 Note that the masked regions are exclusion regions and will not be used for the fit.
 If components have been defined, these will be shown as vertical lines.</p>
@@ -913,26 +926,29 @@ If components have been defined, these will be shown as vertical lines.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>Line tag for the <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> whose
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Line tag for the <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> whose
 <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> should be masked.</p>
-</div></blockquote>
-<p><strong>reset</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, clear the mask before defining a new mask.</p>
-</div></blockquote>
-<p><strong>mask</strong> : array_like, shape (n)   [default = None]</p>
-<blockquote>
-<div><p>If the mask is given, it must be a boolean array of the same length
+</dd>
+<dt><strong>reset</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, clear the mask before defining a new mask.</p>
+</dd>
+<dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (n)   [default = None]</span></dt>
+<dd><p class="first last">If the mask is given, it must be a boolean array of the same length
 as the region flux, err, and wl arrays.
 Passing a mask this was supresses the interactive masking process.</p>
-</div></blockquote>
-<p><strong>telluric</strong> : bool   [default = True]</p>
-<blockquote class="last">
-<div><p>If <cite>True</cite>, a telluric absorption template and sky emission template
+</dd>
+<dt><strong>telluric</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, a telluric absorption template and sky emission template
 is shown for reference.</p>
-</div></blockquote>
+</dd>
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If a <cite>True</cite>, the regions are displayed in velocity space
+relative to the systemic redshift instead of in wavelength space
+when masking and defining continuum normalization interactively.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -941,21 +957,26 @@ is shown for reference.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.normalize_line">
-<code class="descname">normalize_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>norm_method='spline'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.normalize_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.normalize_line" title="Permalink to this definition">¶</a></dt>
+<code class="descname">normalize_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>norm_method='spline'</em>, <em>velocity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.normalize_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.normalize_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize or re-normalize a given line</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>Line tag of the line whose fitting region should be normalized.</p>
-</div></blockquote>
-<p><strong>norm_method</strong> : str   [default = ‘spline’]</p>
-<blockquote class="last">
-<div><p>Normalization method used for the interactive continuum fit.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Line tag of the line whose fitting region should be normalized.</p>
+</dd>
+<dt><strong>norm_method</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘spline’]</span></dt>
+<dd><p class="first last">Normalization method used for the interactive continuum fit.
 Should be on of: [“spline”, “linear”]</p>
-</div></blockquote>
+</dd>
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If a <cite>True</cite>, the regions are displayed in velocity space
+relative to the systemic redshift instead of in wavelength space
+when masking and defining continuum normalization interactively.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -964,14 +985,14 @@ Should be on of: [“spline”, “linear”]</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.plot_fit">
-<code class="descname">plot_fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>max_rows=4</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>filename=None</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>loc='left'</em>, <em>highlight_props=None</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>legend=True</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>max_rows=4</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>filename=None</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>loc='left'</em>, <em>highlight_props=None</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>legend=True</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot <em>all</em> the absorption lines and the best-fit profiles.
 For details, see <code class="xref py py-func docutils literal notranslate"><span class="pre">VoigtFit.output.plot_all_lines()</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.plot_line">
-<code class="descname">plot_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>legend=True</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_line" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>legend=True</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.plot_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a single fitting <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>
 containing the line corresponding to the given <cite>line_tag</cite>.
 For details, see <a class="reference internal" href="#output.plot_single_line" title="output.plot_single_line"><code class="xref py py-func docutils literal notranslate"><span class="pre">output.plot_single_line()</span></code></a>.</p>
@@ -979,39 +1000,43 @@ For details, see <a class="reference internal" href="#output.plot_single_line" t
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.prepare_dataset">
-<code class="descname">prepare_dataset</code><span class="sig-paren">(</span><em>norm=True</em>, <em>mask=True</em>, <em>verbose=True</em>, <em>active_only=False</em>, <em>force_clean=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.prepare_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.prepare_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prepare_dataset</code><span class="sig-paren">(</span><em>norm=True</em>, <em>mask=False</em>, <em>verbose=True</em>, <em>active_only=False</em>, <em>force_clean=False</em>, <em>velocity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.prepare_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.prepare_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare the data for fitting. This function sets up the parameter structure,
 and handles the normalization and masking of fitting regions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>norm</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>Opens an interactive window to let the user normalize each region
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>norm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Opens an interactive window to let the user normalize each region
 using the defined <code class="xref py py-attr docutils literal notranslate"><span class="pre">norm_method</span></code>.</p>
-</div></blockquote>
-<p><strong>mask</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>Opens an interactive window to let the user mask each fitting region.</p>
-</div></blockquote>
-<p><strong>verbose</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If this is set, the code will print small info statements during the run.</p>
-</div></blockquote>
-<p><strong>force_clean</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If this is True, components for inactive elements will be removed.</p>
-</div></blockquote>
+</dd>
+<dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Opens an interactive window to let the user mask each fitting region.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If this is set, the code will print small info statements during the run.</p>
+</dd>
+<dt><strong>force_clean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If this is True, components for inactive elements will be removed.</p>
+</dd>
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If a <cite>True</cite>, the regions are displayed in velocity space
+relative to the systemic redshift instead of in wavelength space
+when masking and defining continuum normalization interactively.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">bool</p>
-<blockquote class="last">
-<div><p>The function returns <cite>True</cite> when the dataset has passed all the steps.
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">The function returns <cite>True</cite> when the dataset has passed all the steps.
 If one step fails, the function returns <cite>False</cite>.
 The <code class="xref py py-attr docutils literal notranslate"><span class="pre">ready2fit</span></code> attribute of the dataset is also
 updated accordingly.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1039,18 +1064,17 @@ HI in Solar units.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>velocity</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, show the relative velocities of each component instead of redshifts.</p>
-</div></blockquote>
-<p><strong>elements</strong> : list(str)   [default = ‘all’]</p>
-<blockquote>
-<div><p>A list of elements for which to show parameters.</p>
-</div></blockquote>
-<p><strong>systemic</strong> : float   [default = None]</p>
-<blockquote class="last">
-<div><p>The systemic redshift used as reference for the relative velocities.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, show the relative velocities of each component instead of redshifts.</p>
+</dd>
+<dt><strong>elements</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(str)   [default = ‘all’]</span></dt>
+<dd><p class="first last">A list of elements for which to show parameters.</p>
+</dd>
+<dt><strong>systemic</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The systemic redshift used as reference for the relative velocities.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1071,18 +1095,18 @@ HI in Solar units.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the ground state transition to remove.</p>
-</div></blockquote>
-<p><strong>levels</strong> : str, list(str)   [default = None]</p>
-<blockquote class="last">
-<div><p>The levels of the fine-structure complexes to remove, with “a” referring
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the ground state transition to remove.</p>
+</dd>
+<dt><strong>levels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list(str)   [default = None]</span></dt>
+<dd><p class="first last">The levels of the fine-structure complexes to remove, with “a” referring
 to the first excited level, “b” is the second, etc..
 Several levels can be given at once as a list: [‘a’, ‘b’]
 or as a concatenated string: ‘abc’.
 By default, all levels are included.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1092,17 +1116,19 @@ By default, all levels are included.</p>
 <dl class="method">
 <dt id="VoigtFit.DataSet.remove_line">
 <code class="descname">remove_line</code><span class="sig-paren">(</span><em>line_tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.remove_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.remove_line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove an absorption line from the DataSet. If this is the last line in a fitting region
-the given region will be eliminated, and if this is the last line of a given ion,
-then the components will be eliminated for that ion.</p>
+<dd><p>Remove an absorption line from the DataSet. If this is the last line
+in a fitting region the given region will be eliminated, and if this
+is the last line of a given ion, then the components will be eliminated
+for that ion.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line_tag</strong> : str</p>
-<blockquote class="last">
-<div><p>Line tag of the transition that should be removed.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Line tag of the transition that should be removed.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1130,11 +1156,12 @@ defined in the DataSet to use the raw input data.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ion</strong> : str   [default = None]</p>
-<blockquote class="last">
-<div><p>The ion for which to reset the components: e.g., ‘FeII’, ‘HI’, ‘CIa’, etc.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">The ion for which to reset the components: e.g., ‘FeII’, ‘HI’, ‘CIa’, etc.
 If <a href="#id2"><span class="problematic" id="id3">`</span></a>None`is given, <em>all</em> components for <em>all</em> ions will be reset.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1161,10 +1188,11 @@ If <a href="#id2"><span class="problematic" id="id3">`</span></a>None`is given, 
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str   [default = None]</p>
-<blockquote class="last">
-<div><p>If <cite>None</cite>, the <code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code> attribute will be used.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">If <cite>None</cite>, the <code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code> attribute will be used.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1181,26 +1209,25 @@ The format is as follows:
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str   [default = None]</p>
-<blockquote>
-<div><p>Filename for the fitting regions.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = None]</span></dt>
+<dd><p class="first last">Filename for the fitting regions.
 If <cite>None</cite>, the <code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code> attribute will be used.</p>
-</div></blockquote>
-<p><strong>individual</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>Save the fitting regions to individual files.
+</dd>
+<dt><strong>individual</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">Save the fitting regions to individual files.
 By default all regions are concatenated into one file.</p>
-</div></blockquote>
-<p><strong>path</strong> : str   [default = ‘’]</p>
-<blockquote class="last">
-<div><p>Specify a path to prepend to the filename in order to save output to a given
+</dd>
+<dt><strong>path</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘’]</span></dt>
+<dd><p class="first">Specify a path to prepend to the filename in order to save output to a given
 directory or path. Can be given both as relative or absolute path.
 If the path doesn’t end in <cite>/</cite> it will be appended automatically.
 The final filename will be:</p>
-<blockquote>
+<blockquote class="last">
 <div><p><cite>path/</cite> + <cite>filename</cite> [+ <cite>_regN</cite>] + <cite>.reg</cite></p>
 </div></blockquote>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1215,10 +1242,11 @@ The final filename will be:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
-<blockquote class="last">
-<div><p>Filename for the fit parameter file.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Filename for the fit parameter file.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1251,6 +1279,21 @@ and only update the appropriate regions using a for-loop.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="VoigtFit.DataSet.show_components">
+<code class="descname">show_components</code><span class="sig-paren">(</span><em>ion=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.show_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.show_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the defined components for a given <cite>ion</cite>.
+By default, all ions are shown.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="VoigtFit.DataSet.show_lines">
+<code class="descname">show_lines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.show_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.show_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print all defined lines to terminal.
+The output shows whether the line is active or not
+and the number of components for the given ion.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="VoigtFit.DataSet.sum_components">
 <code class="descname">sum_components</code><span class="sig-paren">(</span><em>ions</em>, <em>components</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.sum_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.sum_components" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total column density for the given <cite>components</cite>
@@ -1259,27 +1302,27 @@ of the given <cite>ion</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ions</strong> : str or list(str)</p>
-<blockquote>
-<div><p>List of ions or a single ion for which to calculate the total
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>ions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or list(str)</span></dt>
+<dd><p class="first last">List of ions or a single ion for which to calculate the total
 column density.</p>
-</div></blockquote>
-<p><strong>components</strong> : list(int)</p>
-<blockquote>
-<div><p>List of integers corresponding to the indeces of the components
+</dd>
+<dt><strong>components</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(int)</span></dt>
+<dd><p class="first last">List of integers corresponding to the indeces of the components
 to sum over.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>total_logN</strong> : dict()</p>
-<blockquote>
-<div><p>Dictionary containing the log of total column density for each ion.</p>
-</div></blockquote>
-<p><strong>total_logN_err</strong> : dict()</p>
-<blockquote class="last">
-<div><p>Dictionary containing the error on the log of total column density
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>total_logN</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict()</span></dt>
+<dd><p class="first last">Dictionary containing the log of total column density for each ion.</p>
+</dd>
+<dt><strong>total_logN_err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict()</span></dt>
+<dd><p class="first last">Dictionary containing the error on the log of total column density
 for each ion.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1421,10 +1464,10 @@ preparation stage.</dd>
 <tr class="row-odd"><td><a class="reference internal" href="#regions.Region.clear_mask" title="regions.Region.clear_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_mask</span></code></a>()</td>
 <td>Clear the already defined mask in the region.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#regions.Region.define_mask" title="regions.Region.define_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_mask</span></code></a>([z,&nbsp;dataset,&nbsp;telluric])</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.define_mask" title="regions.Region.define_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_mask</span></code></a>([z,&nbsp;dataset,&nbsp;telluric,&nbsp;z_sys])</td>
 <td>Use an interactive window to define the mask for the region.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.generate_label" title="regions.Region.generate_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_label</span></code></a>([active_only])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.generate_label" title="regions.Region.generate_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_label</span></code></a>([active_only,&nbsp;ignore_finelines])</td>
 <td>Automatically generate a descriptive label for the region.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#regions.Region.has_active_lines" title="regions.Region.has_active_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_active_lines</span></code></a>()</td>
@@ -1436,7 +1479,7 @@ preparation stage.</dd>
 <tr class="row-even"><td><a class="reference internal" href="#regions.Region.is_normalized" title="regions.Region.is_normalized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_normalized</span></code></a>()</td>
 <td>Return <cite>True</cite> if the region data is normalized.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.normalize" title="regions.Region.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([plot,&nbsp;norm_method])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.normalize" title="regions.Region.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([plot,&nbsp;norm_method,&nbsp;z_sys])</td>
 <td>Normalize the region if the data are not already normalized.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#regions.Region.remove_line" title="regions.Region.remove_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_line</span></code></a>(line_tag)</td>
@@ -1445,11 +1488,19 @@ preparation stage.</dd>
 <tr class="row-odd"><td><a class="reference internal" href="#regions.Region.set_label" title="regions.Region.set_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_label</span></code></a>(text)</td>
 <td>Set descriptive text label for the given region.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_mask</span></code>(mask)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#regions.Region.unpack" title="regions.Region.unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpack</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#regions.Region.unpack" title="regions.Region.unpack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpack</span></code></a>()</td>
 <td>Return the data of the region (wl, flux, error, mask)</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>set_mask</strong></td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
@@ -1461,14 +1512,14 @@ preparation stage.</dd>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_chunk</strong> : dict()</p>
-<blockquote>
-<div><p>A <cite>data_chunk</cite> as defined in the data structure of <a class="reference internal" href="#VoigtFit.DataSet.add_data" title="VoigtFit.DataSet.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataSet.data</span></code></a>.</p>
-</div></blockquote>
-<p><strong>cutout</strong> : bool array</p>
-<blockquote class="last">
-<div><p>A boolean array defining the subset of the <cite>data_chunk</cite> which makes up the fitting region.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data_chunk</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict()</span></dt>
+<dd><p class="first last">A <cite>data_chunk</cite> as defined in the data structure of <a class="reference internal" href="#VoigtFit.DataSet.add_data" title="VoigtFit.DataSet.add_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataSet.data</span></code></a>.</p>
+</dd>
+<dt><strong>cutout</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool array</span></dt>
+<dd><p class="first last">A boolean array defining the subset of the <cite>data_chunk</cite> which makes up the fitting region.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1489,26 +1540,29 @@ preparation stage.</dd>
 
 <dl class="method">
 <dt id="regions.Region.define_mask">
-<code class="descname">define_mask</code><span class="sig-paren">(</span><em>z=None</em>, <em>dataset=None</em>, <em>telluric=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.define_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.define_mask" title="Permalink to this definition">¶</a></dt>
+<code class="descname">define_mask</code><span class="sig-paren">(</span><em>z=None</em>, <em>dataset=None</em>, <em>telluric=True</em>, <em>z_sys=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.define_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.define_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use an interactive window to define the mask for the region.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>z</strong> : float   [default = None]</p>
-<blockquote>
-<div><p>If a redshift is given, the lines in the region are shown as vertical lines
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">If a redshift is given, the lines in the region are shown as vertical lines
 at the given redshift.</p>
-</div></blockquote>
-<p><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a>   [default = None]</p>
-<blockquote>
-<div><p>A dataset with components defined for the lines in the region.
+</dd>
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a>   [default = None]</span></dt>
+<dd><p class="first last">A dataset with components defined for the lines in the region.
 If a dataset is passed, the components of the lines in the region are shown.</p>
-</div></blockquote>
-<p><strong>telluric</strong> : bool   [default = True]</p>
-<blockquote class="last">
-<div><p>Show telluric absorption and sky emission line templates during the masking.</p>
-</div></blockquote>
+</dd>
+<dt><strong>telluric</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Show telluric absorption and sky emission line templates during the masking.</p>
+</dd>
+<dt><strong>z_sys</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">If a systemic redshift is given, the region is displayed in velocity space
+relative to the given systemic redshift instead of in wavelength space.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1517,7 +1571,7 @@ If a dataset is passed, the components of the lines in the region are shown.</p>
 
 <dl class="method">
 <dt id="regions.Region.generate_label">
-<code class="descname">generate_label</code><span class="sig-paren">(</span><em>active_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.generate_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.generate_label" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_label</code><span class="sig-paren">(</span><em>active_only=True</em>, <em>ignore_finelines=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.generate_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.generate_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically generate a descriptive label for the region.</p>
 </dd></dl>
 
@@ -1541,7 +1595,7 @@ If a dataset is passed, the components of the lines in the region are shown.</p>
 
 <dl class="method">
 <dt id="regions.Region.normalize">
-<code class="descname">normalize</code><span class="sig-paren">(</span><em>plot=True</em>, <em>norm_method='linear'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>plot=True</em>, <em>norm_method='linear'</em>, <em>z_sys=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/regions.html#Region.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#regions.Region.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize the region if the data are not already normalized.
 Choose from two methods:</p>
 <blockquote>
@@ -1553,6 +1607,8 @@ Choose from two methods:</p>
 continuum.</dd>
 </dl>
 </div></blockquote>
+<p>If <cite>z_sys</cite> is not <cite>None</cite>, show the region in velocity space using
+instead of wavelength space.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1595,40 +1651,36 @@ observed spectrum with the instrumental profile.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>l</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Wavelength grid in Angstroms at which to evaluate the optical depth.</p>
-</div></blockquote>
-<p><strong>l0</strong> : float</p>
-<blockquote>
-<div><p>Rest frame transition wavelength in Angstroms.</p>
-</div></blockquote>
-<p><strong>f</strong> : float</p>
-<blockquote>
-<div><p>Oscillator strength.</p>
-</div></blockquote>
-<p><strong>N</strong> : float</p>
-<blockquote>
-<div><p>Column density in units of cm^-2.</p>
-</div></blockquote>
-<p><strong>b</strong> : float</p>
-<blockquote>
-<div><p>Velocity width of the Voigt profile in cm/s.</p>
-</div></blockquote>
-<p><strong>gam</strong> : float</p>
-<blockquote>
-<div><p>Radiation damping constant, or Einstein constant (A_ul)</p>
-</div></blockquote>
-<p><strong>z</strong> : float</p>
-<blockquote>
-<div><p>The redshift of the observed wavelength grid <cite>l</cite>.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>l</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Wavelength grid in Angstroms at which to evaluate the optical depth.</p>
+</dd>
+<dt><strong>l0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Rest frame transition wavelength in Angstroms.</p>
+</dd>
+<dt><strong>f</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Oscillator strength.</p>
+</dd>
+<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Column density in units of cm^-2.</p>
+</dd>
+<dt><strong>b</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Velocity width of the Voigt profile in cm/s.</p>
+</dd>
+<dt><strong>gam</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Radiation damping constant, or Einstein constant (A_ul)</p>
+</dd>
+<dt><strong>z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The redshift of the observed wavelength grid <cite>l</cite>.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tau</strong> : array_like, shape (N)</p>
-<blockquote class="last">
-<div><p>Optical depth array evaluated at the input grid wavelengths <cite>l</cite>.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tau</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Optical depth array evaluated at the input grid wavelengths <cite>l</cite>.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1644,26 +1696,26 @@ All regions are fitted with the same order of polynomials.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Input wavelength grid in Ångstrøm.</p>
-</div></blockquote>
-<p><strong>pars</strong> : dict(<a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a>)</p>
-<blockquote>
-<div><p>An instance of <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a> containing the Chebyshev
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Input wavelength grid in Ångstrøm.</p>
+</dd>
+<dt><strong>pars</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict(<a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a>)</span></dt>
+<dd><p class="first last">An instance of <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a> containing the Chebyshev
 coefficients for each region.</p>
-</div></blockquote>
-<p><strong>reg_num</strong> : int</p>
-<blockquote>
-<div><p>The region number, i.e., the index of the region in the list
+</dd>
+<dt><strong>reg_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The region number, i.e., the index of the region in the list
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">VoigtFit.DataSet.regions</span></code>.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cont_model</strong> : array_like, shape (N)</p>
-<blockquote class="last">
-<div><p>The continuum Chebyshev polynomial evaluated at the input wavelengths <cite>x</cite>.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>cont_model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">The continuum Chebyshev polynomial evaluated at the input wavelengths <cite>x</cite>.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1675,7 +1727,7 @@ coefficients for each region.</p>
 <code class="descclassname">voigt.</code><code class="descname">evaluate_profile</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>z_sys</em>, <em>lines</em>, <em>components</em>, <em>res</em>, <em>dv=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the observed Voigt profile. The calculated optical depth, <cite>tau</cite>,
 is converted to observed transmission, <cite>f</cite>:</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[f = e^{-\tau}\]</div>
 <p>The observed transmission is subsequently convolved with the instrumental
 broadening profile assumed to be Gaussian with a full-width at half maximum
@@ -1684,38 +1736,35 @@ of res. The resolving power is assumed to be constant in velocity space.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Wavelength array in Ångstrøm on which to evaluate the profile.</p>
-</div></blockquote>
-<p><strong>pars</strong> : dict(<a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a>)</p>
-<blockquote>
-<div><p>An instance of <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a> containing the line parameters.</p>
-</div></blockquote>
-<p><strong>lines</strong> : list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a>)</p>
-<blockquote>
-<div><p>List of lines to evaluate. Should be a list of
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Wavelength array in Ångstrøm on which to evaluate the profile.</p>
+</dd>
+<dt><strong>pars</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict(<a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a>)</span></dt>
+<dd><p class="first last">An instance of <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a> containing the line parameters.</p>
+</dd>
+<dt><strong>lines</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(<a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a>)</span></dt>
+<dd><p class="first last">List of lines to evaluate. Should be a list of
 <a class="reference internal" href="#dataset.Line" title="dataset.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a> objects.</p>
-</div></blockquote>
-<p><strong>components</strong> : dict</p>
-<blockquote>
-<div><p>Dictionary containing component data for the defined ions.
+</dd>
+<dt><strong>components</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Dictionary containing component data for the defined ions.
 See <code class="xref py py-attr docutils literal notranslate"><span class="pre">VoigtFit.DataSet.components</span></code>.</p>
-</div></blockquote>
-<p><strong>res</strong> : float</p>
-<blockquote>
-<div><p>Spectral resolving power of the data in km/s  [= <em>c/R</em>].</p>
-</div></blockquote>
-<p><strong>dv</strong> : float  [default = 0.1]</p>
-<blockquote>
-<div><p>Desired pixel size of subsampled profile grid in km/s.</p>
-</div></blockquote>
+</dd>
+<dt><strong>res</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Spectral resolving power of the data in km/s  [= <em>c/R</em>].</p>
+</dd>
+<dt><strong>dv</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float  [default = 0.1]</span></dt>
+<dd><p class="first last">Desired pixel size of subsampled profile grid in km/s.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>profile_obs</strong> : array_like, shape (N)</p>
-<blockquote class="last">
-<div><p>Observed line profile convolved with the instrument profile.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>profile_obs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Observed line profile convolved with the instrument profile.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1744,6 +1793,12 @@ See <code class="xref py py-attr docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="function">
+<dt id="output.merge_two_dicts">
+<code class="descclassname">output.</code><code class="descname">merge_two_dicts</code><span class="sig-paren">(</span><em>default</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#merge_two_dicts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.merge_two_dicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge the keys of dictionary <cite>x</cite> into dictionary <cite>default</cite>.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="output.plot_H2">
 <code class="descclassname">output.</code><code class="descname">plot_H2</code><span class="sig-paren">(</span><em>dataset</em>, <em>n_rows=None</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=-0.1</em>, <em>ymax=2.5</em>, <em>short_labels=False</em>, <em>rebin=1</em>, <em>smooth=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_H2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_H2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate plot for H2 absorption lines.</p>
@@ -1751,42 +1806,36 @@ See <code class="xref py py-attr docutils literal notranslate"><span class="pre"
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>An instance of the class <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> containing
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">An instance of the class <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> containing
 the H2 lines to plot.</p>
-</div></blockquote>
-<p><strong>n_rows</strong> : int   [default = None]</p>
-<blockquote>
-<div><p>Number of rows to show in figure.
+</dd>
+<dt><strong>n_rows</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = None]</span></dt>
+<dd><p class="first last">Number of rows to show in figure.
 If None, the number will be determined automatically.</p>
-</div></blockquote>
-<p><strong>xmin</strong> : float</p>
-<blockquote>
-<div><p>The lower x-limit in Å.
+</dd>
+<dt><strong>xmin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The lower x-limit in Å.
 If nothing is given, the extent of the fit region is used.</p>
-</div></blockquote>
-<p><strong>xmax</strong> : float</p>
-<blockquote>
-<div><p>The upper x-limit in Å.
+</dd>
+<dt><strong>xmax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The upper x-limit in Å.
 If nothing is given, the extent of the fit region is used.</p>
-</div></blockquote>
-<p><strong>ymin</strong> : float   [default = -0.1]</p>
-<blockquote>
-<div><p>The lower y-limit in normalized flux units.</p>
-</div></blockquote>
-<p><strong>ymax</strong> : float   [default = 2.5]</p>
-<blockquote>
-<div><p>The upper y-limit in normalized flux units.</p>
-</div></blockquote>
-<p><strong>rebin</strong> : int   [defualt = 1]</p>
-<blockquote>
-<div><p>Rebinning factor for the spectrum, default is no binning.</p>
-</div></blockquote>
-<p><strong>smooth</strong> : float   [default = 0]</p>
-<blockquote class="last">
-<div><p>Width of Gaussian kernel for smoothing.</p>
-</div></blockquote>
+</dd>
+<dt><strong>ymin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = -0.1]</span></dt>
+<dd><p class="first last">The lower y-limit in normalized flux units.</p>
+</dd>
+<dt><strong>ymax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = 2.5]</span></dt>
+<dd><p class="first last">The upper y-limit in normalized flux units.</p>
+</dd>
+<dt><strong>rebin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [defualt = 1]</span></dt>
+<dd><p class="first last">Rebinning factor for the spectrum, default is no binning.</p>
+</dd>
+<dt><strong>smooth</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = 0]</span></dt>
+<dd><p class="first last">Width of Gaussian kernel for smoothing.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1795,7 +1844,7 @@ If nothing is given, the extent of the fit region is used.</p>
 
 <dl class="function">
 <dt id="output.plot_all_lines">
-<code class="descclassname">output.</code><code class="descname">plot_all_lines</code><span class="sig-paren">(</span><em>dataset</em>, <em>plot_fit=True</em>, <em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>max_rows=4</em>, <em>filename=None</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>legend=True</em>, <em>loc='left'</em>, <em>show=True</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_all_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_all_lines" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">output.</code><code class="descname">plot_all_lines</code><span class="sig-paren">(</span><em>dataset</em>, <em>plot_fit=True</em>, <em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>max_rows=4</em>, <em>filename=None</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>legend=True</em>, <em>loc='left'</em>, <em>show=True</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_all_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_all_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot all active absorption lines. This function is a wrapper of
 <a class="reference internal" href="#output.plot_single_line" title="output.plot_single_line"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_single_line()</span></code></a>. For a complete description of input parameters,
 see the documentation for <a class="reference internal" href="#output.plot_single_line" title="output.plot_single_line"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_single_line()</span></code></a>.</p>
@@ -1803,20 +1852,19 @@ see the documentation for <a class="reference internal" href="#output.plot_singl
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>Instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing the line
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">Instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing the line
 regions to plot.</p>
-</div></blockquote>
-<p><strong>max_rows</strong> : int   [default = 4]</p>
-<blockquote>
-<div><p>The maximum number of rows of figures.
+</dd>
+<dt><strong>max_rows</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 4]</span></dt>
+<dd><p class="first last">The maximum number of rows of figures.
 Each row consists of two figure panels.</p>
-</div></blockquote>
-<p><strong>filename</strong> : str</p>
-<blockquote class="last">
-<div><p>If a filename is given, the figures are saved to a pdf file.</p>
-</div></blockquote>
+</dd>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">If a filename is given, the figures are saved to a pdf file.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1837,39 +1885,34 @@ Each row consists of two figure panels.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : class DataSet</p>
-<blockquote>
-<div><p>An instance of DataSet class containing the line region to plot.</p>
-</div></blockquote>
-<p><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the line to show, e.g., ‘FeII_2374’</p>
-</div></blockquote>
-<p><strong>index</strong> : int   [default = 0]</p>
-<blockquote>
-<div><p>The line index. When fitting the same line in multiple
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier">class DataSet</span></dt>
+<dd><p class="first last">An instance of DataSet class containing the line region to plot.</p>
+</dd>
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the line to show, e.g., ‘FeII_2374’</p>
+</dd>
+<dt><strong>index</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 0]</span></dt>
+<dd><p class="first last">The line index. When fitting the same line in multiple
 spectra this indexed points to the index of the given region
 to be plotted.</p>
-</div></blockquote>
-<p><strong>rebin: int</strong></p>
-<blockquote>
-<div><p>Integer factor for rebinning the spectral data.</p>
-</div></blockquote>
-<p><strong>xmin</strong> : float</p>
-<blockquote>
-<div><p>The lower x-limit in relative velocity (km/s).
+</dd>
+<dt><strong>rebin: int</strong></dt>
+<dd><p class="first last">Integer factor for rebinning the spectral data.</p>
+</dd>
+<dt><strong>xmin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The lower x-limit in relative velocity (km/s).
 If nothing is given, the extent of the region is used.</p>
-</div></blockquote>
-<p><strong>xmax</strong> : float</p>
-<blockquote>
-<div><p>The upper x-limit in relative velocity (km/s).
+</dd>
+<dt><strong>xmax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The upper x-limit in relative velocity (km/s).
 If nothing is given, the extent of the region is used.</p>
-</div></blockquote>
-<p><strong>axis</strong> : <a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></p>
-<blockquote class="last">
-<div><p>The plotting axis of matplotlib.
+</dd>
+<dt><strong>axis</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></span></dt>
+<dd><p class="first last">The plotting axis of matplotlib.
 If <cite>None</cite> is given, a new figure and axis will be created.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1878,111 +1921,91 @@ If <cite>None</cite> is given, a new figure and axis will be created.</p>
 
 <dl class="function">
 <dt id="output.plot_single_line">
-<code class="descclassname">output.</code><code class="descname">plot_single_line</code><span class="sig-paren">(</span><em>dataset</em>, <em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>subsample_profile=1</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>npad=50</em>, <em>legend=True</em>, <em>residuals=False</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_single_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_single_line" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">output.</code><code class="descname">plot_single_line</code><span class="sig-paren">(</span><em>dataset</em>, <em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>subsample_profile=1</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>npad=50</em>, <em>legend=True</em>, <em>residuals=False</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_single_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_single_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a single absorption line.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>Instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing the lines</p>
-</div></blockquote>
-<p><strong>line_tag</strong> : str</p>
-<blockquote>
-<div><p>The line tag of the line to show, e.g., ‘FeII_2374’</p>
-</div></blockquote>
-<p><strong>index</strong> : int   [default = 0]</p>
-<blockquote>
-<div><p>The line index. When fitting the same line in multiple
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">Instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing the lines</p>
+</dd>
+<dt><strong>line_tag</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The line tag of the line to show, e.g., ‘FeII_2374’</p>
+</dd>
+<dt><strong>index</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 0]</span></dt>
+<dd><p class="first last">The line index. When fitting the same line in multiple
 spectra this indexed points to the index of the given
 region to be plotted.</p>
-</div></blockquote>
-<p><strong>plot_fit</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, the best-fit profile will be shown</p>
-</div></blockquote>
-<p><strong>loc</strong> : str   [default = ‘left’]</p>
-<blockquote>
-<div><p>Places the line tag (right or left).</p>
-</div></blockquote>
-<p><strong>rebin</strong> : int   [default = 1]</p>
-<blockquote>
-<div><p>Rebinning factor for the spectrum</p>
-</div></blockquote>
-<p><strong>nolabels</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, show the axis x- and y-labels.</p>
-</div></blockquote>
-<p><strong>axis</strong> : <a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></p>
-<blockquote>
-<div><p>The plotting axis of matplotlib.
+</dd>
+<dt><strong>plot_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, the best-fit profile will be shown</p>
+</dd>
+<dt><strong>loc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘left’]</span></dt>
+<dd><p class="first last">Places the line tag (right or left).</p>
+</dd>
+<dt><strong>rebin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 1]</span></dt>
+<dd><p class="first last">Rebinning factor for the spectrum</p>
+</dd>
+<dt><strong>nolabels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, show the axis x- and y-labels.</p>
+</dd>
+<dt><strong>axis</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></span></dt>
+<dd><p class="first last">The plotting axis of matplotlib.
 If <cite>None</cite> is given, a new figure and axis will be created.</p>
-</div></blockquote>
-<p><strong>fontsize</strong> : int   [default = 12]</p>
-<blockquote>
-<div><p>The fontsize of text labels.</p>
-</div></blockquote>
-<p><strong>xmin</strong> : float</p>
-<blockquote>
-<div><p>The lower x-limit in relative velocity (km/s).
+</dd>
+<dt><strong>fontsize</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 12]</span></dt>
+<dd><p class="first last">The fontsize of text labels.</p>
+</dd>
+<dt><strong>xmin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The lower x-limit in relative velocity (km/s).
 If nothing is given, the extent of the region is used.</p>
-</div></blockquote>
-<p><strong>xmax</strong> : float</p>
-<blockquote>
-<div><p>The upper x-limit in relative velocity (km/s).
+</dd>
+<dt><strong>xmax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The upper x-limit in relative velocity (km/s).
 If nothing is given, the extent of the region is used.</p>
-</div></blockquote>
-<p><strong>ymin</strong> : float   [default = None]</p>
-<blockquote>
-<div><p>The lower y-limit in normalized flux units.
+</dd>
+<dt><strong>ymin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The lower y-limit in normalized flux units.
 Default is determined from the data.</p>
-</div></blockquote>
-<p><strong>ymax</strong> : float   [default = None]</p>
-<blockquote>
-<div><p>The upper y-limit in normalized flux units.
+</dd>
+<dt><strong>ymax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = None]</span></dt>
+<dd><p class="first last">The upper y-limit in normalized flux units.
 Default is determined from the data.</p>
-</div></blockquote>
-<p><strong>show</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>Show the figure.</p>
-</div></blockquote>
-<p><strong>subsample_profile</strong> : int   [default = 1]</p>
-<blockquote>
-<div><p>Subsampling factor to calculate the profile on a finer grid than
+</dd>
+<dt><strong>show</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Show the figure.</p>
+</dd>
+<dt><strong>subsample_profile</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 1]</span></dt>
+<dd><p class="first last">Subsampling factor to calculate the profile on a finer grid than
 the data sampling.
 By default the profile is evaluated on the same grid as the data.</p>
-</div></blockquote>
-<p><strong>npad</strong> : int   [default = 50]</p>
-<blockquote>
-<div><p>Padding added to the synthetic profile before convolution.
+</dd>
+<dt><strong>npad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int   [default = 50]</span></dt>
+<dd><p class="first last">Padding added to the synthetic profile before convolution.
 This removes end artefacts from the <cite>FFT</cite> routine.</p>
-</div></blockquote>
-<p><strong>residuals</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>Add a panel above the absorption line to show the residuals of the fit.</p>
-</div></blockquote>
-<p><strong>norm_resid</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>Show normalized residuals.</p>
-</div></blockquote>
-<p><strong>legend</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>Show line labels as axis legend.</p>
-</div></blockquote>
-<p><strong>default_props</strong> : dict</p>
-<blockquote>
-<div><p>Dictionary of transition tick marker properties. The dictionary is
+</dd>
+<dt><strong>residuals</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">Add a panel above the absorption line to show the residuals of the fit.</p>
+</dd>
+<dt><strong>norm_resid</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">Show normalized residuals.</p>
+</dd>
+<dt><strong>legend</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Show line labels as axis legend.</p>
+</dd>
+<dt><strong>default_props</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Dictionary of transition tick marker properties. The dictionary is
 passed to matplotlib.axes.Axes.axvline to control color, linewidth,
 linestyle, etc.. Two additional keywords can be defined:
 The keyword <cite>text</cite> is a string that will be printed above or below
 each tick mark for each element.
 The keyword <cite>loc</cite> controls the placement of the tick mark text
 for the transistions, and must be one either ‘above’ or ‘below’.</p>
-</div></blockquote>
-<p><strong>element_props</strong> : dict</p>
-<blockquote>
-<div><p>Dictionary of properties for individual elements.
+</dd>
+<dt><strong>element_props</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first">Dictionary of properties for individual elements.
 Each element defines a dictionary with individual properties following
 the format for <cite>default_props</cite>.</p>
 <blockquote>
@@ -1992,13 +2015,12 @@ the format for <cite>default_props</cite>.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p>This will set the color and linewidth of the tick marks
+<p class="last">This will set the color and linewidth of the tick marks
 of SiII transitions and the linestyle and alpha-parameter
 of FeII transitions.</p>
-</div></blockquote>
-<p><strong>highlight_props</strong> : dict/list   [default = None]</p>
-<blockquote>
-<div><p>A dictionary of <cite>ions</cite> (e.g., “FeII”, “CIa”, etc.) used to calculate
+</dd>
+<dt><strong>highlight_props</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict/list   [default = None]</span></dt>
+<dd><p class="first">A dictionary of <cite>ions</cite> (e.g., “FeII”, “CIa”, etc.) used to calculate
 a separate profile for this subset of ions. Each <cite>ion</cite> as a keyword
 must specify a dictionary which can change individual properties for
 the given <cite>ion</cite>. Similar to <cite>element_props</cite>.
@@ -2013,19 +2035,30 @@ properties, and FeII transistions with a user specified color.</p>
 <blockquote>
 <div><p>Ex: <code class="docutils literal notranslate"><span class="pre">highlight_props=['SiII',</span> <span class="pre">'FeII']</span></code></p>
 </div></blockquote>
-<p>This will highlight SiII and FeII transitions using default
+<p class="last">This will highlight SiII and FeII transitions using default
 highlight properties.</p>
-</div></blockquote>
-<p><strong>label_all_ions</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>Show labels for all <cite>ions</cite> defined.
+</dd>
+<dt><strong>label_all_ions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">Show labels for all <cite>ions</cite> defined.
 The labels will appear above the component tick marks.</p>
-</div></blockquote>
-<p><strong>xunit</strong> : string   [default = ]’velocity’]</p>
-<blockquote class="last">
-<div><p>The unit of the x-axis, must be either ‘velocity’ or ‘wavelength’.
+</dd>
+<dt><strong>xunit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string   [default = ‘velocity’]</span></dt>
+<dd><p class="first last">The unit of the x-axis, must be either ‘velocity’ or ‘wavelength’.
 Shortenings are acceptable too, e.g., ‘vel’/’v’ or ‘wave’/’wl’.</p>
-</div></blockquote>
+</dd>
+<dt><strong>line_props</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict   [default = None]</span></dt>
+<dd><p class="first last">A dictionary of keywords to change the default line properties
+of the best-fit profile; e.g., ‘color’, ‘lw’, ‘linestyle’.
+All keywords will be passed to the <a href="#id14"><span class="problematic" id="id15">`plot function`_</span></a> of matplotlib.</p>
+</dd>
+<dt><strong>hl_line_props</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict   [default = None]</span></dt>
+<dd><p class="first last">A dictionary of keywords to change the default line properties
+of the best-fit profile for highlighted ions.
+All keywords will be passed to the <a href="#id16"><span class="problematic" id="id17">`plot function`_</span></a> of matplotlib.</p>
+</dd>
+<dt><strong>.. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2053,25 +2086,24 @@ This will add the column densities for all components of a given ion.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
 the definition of data and absorption lines.</p>
-</div></blockquote>
-<p><strong>params</strong> : <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a></p>
-<blockquote>
-<div><p>Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal notranslate"><span class="pre">VoigtFit.DataSet.best_fit</span></code>.
+</dd>
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a></span></dt>
+<dd><p class="first last">Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal notranslate"><span class="pre">VoigtFit.DataSet.best_fit</span></code>.
 See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> for details.</p>
-</div></blockquote>
-<p><strong>logNHI</strong> : float</p>
-<blockquote>
-<div><p>Column density of neutral hydrogen.</p>
-</div></blockquote>
-<p><strong>err</strong> : float   [default = 0.1]</p>
-<blockquote>
-<div><p>Uncertainty (1-sigma) on <cite>logNHI</cite>.</p>
-</div></blockquote>
-<p class="last"><strong>.. _lmfit: https://lmfit.github.io/lmfit-py/index.html</strong></p>
+</dd>
+<dt><strong>logNHI</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Column density of neutral hydrogen.</p>
+</dd>
+<dt><strong>err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = 0.1]</span></dt>
+<dd><p class="first last">Uncertainty (1-sigma) on <cite>logNHI</cite>.</p>
+</dd>
+<dt><strong>.. _lmfit: https://lmfit.github.io/lmfit-py/index.html</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2086,31 +2118,29 @@ See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
 the line region to plot.</p>
-</div></blockquote>
-<p><strong>params</strong> : <a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a></p>
-<blockquote>
-<div><p>Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal notranslate"><span class="pre">dataset.Dataset.best_fit</span></code>.
+</dd>
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a></span></dt>
+<dd><p class="first last">Output parameter dictionary, e.g., <code class="xref py py-attr docutils literal notranslate"><span class="pre">dataset.Dataset.best_fit</span></code>.
 See <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a> for details.</p>
-</div></blockquote>
-<p><strong>elements</strong> : list(str)   [default = ‘all’]</p>
-<blockquote>
-<div><p>A list of ions for which to print the best-fit parameters.
+</dd>
+<dt><strong>elements</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(str)   [default = ‘all’]</span></dt>
+<dd><p class="first last">A list of ions for which to print the best-fit parameters.
 By default all ions are shown.</p>
-</div></blockquote>
-<p><strong>velocity</strong> : bool   [default = True]</p>
-<blockquote>
-<div><p>Show the components in relative velocity or redshift.</p>
-</div></blockquote>
-<p><strong>systemic</strong> : float   [default = 0]</p>
-<blockquote>
-<div><p>Systemic redshift used to calculate the relative velocities.
+</dd>
+<dt><strong>velocity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">Show the components in relative velocity or redshift.</p>
+</dd>
+<dt><strong>systemic</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float   [default = 0]</span></dt>
+<dd><p class="first last">Systemic redshift used to calculate the relative velocities.
 By default the systemic redshift defined in the dataset is used.</p>
-</div></blockquote>
-<p class="last"><strong>.. _lmfit: https://lmfit.github.io/lmfit-py/index.html</strong></p>
+</dd>
+<dt><strong>.. _lmfit: https://lmfit.github.io/lmfit-py/index.html</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2140,40 +2170,36 @@ Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>wl</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Input wavelength array.</p>
-</div></blockquote>
-<p><strong>spec</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Input flux array.</p>
-</div></blockquote>
-<p><strong>err</strong> : array_like, shape (N)</p>
-<blockquote>
-<div><p>Input error array.</p>
-</div></blockquote>
-<p><strong>n</strong> : int</p>
-<blockquote>
-<div><p>Integer rebinning factor.</p>
-</div></blockquote>
-<p><strong>method</strong> : str   [default = ‘mean’]</p>
-<blockquote>
-<div><p>Rebin method, either ‘mean’ or ‘median’.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>wl</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Input wavelength array.</p>
+</dd>
+<dt><strong>spec</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Input flux array.</p>
+</dd>
+<dt><strong>err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (N)</span></dt>
+<dd><p class="first last">Input error array.</p>
+</dd>
+<dt><strong>n</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Integer rebinning factor.</p>
+</dd>
+<dt><strong>method</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘mean’]</span></dt>
+<dd><p class="first last">Rebin method, either ‘mean’ or ‘median’.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>wl_r</strong> : array_like, shape (M)</p>
-<blockquote>
-<div><p>Rebinned wavelength array, the new shape will be N/n.</p>
-</div></blockquote>
-<p><strong>spec_r</strong> : array_like, shape (M)</p>
-<blockquote>
-<div><p>Rebinned flux array, the new shape will be N/n.</p>
-</div></blockquote>
-<p><strong>err_r</strong> : array_like, shape (M)</p>
-<blockquote class="last">
-<div><p>Rebinned error array, the new shape will be N/n.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>wl_r</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (M)</span></dt>
+<dd><p class="first last">Rebinned wavelength array, the new shape will be N/n.</p>
+</dd>
+<dt><strong>spec_r</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (M)</span></dt>
+<dd><p class="first last">Rebinned flux array, the new shape will be N/n.</p>
+</dd>
+<dt><strong>err_r</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (M)</span></dt>
+<dd><p class="first last">Rebinned error array, the new shape will be N/n.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2194,27 +2220,26 @@ Method is either <em>mean</em> or <em>median</em>, default is mean.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
-<blockquote>
-<div><p>Filename to be used. If the filename already exists, it will be overwritten.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Filename to be used. If the filename already exists, it will be overwritten.
 A <cite>.reg</cite> file extension will automatically be append if not present already.</p>
-</div></blockquote>
-<p><strong>individual</strong> : bool   [default = False]</p>
-<blockquote>
-<div><p>If <cite>True</cite>, save each fitting region to a separate file.
+</dd>
+<dt><strong>individual</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, save each fitting region to a separate file.
 The individual filenames will be the basename given as <cite>filename</cite>
 with <cite>_regN</cite> appended, where <cite>N</cite> is an integer referring to the region number.</p>
-</div></blockquote>
-<p><strong>path</strong> : str   [default = ‘’]</p>
-<blockquote class="last">
-<div><p>Specify a path to prepend to the filename in order to save output to a given
+</dd>
+<dt><strong>path</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str   [default = ‘’]</span></dt>
+<dd><p class="first">Specify a path to prepend to the filename in order to save output to a given
 directory or path. Can be given both as relative or absolute path.
 If the directory does not exist, it will be created.
 The final filename will be:</p>
-<blockquote>
+<blockquote class="last">
 <div><p><cite>path/</cite> + <cite>filename</cite> [+ <cite>_regN</cite>] + <cite>.reg</cite></p>
 </div></blockquote>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2235,29 +2260,34 @@ The final filename will be:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : <a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></p>
-<blockquote>
-<div><p>The axis instance to decorate with H2 line identifications.</p>
-</div></blockquote>
-<p><strong>z</strong> : float</p>
-<blockquote>
-<div><p>The redshift of the H2 system.</p>
-</div></blockquote>
-<p><strong>bands</strong> : list(str)</p>
-<blockquote>
-<div><p>A list of molecular bands of H2.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ax</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://matplotlib.org/api/axes_api.html">matplotlib.axes.Axes</a></span></dt>
+<dd><p class="first last">The axis instance to decorate with H2 line identifications.</p>
+</dd>
+<dt><strong>z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The redshift of the H2 system.</p>
+</dd>
+<dt><strong>bands</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(str)</span></dt>
+<dd><p class="first last">A list of molecular bands of H2.
 Ex: [‘BX(0-0)’, ‘BX(1-0)’]</p>
-</div></blockquote>
-<p><strong>Jmax</strong> : int or list(int)</p>
-<blockquote class="last">
-<div><p>The highest rotational J-level to include in the identification.
+</dd>
+<dt><strong>Jmax</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or list(int)</span></dt>
+<dd><p class="first last">The highest rotational J-level to include in the identification.
 A list of Jmax for each band can be passed as well.
 Lines are currently only defined up to J=7.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="output.show_components">
+<code class="descclassname">output.</code><code class="descname">show_components</code><span class="sig-paren">(</span><em>self</em>, <em>ion=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#show_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.show_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the defined components for a given <cite>ion</cite>.
+By default, all ions are shown.</p>
 </dd></dl>
 
 <dl class="function">
@@ -2268,29 +2298,28 @@ Lines are currently only defined up to J=7.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataset</strong> : <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></p>
-<blockquote>
-<div><p>An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dataset</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a></span></dt>
+<dd><p class="first last">An instance of the <a class="reference internal" href="#VoigtFit.DataSet" title="VoigtFit.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoigtFit.DataSet</span></code></a> class containing
 the definition of data and absorption lines.</p>
-</div></blockquote>
-<p><strong>ion</strong> : str</p>
-<blockquote>
-<div><p>Ion for which to calculate the summed abundance.</p>
-</div></blockquote>
-<p><strong>components</strong> : list(int)</p>
-<blockquote>
-<div><p>List of indeces of the components to sum over.</p>
-</div></blockquote>
+</dd>
+<dt><strong>ion</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Ion for which to calculate the summed abundance.</p>
+</dd>
+<dt><strong>components</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list(int)</span></dt>
+<dd><p class="first last">List of indeces of the components to sum over.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>total_logN</strong> : float</p>
-<blockquote>
-<div><p>The 10-base log of total column density.</p>
-</div></blockquote>
-<p><strong>total_logN_err</strong> : float</p>
-<blockquote class="last">
-<div><p>The error on the 10-base log of total column density.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>total_logN</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The 10-base log of total column density.</p>
+</dd>
+<dt><strong>total_logN_err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">The error on the 10-base log of total column density.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2347,7 +2376,7 @@ the definition of data and absorption lines.</p>
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

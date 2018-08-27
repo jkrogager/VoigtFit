@@ -4,12 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>output &#8212; VoigtFit 0.9.3 documentation</title>
+    <title>output &#8212; VoigtFit 0.9.10 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -50,6 +50,7 @@
 <span class="kn">import</span> <span class="nn">molecules</span>
 <span class="kn">from</span> <span class="nn">dataset</span> <span class="k">import</span> <span class="n">Line</span>
 <span class="kn">from</span> <span class="nn">voigt</span> <span class="k">import</span> <span class="n">evaluate_profile</span>
+<span class="kn">import</span> <span class="nn">terminal_attributes</span> <span class="k">as</span> <span class="nn">term</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
@@ -66,11 +67,24 @@
                           <span class="s1">&#39;ymin&#39;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s1">&#39;ymax&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
                           <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="s1">&#39;above&#39;</span><span class="p">}</span>
 
+<span class="n">default_line</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;ls&#39;</span><span class="p">:</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="n">default_hl_line</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="s1">&#39;ls&#39;</span><span class="p">:</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="merge_two_dicts"><a class="viewcode-back" href="../api.html#output.merge_two_dicts">[docs]</a><span class="k">def</span> <span class="nf">merge_two_dicts</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merge the keys of dictionary `x` into dictionary `default`. &quot;&quot;&quot;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">z</span></div>
+
 
 <span class="k">class</span> <span class="nc">CompProp</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_ions</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">prop</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">merge_two_dicts</span><span class="p">(</span><span class="n">default_comp</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">list_of_ions</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
         <span class="k">else</span><span class="p">:</span>
@@ -118,14 +132,14 @@
 
 
 <div class="viewcode-block" id="mad"><a class="viewcode-back" href="../api.html#output.mad">[docs]</a><span class="k">def</span> <span class="nf">mad</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculate Median Absolute Deviation&quot;&quot;&quot;</span></div>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+    <span class="sd">&quot;&quot;&quot;Calculate Median Absolute Deviation&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span></div>
 
 
 <div class="viewcode-block" id="chunks"><a class="viewcode-back" href="../api.html#output.chunks">[docs]</a><span class="k">def</span> <span class="nf">chunks</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Yield successive `n`-sized chunks from `l`.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span></div>
-        <span class="k">yield</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="rebin_spectrum"><a class="viewcode-back" href="../api.html#output.rebin_spectrum">[docs]</a><span class="k">def</span> <span class="nf">rebin_spectrum</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
@@ -179,8 +193,8 @@
         <span class="n">spec_r</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine</span><span class="p">(</span><span class="n">spec_chunks</span><span class="p">[</span><span class="n">num</span><span class="p">])</span>
         <span class="n">err_r</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">err_chunks</span><span class="p">[</span><span class="n">num</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">n</span><span class="p">)</span>
         <span class="n">wl_r</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine</span><span class="p">(</span><span class="n">wl_chunks</span><span class="p">[</span><span class="n">num</span><span class="p">])</span>
-</div>
-    <span class="k">return</span> <span class="n">wl_r</span><span class="p">,</span> <span class="n">spec_r</span><span class="p">,</span> <span class="n">err_r</span>
+
+    <span class="k">return</span> <span class="n">wl_r</span><span class="p">,</span> <span class="n">spec_r</span><span class="p">,</span> <span class="n">err_r</span></div>
 
 
 <div class="viewcode-block" id="rebin_bool_array"><a class="viewcode-back" href="../api.html#output.rebin_bool_array">[docs]</a><span class="k">def</span> <span class="nf">rebin_bool_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
@@ -191,8 +205,8 @@
     <span class="n">x_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array_chunks</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array_chunks</span><span class="p">)):</span>
         <span class="n">x_r</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">array_chunks</span><span class="p">[</span><span class="n">num</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-</div>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_r</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="create_blank_input"><a class="viewcode-back" href="../api.html#output.create_blank_input">[docs]</a><span class="k">def</span> <span class="nf">create_blank_input</span><span class="p">():</span>
@@ -204,8 +218,8 @@
         <span class="n">parameter_lines</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
     <span class="c1"># Save it to &#39;vfit.pars&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;vfit.pars&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_file</span><span class="p">:</span></div>
-        <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameter_lines</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;vfit.pars&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_file</span><span class="p">:</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameter_lines</span><span class="p">))</span></div>
 
 
 <span class="c1"># ===================================================================================</span>
@@ -221,7 +235,8 @@
                    <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">norm_resid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">default_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">element_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">highlight_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">):</span>
+                   <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span>
+                   <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot all active absorption lines. This function is a wrapper of</span>
 <span class="sd">    :func:`plot_single_line`. For a complete description of input parameters,</span>
@@ -313,7 +328,8 @@
                             <span class="n">label_all_ions</span><span class="o">=</span><span class="n">label_all_ions</span><span class="p">,</span>
                             <span class="n">default_props</span><span class="o">=</span><span class="n">default_props</span><span class="p">,</span>
                             <span class="n">element_props</span><span class="o">=</span><span class="n">element_props</span><span class="p">,</span>
-                            <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">)</span>
+                            <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">,</span>
+                            <span class="n">line_props</span><span class="o">=</span><span class="n">line_props</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="n">hl_line_props</span><span class="p">)</span>
 
     <span class="c1"># --- If *filename* is given, set up a PDF container for saving to file:</span>
     <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
@@ -321,10 +337,14 @@
             <span class="n">filename</span> <span class="o">+=</span> <span class="s1">&#39;.pdf&#39;</span>
         <span class="n">pdf</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">backend_pdf</span><span class="o">.</span><span class="n">PdfPages</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
+    <span class="c1"># -- Create container for multiple regions of same line:</span>
+    <span class="n">regionidx_of_line</span> <span class="o">=</span> <span class="p">{}</span>
+
     <span class="c1"># --- Determine number of pages to create:</span>
-    <span class="n">pages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunks</span><span class="p">(</span><span class="n">lines_to_plot</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">max_rows</span><span class="p">))</span>
-    <span class="n">lines_in_figure</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunks</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">lines_to_plot</span><span class="p">),</span> <span class="mi">2</span><span class="o">*</span><span class="n">max_rows</span><span class="p">))</span>
+    <span class="c1"># lines_in_figure = list()</span>
     <span class="k">for</span> <span class="n">contents</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">:</span>
+        <span class="n">lines_in_figure</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="c1"># --- Determine figure size:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">width</span> <span class="o">=</span> <span class="mf">8.5</span>
@@ -354,12 +374,22 @@
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">num_regions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">regionidx_of_line</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">regionidx_of_line</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_regions</span><span class="p">):</span>
-                    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
-                    <span class="n">_</span><span class="p">,</span> <span class="n">LIV</span> <span class="o">=</span> <span class="n">plot_single_line</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
-                                              <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_line_kwargs</span>
-                                              <span class="p">)</span>
-                    <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">regionidx_of_line</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
+                        <span class="c1"># skip this region idx</span>
+                        <span class="k">pass</span>
+                    <span class="k">elif</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="n">rows</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+                        <span class="n">_</span><span class="p">,</span> <span class="n">LIV</span> <span class="o">=</span> <span class="n">plot_single_line</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+                                                  <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_line_kwargs</span>
+                                                  <span class="p">)</span>
+                        <span class="n">regionidx_of_line</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                        <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
+
                 <span class="n">lines_in_figure</span> <span class="o">+=</span> <span class="n">LIV</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
@@ -391,8 +421,8 @@
         <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">show_molecule_warning</span><span class="p">:</span></div>
-        <span class="nb">print</span><span class="p">(</span><span class="n">molecule_warning</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">show_molecule_warning</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">molecule_warning</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="plot_single_line"><a class="viewcode-back" href="../api.html#output.plot_single_line">[docs]</a><span class="k">def</span> <span class="nf">plot_single_line</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -403,7 +433,8 @@
                      <span class="n">residuals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">norm_resid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">default_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">element_props</span><span class="o">=</span><span class="p">{},</span>
                      <span class="n">highlight_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">):</span>
+                     <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span>
+                     <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a single absorption line.</span>
 
@@ -520,11 +551,34 @@
 <span class="sd">        Show labels for all `ions` defined.</span>
 <span class="sd">        The labels will appear above the component tick marks.</span>
 
-<span class="sd">    xunit : string   [default = ]&#39;velocity&#39;]</span>
+<span class="sd">    xunit : string   [default = &#39;velocity&#39;]</span>
 <span class="sd">        The unit of the x-axis, must be either &#39;velocity&#39; or &#39;wavelength&#39;.</span>
 <span class="sd">        Shortenings are acceptable too, e.g., &#39;vel&#39;/&#39;v&#39; or &#39;wave&#39;/&#39;wl&#39;.</span>
 
+<span class="sd">    line_props : dict   [default = None]</span>
+<span class="sd">        A dictionary of keywords to change the default line properties</span>
+<span class="sd">        of the best-fit profile; e.g., &#39;color&#39;, &#39;lw&#39;, &#39;linestyle&#39;.</span>
+<span class="sd">        All keywords will be passed to the `plot function`_ of matplotlib.</span>
+
+<span class="sd">    hl_line_props : dict   [default = None]</span>
+<span class="sd">        A dictionary of keywords to change the default line properties</span>
+<span class="sd">        of the best-fit profile for highlighted ions.</span>
+<span class="sd">        All keywords will be passed to the `plot function`_ of matplotlib.</span>
+
+
+<span class="sd">    .. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">line_props</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">line_props</span> <span class="o">=</span> <span class="n">default_line</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">line_props</span> <span class="o">=</span> <span class="n">merge_two_dicts</span><span class="p">(</span><span class="n">default_line</span><span class="p">,</span> <span class="n">line_props</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hl_line_props</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hl_line_props</span> <span class="o">=</span> <span class="n">default_hl_line</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hl_line_props</span> <span class="o">=</span> <span class="n">merge_two_dicts</span><span class="p">(</span><span class="n">default_hl_line</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="p">)</span>
 
     <span class="c1"># Convert highlight_props to dictionary if a list of `ions` is given:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">highlight_props</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -739,16 +793,15 @@
     <span class="k">if</span> <span class="n">plot_fit</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span>
                      <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">pars</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">xunit</span> <span class="o">==</span> <span class="s1">&#39;wl&#39;</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl_line</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl_line</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="o">**</span><span class="n">line_props</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vel_profile</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vel_profile</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="o">**</span><span class="n">line_props</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">N_highlight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">xunit</span> <span class="o">==</span> <span class="s1">&#39;wl&#39;</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl_line</span><span class="p">,</span> <span class="n">profile_hl</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl_line</span><span class="p">,</span> <span class="n">profile_hl</span><span class="p">,</span> <span class="o">**</span><span class="n">hl_line_props</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vel_profile</span><span class="p">,</span> <span class="n">profile_hl</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vel_profile</span><span class="p">,</span> <span class="n">profile_hl</span><span class="p">,</span> <span class="o">**</span><span class="n">hl_line_props</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
             <span class="n">p_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">vel_profile</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
@@ -802,6 +855,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm Normalized\ flux}$&quot;</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_scientific</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">cont_err</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">cont_err</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
@@ -841,8 +895,8 @@
 
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</div>
-    <span class="k">return</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lines_in_view</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lines_in_view</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="plot_residual"><a class="viewcode-back" href="../api.html#output.plot_residual">[docs]</a><span class="k">def</span> <span class="nf">plot_residual</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -994,8 +1048,8 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">axis</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</div>
-    <span class="k">return</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lines_in_view</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lines_in_view</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="plot_excitation"><a class="viewcode-back" href="../api.html#output.plot_excitation">[docs]</a><span class="k">def</span> <span class="nf">plot_excitation</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">molecule</span><span class="p">):</span>
@@ -1051,8 +1105,8 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span>
             <span class="sa">r</span><span class="s2">&quot;$T_</span><span class="si">{01}</span><span class="s2"> = </span><span class="si">%.0f</span><span class="s2">_{</span><span class="si">%+.0f</span><span class="s2">}^{</span><span class="si">%+.0f</span><span class="s2">}$ K&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="n">T_01</span><span class="p">,)</span> <span class="o">+</span> <span class="n">T_01_err</span><span class="p">),</span>
             <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
-            <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span></div>
-    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="show_H2_bands"><a class="viewcode-back" href="../api.html#output.show_H2_bands">[docs]</a><span class="k">def</span> <span class="nf">show_H2_bands</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">Jmax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">short_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1152,8 +1206,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">band_str</span> <span class="o">=</span> <span class="n">band</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">band_x</span><span class="p">,</span> <span class="p">(</span><span class="n">y2</span><span class="o">+</span><span class="mf">0.02</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">ymax</span><span class="o">-</span><span class="n">ymin</span><span class="p">)</span> <span class="o">+</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">band_str</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span></div>
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="plot_H2"><a class="viewcode-back" href="../api.html#output.plot_H2">[docs]</a><span class="k">def</span> <span class="nf">plot_H2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">n_rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1286,8 +1340,8 @@
         <span class="n">show_H2_bands</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">Jmax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
                       <span class="n">short_labels</span><span class="o">=</span><span class="n">short_labels</span><span class="p">)</span>
 
-    <span class="n">fig</span><span class="o">.</span><span class="n">set_tight_layout</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_tight_layout</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
 <span class="c1"># ===================================================================================</span>
@@ -1411,8 +1465,8 @@
                 <span class="n">output_string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2"> +/- </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">logN</span><span class="p">,</span> <span class="n">logN_err</span><span class="p">)</span>
 
                 <span class="nb">print</span> <span class="n">output_string</span>
-</div>
-            <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="nb">print</span> <span class="s2">&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="print_cont_parameters"><a class="viewcode-back" href="../api.html#output.print_cont_parameters">[docs]</a><span class="k">def</span> <span class="nf">print_cont_parameters</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
@@ -1440,8 +1494,8 @@
                 <span class="nb">print</span> <span class="n">line</span>
             <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  No Chebyshev polynomials have been defined.&quot;</span></div>
-        <span class="nb">print</span> <span class="s2">&quot;  cheb_order = </span><span class="si">%i</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">dataset</span><span class="o">.</span><span class="n">cheb_order</span>
+        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  No Chebyshev polynomials have been defined.&quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;  cheb_order = </span><span class="si">%i</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">dataset</span><span class="o">.</span><span class="n">cheb_order</span></div>
 
 
 <div class="viewcode-block" id="print_metallicity"><a class="viewcode-back" href="../api.html#output.print_metallicity">[docs]</a><span class="k">def</span> <span class="nf">print_metallicity</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
@@ -1496,8 +1550,8 @@
 
         <span class="n">metal_array</span> <span class="o">=</span> <span class="n">logN_tot</span> <span class="o">-</span> <span class="n">logNHI</span> <span class="o">-</span> <span class="p">(</span><span class="n">solar_abundance</span> <span class="o">-</span> <span class="mf">12.</span><span class="p">)</span>
         <span class="n">metal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">metal_array</span><span class="p">)</span>
-        <span class="n">metal_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">metal_array</span><span class="p">)</span></div>
-        <span class="nb">print</span> <span class="s2">&quot;  [</span><span class="si">%s</span><span class="s2">/H] = </span><span class="si">%.3f</span><span class="s2"> +/- </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">metal</span><span class="p">,</span> <span class="n">metal_err</span><span class="p">)</span>
+        <span class="n">metal_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">metal_array</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;  [</span><span class="si">%s</span><span class="s2">/H] = </span><span class="si">%.3f</span><span class="s2"> +/- </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">metal</span><span class="p">,</span> <span class="n">metal_err</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="print_total"><a class="viewcode-back" href="../api.html#output.print_total">[docs]</a><span class="k">def</span> <span class="nf">print_total</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
@@ -1516,7 +1570,7 @@
             <span class="n">logN_err</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">N_tot</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">par</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;logN&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">par</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">par</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;logN&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">par</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">ion</span><span class="p">:</span>
                     <span class="n">N_tot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">.</span><span class="n">stderr</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
                         <span class="n">logN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
@@ -1536,8 +1590,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        [ERROR] - The dataset has not yet been fitted. No parameters found!</span>
-<span class="s2">        &quot;&quot;&quot;</span></div>
-        <span class="nb">print</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="print_T_model_pars"><a class="viewcode-back" href="../api.html#output.print_T_model_pars">[docs]</a><span class="k">def</span> <span class="nf">print_T_model_pars</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">thermal_model</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1562,8 +1616,8 @@
             <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;  </span><span class="si">%-3i</span><span class="s2">   </span><span class="si">%.2e</span><span class="s2"> ± </span><span class="si">%.2e</span><span class="s2">    </span><span class="si">%.2e</span><span class="s2"> ± </span><span class="si">%.2e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">par_tuple</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">filename</span><span class="p">:</span></div>
-        <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="n">out_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="sum_components"><a class="viewcode-back" href="../api.html#output.sum_components">[docs]</a><span class="k">def</span> <span class="nf">sum_components</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
@@ -1609,8 +1663,8 @@
     <span class="n">logsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">logN_pdf</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">total_logN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">logsum</span><span class="p">)</span>
     <span class="n">total_logN_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">logsum</span><span class="p">)</span>
-</div>
-    <span class="k">return</span> <span class="n">total_logN</span><span class="p">,</span> <span class="n">total_logN_err</span>
+
+    <span class="k">return</span> <span class="n">total_logN</span><span class="p">,</span> <span class="n">total_logN_err</span></div>
 
 
 <div class="viewcode-block" id="save_parameters_to_file"><a class="viewcode-back" href="../api.html#output.save_parameters_to_file">[docs]</a><span class="k">def</span> <span class="nf">save_parameters_to_file</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -1643,8 +1697,8 @@
                 <span class="n">vel_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">z_sys</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">z_sys</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mf">299792.458</span>
                 <span class="n">par_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">vel_value</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">logN</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
                 <span class="n">line_fmt</span> <span class="o">=</span> <span class="s2">&quot;# dataset.add_component_velocity(&#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="si">%.1f</span><span class="s2">, </span><span class="si">%.1f</span><span class="s2">, </span><span class="si">%.1f</span><span class="s2">)&quot;</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_fmt</span> <span class="o">%</span> <span class="n">par_tuple</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_fmt</span> <span class="o">%</span> <span class="n">par_tuple</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="save_cont_parameters_to_file"><a class="viewcode-back" href="../api.html#output.save_cont_parameters_to_file">[docs]</a><span class="k">def</span> <span class="nf">save_cont_parameters_to_file</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -1668,8 +1722,8 @@
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">parname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cheb_parnames</span><span class="p">):</span>
                 <span class="n">coeff</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">best_fit</span><span class="p">[</span><span class="n">parname</span><span class="p">]</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot; p</span><span class="si">%-2i</span><span class="s2">  =  </span><span class="si">%.3e</span><span class="s2">    </span><span class="si">%.3e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">coeff</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coeff</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="save_fit_regions"><a class="viewcode-back" href="../api.html#output.save_fit_regions">[docs]</a><span class="k">def</span> <span class="nf">save_fit_regions</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
@@ -1770,8 +1824,23 @@
             <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# column 2 : Normalized flux</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# column 3 : Normalized error</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# column 4 : Best-fit profile</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# column 5 : Pixel mask, 1=included, 0=excluded</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">data_table</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%i</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# column 5 : Pixel mask, 1=included, 0=excluded</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">data_table</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%.4f</span><span class="s2">   </span><span class="si">%i</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="show_components"><a class="viewcode-back" href="../api.html#output.show_components">[docs]</a><span class="k">def</span> <span class="nf">show_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show the defined components for a given `ion`.</span>
+<span class="sd">    By default, all ions are shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z_sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span>
+    <span class="k">for</span> <span class="n">ion</span><span class="p">,</span> <span class="n">comps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span> <span class="n">term</span><span class="o">.</span><span class="n">underline</span> <span class="o">+</span> <span class="s2">&quot;  </span><span class="si">%s</span><span class="s2">:&quot;</span> <span class="o">%</span> <span class="n">ion</span> <span class="o">+</span> <span class="n">term</span><span class="o">.</span><span class="n">reset</span>
+        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comps</span><span class="p">):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="n">z_sys</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">z_sys</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">299792.458</span>
+            <span class="nb">print</span> <span class="s2">&quot;   </span><span class="si">%2i</span><span class="s2">  </span><span class="si">%+8.1f</span><span class="s2">  </span><span class="si">%.6f</span><span class="s2">   </span><span class="si">%6.1f</span><span class="s2">   </span><span class="si">%5.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span>
+                                                            <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div>
 </pre></div>
 
           </div>
@@ -1813,7 +1882,7 @@
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

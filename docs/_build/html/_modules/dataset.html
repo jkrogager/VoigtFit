@@ -4,12 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>dataset &#8212; VoigtFit 0.9.3 documentation</title>
+    <title>dataset &#8212; VoigtFit 0.9.10 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -50,20 +50,21 @@
 <span class="kn">from</span> <span class="nn">line_complexes</span> <span class="k">import</span> <span class="n">fine_structure_complexes</span>
 <span class="kn">import</span> <span class="nn">Asplund</span>
 <span class="kn">import</span> <span class="nn">hdf5_save</span>
+<span class="kn">import</span> <span class="nn">terminal_attributes</span> <span class="k">as</span> <span class="nn">term</span>
 
-<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nsamp&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-           <span class="s1">&#39;npad&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}</span>
 <span class="n">myfloat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
 
 <span class="n">root_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-<span class="n">atomfile</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s1">&#39;/static/atomdata_updated.dat&#39;</span>
+<span class="c1"># atomfile = root_path + &#39;/static/atomdata_updated.dat&#39;</span>
+<span class="n">atomfile</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s1">&#39;/static/linelist.dat&#39;</span>
 
 <span class="n">lineList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">atomfile</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;trans&#39;</span><span class="p">,</span> <span class="s1">&#39;S13&#39;</span><span class="p">),</span>
                                        <span class="p">(</span><span class="s1">&#39;ion&#39;</span><span class="p">,</span> <span class="s1">&#39;S6&#39;</span><span class="p">),</span>
                                        <span class="p">(</span><span class="s1">&#39;l0&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
-                                       <span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
-                                       <span class="p">(</span><span class="s1">&#39;gam&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">),</span>
-                                       <span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">)])</span>
+                                       <span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;gam&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">),</span>
+                                       <span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">)]</span>
+                      <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">calculate_velocity_bin_size</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -122,16 +123,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="n">active</span>
 
 <div class="viewcode-block" id="Line.get_properties"><a class="viewcode-back" href="../api.html#VoigtFit.Line.get_properties">[docs]</a>    <span class="k">def</span> <span class="nf">get_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the principal atomic constants for the transition: *l0*, *f*, and *gam*.&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gam</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Return the principal atomic constants for the transition: *l0*, *f*, and *gam*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gam</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Line.set_inactive"><a class="viewcode-back" href="../api.html#VoigtFit.Line.set_inactive">[docs]</a>    <span class="k">def</span> <span class="nf">set_inactive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the line inactive; exclude the line in the fit.&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="sd">&quot;&quot;&quot;Set the line inactive; exclude the line in the fit.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Line.set_active"><a class="viewcode-back" href="../api.html#VoigtFit.Line.set_active">[docs]</a>    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the line active; include the line in the fit.&quot;&quot;&quot;</span></div></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="sd">&quot;&quot;&quot;Set the line active; include the line in the fit.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 
 
 <span class="c1"># --- Definition of main class *DataSet*:</span>
@@ -256,12 +257,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
 <div class="viewcode-block" id="DataSet.set_name"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.set_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the name of the DataSet. This parameter is used when saving the dataset.&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="sd">&quot;&quot;&quot;Set the name of the DataSet. This parameter is used when saving the dataset.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></div>
 
 <div class="viewcode-block" id="DataSet.get_name"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the name of the DataSet.&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="sd">&quot;&quot;&quot;Returns the name of the DataSet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 <div class="viewcode-block" id="DataSet.add_data"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -316,8 +317,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;wl&#39;</span><span class="p">:</span> <span class="n">wl</span><span class="p">,</span> <span class="s1">&#39;flux&#39;</span><span class="p">:</span> <span class="n">flux</span><span class="p">,</span>
                           <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span> <span class="s1">&#39;res&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
-                          <span class="s1">&#39;norm&#39;</span><span class="p">:</span> <span class="n">normalized</span><span class="p">,</span> <span class="s1">&#39;specID&#39;</span><span class="p">:</span> <span class="n">specid</span><span class="p">,</span></div>
-                          <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="n">mask</span><span class="p">})</span>
+                          <span class="s1">&#39;norm&#39;</span><span class="p">:</span> <span class="n">normalized</span><span class="p">,</span> <span class="s1">&#39;specID&#39;</span><span class="p">:</span> <span class="n">specid</span><span class="p">,</span>
+                          <span class="s1">&#39;mask&#39;</span><span class="p">:</span> <span class="n">mask</span><span class="p">})</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_region"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.reset_region">[docs]</a>    <span class="k">def</span> <span class="nf">reset_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the data in a given :class:`regions.Region` to use the raw input data.&quot;&quot;&quot;</span>
@@ -329,16 +330,16 @@
         <span class="n">reg</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span>
         <span class="n">reg</span><span class="o">.</span><span class="n">err</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
         <span class="n">reg</span><span class="o">.</span><span class="n">flux</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;flux&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
-        <span class="n">reg</span><span class="o">.</span><span class="n">wl</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span></div>
-        <span class="n">reg</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span>
+        <span class="n">reg</span><span class="o">.</span><span class="n">wl</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
+        <span class="n">reg</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_all_regions"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.reset_all_regions">[docs]</a>    <span class="k">def</span> <span class="nf">reset_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset the data in all :class:`Regions &lt;regions.Region&gt;`</span>
 <span class="sd">        defined in the DataSet to use the raw input data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reset_region</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_region</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.get_resolution"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.get_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">get_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the spectral resolution for the fitting :class:`Region &lt;regions.Region&gt;`</span>
@@ -365,8 +366,8 @@
                 <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                     <span class="n">output_msg</span> <span class="o">=</span> <span class="s2">&quot; Spectral resolution in the region around </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%.1f</span><span class="s2"> km/s.&quot;</span>
                     <span class="nb">print</span> <span class="n">output_msg</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
-                <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span></div>
-            <span class="k">return</span> <span class="n">resolutions</span>
+                <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">resolutions</span></div>
 
 <div class="viewcode-block" id="DataSet.set_resolution"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.set_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">line_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -393,12 +394,12 @@
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
 
-            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span></div>
-                <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span></div>
 
 <div class="viewcode-block" id="DataSet.set_systemic_redshift"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.set_systemic_redshift">[docs]</a>    <span class="k">def</span> <span class="nf">set_systemic_redshift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update the systemic redshift of the dataset&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">z_sys</span>
+        <span class="sd">&quot;&quot;&quot;Update the systemic redshift of the dataset&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">z_sys</span></div>
 
 <div class="viewcode-block" id="DataSet.add_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -437,7 +438,8 @@
             <span class="n">new_line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The transition (</span><span class="si">%s</span><span class="s2">) not found in line list!&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The transition (</span><span class="si">%s</span><span class="s2">) not found in line list!&quot;</span>
+                      <span class="o">%</span> <span class="n">line_tag</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">velspan</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -462,23 +464,31 @@
                     <span class="n">new_region</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span><span class="n">velspan</span><span class="p">,</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;specID&#39;</span><span class="p">])</span>
                     <span class="n">new_region</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">new_line</span><span class="p">)</span>
 
-                    <span class="c1"># check if the line overlaps with another already defined region</span>
+                    <span class="n">merge</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">merge</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
                         <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">):</span>
-                            <span class="c1"># Only allow regions arising from the same chunk to be merged:</span>
+                            <span class="c1"># Only allow regions arising from the same</span>
+                            <span class="c1"># data chunk to be merged:</span>
                             <span class="k">if</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;specID&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">region</span><span class="o">.</span><span class="n">specID</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">new_wavelength</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                                <span class="n">wl_overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">new_wavelength</span><span class="p">,</span>
+                                                            <span class="n">region</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">wl_overlap</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                                     <span class="n">merge</span> <span class="o">=</span> <span class="n">num</span>
 
+                        <span class="c1"># If the region overlaps with another region</span>
+                        <span class="c1"># merge the two regions:</span>
                         <span class="k">if</span> <span class="n">merge</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="c1"># If the region overlaps with another merge the two regions:</span>
                             <span class="n">new_region</span><span class="o">.</span><span class="n">lines</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">merge</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span>
 
-                            <span class="c1"># merge the wavelength region</span>
-                            <span class="n">region_wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">union1d</span><span class="p">(</span><span class="n">new_wavelength</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">merge</span><span class="p">]</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
+                            <span class="c1"># merge the wavelength ranges</span>
+                            <span class="n">region_wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">union1d</span><span class="p">(</span><span class="n">new_wavelength</span><span class="p">,</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">merge</span><span class="p">]</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
+                            <span class="n">old_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">merge</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span>
+                            <span class="n">old_wl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">merge</span><span class="p">]</span><span class="o">.</span><span class="n">wl</span>
+                            <span class="n">tmp_mask</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="n">span</span><span class="p">]</span>
+                            <span class="n">tmp_wl</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="s1">&#39;wl&#39;</span><span class="p">][</span><span class="n">span</span><span class="p">]</span>
 
-                            <span class="c1"># and remove the overlapping region from the dataset</span>
+                            <span class="c1"># remove the overlapping region from the dataset</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span>
 
                         <span class="k">else</span><span class="p">:</span>
@@ -488,10 +498,28 @@
                         <span class="n">region_wl</span> <span class="o">=</span> <span class="n">new_wavelength</span>
 
                     <span class="c1"># Wavelength has now been defined and merged</span>
-                    <span class="c1"># Cutout spectral chunks and add them to the Region</span>
+                    <span class="c1"># Cutout spectral chunks and add them to the new Region</span>
                     <span class="n">cutout</span> <span class="o">=</span> <span class="p">(</span><span class="n">wl</span> <span class="o">&gt;=</span> <span class="n">region_wl</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="n">wl</span> <span class="o">&lt;=</span> <span class="n">region_wl</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-
                     <span class="n">new_region</span><span class="o">.</span><span class="n">add_data_to_region</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">cutout</span><span class="p">)</span>
+
+                    <span class="c1"># Update the mask of the new region to include</span>
+                    <span class="c1"># new mask definitions from the old region:</span>
+                    <span class="c1"># In the overlapping region, the mask from the existing</span>
+                    <span class="c1"># region will overwrite any pixel mask in the data chunk</span>
+                    <span class="k">if</span> <span class="n">merge</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">old_mask_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new_region</span><span class="o">.</span><span class="n">wl</span><span class="p">,</span> <span class="n">old_wl</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span>
+                                               <span class="n">left</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">old_mask_i</span> <span class="o">=</span> <span class="n">old_mask_i</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+                        <span class="n">tmp_mask_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new_region</span><span class="o">.</span><span class="n">wl</span><span class="p">,</span> <span class="n">tmp_wl</span><span class="p">,</span> <span class="n">tmp_mask</span><span class="p">,</span>
+                                               <span class="n">left</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">region_overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">new_region</span><span class="o">.</span><span class="n">wl</span><span class="p">,</span>
+                                                   <span class="n">old_wl</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="mi">0</span><span class="o">*</span><span class="n">old_mask</span><span class="p">,</span>
+                                                   <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">region_overlap</span> <span class="o">=</span> <span class="n">region_overlap</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+                        <span class="n">tmp_mask_i</span><span class="p">[</span><span class="n">region_overlap</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">tmp_mask_i</span> <span class="o">=</span> <span class="n">tmp_mask_i</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+                        <span class="n">new_mask</span> <span class="o">=</span> <span class="n">tmp_mask_i</span> <span class="o">*</span> <span class="n">old_mask_i</span>
+                        <span class="n">new_region</span><span class="o">.</span><span class="n">set_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_region</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
@@ -501,13 +529,15 @@
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - The given line is not covered by the spectral data: &quot;</span> <span class="o">+</span> <span class="n">line_tag</span>
-                    <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - The given line is not covered &quot;</span>
+                               <span class="s2">&quot;by the spectral data: </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span> <span class="n">err_msg</span> <span class="o">%</span> <span class="n">line_tag</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span></div>
-                <span class="nb">print</span> <span class="s2">&quot; [ERROR]  No data is loaded. Run method `add_data` to add spectral data.&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; [ERROR] - No data is loaded. &quot;</span>
+                      <span class="s2">&quot;Run method `add_data` to add spectral data.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.add_many_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_many_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_many_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -532,18 +562,19 @@
             <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velspan</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span></div>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.add_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Alias for `self.add_many_lines`.&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_many_lines</span><span class="p">(</span><span class="n">line_tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="n">velspan</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Alias for `self.add_many_lines`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_many_lines</span><span class="p">(</span><span class="n">line_tags</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="n">velspan</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.remove_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.remove_line">[docs]</a>    <span class="k">def</span> <span class="nf">remove_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove an absorption line from the DataSet. If this is the last line in a fitting region</span>
-<span class="sd">        the given region will be eliminated, and if this is the last line of a given ion,</span>
-<span class="sd">        then the components will be eliminated for that ion.</span>
+<span class="sd">        Remove an absorption line from the DataSet. If this is the last line</span>
+<span class="sd">        in a fitting region the given region will be eliminated, and if this</span>
+<span class="sd">        is the last line of a given ion, then the components will be eliminated</span>
+<span class="sd">        for that ion.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -558,8 +589,10 @@
             <span class="n">in_lines</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;not &quot;</span>
             <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
             <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Problem detected in database.&quot;</span>
-            <span class="nb">print</span> <span class="s2">&quot; The line </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">defined in `self.all_lines`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">in_all_lines</span><span class="p">)</span>
-            <span class="nb">print</span> <span class="s2">&quot; The line </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">defined in `self.lines`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">in_lines</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; The line </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">defined in `self.all_lines`.&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">in_all_lines</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; The line </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">defined in `self.lines`.&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">in_lines</span><span class="p">))</span>
             <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
 
         <span class="c1"># --- Check if the ion has transistions defined in other regions</span>
@@ -593,14 +626,16 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span> <span class="s2">&quot;&quot;</span></div>
-                <span class="nb">print</span> <span class="s2">&quot; The line, </span><span class="si">%s</span><span class="s2">, is not defined. Nothing to remove.&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; The line, </span><span class="si">%s</span><span class="s2">, is not defined. Nothing to remove.&quot;</span> <span class="o">%</span>
+                      <span class="n">line_tag</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">remove_all_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+        <span class="n">lines_to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">lines_to_remove</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">remove_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DataSet.normalize_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.normalize_line">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">norm_method</span><span class="o">=</span><span class="s1">&#39;spline&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.normalize_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.normalize_line">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">norm_method</span><span class="o">=</span><span class="s1">&#39;spline&#39;</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize or re-normalize a given line</span>
 
@@ -612,20 +647,23 @@
 <span class="sd">        norm_method : str   [default = &#39;spline&#39;]</span>
 <span class="sd">            Normalization method used for the interactive continuum fit.</span>
 <span class="sd">            Should be on of: [&quot;spline&quot;, &quot;linear&quot;]</span>
+
+<span class="sd">        velocity : bool   [default = False]</span>
+<span class="sd">            If a `True`, the regions are displayed in velocity space</span>
+<span class="sd">            relative to the systemic redshift instead of in wavelength space</span>
+<span class="sd">            when masking and defining continuum normalization interactively.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">norm_method</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
-            <span class="n">norm_num</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">norm_method</span> <span class="o">==</span> <span class="s1">&#39;spline&#39;</span><span class="p">:</span>
-            <span class="n">norm_num</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid norm_method: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">norm_method</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span></div>
-            <span class="n">region</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_method</span><span class="o">=</span><span class="n">norm_num</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
+            <span class="n">region</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_method</span><span class="o">=</span><span class="n">norm_method</span><span class="p">,</span> <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DataSet.mask_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.mask_line">[docs]</a>    <span class="k">def</span> <span class="nf">mask_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">telluric</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.mask_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.mask_line">[docs]</a>    <span class="k">def</span> <span class="nf">mask_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">telluric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define exclusion masks for the fitting region of a given line.</span>
 <span class="sd">        Note that the masked regions are exclusion regions and will not be used for the fit.</span>
@@ -648,7 +686,17 @@
 <span class="sd">        telluric : bool   [default = True]</span>
 <span class="sd">            If `True`, a telluric absorption template and sky emission template</span>
 <span class="sd">            is shown for reference.</span>
+
+<span class="sd">        velocity : bool   [default = False]</span>
+<span class="sd">            If a `True`, the regions are displayed in velocity space</span>
+<span class="sd">            relative to the systemic redshift instead of in wavelength space</span>
+<span class="sd">            when masking and defining continuum normalization interactively.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
@@ -657,8 +705,9 @@
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span></div>
-                <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">telluric</span><span class="o">=</span><span class="n">telluric</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                   <span class="n">telluric</span><span class="o">=</span><span class="n">telluric</span><span class="p">,</span> <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.clear_mask"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.clear_mask">[docs]</a>    <span class="k">def</span> <span class="nf">clear_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -672,8 +721,8 @@
             <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
                 <span class="n">reg</span><span class="o">.</span><span class="n">clear_mask</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">reg</span> <span class="o">=</span> <span class="n">regions_of_line</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
-            <span class="n">reg</span><span class="o">.</span><span class="n">clear_mask</span><span class="p">()</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">regions_of_line</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">reg</span><span class="o">.</span><span class="n">clear_mask</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.find_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.find_line">[docs]</a>    <span class="k">def</span> <span class="nf">find_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -701,27 +750,27 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The line (</span><span class="si">%s</span><span class="s2">) is not defined.&quot;</span> <span class="o">%</span> <span class="n">line_tag</span>
-</div>
-        <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DataSet.find_ion"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.find_ion">[docs]</a>    <span class="k">def</span> <span class="nf">find_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of all line tags for a given ion.&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">ion</span> <span class="o">==</span> <span class="n">ion</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of all line tags for a given ion.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">ion</span> <span class="o">==</span> <span class="n">ion</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="DataSet.has_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.has_line">[docs]</a>    <span class="k">def</span> <span class="nf">has_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if the given line is defined.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_active_lines</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span></div>
 
 <div class="viewcode-block" id="DataSet.has_ion"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.has_ion">[docs]</a>    <span class="k">def</span> <span class="nf">has_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if the dataset has lines defined for the given ion.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
             <span class="n">all_ions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">ion</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">active</span><span class="p">]))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">all_ions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">ion</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">()]))</span></div>
-        <span class="k">return</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">all_ions</span>
+            <span class="n">all_ions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">ion</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">()]))</span>
+        <span class="k">return</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">all_ions</span></div>
 
 <div class="viewcode-block" id="DataSet.activate_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.activate_line">[docs]</a>    <span class="k">def</span> <span class="nf">activate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Activate a given line defined by its `line_tag`&quot;&quot;&quot;</span>
@@ -734,8 +783,8 @@
             <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">region</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">line_tag</span><span class="p">:</span></div>
-                        <span class="n">line</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">line_tag</span><span class="p">:</span>
+                        <span class="n">line</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.deactivate_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.deactivate_line">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -762,27 +811,27 @@
 
         <span class="c1"># --- If it is not defined elsewhere, remove it from components</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ion_defined_elsewhere</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="DataSet.deactivate_all"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.deactivate_all">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Deactivate all lines defined in the DataSet. This will not remove the lines.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.activate_all"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.activate_all">[docs]</a>    <span class="k">def</span> <span class="nf">activate_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Activate all lines defined in the DataSet.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.all_active_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.all_active_lines">[docs]</a>    <span class="k">def</span> <span class="nf">all_active_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of all the active lines defined by their `line_tag`.&quot;&quot;&quot;</span>
         <span class="n">act_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
-                <span class="n">act_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">act_lines</span>
+                <span class="n">act_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">act_lines</span></div>
 
 <div class="viewcode-block" id="DataSet.get_lines_for_ion"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.get_lines_for_ion">[docs]</a>    <span class="k">def</span> <span class="nf">get_lines_for_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -804,8 +853,8 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">ion</span> <span class="o">==</span> <span class="n">ion</span><span class="p">:</span>
                 <span class="n">lines_for_ion</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">lines_for_ion</span>
+
+        <span class="k">return</span> <span class="n">lines_for_ion</span></div>
 
 <div class="viewcode-block" id="DataSet.reset_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.reset_components">[docs]</a>    <span class="k">def</span> <span class="nf">reset_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -825,8 +874,8 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                     <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ion</span>
 
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.add_component"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_component">[docs]</a>    <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
                       <span class="n">var_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_N</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_N</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -874,8 +923,8 @@
                    <span class="s1">&#39;tie_N&#39;</span><span class="p">:</span> <span class="n">tie_N</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span></div>
 
 <div class="viewcode-block" id="DataSet.add_component_velocity"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_component_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">add_component_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
                                <span class="n">var_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">var_N</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_N</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -888,10 +937,13 @@
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="n">v</span><span class="o">/</span><span class="mf">299792.458</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span></div>
 
-<div class="viewcode-block" id="DataSet.interactive_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.interactive_components">[docs]</a>    <span class="k">def</span> <span class="nf">interactive_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">):</span>
+    <span class="c1"># TODO:</span>
+    <span class="c1"># Add velocity view to interactive components...</span>
+
+<div class="viewcode-block" id="DataSet.interactive_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.interactive_components">[docs]</a>    <span class="k">def</span> <span class="nf">interactive_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define components interactively for a given ion. The components will be defined on the</span>
 <span class="sd">        basis of the given line for that ion. If the line is defined in several spectra</span>
@@ -905,6 +957,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        line_tag : str</span>
 <span class="sd">            Line tag for the line belonging to the ion for which components should be defined.</span>
+
+<span class="sd">        velocity : bool   [default = False]</span>
+<span class="sd">            If a `True`, the region is displayed in velocity space</span>
+<span class="sd">            relative to the systemic redshift instead of in wavelength space.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -926,16 +982,28 @@
             <span class="n">masked_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">big_mask</span><span class="p">,</span> <span class="n">flux</span><span class="p">)</span>
             <span class="n">flux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="n">flux</span><span class="p">)</span>
 
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">masked_range</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;0.7&#39;</span><span class="p">,</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s1">&#39;steps-mid&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s1">&#39;steps-mid&#39;</span><span class="p">)</span>
-
             <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+                <span class="n">l_ref</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">l0</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">wl</span> <span class="o">-</span> <span class="n">l_ref</span><span class="p">)</span><span class="o">/</span><span class="n">l_ref</span> <span class="o">*</span> <span class="mf">299792.458</span>
+                <span class="n">x_label</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;Rel. Velocity  [${</span><span class="se">\\</span><span class="s2">rm km</span><span class="se">\\</span><span class="s2"> s^{-1}}$]&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">wl</span>
+                <span class="n">x_label</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;Wavelength  [Å]&quot;</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">masked_range</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;0.7&#39;</span><span class="p">,</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s1">&#39;steps-mid&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">drawstyle</span><span class="o">=</span><span class="s1">&#39;steps-mid&#39;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">l0</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gam</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_properties</span><span class="p">()</span>
                 <span class="n">ion</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">ion</span>
                 <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
                     <span class="n">z</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">((</span><span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">l_ref</span><span class="p">)</span><span class="o">/</span><span class="n">l_ref</span> <span class="o">*</span> <span class="mf">299792.458</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">l0</span><span class="o">*</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
                 <span class="n">c_level</span> <span class="o">=</span> <span class="mf">1.</span>
@@ -946,7 +1014,7 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c_level</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;0.3&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
 
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mark central components for </span><span class="si">%s</span><span class="s2">, finish with [enter]&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;Wavelength  (Å)&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;Normalized Flux&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -957,7 +1025,10 @@
             <span class="n">b</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="o">/</span><span class="mf">2.35482</span>
             <span class="n">comp_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="ow">in</span> <span class="n">comps</span><span class="p">:</span>
-                <span class="n">z0</span> <span class="o">=</span> <span class="n">x0</span><span class="o">/</span><span class="n">line</span><span class="o">.</span><span class="n">l0</span> <span class="o">-</span> <span class="mf">1.</span>
+                <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+                    <span class="n">z0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="n">x0</span><span class="o">/</span><span class="mf">299792.458</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">z0</span> <span class="o">=</span> <span class="n">x0</span><span class="o">/</span><span class="n">line</span><span class="o">.</span><span class="n">l0</span> <span class="o">-</span> <span class="mf">1.</span>
                 <span class="c1"># Calculate logN from peak depth:</span>
                 <span class="n">y0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y0</span><span class="o">/</span><span class="n">c_level</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
                 <span class="n">logN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.4983e-15</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">l0</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">f</span><span class="p">))</span>
@@ -970,8 +1041,8 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span> <span class="ow">in</span> <span class="n">comp_list</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span></div>
-                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="DataSet.delete_component"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.delete_component">[docs]</a>    <span class="k">def</span> <span class="nf">delete_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove component of the given `ion` with the given `index`.&quot;&quot;&quot;</span>
@@ -979,8 +1050,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span></div>
-                <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: &quot;</span><span class="o">+</span><span class="n">ion</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot; [ERROR] - No components defined for ion: &quot;</span><span class="o">+</span><span class="n">ion</span></div>
 
 <div class="viewcode-block" id="DataSet.copy_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.copy_components">[docs]</a>    <span class="k">def</span> <span class="nf">copy_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_ion</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">from_ion</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">logN</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ref_comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tie_z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tie_b</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1041,38 +1112,62 @@
                 <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;z</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">from_ion</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tie_b</span><span class="p">:</span>
                 <span class="n">new_comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;tie_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b</span><span class="si">%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">from_ion</span><span class="p">)</span>
-</div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">to_ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_comp</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DataSet.load_components_from_file"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.load_components_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_components_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load best-fit parameters from an output file `fname`.&quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">to_ion</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_comp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataSet.load_components_from_file"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.load_components_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_components_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fit_pars</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load best-fit parameters from an output file `fname`.</span>
+<span class="sd">        If `fit_pars` is True, then update the best_fit parameters.&quot;&quot;&quot;</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="n">components_to_add</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">all_ions_in_file</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">pars</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">elif</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
                 <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">pars</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
                 <span class="n">ion</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">z_err</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
                 <span class="n">b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                <span class="n">b_err</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
                 <span class="n">logN</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
-                <span class="n">components_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">])</span>
+                <span class="n">logN_err</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
+                <span class="n">components_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
+                                          <span class="n">z_err</span><span class="p">,</span> <span class="n">b_err</span><span class="p">,</span> <span class="n">logN_err</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">ion</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_ions_in_file</span><span class="p">:</span>
                     <span class="n">all_ions_in_file</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">all_ions_in_file</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reset_components</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
+                <span class="c1"># Remove all parameters from self.best_fit</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fit_pars</span><span class="p">:</span>
+                    <span class="n">pars_to_delete</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">parname</span><span class="p">:</span>
+                            <span class="n">pars_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parname</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">pars_to_delete</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">parname</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">comp_pars</span> <span class="ow">in</span> <span class="n">components_to_add</span><span class="p">:</span>
-            <span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span> <span class="o">=</span> <span class="n">comp_pars</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">)</span></div>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">comp_pars</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">components_to_add</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span>
+             <span class="n">z_err</span><span class="p">,</span> <span class="n">b_err</span><span class="p">,</span> <span class="n">logN_err</span><span class="p">)</span> <span class="o">=</span> <span class="n">comp_pars</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fit_pars</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">:</span>
+                <span class="n">parlist</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">z_err</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b_err</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;logN&#39;</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">logN_err</span><span class="p">]]</span>
+
+                <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">parlist</span><span class="p">:</span>
+                    <span class="n">parname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%i</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">ion</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">[</span><span class="n">parname</span><span class="p">]</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">err</span>
+
+        <span class="n">parameters</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.fix_structure"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.fix_structure">[docs]</a>    <span class="k">def</span> <span class="nf">fix_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fix the velocity structure, that is, the redshifts and the b-parameters.</span>
@@ -1090,8 +1185,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
-                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span></div>
-                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="DataSet.free_structure"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.free_structure">[docs]</a>    <span class="k">def</span> <span class="nf">free_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Free the velocity structure, that is, the redshifts and the b-parameters.</span>
@@ -1109,15 +1204,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]:</span>
-                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
-                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;var_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
 
     <span class="c1"># Fine-structure Lines:</span>
 <div class="viewcode-block" id="DataSet.add_fine_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">full_label</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">velspan</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add fine-structure line complexes by providing only the main transition.</span>
-<span class="sd">        This function is mainly useful for the CI complexes, where the many lines are closely</span>
-<span class="sd">        located and often blended.</span>
+<span class="sd">        This function is mainly useful for the CI complexes, where the many</span>
+<span class="sd">        lines are closely located and often blended.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1125,14 +1220,15 @@
 <span class="sd">            Line tag for the ground state transition, e.g., &quot;CI_1656&quot;</span>
 
 <span class="sd">        levels : str, list(str)    [default = None]</span>
-<span class="sd">            The levels of the fine-structure complexes to add, starting with &quot;a&quot; referring</span>
-<span class="sd">            to the first excited level, &quot;b&quot; is the second, etc..</span>
-<span class="sd">            Several levels can be given at once: [&#39;a&#39;, &#39;b&#39;]</span>
-<span class="sd">            By default, all levels are included.</span>
+<span class="sd">            The levels of the fine-structure complexes to add, starting with &quot;a&quot;</span>
+<span class="sd">            referring to the first excited level, &quot;b&quot; is the second, etc..</span>
+<span class="sd">            Several levels can be given at once: [&#39;a&#39;, &#39;b&#39;].</span>
+<span class="sd">            Note that the ground state transition is always included.</span>
+<span class="sd">            If `levels` is not given, all levels are included.</span>
 
 <span class="sd">        full_label : bool   [default = False]</span>
-<span class="sd">            If `True`, the label will be translated to the full quantum mechanical description</span>
-<span class="sd">            of the state.</span>
+<span class="sd">            If `True`, the label will be translated to the full quantum</span>
+<span class="sd">            mechanical description of the state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">velspan</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">velspan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">velspan</span>
@@ -1142,7 +1238,7 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="n">fine_structure_complexes</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
                 <span class="n">ion</span> <span class="o">=</span> <span class="n">fineline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">levels</span> <span class="ow">or</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">fineline</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">levels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1152,16 +1248,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">fineline</span> <span class="ow">in</span> <span class="n">fine_structure_complexes</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]:</span>
                 <span class="n">ion</span> <span class="o">=</span> <span class="n">fineline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">levels</span> <span class="ow">or</span> <span class="n">ion</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">fineline</span><span class="p">,</span> <span class="n">velspan</span><span class="p">)</span>
 
         <span class="c1"># Set label:</span>
         <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">full_label</span><span class="p">:</span>
-                <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">CI_full_labels</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span></div>
-                <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">CI_labels</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
+                <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">full_labels</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">raw_label</span> <span class="o">=</span> <span class="n">line_tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;\ </span><span class="se">\\</span><span class="s1">lambda&#39;</span><span class="p">)</span>
+                <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm </span><span class="si">%s</span><span class="s2">}$&quot;</span> <span class="o">%</span> <span class="n">raw_label</span></div>
 
 <div class="viewcode-block" id="DataSet.remove_fine_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.remove_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">remove_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1189,8 +1286,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">remove_line</span><span class="p">(</span><span class="n">fineline</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span></div>
-                    <span class="nb">print</span> <span class="s2">&quot;Removing line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;Removing line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span></div>
 
 <div class="viewcode-block" id="DataSet.deactivate_fine_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.deactivate_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1220,8 +1317,8 @@
                     <span class="k">continue</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">fineline</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span></div>
-                    <span class="nb">print</span> <span class="s2">&quot;Deactivated line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;Deactivated line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span></div>
 
 <div class="viewcode-block" id="DataSet.activate_fine_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.activate_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">activate_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1251,8 +1348,8 @@
                     <span class="k">continue</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">fineline</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span></div>
-                    <span class="nb">print</span> <span class="s2">&quot;Activated line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;Activated line: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fineline</span></div>
     <span class="c1"># =========================================================================</span>
 
     <span class="c1"># Molecules:</span>
@@ -1302,8 +1399,8 @@
                 <span class="n">region</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">molecule</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">band</span><span class="p">,</span> <span class="n">Jmax</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">band</span><span class="p">,</span> <span class="n">Jmax</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="DataSet.remove_molecule"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.remove_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">remove_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all lines for the given band of the given molecule.&quot;&quot;&quot;</span>
@@ -1334,8 +1431,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span> <span class="s2">&quot; [ERROR] - </span><span class="si">%s</span><span class="s2"> was not found in self.molecules[&#39;</span><span class="si">%s</span><span class="s2">&#39;]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">molecule</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">[</span><span class="n">molecule</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.deactivate_molecule"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.deactivate_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1358,8 +1455,8 @@
 
         <span class="k">for</span> <span class="n">transitions</span> <span class="ow">in</span> <span class="n">nu_level</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">transitions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span></div>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.activate_molecule"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.activate_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">activate_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">band</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1382,13 +1479,15 @@
 
         <span class="k">for</span> <span class="n">transitions</span> <span class="ow">in</span> <span class="n">nu_level</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">transitions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span></div>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_lines</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">activate_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span></div>
 
     <span class="c1"># =========================================================================</span>
 
-<div class="viewcode-block" id="DataSet.prepare_dataset"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.prepare_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">force_clean</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.prepare_dataset"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.prepare_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">active_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">force_clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the data for fitting. This function sets up the parameter structure,</span>
 <span class="sd">        and handles the normalization and masking of fitting regions.</span>
@@ -1408,6 +1507,11 @@
 <span class="sd">        force_clean : bool   [default = False]</span>
 <span class="sd">            If this is True, components for inactive elements will be removed.</span>
 
+<span class="sd">        velocity : bool   [default = False]</span>
+<span class="sd">            If a `True`, the regions are displayed in velocity space</span>
+<span class="sd">            relative to the systemic redshift instead of in wavelength space</span>
+<span class="sd">            when masking and defining continuum normalization interactively.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
@@ -1418,6 +1522,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_sys</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
         <span class="c1"># --- Normalize fitting regions manually, or use polynomial fitting</span>
         <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
@@ -1425,7 +1534,8 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">region</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
                     <span class="n">go_on</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="k">while</span> <span class="n">go_on</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">go_on</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_method</span><span class="p">)</span>
+                        <span class="n">go_on</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_method</span><span class="p">,</span>
+                                                 <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span>
                         <span class="c1"># region.normalize returns 1 when continuum is fitted</span>
 
             <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
@@ -1500,9 +1610,11 @@
                 <span class="c1"># if region.new_mask:</span>
                 <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">active_only</span> <span class="ow">and</span> <span class="n">region</span><span class="o">.</span><span class="n">has_active_lines</span><span class="p">():</span>
-                        <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+                        <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                           <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">active_only</span><span class="p">:</span>
-                        <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+                        <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                           <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
@@ -1527,8 +1639,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Dataset is ready to be fitted.&quot;</span>
-                <span class="nb">print</span> <span class="s2">&quot;&quot;</span></div>
-            <span class="k">return</span> <span class="kc">True</span>
+                <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="DataSet.fit"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1579,8 +1691,8 @@
         <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Rebinning the data by a factor of </span><span class="si">%i</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rebin</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;  Fit is running... Please, be patient.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="c1"># npad = options[&#39;npad&#39;]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Fit is running... Please, be patient.</span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="k">def</span> <span class="nf">chi</span><span class="p">(</span><span class="n">pars</span><span class="p">):</span>
             <span class="n">model</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -1633,26 +1745,29 @@
                 <span class="n">region</span><span class="o">.</span><span class="n">err</span> <span class="o">/=</span> <span class="n">cont_model</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The fit has finished with the following exit message:&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">popt</span><span class="o">.</span><span class="n">message</span>
-        <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> The fit has finished with the following exit message:&quot;</span>
+            <span class="nb">print</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">popt</span><span class="o">.</span><span class="n">message</span>
+            <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plot_fit</span><span class="p">(</span><span class="n">rebin</span><span class="o">=</span><span class="n">rebin</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="n">rebin</span><span class="p">)</span>
 
-        <span class="n">chi2</span> <span class="o">=</span> <span class="n">popt</span><span class="o">.</span><span class="n">chisqr</span></div>
-        <span class="k">return</span> <span class="n">popt</span><span class="p">,</span> <span class="n">chi2</span>
+        <span class="n">chi2</span> <span class="o">=</span> <span class="n">popt</span><span class="o">.</span><span class="n">chisqr</span>
+        <span class="k">return</span> <span class="n">popt</span><span class="p">,</span> <span class="n">chi2</span></div>
 
 <div class="viewcode-block" id="DataSet.plot_fit"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.plot_fit">[docs]</a>    <span class="k">def</span> <span class="nf">plot_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                  <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
                  <span class="n">highlight_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">norm_resid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">default_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">element_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">):</span>
+                 <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span>
+                 <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot *all* the absorption lines and the best-fit profiles.</span>
 <span class="sd">        For details, see :func:`VoigtFit.output.plot_all_lines`.</span>
@@ -1666,15 +1781,16 @@
                               <span class="n">residuals</span><span class="o">=</span><span class="n">residuals</span><span class="p">,</span> <span class="n">norm_resid</span><span class="o">=</span><span class="n">norm_resid</span><span class="p">,</span>
                               <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">label_all_ions</span><span class="o">=</span><span class="n">label_all_ions</span><span class="p">,</span>
                               <span class="n">default_props</span><span class="o">=</span><span class="n">default_props</span><span class="p">,</span> <span class="n">element_props</span><span class="o">=</span><span class="n">element_props</span><span class="p">,</span>
-                              <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">xunit</span><span class="p">)</span></div>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+                              <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">xunit</span><span class="p">,</span>
+                              <span class="n">line_props</span><span class="o">=</span><span class="n">line_props</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="n">hl_line_props</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataSet.velocity_plot"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.velocity_plot">[docs]</a>    <span class="k">def</span> <span class="nf">velocity_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a velocity plot, showing all the fitting regions defined, in order to compare</span>
 <span class="sd">        different lines and to identify blends and contamination.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">plot_all_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">plot_all_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.plot_line"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                   <span class="n">nolabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
@@ -1682,21 +1798,23 @@
                   <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npad</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                   <span class="n">residuals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">norm_resid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">default_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">element_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">highlight_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">):</span>
+                  <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span>
+                  <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a single fitting :class:`Region &lt;regions.Region&gt;`</span>
 <span class="sd">        containing the line corresponding to the given `line_tag`.</span>
 <span class="sd">        For details, see :func:`output.plot_single_line`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">plot_single_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="n">plot_fit</span><span class="p">,</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">plot_single_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="n">plot_fit</span><span class="p">,</span>
                                 <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="n">rebin</span><span class="p">,</span> <span class="n">nolabels</span><span class="o">=</span><span class="n">nolabels</span><span class="p">,</span>
                                 <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
                                 <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span>
                                 <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span> <span class="n">subsample_profile</span><span class="o">=</span><span class="n">subsample_profile</span><span class="p">,</span>
                                 <span class="n">npad</span><span class="o">=</span><span class="n">npad</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="n">residuals</span><span class="p">,</span> <span class="n">norm_resid</span><span class="o">=</span><span class="n">norm_resid</span><span class="p">,</span>
                                 <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">label_all_ions</span><span class="o">=</span><span class="n">label_all_ions</span><span class="p">,</span>
-                                <span class="n">default_props</span><span class="o">=</span><span class="n">default_props</span><span class="p">,</span> <span class="n">element_props</span><span class="o">=</span><span class="n">element_props</span><span class="p">,</span></div>
-                                <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">xunit</span><span class="p">)</span>
+                                <span class="n">default_props</span><span class="o">=</span><span class="n">default_props</span><span class="p">,</span> <span class="n">element_props</span><span class="o">=</span><span class="n">element_props</span><span class="p">,</span>
+                                <span class="n">highlight_props</span><span class="o">=</span><span class="n">highlight_props</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">xunit</span><span class="p">,</span>
+                                <span class="n">line_props</span><span class="o">=</span><span class="n">line_props</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="n">hl_line_props</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.print_results"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.print_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">systemic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1712,21 +1830,21 @@
 
 <span class="sd">        systemic : float   [default = None]</span>
 <span class="sd">            The systemic redshift used as reference for the relative velocities.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">systemic</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">systemic</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.print_cont_parameters"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.print_cont_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print Chebyshev coefficients for the continuum fit.&quot;&quot;&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Print Chebyshev coefficients for the continuum fit.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.print_metallicity"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.print_metallicity">[docs]</a>    <span class="k">def</span> <span class="nf">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print the total column densities for each element relative to</span>
-<span class="sd">        HI in Solar units.&quot;&quot;&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+<span class="sd">        HI in Solar units.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_metallicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">logNHI</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.print_total"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.print_total">[docs]</a>    <span class="k">def</span> <span class="nf">print_total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print the total column densities of all components.&quot;&quot;&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">print_total</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Print the total column densities of all components.&quot;&quot;&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">print_total</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.sum_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.sum_components">[docs]</a>    <span class="k">def</span> <span class="nf">sum_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ions</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1778,8 +1896,8 @@
             <span class="n">logsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">logN_pdf</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
             <span class="n">total_logN</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">logsum</span><span class="p">)</span>
             <span class="n">total_logN_err</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">logsum</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">total_logN</span><span class="p">,</span> <span class="n">total_logN_err</span>
+
+        <span class="k">return</span> <span class="n">total_logN</span><span class="p">,</span> <span class="n">total_logN_err</span></div>
 
 <div class="viewcode-block" id="DataSet.save_parameters"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.save_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">save_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1792,8 +1910,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">:</span>
             <span class="n">output</span><span class="o">.</span><span class="n">save_parameters_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - No fit parameters are defined.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> [ERROR] - No fit parameters are defined.&quot;</span></div>
 
 <div class="viewcode-block" id="DataSet.save_cont_parameters_to_file"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.save_cont_parameters_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">save_cont_parameters_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1804,8 +1922,8 @@
 <span class="sd">        filename : str   [default = None]</span>
 <span class="sd">            If `None`, the :attr:`name &lt;VoigtFit.DataSet.name&gt;` attribute will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span></div>
-            <span class="n">output</span><span class="o">.</span><span class="n">save_cont_parameters_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">save_cont_parameters_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.save_fit_regions"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.save_fit_regions">[docs]</a>    <span class="k">def</span> <span class="nf">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1836,8 +1954,8 @@
                 <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.reg&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Must specify dataset.name [dataset.set_name(&#39;name&#39;)]&quot;</span>
-                <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span></div>
-        <span class="n">output</span><span class="o">.</span><span class="n">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">save_fit_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.save"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save the DataSet to file using the HDF5 format.&quot;&quot;&quot;</span>
@@ -1846,8 +1964,36 @@
                 <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Must specify dataset.name [dataset.set_name(&#39;name&#39;)]&quot;</span>
-                <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span></div></div>
-        <span class="n">hdf5_save</span><span class="o">.</span><span class="n">save_hdf_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="nb">print</span> <span class="s2">&quot;           or give filename [dataset.save(filename=&#39;filename&#39;)]&quot;</span>
+        <span class="n">hdf5_save</span><span class="o">.</span><span class="n">save_hdf_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataSet.show_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.show_lines">[docs]</a>    <span class="k">def</span> <span class="nf">show_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print all defined lines to terminal.</span>
+<span class="sd">        The output shows whether the line is active or not</span>
+<span class="sd">        and the number of components for the given ion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%15s</span><span class="s2">   State     &quot;</span> <span class="o">%</span> <span class="s1">&#39;Line ID&#39;</span>
+        <span class="nb">print</span> <span class="n">term</span><span class="o">.</span><span class="n">underline</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="n">term</span><span class="o">.</span><span class="n">reset</span>
+        <span class="k">for</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="s1">&#39;active&#39;</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span> <span class="k">else</span> <span class="s1">&#39;not active&#39;</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">active</span> <span class="k">else</span> <span class="n">term</span><span class="o">.</span><span class="n">red</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%15s</span><span class="s2"> : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">active</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="n">fmt</span> <span class="o">+</span> <span class="n">output</span> <span class="o">+</span> <span class="n">term</span><span class="o">.</span><span class="n">reset</span></div>
+
+<div class="viewcode-block" id="DataSet.show_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.show_components">[docs]</a>    <span class="k">def</span> <span class="nf">show_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show the defined components for a given `ion`.</span>
+<span class="sd">        By default, all ions are shown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z_sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span>
+        <span class="k">for</span> <span class="n">ion</span><span class="p">,</span> <span class="n">comps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> - </span><span class="si">%6s</span><span class="s2">:&quot;</span> <span class="o">%</span> <span class="n">ion</span>
+            <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comps</span><span class="p">):</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="n">z_sys</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">z_sys</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">299792.458</span>
+                <span class="nb">print</span> <span class="s2">&quot;   </span><span class="si">%2i</span><span class="s2">  </span><span class="si">%+8.1f</span><span class="s2">  </span><span class="si">%.6f</span><span class="s2">   </span><span class="si">%6.1f</span><span class="s2">   </span><span class="si">%5.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span>
+                                                                <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div></div>
 </pre></div>
 
           </div>
@@ -1889,7 +2035,7 @@
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

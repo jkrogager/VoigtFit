@@ -4,12 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit &#8212; VoigtFit 0.9.3 documentation</title>
+    <title>VoigtFit &#8212; VoigtFit 0.9.10 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -45,7 +45,7 @@ Dig in, and you will be constraining the contents of metals in remote galaxies b
 ideas for great new features, you can <a class="reference external" href="https://github.com/jkrogager/VoigtFit/issues">raise an issue on the GitHub page</a>.</p>
 <div class="section" id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
-<p>If you use VoigtFit, please cite the description paper on arXiv (Krogager 2018).</p>
+<p>If you use VoigtFit, please cite the description paper on <a class="reference external" href="http://arxiv.org/abs/1803.01187">arXiv (Krogager 2018)</a>.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -54,6 +54,23 @@ who helped putting parts of the documentation together.
 I also thank Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
 Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
 the software and for their constructive feedback and ideas for new features.</p>
+</div>
+<div class="section" id="recent-updates">
+<h2>Recent updates<a class="headerlink" href="#recent-updates" title="Permalink to this headline">¶</a></h2>
+<p>New in version 0.9.10:</p>
+<blockquote>
+<div>Added two keywords to the parameter language in order to allow the user to view fit regions
+in velocity space when defining masks, continuum normalization and components.
+See details under sections <cite>Mask</cite>, <cite>Continuum Normalization</cite> and <cite>Interactive Components</cite> of the <a class="reference internal" href="documentation.html#documentation"><span class="std std-ref">VoigtFit Parameter Language</span></a>.</div></blockquote>
+<p>New in version 0.9.9:</p>
+<blockquote>
+<div><p>New atomic data consistently gathered from the <a class="reference external" href="http://vald.astro.uu.se/">VALD</a> database.
+The linelist has additional lines from <a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2017ApJS..230....8C/abstract">Cashman et al. 2017</a>
+and for some lines not covered by VALD the damping constants have been taken from the compilation of
+<a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2003ApJS..149..205M/abstract">Morton et al. 2003</a>.</p>
+<p>When masking lines, any predefined masks in the spectral data (loaded with the add_data statement)
+are now retained.</p>
+</div></blockquote>
 </div>
 <div class="section" id="installation-instructions">
 <h2>Installation instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this headline">¶</a></h2>
@@ -174,7 +191,7 @@ the software and for their constructive feedback and ideas for new features.</p>
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
