@@ -40,6 +40,13 @@ def calculate_velocity_bin_size(x):
     return np.diff(log_x)[0] / log_x[0] * 299792.458
 
 
+def check_lsf_coverage(wl, res):
+    """Check that the LSF file covers the whole spectral range of `wl`"""
+    lsf_wl = np.genfromtxt(res, max_rows=1)
+    covering = (lsf_wl.min() <= wl.min()) * (lsf_wl.max() >= wl.max())
+    return covering
+
+
 class Line(object):
     def __init__(self, tag, active=True):
         """
@@ -243,8 +250,12 @@ class DataSet(object):
         flux : ndarray, shape (n)
             Input flux array, should be same length as wl
 
-        res : float
-            Spectral resolution in km/s  (c/R)
+        res : float or string
+            Spectral resolution either given in km/s  (c/R),
+            which is assumed to be constant over the whole spectrum,
+            or as a string referring to a file containing the detailed
+            line-spread function for the given spectrum.
+            See details in the documentation.
 
         err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
@@ -281,6 +292,12 @@ class DataSet(object):
             if np.sum(mask) == 0:
                 print(mask_warning.strip() % (bold, reset))
                 return
+
+        if isinstance(res, str):
+            lsf_covers_spectrum = check_lsf_coverage(wl, res)
+            if not lsf_covers_spectrum:
+                err_msg = "The given LSF file does not cover the wavelength range!"
+                raise ValueError(err_msg)
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,

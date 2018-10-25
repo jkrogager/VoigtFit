@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.interpolate import spline
+from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
 root_path = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +17,56 @@ telluric_data = np.load(datafile)
 def linfunc(x, a, b):
     """Linear fitting function of first order."""
     return a*x + b
+
+
+def load_lsf(lsf_fname, wl):
+    """
+    Load a Line-Spread Function table following format from HST:
+    First line gives wavelength in Angstrom and the column below
+    each given wavelength defines the kernel in pixel space:
+
+    wl1    wl2    wl3   ...  wlN
+    lsf11  lsf21  lsf31 ...  lsfN1
+    lsf12  lsf22  lsf32 ...  lsfN2
+    :      :      :          :
+    :      :      :          :
+    lsf1M  lsf2M  lsf3M ...  lsfNM
+
+    Parameters
+    ----------
+    lsf_fname : string
+        The filename containing the LSF data.
+
+    wl : array like, shape (N)
+        The wavelength grid onto which the LSF will be evaluated
+
+    Returns
+    -------
+    kernel : np.array, shape(N, M)
+        A grid of interpolated LSF evaluated at each given input wavelength
+        of the array `wl` of shape N, where M is the number of pixels in the LSF.
+
+    Notes
+    -----
+    The output kernel is transposed with respect to the input format
+    for ease of computation in the convolution since indexing is faster
+    along rows than columns.
+
+    """
+    lsf_tab = np.loadtxt(lsf_fname)
+    # Get the wavelength array from the first line in the file:
+    lsf_wl = lsf_tab[0]
+
+    # The LSF data is the resulting table excluding the first line:
+    lsf = lsf_tab[1:, :]
+
+    # Make an array of pixel indeces:
+    lsf_pix = np.arange(lsf.shape[0])
+
+    # Linearly interpolate the LSF grid:
+    LSF = spline2d(lsf_pix, lsf_wl, lsf, kx=1, ky=1)
+    kernel = LSF(lsf_pix, wl).T
+    return kernel
 
 
 class Region():
@@ -104,6 +155,11 @@ class Region():
             self.new_mask = True
         else:
             self.new_mask = False
+
+        if isinstance(self.res, str):
+            self.kernel = load_lsf(self.res, self.wl)
+        else:
+            self.kernel = None
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""
