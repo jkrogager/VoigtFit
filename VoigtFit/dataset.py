@@ -10,7 +10,7 @@ import os
 from lmfit import Parameters, Minimizer
 
 from voigt import evaluate_profile, evaluate_continuum
-from regions import Region
+from regions import Region, load_lsf
 import output
 import line_complexes
 import molecules
@@ -40,11 +40,13 @@ def calculate_velocity_bin_size(x):
     return np.diff(log_x)[0] / log_x[0] * 299792.458
 
 
-def check_lsf_coverage(wl, res):
+def verify_lsf(res, wl):
     """Check that the LSF file covers the whole spectral range of `wl`"""
     lsf_wl = np.genfromtxt(res, max_rows=1)
     covering = (lsf_wl.min() <= wl.min()) * (lsf_wl.max() >= wl.max())
-    return covering
+    if not covering:
+        err_msg = "The given LSF file does not cover the wavelength range!"
+        raise ValueError(err_msg)
 
 
 class Line(object):
@@ -294,10 +296,7 @@ class DataSet(object):
                 return
 
         if isinstance(res, str):
-            lsf_covers_spectrum = check_lsf_coverage(wl, res)
-            if not lsf_covers_spectrum:
-                err_msg = "The given LSF file does not cover the wavelength range!"
-                raise ValueError(err_msg)
+            verify_lsf(res, wl)
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
@@ -348,7 +347,10 @@ class DataSet(object):
             regions_of_line = self.find_line(line_tag)
             for region in regions_of_line:
                 if verbose and self.verbose:
-                    output_msg = " Spectral resolution in the region around %s is %.1f km/s."
+                    if isinstance(region.res, str):
+                        output_msg = "Spectral resolution in the region around %s is defined in file: %s"
+                    else:
+                        output_msg = " Spectral resolution in the region around %s is %.1f km/s."
                     print output_msg % (line_tag, region.res)
                 resolutions.append(region.res)
             return resolutions
@@ -368,14 +370,24 @@ class DataSet(object):
         if line_tag:
             regions_of_line = self.find_line(line_tag)
             for region in regions_of_line:
+                if isinstance(res, str):
+                    verify_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl)
                 region.res = res
 
         else:
             if verbose:
-                warn_msg = " [WARNING] - Setting spectral resolution for all regions, R=%.1f km/s!"
+                print(" [WARNING] - Setting spectral resolution for all regions, R=%.1f km/s!")
+                if isinstance(res, str):
+                    warn_msg = "             LSF-file: %s"
+                else:
+                    warn_msg = "             R = %.1f km/s!"
                 print warn_msg % res
 
             for region in self.regions:
+                if isinstance(res, str):
+                    verify_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl)
                 region.res = res
 
             for chunk in self.data:
