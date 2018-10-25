@@ -59,7 +59,14 @@ def parse_parameters(fname):
             filename = pars[1]
             filename = filename.replace("'", "")
             filename = filename.replace('"', "")
-            resolution = float(pars[2])
+            resolution = pars[2]
+            if "'" in resolution or '"' in resolution:
+                # resolution is a string => lsf-file:
+                resolution = resolution.replace('"', "")
+                resolution = resolution.replace("'", "")
+            else:
+                resolution = float(resolution)
+
             # search for 'norm' and 'air':
             norm = line.find('norm') > 0
             air = line.find('air') > 0
