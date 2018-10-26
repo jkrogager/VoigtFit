@@ -3,6 +3,8 @@
 name :  test_synth
 z_sys:  2.3535
 norm_method:  linear    # or spline
+norm_view : vel
+mask_view : vel
 save :  test_synth
 
 # Continuum Fitting using Chebyshev Polynomials:
@@ -38,10 +40,10 @@ signal-to-noise = 30.
 #lines SiII_1808 velspan=500
 #lines SiII_1526 velspan=500
 ##lines SiII_1304 velspan=500
-#lines SiII_1260 
+#lines SiII_1260
 #lines FeII_2344 FeII_2374 FeII_2382
-#lines FeII_2249 FeII_2260 
-#lines FeII_1608 FeII_1611 
+#lines FeII_2249 FeII_2260
+#lines FeII_1608 FeII_1611
 
 lines HI_1215 velspan=30000
 #lines HI_1025 velspan=3000
@@ -79,14 +81,14 @@ component HI z=2.3535 b=10.0 logN=22.0 var_b=False
 # The mini-language is flexible, so all of the following are accepted:
 #copy components to SiII from FeII
 #copy components to CII from FeII scale logN=16.5
-# copy components to AlII from FeII 
-# copy components to AlIII from FeII 
+# copy components to AlII from FeII
+# copy components to AlIII from FeII
 #copy components to SII from FeII scale logN=15.2
 #copy components to OI from FeII scale logN=17.0
-#copy components to ZnII from FeII 
-#copy components to CrII from FeII 
-#copy components to MgI from FeII 
-# copy components to CI from FeII 
+#copy components to ZnII from FeII
+#copy components to CrII from FeII
+#copy components to MgI from FeII
+# copy components to CI from FeII
 #copy components to OIa from FeII scale logN=15.3
 #copy components to SiIIa from FeII scale logN=14.3
 #copy components to CIIa from FeII scale logN=12.5
