@@ -254,7 +254,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
-        LSF = gaussian(10*kernel + 1, kernel)
+        LSF = gaussian(10*int(kernel) + 1, kernel)
         LSF = LSF/LSF.sum()
         profile_broad = fftconvolve(profile, LSF, 'same')
         # Interpolate onto the data grid:

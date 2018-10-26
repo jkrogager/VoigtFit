@@ -990,7 +990,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
         profile_int = np.exp(-tau)
         if isinstance(kernel, float):
             sigma_instrumental = kernel / 2.35482 / pxs
-            LSF = gaussian(len(wl_line), sigma_instrumental)
+            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
             LSF = LSF/LSF.sum()
             profile_broad = fftconvolve(profile_int, LSF, 'same')
             profile = profile_broad[npad:-npad]

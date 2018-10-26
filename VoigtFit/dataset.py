@@ -1692,9 +1692,13 @@ class DataSet(object):
 
         if 'rebin' in kwargs:
             rebin = kwargs.pop('rebin')
+        else:
+            rebin = 1
 
         if 'sampling' in kwargs:
             sampling = kwargs.pop('sampling')
+        else:
+            sampling = 3
 
         if rebin > 1 and self.verbose:
             print("\n  Rebinning the data by a factor of %i \n" % rebin)
