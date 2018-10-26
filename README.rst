@@ -16,7 +16,7 @@ Dependencies
 
 Python version 2.7 (Python 3 is not supported yet)
 
-VoigtFit depends on ``matplotlib``, ``numpy``, ``scipy``, ``h5py``, ``astropy``, and ``lmfit``.
+VoigtFit depends on ``matplotlib``, ``numpy``, ``scipy``, ``h5py``, ``astropy``, ``lmfit``, and ``numba``.
 You can install these using your favorite Python package manager such as
 `conda <http://conda.pydata.org/docs/>`_ or pip_.
 
