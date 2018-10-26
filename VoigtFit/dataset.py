@@ -936,9 +936,6 @@ class DataSet(object):
         else:
             self.components[ion] = [[z, b, logN, options]]
 
-    # TODO:
-    # Add velocity view to interactive components...
-
     def interactive_components(self, line_tag, velocity=False):
         """
         Define components interactively for a given ion. The components will be defined on the
@@ -1702,15 +1699,10 @@ class DataSet(object):
                         x, y, err = output.rebin_spectrum(x, y, err, rebin)
                         mask = output.rebin_bool_array(mask, rebin)
 
-                    res = region.res
-
-                    # Define flexible subsampling:
-                    dv_pix = calculate_velocity_bin_size(x)
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   # region.lines, self.components,
                                                    self.lines.values(), self.components,
-                                                   res, dv=dv_pix/3.)
+                                                   region.kernel, sampling=3)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)

@@ -129,6 +129,16 @@ class Region():
             self.lines = list()
         self.label = ''
 
+        self.res = None
+        self.err = None
+        self.flux = None
+        self.wl = None
+        self.normalized = False
+        self.cont_err = 0.
+        self.mask = None
+        self.new_mask = False
+        self.kernel = None
+
     def add_data_to_region(self, data_chunk, cutout):
         """
         Define the spectral data for the fitting region.
@@ -159,7 +169,7 @@ class Region():
         if isinstance(self.res, str):
             self.kernel = load_lsf(self.res, self.wl)
         else:
-            self.kernel = None
+            self.kernel = self.res
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""
