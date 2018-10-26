@@ -591,7 +591,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
     x, y, err, mask = region.unpack()
     cont_err = region.cont_err
-    res = region.res
+    kernel = region.kernel
+    x_orig = x.copy()
 
     if rebin > 1:
         x, y, err = rebin_spectrum(x, y, err, rebin)
@@ -639,13 +640,18 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('top', size='20%', pad=0., sharex=ax)
 
-        N_pix = len(x)*2
-        dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min()), np.log10(x.max()), N_pix)
-        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
-        front_pad = np.arange(x.min()-50*dx, x.min(), dx)
-        end_pad = np.arange(x.max(), x.max()+50*dx, dx)
-        wl_line = np.concatenate([front_pad, wl_line, end_pad])
+        if isinstance(kernel, float):
+            N_pix = len(x)*2
+            dx = np.diff(x)[0]
+            wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
+            pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        elif isinstance(kernel, np.ndarray):
+            assert kernel.shape[0] == len(x_orig)
+            wl_line = x_orig
+        else:
+            err_msg = "Invalid type of `kernel`: %r" % type(kernel)
+            raise TypeError(err_msg)
+
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
@@ -705,16 +711,18 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
-        fwhm_instrumental = res
-        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
-        LSF = gaussian(len(wl_line)/2, sigma_instrumental)
-        LSF = LSF/LSF.sum()
-        profile_broad = fftconvolve(profile_int, LSF, 'same')
-        profile_broad_hl = fftconvolve(profile_int_hl, LSF, 'same')
-        profile = profile_broad[50:-50]
-        profile_hl = profile_broad_hl[50:-50]
-        wl_line = wl_line[50:-50]
-        vel_profile = (wl_line - l_ref)/l_ref*299792.458
+        if isinstance(kernel, float):
+            sigma_instrumental = kernel / 2.35482 / pxs
+            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = LSF/LSF.sum()
+            profile = fftconvolve(profile_int, LSF, 'same')
+            profile_hl = fftconvolve(profile_int_hl, LSF, 'same')
+            # profile = profile_broad[50:-50]
+            # profile_hl = profile_broad_hl[50:-50]
+            # wl_line = wl_line[50:-50]
+        else:
+            profile = voigt.convolve_numba(profile_int, kernel)
+        vel_line = (wl_line - l_ref)/l_ref*299792.458
 
     vel = (x - l_ref) / l_ref * 299792.458
 
@@ -762,16 +770,16 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         if xunit == 'wl':
             ax.plot(wl_line, profile, **line_props)
         else:
-            ax.plot(vel_profile, profile, **line_props)
+            ax.plot(vel_line, profile, **line_props)
 
         if N_highlight > 0:
             if xunit == 'wl':
                 ax.plot(wl_line, profile_hl, **hl_line_props)
             else:
-                ax.plot(vel_profile, profile_hl, **hl_line_props)
+                ax.plot(vel_line, profile_hl, **hl_line_props)
 
         if residuals:
-            p_data = np.interp(vel, vel_profile, profile)
+            p_data = np.interp(vel, vel_line, profile)
             if norm_resid:
                 masked_resid = (masked_range - p_data)/err
                 resid = (spectrum - p_data)/err
@@ -908,8 +916,9 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
     region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
+    x_orig = x.copy()
     # cont_err = region.cont_err
-    res = region.res
+    kernel = region.kernel
 
     if rebin > 1:
         x, y, err = rebin_spectrum(x, y, err, rebin)
@@ -937,13 +946,21 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
     if (isinstance(dataset.best_fit, dict) or isinstance(dataset.pars, dict)):
-        npad = 50
-        N_pix = len(x)*3
-        dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min() - npad*dx),
-                              np.log10(x.max() + npad*dx),
-                              N_pix)
-        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        if isinstance(kernel, float):
+            npad = 50
+            N_pix = len(x)*3
+            dx = np.diff(x)[0]
+            wl_line = np.logspace(np.log10(x.min() - npad*dx),
+                                  np.log10(x.max() + npad*dx),
+                                  N_pix)
+            pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        elif isinstance(kernel, np.ndarray):
+            assert kernel.shape[0] == len(x)
+            # evaluate on the input grid
+            wl_line = x_orig
+        else:
+            err_msg = "Invalid type of `kernel`: %r" % type(kernel)
+            raise TypeError(err_msg)
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
@@ -971,13 +988,17 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
                                        10**logN, 1.e5*b, gam, z=z)
 
         profile_int = np.exp(-tau)
-        fwhm_instrumental = res
-        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
-        LSF = gaussian(len(wl_line), sigma_instrumental)
-        LSF = LSF/LSF.sum()
-        profile_broad = fftconvolve(profile_int, LSF, 'same')
-        profile = profile_broad[npad:-npad]
-        wl_line = wl_line[npad:-npad]
+        if isinstance(kernel, float):
+            sigma_instrumental = kernel / 2.35482 / pxs
+            LSF = gaussian(len(wl_line), sigma_instrumental)
+            LSF = LSF/LSF.sum()
+            profile_broad = fftconvolve(profile_int, LSF, 'same')
+            profile = profile_broad[npad:-npad]
+            wl_line = wl_line[npad:-npad]
+        else:
+            profile = voigt.convolve_numba(profile_int, kernel)
+            if rebin > 1:
+                _, profile, _ = rebin_spectrum(x_orig, profile, 0.1*profile, rebin)
 
     vel = (x - l_ref) / l_ref * 299792.458
     y = y - profile
