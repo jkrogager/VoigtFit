@@ -370,10 +370,12 @@ class DataSet(object):
         if line_tag:
             regions_of_line = self.find_line(line_tag)
             for region in regions_of_line:
+                region.res = res
                 if isinstance(res, str):
                     verify_lsf(res, region.wl)
                     region.kernel = load_lsf(res, region.wl)
-                region.res = res
+                else:
+                    region.kernel = res
 
         else:
             if verbose:
@@ -1635,15 +1637,12 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, rebin=1, verbose=True, plot=False, **kwargs):
+    def fit(self, verbose=True, plot=False, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
 
         Parameters
         ----------
-        rebin : int   [default = 1]
-            Rebin data by a factor *rebin* before fitting.
-
         verbose : bool   [default = True]
             This will print the fit results to terminal.
 
@@ -1655,6 +1654,16 @@ class DataSet(object):
             The default method is leastsq_, used in `lmfit <https://lmfit.github.io/lmfit-py/>`_.
             This can be changed using the `method` keyword.
             See documentation in lmfit_ and scipy.optimize_.
+
+        rebin : int   [default = 1]
+            Rebin data by a factor *rebin* before fitting.
+            Passed as part of `kwargs`.
+
+        sampling : int  [default = 3]
+            Subsampling factor for the evaluation of the line profile.
+            This is only used if the kernel is constant in velocity
+            along the spectrum.
+            Passed as part of `kwargs`.
 
         Returns
         -------
@@ -1681,8 +1690,15 @@ class DataSet(object):
                 print "            Run `.prepare_dataset()` before fitting."
             return None, None
 
-        if rebin > 1:
-            print "\n  Rebinning the data by a factor of %i \n" % rebin
+        if 'rebin' in kwargs:
+            rebin = kwargs.pop('rebin')
+
+        if 'sampling' in kwargs:
+            sampling = kwargs.pop('sampling')
+
+        if rebin > 1 and self.verbose:
+            print("\n  Rebinning the data by a factor of %i \n" % rebin)
+            print(" [WARNING] - rebinning is not supported for LSF file kernel.")
 
         if self.verbose:
             print "\n  Fit is running... Please, be patient.\n"
@@ -1696,13 +1712,16 @@ class DataSet(object):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     if rebin > 1:
-                        x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                        mask = output.rebin_bool_array(mask, rebin)
+                        if isinstance(region.kernel, float):
+                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                            mask = output.rebin_bool_array(mask, rebin)
+                        else:
+                            pass
 
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    self.lines.values(), self.components,
-                                                   region.kernel, sampling=3)
+                                                   region.kernel, sampling=sampling)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)

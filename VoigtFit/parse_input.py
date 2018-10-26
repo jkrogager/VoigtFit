@@ -388,14 +388,6 @@ def parse_parameters(fname):
                     fit_keywords[key] = int(val)
             parameters['fit_options'] = fit_keywords
 
-        # elif 'options' in line and 'name' not in line and 'save' not in line and 'fit' not in line:
-        #     comment_begin = line.find('#')
-        #     line = line[:comment_begin].strip()
-        #     items = line.split()[1:]
-        #     # here you can add keywords to pass to the program, in the future this will
-        #     # point to an option file.
-        #     parameters['options'] = items
-
         elif 'output' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -436,8 +428,8 @@ def parse_parameters(fname):
                 snr = line.split(':')[1]
             parameters['snr'] = float(snr)
 
-        elif ('velspan' in line and 'lines' not in line
-              and 'molecules' not in line and 'save' not in line):
+        elif ('velspan' in line and 'lines' not in line and
+              'molecules' not in line and 'save' not in line):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
