@@ -295,8 +295,8 @@ class DataSet(object):
                 print(mask_warning.strip() % (bold, reset))
                 return
 
-        if isinstance(res, str):
-            verify_lsf(res, wl)
+        # if isinstance(res, str):
+        #     verify_lsf(res, wl)
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
@@ -372,7 +372,7 @@ class DataSet(object):
             for region in regions_of_line:
                 region.res = res
                 if isinstance(res, str):
-                    verify_lsf(res, region.wl)
+                    # verify_lsf(res, region.wl)
                     region.kernel = load_lsf(res, region.wl)
                 else:
                     region.kernel = res
@@ -388,7 +388,7 @@ class DataSet(object):
 
             for region in self.regions:
                 if isinstance(res, str):
-                    verify_lsf(res, region.wl)
+                    # verify_lsf(res, region.wl)
                     region.kernel = load_lsf(res, region.wl)
                 region.res = res
 
