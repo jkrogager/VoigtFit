@@ -14,6 +14,51 @@ datafile = root_path + '/static/telluric_em_abs.npz'
 telluric_data = np.load(datafile)
 
 
+def get_FWHM(y, x=None):
+    """
+    Measure the FWHM of the profile given as `y`.
+    If `x` is given, then report the FWHM in terms of data units
+    defined by the `x` array. Otherwise, report pixel units.
+
+    Parameters
+    ----------
+    y : np.ndarray, shape (N)
+        Input profile whose FWHM should be determined.
+
+    x : np.ndarray, shape (N)  [default = None]
+        Input data units, must be same shape as `y`.
+
+    Returns
+    -------
+    fwhm : float
+        FWHM of `y` in units of pixels.
+        If `x` is given, the FWHM is returned in data units
+        corresponding to `x`.
+    """
+    if x is None:
+        x = np.arange(len(y))
+
+    half = max(y)/2.0
+    signs = np.sign(np.add(y, -half))
+    zero_crossings = (signs[0:-2] != signs[1:-1])
+    zero_crossings_i = np.where(zero_crossings)[0]
+
+    if np.sum(zero_crossings) > 2:
+        raise ValueError('Invalid profile! More than 2 crossings detected.')
+    elif np.sum(zero_crossings) < 2:
+        raise ValueError('Invalid profile! Less than 2 crossings detected.')
+    else:
+        pass
+
+    halfmax_x = list()
+    for i in zero_crossings_i:
+        x_i = x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
+        halfmax_x.append(x_i)
+
+    fwhm = halfmax_x[1] - halfmax_x[0]
+    return fwhm
+
+
 def linfunc(x, a, b):
     """Linear fitting function of first order."""
     return a*x + b
@@ -168,8 +213,18 @@ class Region():
 
         if isinstance(self.res, str):
             self.kernel = load_lsf(self.res, self.wl)
+            i0 = self.kernel.shape[0]/2
+            kernel_0 = self.kernel[i0]
+            # Get FWHM in pixel units:
+            fwhm = get_FWHM(kernel_0)
+            lambda0 = self.wl[i0]
+            dx0 = np.diff(self.wl)[i0]
+            # Calculate FWHM in km/s:
+            self.kernel_fwhm = 299792.458 / lambda0 * (fwhm * dx0)
         else:
+            # `str` is a float, already given as FWHM in km/s
             self.kernel = self.res
+            self.kernel_fwhm = self.res
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""

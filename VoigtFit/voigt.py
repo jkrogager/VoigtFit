@@ -21,13 +21,13 @@ def H(a, x):
     return H0 - a/np.sqrt(np.pi)/P * (H0*H0*(4.*P*P + 7.*P + 4. + Q) - Q - 1)
 
 
-def Voigt(l, l0, f, N, b, gam, z=0):
+def Voigt(wl, l0, f, N, b, gam, z=0):
     """
     Calculate the optical depth Voigt profile.
 
     Parameters
     ----------
-    l : array_like, shape (N)
+    wl : array_like, shape (N)
         Wavelength grid in Angstroms at which to evaluate the optical depth.
 
     l0 : float
@@ -66,8 +66,8 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     a = l0*1.e-8*gam/(4.*np.pi*b)
 
     dl_D = b/c*l0
-    l = l/(z+1.)
-    x = (l - l0)/dl_D + 0.00001
+    wl /= (z+1.)
+    x = (wl - l0)/dl_D + 0.00001
 
     tau = np.float64(C_a) * N * H(a, x)
     return tau

@@ -1017,7 +1017,7 @@ class DataSet(object):
             comps = plt.ginput(-1, 60)
             num = 0
             # Assume that components are unresolved:
-            b = region.res/2.35482
+            b = region.kernel_fwhm / 2.35482 / 2.
             comp_list = list()
             for x0, y0 in comps:
                 if velocity:

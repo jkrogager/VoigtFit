@@ -10,6 +10,7 @@ import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.signal import fftconvolve, gaussian
 from scipy.ndimage import gaussian_filter1d
+from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
 
 import voigt
@@ -38,6 +39,56 @@ default_line = {'color': 'r', 'ls': '-',
                 'lw': 1.0, 'alpha': 1.0}
 default_hl_line = {'color': 'orange', 'ls': '--',
                    'lw': 1.0, 'alpha': 1.0}
+
+
+def load_lsf(lsf_fname, wl):
+    """
+    Load a Line-Spread Function table following format from HST:
+    First line gives wavelength in Angstrom and the column below
+    each given wavelength defines the kernel in pixel space:
+
+    wl1    wl2    wl3   ...  wlN
+    lsf11  lsf21  lsf31 ...  lsfN1
+    lsf12  lsf22  lsf32 ...  lsfN2
+    :      :      :          :
+    :      :      :          :
+    lsf1M  lsf2M  lsf3M ...  lsfNM
+
+    Parameters
+    ----------
+    lsf_fname : string
+        The filename containing the LSF data.
+
+    wl : array like, shape (N)
+        The wavelength grid onto which the LSF will be evaluated
+
+    Returns
+    -------
+    kernel : np.array, shape(N, M)
+        A grid of interpolated LSF evaluated at each given input wavelength
+        of the array `wl` of shape N, where M is the number of pixels in the LSF.
+
+    Notes
+    -----
+    The output kernel is transposed with respect to the input format
+    for ease of computation in the convolution since indexing is faster
+    along rows than columns.
+
+    """
+    lsf_tab = np.loadtxt(lsf_fname)
+    # Get the wavelength array from the first line in the file:
+    lsf_wl = lsf_tab[0]
+
+    # The LSF data is the resulting table excluding the first line:
+    lsf = lsf_tab[1:, :]
+
+    # Make an array of pixel indeces:
+    lsf_pix = np.arange(lsf.shape[0])
+
+    # Linearly interpolate the LSF grid:
+    LSF = spline2d(lsf_pix, lsf_wl, lsf, kx=1, ky=1)
+    kernel = LSF(lsf_pix, wl).T
+    return kernel
 
 
 def merge_two_dicts(default, x):
@@ -1285,6 +1336,11 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     flux = data_chunk['flux']
     error = data_chunk['error']
     res = data_chunk['res']
+    if isinstance(res, str):
+        kernel = load_lsf(res, wl)
+    else:
+        kernel = res
+
     wl_profile = wl.copy()
     if rebin > 1:
         wl, flux, error = rebin_spectrum(wl, flux, error, int(rebin))
@@ -1296,8 +1352,8 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     molecular_lines = [line for line in dataset.lines.values()
                        if molecule in line.tag]
     profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
-                               molecular_lines, dataset.components, res,
-                               dv=0.1)
+                               molecular_lines, dataset.components, kernel,
+                               sampling=3)
     if not xmin:
         xmin = min(min_wl)
     if not xmax:
@@ -1760,7 +1816,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
-                                               region.res)
+                                               region.kernel)
             else:
                 p_obs = np.ones_like(wl)
             data_table = np.column_stack([wl, flux, err, p_obs, mask])
@@ -1790,7 +1846,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
-                                               region.res)
+                                               region.kernel)
             else:
                 p_obs = np.ones_like(wl)
             l_tot.append(wl)
