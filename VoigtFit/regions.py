@@ -223,8 +223,8 @@ class Region():
             self.kernel_fwhm = 299792.458 / lambda0 * (fwhm * dx0)
         else:
             # `str` is a float, already given as FWHM in km/s
-            self.kernel = self.res
-            self.kernel_fwhm = self.res
+            self.kernel = float(self.res)
+            self.kernel_fwhm = float(self.res)
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""

@@ -1459,6 +1459,12 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 z_err = params['z%i_%s' % (n, ion)].stderr
                 b_err = params['b%i_%s' % (n, ion)].stderr
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
+                if z_err is None:
+                    z_err = -1.
+                if b_err is None:
+                    b_err = -1.
+                if logN_err is None:
+                    logN_err = -1.
 
                 if velocity:
                     z_std = z_err/(z_sys+1)*299792.458
@@ -1607,7 +1613,7 @@ def print_total(dataset):
 
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        print "\n  Total Abundances\n"
+        print "\n  Total Column Densities\n"
         for ion in dataset.components.keys():
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []

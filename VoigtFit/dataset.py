@@ -699,13 +699,15 @@ class DataSet(object):
         for region in regions_of_line:
             if reset:
                 region.clear_mask()
+                region.new_mask = True
 
             if hasattr(mask, '__iter__'):
                 region.mask = mask
                 region.new_mask = False
             else:
-                region.define_mask(z=self.redshift, dataset=self,
-                                   telluric=telluric, z_sys=z_sys)
+                if region.new_mask and region.has_active_lines():
+                    region.define_mask(z=self.redshift, dataset=self,
+                                       telluric=telluric, z_sys=z_sys)
 
     def clear_mask(self, line_tag, idx=None):
         """

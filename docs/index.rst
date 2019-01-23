@@ -26,7 +26,7 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
   I want to thank Jonatan Selsing and Kasper E. Heintz
   who helped putting parts of the documentation together.
-  I also thank Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
+  I also thank Svea Hernandez, Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
   Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
   the software and for their constructive feedback and ideas for new features.
 

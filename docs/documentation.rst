@@ -298,9 +298,9 @@ tie_z=__  tie_b=__  tie_N=__  velocity  thermal]
 
 Optional arguments:
 
-  Parameters which should be kept fixed can be set by the optional arguments *fix_z* for redshift,
-  *fix_b* for broadening parameter, and *fix_N* for column density.
-  These are passed as keyword values which are either *True* or *False*, the default is *False*.
+  Parameters which should be kept fixed can be set by the optional arguments *var_z* for redshift,
+  *var_b* for broadening parameter, and *var_N* for column density.
+  These are passed as keyword values which are either *True* or *False*, the default is *True*.
 
   Parameters for different components and ions can be tied to each other using the
   *tie_z*, *tie_b*, *tie_N* options. This is mostly used to tie redshifts or broadening parameters
