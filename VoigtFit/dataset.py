@@ -240,6 +240,52 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
+    def add_spectrum(self, filename, res, normalized=False, mask=None, continuum=None):
+        """
+        Add spectral data from ASCII file (three or four columns accepted).
+        This is a wrapper of the method `add_data`.
+
+        Parameters
+        ----------
+        filename : string
+            Filename of the ASCII spectrum containing at least 3 columns:
+            (wavelength, flux, error). A fourth column may be included
+            containing a spectral mask.
+
+        res : float or string
+            Spectral resolution either given in km/s  (c/R),
+            which is assumed to be constant over the whole spectrum,
+            or as a string referring to a file containing the detailed
+            line-spread function for the given spectrum.
+            See details in the documentation.
+
+        normalized : bool   [default = False]
+            If the input spectrum is normalized this should be given as True
+            in order to skip normalization steps.
+
+        mask : array, shape (n)
+            Boolean/int array defining the fitting regions.
+            Only pixels with mask=True/1 will be included in the fit.
+
+        continuum : array, shape (n)
+            Continuum spectrum. The input spectrum will be normalized using
+            this continuum spectrum.
+        """
+
+        spectrum = np.loadtxt(filename)
+        wl = spectrum[:, 0]
+        flux = spectrum[:, 1]
+        err = spectrum[:, 2]
+        if spectrum.shape[1] == 4 and mask is None:
+            mask = spectrum[:, 3]
+
+        if continuum is not None:
+            flux = flux/continuum
+            err = err/continuum
+            normalized = True
+
+        self.add_data(wl, flux, res, err=err, normalized=normalized, mask=mask)
+
     def add_data(self, wl, flux, res, err=None, normalized=False, mask=None):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
@@ -1595,11 +1641,14 @@ class DataSet(object):
         if self.cheb_order >= 0:
             for reg_num, reg in enumerate(self.regions):
                 p0 = np.median(reg.flux)
+                var_par = reg.has_active_lines()
+                if np.sum(reg.mask) == 0:
+                    var_par = False
                 for cheb_num in range(self.cheb_order+1):
                     if cheb_num == 0:
-                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0)
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0, vary=var_par)
                     else:
-                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0)
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0, vary=var_par)
 
         # --- mask spectral regions that should not be fitted
         if mask:
