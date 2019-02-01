@@ -650,14 +650,19 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         mask = rebin_bool_array(mask, rebin)
 
     ref_line = dataset.lines[line_tag]
-    l0, f, gam = ref_line.get_properties()
-    l_ref = l0*(dataset.redshift + 1)
+    l0_ref, f_ref, _ = ref_line.get_properties()
+    l_ref = l0_ref*(dataset.redshift + 1)
 
     # - Check if lines are separated by more than 200 km/s
     #   if so, then remove the line from the view.
     lines_in_view = list()
     for line in region.lines:
         l0 = line.l0
+        if line.f > f_ref:
+            l0_ref = line.l0
+            l_ref = l0_ref*(dataset.redshift + 1)
+            f_ref = line.f
+            ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
         if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
             lines_in_view.append(line.tag)
@@ -703,9 +708,9 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             err_msg = "Invalid type of `kernel`: %r" % type(kernel)
             raise TypeError(err_msg)
 
-        ref_line = dataset.lines[line_tag]
-        l0, f, gam = ref_line.get_properties()
-        l_ref = l0*(dataset.redshift + 1)
+        # ref_line = dataset.lines[line_tag]
+        # l0, f, gam = ref_line.get_properties()
+        # l_ref = l0*(dataset.redshift + 1)
 
         tau = np.zeros_like(wl_line)
         tau_hl = np.zeros_like(wl_line)
