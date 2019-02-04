@@ -1301,7 +1301,7 @@ class DataSet(object):
                 reg.label = line_complexes.full_labels[line_tag]
             else:
                 raw_label = line_tag.replace('_', '\ \\lambda')
-                reg.label = "${\\rm %s}$" % raw_label
+                reg.set_label("${\\rm %s}$" % raw_label)
 
     def remove_fine_lines(self, line_tag, levels=None):
         """
