@@ -1619,7 +1619,7 @@ def print_total(dataset):
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
         print "\n  Total Column Densities\n"
-        for ion in dataset.components.keys():
+        for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
             logN_err = []
