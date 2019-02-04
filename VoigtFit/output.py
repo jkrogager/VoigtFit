@@ -1438,7 +1438,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     # print "\t\t\t\tlog(N)\t\t\tb"
     print "\t\t\t\tb\t\t\tlog(N)"
     if elements == 'all':
-        for ion in dataset.components.keys():
+        for ion in sorted(dataset.components.keys()):
             lines_for_this_ion = []
             for line_tag, line in dataset.lines.items():
                 if line.ion == ion and line.active:
