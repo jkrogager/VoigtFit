@@ -22,7 +22,8 @@ data  ____         ___
 # add the keyword 'air' at the end of the line if the wavelength are air wavelengths
 
 
-# Include optional commands to the fit, e.g., rebin=2, method='nelder', sampling=5 ...
+# Include optional commands to the fit, e.g., rebin=2, method='nelder', sampling=5
+# or ftol=0.001, factor=10. etc. Check the documentation for more details.
 #fit-options rebin=2 sampling=5
 
 

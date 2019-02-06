@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>dataset &#8212; VoigtFit 0.9.10 documentation</title>
+    <title>dataset &#8212; VoigtFit 0.10.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -28,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for dataset</h1><div class="highlight"><pre>
@@ -43,7 +45,7 @@
 <span class="kn">from</span> <span class="nn">lmfit</span> <span class="k">import</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">Minimizer</span>
 
 <span class="kn">from</span> <span class="nn">voigt</span> <span class="k">import</span> <span class="n">evaluate_profile</span><span class="p">,</span> <span class="n">evaluate_continuum</span>
-<span class="kn">from</span> <span class="nn">regions</span> <span class="k">import</span> <span class="n">Region</span>
+<span class="kn">from</span> <span class="nn">regions</span> <span class="k">import</span> <span class="n">Region</span><span class="p">,</span> <span class="n">load_lsf</span>
 <span class="kn">import</span> <span class="nn">output</span>
 <span class="kn">import</span> <span class="nn">line_complexes</span>
 <span class="kn">import</span> <span class="nn">molecules</span>
@@ -71,6 +73,15 @@
     <span class="sd">&quot;&quot;&quot;Calculate the bin size of *x* in velocity units.&quot;&quot;&quot;</span>
     <span class="n">log_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">log_x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">log_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
+
+
+<span class="k">def</span> <span class="nf">verify_lsf</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">wl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that the LSF file covers the whole spectral range of `wl`&quot;&quot;&quot;</span>
+    <span class="n">lsf_wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">covering</span> <span class="o">=</span> <span class="p">(</span><span class="n">lsf_wl</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="n">lsf_wl</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">wl</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">covering</span><span class="p">:</span>
+        <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;The given LSF file does not cover the wavelength range!&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Line"><a class="viewcode-back" href="../api.html#VoigtFit.Line">[docs]</a><span class="k">class</span> <span class="nc">Line</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -264,6 +275,52 @@
         <span class="sd">&quot;&quot;&quot;Returns the name of the DataSet.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
+<div class="viewcode-block" id="DataSet.add_spectrum"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_spectrum">[docs]</a>    <span class="k">def</span> <span class="nf">add_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">continuum</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add spectral data from ASCII file (three or four columns accepted).</span>
+<span class="sd">        This is a wrapper of the method `add_data`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : string</span>
+<span class="sd">            Filename of the ASCII spectrum containing at least 3 columns:</span>
+<span class="sd">            (wavelength, flux, error). A fourth column may be included</span>
+<span class="sd">            containing a spectral mask.</span>
+
+<span class="sd">        res : float or string</span>
+<span class="sd">            Spectral resolution either given in km/s  (c/R),</span>
+<span class="sd">            which is assumed to be constant over the whole spectrum,</span>
+<span class="sd">            or as a string referring to a file containing the detailed</span>
+<span class="sd">            line-spread function for the given spectrum.</span>
+<span class="sd">            See details in the documentation.</span>
+
+<span class="sd">        normalized : bool   [default = False]</span>
+<span class="sd">            If the input spectrum is normalized this should be given as True</span>
+<span class="sd">            in order to skip normalization steps.</span>
+
+<span class="sd">        mask : array, shape (n)</span>
+<span class="sd">            Boolean/int array defining the fitting regions.</span>
+<span class="sd">            Only pixels with mask=True/1 will be included in the fit.</span>
+
+<span class="sd">        continuum : array, shape (n)</span>
+<span class="sd">            Continuum spectrum. The input spectrum will be normalized using</span>
+<span class="sd">            this continuum spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">wl</span> <span class="o">=</span> <span class="n">spectrum</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">spectrum</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">spectrum</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">continuum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span><span class="o">/</span><span class="n">continuum</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">err</span><span class="o">/</span><span class="n">continuum</span>
+            <span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="n">normalized</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="DataSet.add_data"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add spectral data to the DataSet. This will be used to define fitting regions.</span>
@@ -276,8 +333,12 @@
 <span class="sd">        flux : ndarray, shape (n)</span>
 <span class="sd">            Input flux array, should be same length as wl</span>
 
-<span class="sd">        res : float</span>
-<span class="sd">            Spectral resolution in km/s  (c/R)</span>
+<span class="sd">        res : float or string</span>
+<span class="sd">            Spectral resolution either given in km/s  (c/R),</span>
+<span class="sd">            which is assumed to be constant over the whole spectrum,</span>
+<span class="sd">            or as a string referring to a file containing the detailed</span>
+<span class="sd">            line-spread function for the given spectrum.</span>
+<span class="sd">            See details in the data section of the :ref:`documentation`.</span>
 
 <span class="sd">        err : ndarray, shape (n)   [default = None]</span>
 <span class="sd">            Error array, should be same length as wl</span>
@@ -314,6 +375,9 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">mask_warning</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">%</span> <span class="p">(</span><span class="n">bold</span><span class="p">,</span> <span class="n">reset</span><span class="p">))</span>
                 <span class="k">return</span>
+
+        <span class="c1"># if isinstance(res, str):</span>
+        <span class="c1">#     verify_lsf(res, wl)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;wl&#39;</span><span class="p">:</span> <span class="n">wl</span><span class="p">,</span> <span class="s1">&#39;flux&#39;</span><span class="p">:</span> <span class="n">flux</span><span class="p">,</span>
                           <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span> <span class="s1">&#39;res&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
@@ -364,7 +428,10 @@
             <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">output_msg</span> <span class="o">=</span> <span class="s2">&quot; Spectral resolution in the region around </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%.1f</span><span class="s2"> km/s.&quot;</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">output_msg</span> <span class="o">=</span> <span class="s2">&quot;Spectral resolution in the region around </span><span class="si">%s</span><span class="s2"> is defined in file: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">output_msg</span> <span class="o">=</span> <span class="s2">&quot; Spectral resolution in the region around </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%.1f</span><span class="s2"> km/s.&quot;</span>
                     <span class="nb">print</span> <span class="n">output_msg</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_tag</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
                 <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">resolutions</span></div>
@@ -385,13 +452,25 @@
             <span class="n">regions_of_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_line</span><span class="p">(</span><span class="n">line_tag</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># verify_lsf(res, region.wl)</span>
+                    <span class="n">region</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">region</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">res</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="n">warn_msg</span> <span class="o">=</span> <span class="s2">&quot; [WARNING] - Setting spectral resolution for all regions, R=</span><span class="si">%.1f</span><span class="s2"> km/s!&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; [WARNING] - Setting spectral resolution for all regions, R=</span><span class="si">%.1f</span><span class="s2"> km/s!&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">warn_msg</span> <span class="o">=</span> <span class="s2">&quot;             LSF-file: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warn_msg</span> <span class="o">=</span> <span class="s2">&quot;             R = </span><span class="si">%.1f</span><span class="s2"> km/s!&quot;</span>
                 <span class="nb">print</span> <span class="n">warn_msg</span> <span class="o">%</span> <span class="n">res</span>
 
             <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># verify_lsf(res, region.wl)</span>
+                    <span class="n">region</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">region</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
 
             <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
@@ -701,13 +780,15 @@
         <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions_of_line</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">clear_mask</span><span class="p">()</span>
+                <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                                   <span class="n">telluric</span><span class="o">=</span><span class="n">telluric</span><span class="p">,</span> <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span></div>
+                <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">new_mask</span> <span class="ow">and</span> <span class="n">region</span><span class="o">.</span><span class="n">has_active_lines</span><span class="p">():</span>
+                    <span class="n">region</span><span class="o">.</span><span class="n">define_mask</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                       <span class="n">telluric</span><span class="o">=</span><span class="n">telluric</span><span class="p">,</span> <span class="n">z_sys</span><span class="o">=</span><span class="n">z_sys</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.clear_mask"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.clear_mask">[docs]</a>    <span class="k">def</span> <span class="nf">clear_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -940,9 +1021,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">logN</span><span class="p">,</span> <span class="n">options</span><span class="p">]]</span></div>
 
-    <span class="c1"># TODO:</span>
-    <span class="c1"># Add velocity view to interactive components...</span>
-
 <div class="viewcode-block" id="DataSet.interactive_components"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.interactive_components">[docs]</a>    <span class="k">def</span> <span class="nf">interactive_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define components interactively for a given ion. The components will be defined on the</span>
@@ -1022,7 +1100,7 @@
             <span class="n">comps</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ginput</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
             <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="c1"># Assume that components are unresolved:</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span><span class="o">/</span><span class="mf">2.35482</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">kernel_fwhm</span> <span class="o">/</span> <span class="mf">2.35482</span>
             <span class="n">comp_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="ow">in</span> <span class="n">comps</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
@@ -1258,7 +1336,7 @@
                 <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">line_complexes</span><span class="o">.</span><span class="n">full_labels</span><span class="p">[</span><span class="n">line_tag</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">raw_label</span> <span class="o">=</span> <span class="n">line_tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;\ </span><span class="se">\\</span><span class="s1">lambda&#39;</span><span class="p">)</span>
-                <span class="n">reg</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm </span><span class="si">%s</span><span class="s2">}$&quot;</span> <span class="o">%</span> <span class="n">raw_label</span></div>
+                <span class="n">reg</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm </span><span class="si">%s</span><span class="s2">}$&quot;</span> <span class="o">%</span> <span class="n">raw_label</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DataSet.remove_fine_lines"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.remove_fine_lines">[docs]</a>    <span class="k">def</span> <span class="nf">remove_fine_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_tag</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1598,11 +1676,14 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">reg_num</span><span class="p">,</span> <span class="n">reg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">):</span>
                 <span class="n">p0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">reg</span><span class="o">.</span><span class="n">flux</span><span class="p">)</span>
+                <span class="n">var_par</span> <span class="o">=</span> <span class="n">reg</span><span class="o">.</span><span class="n">has_active_lines</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">reg</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">var_par</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">for</span> <span class="n">cheb_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">cheb_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb_p</span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reg_num</span><span class="p">,</span> <span class="n">cheb_num</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb_p</span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reg_num</span><span class="p">,</span> <span class="n">cheb_num</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">var_par</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb_p</span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reg_num</span><span class="p">,</span> <span class="n">cheb_num</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;R</span><span class="si">%i</span><span class="s1">_cheb_p</span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reg_num</span><span class="p">,</span> <span class="n">cheb_num</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">var_par</span><span class="p">)</span>
 
         <span class="c1"># --- mask spectral regions that should not be fitted</span>
         <span class="k">if</span> <span class="n">mask</span><span class="p">:</span>
@@ -1633,7 +1714,8 @@
                     <span class="nb">print</span> <span class="s2">&quot; [ERROR] - Components are not defined for element: &quot;</span><span class="o">+</span><span class="n">ion</span>
                     <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span> <span class="o">=</span> <span class="kc">False</span>
-
+                <span class="c1"># TODO:</span>
+                <span class="c1"># automatically open interactive window if components are not defined.</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready2fit</span><span class="p">:</span>
@@ -1642,15 +1724,12 @@
                 <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
             <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="DataSet.fit"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rebin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DataSet.fit"><a class="viewcode-back" href="../api.html#VoigtFit.DataSet.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit the absorption lines using chi-square minimization.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        rebin : int   [default = 1]</span>
-<span class="sd">            Rebin data by a factor *rebin* before fitting.</span>
-
 <span class="sd">        verbose : bool   [default = True]</span>
 <span class="sd">            This will print the fit results to terminal.</span>
 
@@ -1662,6 +1741,16 @@
 <span class="sd">            The default method is leastsq_, used in `lmfit &lt;https://lmfit.github.io/lmfit-py/&gt;`_.</span>
 <span class="sd">            This can be changed using the `method` keyword.</span>
 <span class="sd">            See documentation in lmfit_ and scipy.optimize_.</span>
+
+<span class="sd">        rebin : int   [default = 1]</span>
+<span class="sd">            Rebin data by a factor *rebin* before fitting.</span>
+<span class="sd">            Passed as part of `kwargs`.</span>
+
+<span class="sd">        sampling : int  [default = 3]</span>
+<span class="sd">            Subsampling factor for the evaluation of the line profile.</span>
+<span class="sd">            This is only used if the kernel is constant in velocity</span>
+<span class="sd">            along the spectrum.</span>
+<span class="sd">            Passed as part of `kwargs`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1688,8 +1777,19 @@
                 <span class="nb">print</span> <span class="s2">&quot;            Run `.prepare_dataset()` before fitting.&quot;</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Rebinning the data by a factor of </span><span class="si">%i</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rebin</span>
+        <span class="k">if</span> <span class="s1">&#39;rebin&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">rebin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;rebin&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rebin</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="s1">&#39;sampling&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">sampling</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;sampling&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sampling</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Rebinning the data by a factor of </span><span class="si">%i</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rebin</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; [WARNING] - rebinning is not supported for LSF file kernel.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Fit is running... Please, be patient.</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -1703,18 +1803,16 @@
                 <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">has_active_lines</span><span class="p">():</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rebin_spectrum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">rebin</span><span class="p">)</span>
-                        <span class="n">mask</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rebin_bool_array</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">rebin</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rebin_spectrum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">rebin</span><span class="p">)</span>
+                            <span class="n">mask</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rebin_bool_array</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">rebin</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">pass</span>
 
-                    <span class="n">res</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">res</span>
-
-                    <span class="c1"># Define flexible subsampling:</span>
-                    <span class="n">dv_pix</span> <span class="o">=</span> <span class="n">calculate_velocity_bin_size</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                     <span class="c1"># Generate line profile</span>
                     <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="p">,</span>
-                                                   <span class="c1"># region.lines, self.components,</span>
                                                    <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span>
-                                                   <span class="n">res</span><span class="p">,</span> <span class="n">dv</span><span class="o">=</span><span class="n">dv_pix</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+                                                   <span class="n">region</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="n">sampling</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">cont_model</span> <span class="o">=</span> <span class="n">evaluate_continuum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">reg_num</span><span class="p">)</span>
@@ -1733,6 +1831,12 @@
             <span class="k">return</span> <span class="n">residual</span><span class="o">/</span><span class="n">error_spectrum</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span> <span class="o">=</span> <span class="n">Minimizer</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pars</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s1">&#39;omit&#39;</span><span class="p">)</span>
+        <span class="c1"># Set default values for `ftol` and `factor` if method is not given:</span>
+        <span class="k">if</span> <span class="s1">&#39;method&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;factor&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="k">if</span> <span class="s1">&#39;ftol&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ftol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span>
         <span class="n">popt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span> <span class="o">=</span> <span class="n">popt</span><span class="o">.</span><span class="n">params</span>
 
@@ -1751,7 +1855,7 @@
             <span class="nb">print</span> <span class="s2">&quot;&quot;</span>
 
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cheb_order</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">output</span><span class="o">.</span><span class="n">print_cont_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1997,6 +2101,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -2035,8 +2140,8 @@
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

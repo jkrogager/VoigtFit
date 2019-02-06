@@ -303,7 +303,7 @@ class DataSet(object):
             which is assumed to be constant over the whole spectrum,
             or as a string referring to a file containing the detailed
             line-spread function for the given spectrum.
-            See details in the documentation.
+            See details in the data section of the :ref:`documentation`.
 
         err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
@@ -1820,7 +1820,7 @@ class DataSet(object):
             print ""
 
             if verbose:
-                output.print_results(self, self.best_fit, velocity=False)
+                output.print_results(self, self.best_fit, velocity=True)
                 if self.cheb_order >= 0:
                     output.print_cont_parameters(self)
 

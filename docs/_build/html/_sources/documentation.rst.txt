@@ -123,6 +123,28 @@ Data
   (should be an ASCII table with up to four columns: wavelength, flux, error, mask).
 
   *resolution*	is the spectral resolution of the given spectrum in units of km/s.
+  Alternatively, the resolution can be given as a string pointing to a file
+  containing the line-spread function (LSF) for the given spectrum. The file
+  format should follow that laid out by the `HST/COS instrument
+  <http://www.stsci.edu/hst/cos/performance/spectral_resolution/>`_.
+  The first line gives wavelength in Angstrom and the column below
+  each given wavelength defines the kernel in pixel space:
+
+  +----------------+----------------+----------------+--------+----------------+
+  | wl\ :sub:`1`   | wl\ :sub:`2`   | wl\ :sub:`3`   |  ...   | wl\ :sub:`N`   |
+  +----------------+----------------+----------------+--------+----------------+
+  | lsf\ :sub:`11` | lsf\ :sub:`21` | lsf\ :sub:`31` |  ...   | lsf\ :sub:`N1` |
+  +----------------+----------------+----------------+--------+----------------+
+  | lsf\ :sub:`12` | lsf\ :sub:`22` | lsf\ :sub:`32` |  ...   | lsf\ :sub:`N2` |
+  +----------------+----------------+----------------+--------+----------------+
+  |     |ve|       |     |ve|       |     |ve|       | |drde| |     |ve|       +
+  +----------------+----------------+----------------+--------+----------------+
+  | lsf\ :sub:`1M` | lsf\ :sub:`2M` | lsf\ :sub:`3M` |  ...   | lsf\ :sub:`NM` |
+  +----------------+----------------+----------------+--------+----------------+
+
+
+.. |ve|     unicode:: U+22EE .. VERTICAL ELLIPSIS
+.. |drde|   unicode:: U+22F1 .. DOWN RIGHT DIAGONAL ELLIPSIS
 
 
 Optional arguments:
@@ -298,9 +320,9 @@ tie_z=__  tie_b=__  tie_N=__  velocity  thermal]
 
 Optional arguments:
 
-  Parameters which should be kept fixed can be set by the optional arguments *fix_z* for redshift,
-  *fix_b* for broadening parameter, and *fix_N* for column density.
-  These are passed as keyword values which are either *True* or *False*, the default is *False*.
+  Parameters which should be kept fixed can be set by the optional arguments *var_z* for redshift,
+  *var_b* for broadening parameter, and *var_N* for column density.
+  These are passed as keyword values which are either *True* or *False*, the default is *True*.
 
   Parameters for different components and ions can be tied to each other using the
   *tie_z*, *tie_b*, *tie_N* options. This is mostly used to tie redshifts or broadening parameters
@@ -740,7 +762,8 @@ Fit-Options
 
   Set of *keyword* and *value* pairs that will be passed on to the lmfit_ minimizer.
   For a description of these, see the `minimize function`_ of lmfit_ or the documentation for
-  `scipy.optimize.minimize`_ or `scipy.optimize.leastsq`_.
+  `scipy.optimize.minimize`_ or `scipy.optimize.leastsq`_. By default the following parameters
+  are set: ``ftol=0.01`` and ``factor=1.0``.
 
   Other acceptable keywords are:
 
@@ -754,6 +777,11 @@ Fit-Options
 
     This will rebin the data by a factor of 2 and set the fitting method to Nelder--Mead optimization
     (instead of the default Levenberg--Marquardt).
+
+  ``fit-option  ftol=0.001 rebin=2``
+
+    This will set the tolerance for the convergence to 0.001 instead of 0.01 and rebin the data by a factor of 2.
+
 
 .. _minimize function: https://lmfit.github.io/lmfit-py/fitting.html#the-minimize-function
 

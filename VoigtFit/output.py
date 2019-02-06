@@ -47,12 +47,12 @@ def load_lsf(lsf_fname, wl):
     First line gives wavelength in Angstrom and the column below
     each given wavelength defines the kernel in pixel space:
 
-    wl1    wl2    wl3   ...  wlN
-    lsf11  lsf21  lsf31 ...  lsfN1
-    lsf12  lsf22  lsf32 ...  lsfN2
-    :      :      :          :
-    :      :      :          :
-    lsf1M  lsf2M  lsf3M ...  lsfNM
+    | wl1    wl2    wl3   ...  wlN
+    | lsf11  lsf21  lsf31 ...  lsfN1
+    | lsf12  lsf22  lsf32 ...  lsfN2
+    | :
+    | :
+    | lsf1M  lsf2M  lsf3M ...  lsfNM
 
     Parameters
     ----------
@@ -1582,7 +1582,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     print "\n  Metallicities\n"
     print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
     logNHI = np.random.normal(logNHI, err, 10000)
-    for ion in dataset.components.keys():
+    for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
         logN = []
         logN_err = []
@@ -1727,7 +1727,7 @@ def save_parameters_to_file(dataset, filename):
     header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
     with open(filename, 'w') as output:
         output.write(header + "\n")
-        for ion in dataset.components.keys():
+        for ion in sorted(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
