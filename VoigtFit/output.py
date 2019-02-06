@@ -10,6 +10,7 @@ import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.signal import fftconvolve, gaussian
 from scipy.ndimage import gaussian_filter1d
+from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
 
 import voigt
@@ -38,6 +39,56 @@ default_line = {'color': 'r', 'ls': '-',
                 'lw': 1.0, 'alpha': 1.0}
 default_hl_line = {'color': 'orange', 'ls': '--',
                    'lw': 1.0, 'alpha': 1.0}
+
+
+def load_lsf(lsf_fname, wl):
+    """
+    Load a Line-Spread Function table following format from HST:
+    First line gives wavelength in Angstrom and the column below
+    each given wavelength defines the kernel in pixel space:
+
+    | wl1    wl2    wl3   ...  wlN
+    | lsf11  lsf21  lsf31 ...  lsfN1
+    | lsf12  lsf22  lsf32 ...  lsfN2
+    | :
+    | :
+    | lsf1M  lsf2M  lsf3M ...  lsfNM
+
+    Parameters
+    ----------
+    lsf_fname : string
+        The filename containing the LSF data.
+
+    wl : array like, shape (N)
+        The wavelength grid onto which the LSF will be evaluated
+
+    Returns
+    -------
+    kernel : np.array, shape(N, M)
+        A grid of interpolated LSF evaluated at each given input wavelength
+        of the array `wl` of shape N, where M is the number of pixels in the LSF.
+
+    Notes
+    -----
+    The output kernel is transposed with respect to the input format
+    for ease of computation in the convolution since indexing is faster
+    along rows than columns.
+
+    """
+    lsf_tab = np.loadtxt(lsf_fname)
+    # Get the wavelength array from the first line in the file:
+    lsf_wl = lsf_tab[0]
+
+    # The LSF data is the resulting table excluding the first line:
+    lsf = lsf_tab[1:, :]
+
+    # Make an array of pixel indeces:
+    lsf_pix = np.arange(lsf.shape[0])
+
+    # Linearly interpolate the LSF grid:
+    LSF = spline2d(lsf_pix, lsf_wl, lsf, kx=1, ky=1)
+    kernel = LSF(lsf_pix, wl).T
+    return kernel
 
 
 def merge_two_dicts(default, x):
@@ -591,21 +642,27 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
     x, y, err, mask = region.unpack()
     cont_err = region.cont_err
-    res = region.res
+    kernel = region.kernel
+    x_orig = x.copy()
 
     if rebin > 1:
         x, y, err = rebin_spectrum(x, y, err, rebin)
         mask = rebin_bool_array(mask, rebin)
 
     ref_line = dataset.lines[line_tag]
-    l0, f, gam = ref_line.get_properties()
-    l_ref = l0*(dataset.redshift + 1)
+    l0_ref, f_ref, _ = ref_line.get_properties()
+    l_ref = l0_ref*(dataset.redshift + 1)
 
     # - Check if lines are separated by more than 200 km/s
     #   if so, then remove the line from the view.
     lines_in_view = list()
     for line in region.lines:
         l0 = line.l0
+        if line.f > f_ref:
+            l0_ref = line.l0
+            l_ref = l0_ref*(dataset.redshift + 1)
+            f_ref = line.f
+            ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
         if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
             lines_in_view.append(line.tag)
@@ -639,16 +696,21 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('top', size='20%', pad=0., sharex=ax)
 
-        N_pix = len(x)*2
-        dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min()), np.log10(x.max()), N_pix)
-        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
-        front_pad = np.arange(x.min()-50*dx, x.min(), dx)
-        end_pad = np.arange(x.max(), x.max()+50*dx, dx)
-        wl_line = np.concatenate([front_pad, wl_line, end_pad])
-        ref_line = dataset.lines[line_tag]
-        l0, f, gam = ref_line.get_properties()
-        l_ref = l0*(dataset.redshift + 1)
+        if isinstance(kernel, float):
+            N_pix = len(x)*2
+            dx = np.diff(x)[0]
+            wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
+            pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        elif isinstance(kernel, np.ndarray):
+            assert kernel.shape[0] == len(x_orig)
+            wl_line = x_orig
+        else:
+            err_msg = "Invalid type of `kernel`: %r" % type(kernel)
+            raise TypeError(err_msg)
+
+        # ref_line = dataset.lines[line_tag]
+        # l0, f, gam = ref_line.get_properties()
+        # l_ref = l0*(dataset.redshift + 1)
 
         tau = np.zeros_like(wl_line)
         tau_hl = np.zeros_like(wl_line)
@@ -705,16 +767,18 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
         profile_int = np.exp(-tau)
         profile_int_hl = np.exp(-tau_hl)
-        fwhm_instrumental = res
-        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
-        LSF = gaussian(len(wl_line)/2, sigma_instrumental)
-        LSF = LSF/LSF.sum()
-        profile_broad = fftconvolve(profile_int, LSF, 'same')
-        profile_broad_hl = fftconvolve(profile_int_hl, LSF, 'same')
-        profile = profile_broad[50:-50]
-        profile_hl = profile_broad_hl[50:-50]
-        wl_line = wl_line[50:-50]
-        vel_profile = (wl_line - l_ref)/l_ref*299792.458
+        if isinstance(kernel, float):
+            sigma_instrumental = kernel / 2.35482 / pxs
+            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = LSF/LSF.sum()
+            profile = fftconvolve(profile_int, LSF, 'same')
+            profile_hl = fftconvolve(profile_int_hl, LSF, 'same')
+            # profile = profile_broad[50:-50]
+            # profile_hl = profile_broad_hl[50:-50]
+            # wl_line = wl_line[50:-50]
+        else:
+            profile = voigt.convolve_numba(profile_int, kernel)
+        vel_line = (wl_line - l_ref)/l_ref*299792.458
 
     vel = (x - l_ref) / l_ref * 299792.458
 
@@ -762,16 +826,16 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         if xunit == 'wl':
             ax.plot(wl_line, profile, **line_props)
         else:
-            ax.plot(vel_profile, profile, **line_props)
+            ax.plot(vel_line, profile, **line_props)
 
         if N_highlight > 0:
             if xunit == 'wl':
                 ax.plot(wl_line, profile_hl, **hl_line_props)
             else:
-                ax.plot(vel_profile, profile_hl, **hl_line_props)
+                ax.plot(vel_line, profile_hl, **hl_line_props)
 
         if residuals:
-            p_data = np.interp(vel, vel_profile, profile)
+            p_data = np.interp(vel, vel_line, profile)
             if norm_resid:
                 masked_resid = (masked_range - p_data)/err
                 resid = (spectrum - p_data)/err
@@ -908,8 +972,9 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
     region = regions_of_line[index]
 
     x, y, err, mask = region.unpack()
+    x_orig = x.copy()
     # cont_err = region.cont_err
-    res = region.res
+    kernel = region.kernel
 
     if rebin > 1:
         x, y, err = rebin_spectrum(x, y, err, rebin)
@@ -937,13 +1002,21 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
     if (isinstance(dataset.best_fit, dict) or isinstance(dataset.pars, dict)):
-        npad = 50
-        N_pix = len(x)*3
-        dx = np.diff(x)[0]
-        wl_line = np.logspace(np.log10(x.min() - npad*dx),
-                              np.log10(x.max() + npad*dx),
-                              N_pix)
-        pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        if isinstance(kernel, float):
+            npad = 50
+            N_pix = len(x)*3
+            dx = np.diff(x)[0]
+            wl_line = np.logspace(np.log10(x.min() - npad*dx),
+                                  np.log10(x.max() + npad*dx),
+                                  N_pix)
+            pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
+        elif isinstance(kernel, np.ndarray):
+            assert kernel.shape[0] == len(x)
+            # evaluate on the input grid
+            wl_line = x_orig
+        else:
+            err_msg = "Invalid type of `kernel`: %r" % type(kernel)
+            raise TypeError(err_msg)
         ref_line = dataset.lines[line_tag]
         l0, f, gam = ref_line.get_properties()
         l_ref = l0*(dataset.redshift + 1)
@@ -971,13 +1044,17 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
                                        10**logN, 1.e5*b, gam, z=z)
 
         profile_int = np.exp(-tau)
-        fwhm_instrumental = res
-        sigma_instrumental = fwhm_instrumental / 2.35482 / pxs
-        LSF = gaussian(len(wl_line), sigma_instrumental)
-        LSF = LSF/LSF.sum()
-        profile_broad = fftconvolve(profile_int, LSF, 'same')
-        profile = profile_broad[npad:-npad]
-        wl_line = wl_line[npad:-npad]
+        if isinstance(kernel, float):
+            sigma_instrumental = kernel / 2.35482 / pxs
+            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = LSF/LSF.sum()
+            profile_broad = fftconvolve(profile_int, LSF, 'same')
+            profile = profile_broad[npad:-npad]
+            wl_line = wl_line[npad:-npad]
+        else:
+            profile = voigt.convolve_numba(profile_int, kernel)
+            if rebin > 1:
+                _, profile, _ = rebin_spectrum(x_orig, profile, 0.1*profile, rebin)
 
     vel = (x - l_ref) / l_ref * 299792.458
     y = y - profile
@@ -1264,6 +1341,11 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     flux = data_chunk['flux']
     error = data_chunk['error']
     res = data_chunk['res']
+    if isinstance(res, str):
+        kernel = load_lsf(res, wl)
+    else:
+        kernel = res
+
     wl_profile = wl.copy()
     if rebin > 1:
         wl, flux, error = rebin_spectrum(wl, flux, error, int(rebin))
@@ -1275,8 +1357,8 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     molecular_lines = [line for line in dataset.lines.values()
                        if molecule in line.tag]
     profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
-                               molecular_lines, dataset.components, res,
-                               dv=0.1)
+                               molecular_lines, dataset.components, kernel,
+                               sampling=3)
     if not xmin:
         xmin = min(min_wl)
     if not xmax:
@@ -1356,7 +1438,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     # print "\t\t\t\tlog(N)\t\t\tb"
     print "\t\t\t\tb\t\t\tlog(N)"
     if elements == 'all':
-        for ion in dataset.components.keys():
+        for ion in sorted(dataset.components.keys()):
             lines_for_this_ion = []
             for line_tag, line in dataset.lines.items():
                 if line.ion == ion and line.active:
@@ -1382,6 +1464,12 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 z_err = params['z%i_%s' % (n, ion)].stderr
                 b_err = params['b%i_%s' % (n, ion)].stderr
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
+                if z_err is None:
+                    z_err = -1.
+                if b_err is None:
+                    b_err = -1.
+                if logN_err is None:
+                    logN_err = -1.
 
                 if velocity:
                     z_std = z_err/(z_sys+1)*299792.458
@@ -1494,7 +1582,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     print "\n  Metallicities\n"
     print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
     logNHI = np.random.normal(logNHI, err, 10000)
-    for ion in dataset.components.keys():
+    for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
         logN = []
         logN_err = []
@@ -1530,8 +1618,8 @@ def print_total(dataset):
 
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        print "\n  Total Abundances\n"
-        for ion in dataset.components.keys():
+        print "\n  Total Column Densities\n"
+        for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
             logN_err = []
@@ -1639,7 +1727,7 @@ def save_parameters_to_file(dataset, filename):
     header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
     with open(filename, 'w') as output:
         output.write(header + "\n")
-        for ion in dataset.components.keys():
+        for ion in sorted(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
@@ -1739,7 +1827,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
-                                               region.res)
+                                               region.kernel)
             else:
                 p_obs = np.ones_like(wl)
             data_table = np.column_stack([wl, flux, err, p_obs, mask])
@@ -1769,7 +1857,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
-                                               region.res)
+                                               region.kernel)
             else:
                 p_obs = np.ones_like(wl)
             l_tot.append(wl)

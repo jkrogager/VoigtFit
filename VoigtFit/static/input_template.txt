@@ -8,17 +8,23 @@ name :  __
 z_sys:  __
 norm_method:  linear   # or spline
 save :  __
+interactive_view : wave   # or velocity
+mask_view : wave   # or velocity
+norm_view : wave   # or velocity
 
 
 # Load spectra:
-#     filename     spectral resolution in km/s
+#     filename     spectral resolution
 data  ____         ___
+# spectral resolution can either be a float (resolution in km/s)
+# or a filename containing the line-spread function as a function of wavelength.
 # add the keyword 'norm' at the end of the line if the spectrum is normalized
 # add the keyword 'air' at the end of the line if the wavelength are air wavelengths
 
 
-# Include optional commands to the fit, e.g., rebin=2, method='nelder' ...
-#fit-options rebin=2
+# Include optional commands to the fit, e.g., rebin=2, method='nelder', sampling=5
+# or ftol=0.001, factor=10. etc. Check the documentation for more details.
+#fit-options rebin=2 sampling=5
 
 
 # Continuum Fitting using Chebyshev Polynomials:

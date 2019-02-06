@@ -9,6 +9,7 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 from scipy.signal import fftconvolve, gaussian
+from numba import jit
 
 
 # ==== VOIGT PROFILE ===============
@@ -20,13 +21,13 @@ def H(a, x):
     return H0 - a/np.sqrt(np.pi)/P * (H0*H0*(4.*P*P + 7.*P + 4. + Q) - Q - 1)
 
 
-def Voigt(l, l0, f, N, b, gam, z=0):
+def Voigt(wl, l0, f, N, b, gam, z=0):
     """
     Calculate the optical depth Voigt profile.
 
     Parameters
     ----------
-    l : array_like, shape (N)
+    wl : array_like, shape (N)
         Wavelength grid in Angstroms at which to evaluate the optical depth.
 
     l0 : float
@@ -65,11 +66,46 @@ def Voigt(l, l0, f, N, b, gam, z=0):
     a = l0*1.e-8*gam/(4.*np.pi*b)
 
     dl_D = b/c*l0
-    l = l/(z+1.)
-    x = (l - l0)/dl_D + 0.00001
+    wl = wl/(z+1.)
+    x = (wl - l0)/dl_D + 0.00001
 
     tau = np.float64(C_a) * N * H(a, x)
     return tau
+
+
+@jit
+def convolve_numba(P, kernel):
+    """
+    Define convolution function for a wavelength dependent kernel.
+
+    Parameters
+    ----------
+    P : array_like, shape (N)
+        Intrinsic line profile.
+
+    kernel : np.array, shape (N, M)
+        Each row of the `kernel` corresponds to the wavelength dependent
+        line-spread function (LSF) evaluated at each pixel of the input
+        profile `P`. Each LSF must be normalized!
+
+    Returns
+    -------
+    P_con : np.array, shape (N)
+        Resulting profile after performing convolution with `kernel`.
+
+    Notes
+    -----
+    This function is decorated by the `jit` decorator from `numba`_ in order
+    to speed up the calculation.
+    """
+    N = kernel.shape[1]/2
+    pad = np.ones(N)
+    P_pad = np.concatenate([pad, P, pad])
+    P_con = np.zeros_like(P)
+    for i, lsf_i in enumerate(kernel):
+        P_con[i] = np.sum(P_pad[i:i+2*N+1] * lsf_i)
+
+    return P_con
 
 
 def evaluate_continuum(x, pars, reg_num):
@@ -116,7 +152,7 @@ def evaluate_continuum(x, pars, reg_num):
     return cont_model(x)
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
+def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
     """
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
     is converted to observed transmission, `f`:
@@ -143,11 +179,21 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
         Dictionary containing component data for the defined ions.
         See :attr:`VoigtFit.DataSet.components`.
 
-    res : float
-        Spectral resolving power of the data in km/s  [= *c/R*].
+    kernel : np.array, shape (N, M)  or float
+        The convolution kernel for each wavelength pixel.
+        If an array is given, each row of the array must specify
+        the line-spread function (LSF) at the given wavelength pixel.
+        The LSF must be normalized!
+        If a float is given, the resolution FWHM is given in km/s (c/R).
+        In this case the spectral resolution is assumed
+        to be constant in velocity space.
 
-    dv : float  [default = 0.1]
-        Desired pixel size of subsampled profile grid in km/s.
+    sampling : integer  [default = 3]
+        The subsampling factor used for defining the input logarithmically
+        space wavelength grid. The number of pixels in the evaluation will
+        be sampling * N, where N is the number of input pixels.
+        The final profile will be interpolated back onto the original
+        wavelength grid defined by `x`.
 
     Returns
     -------
@@ -155,18 +201,26 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
         Observed line profile convolved with the instrument profile.
     """
 
-    dx = np.mean(np.diff(x))
-    xmin = np.log10(x.min() - 50*dx)
-    xmax = np.log10(x.max() + 50*dx)
-    # N = int((x.max() - x.min())/(0.5*x.max() + 0.5*x.min())*299792.458 / dv)
-    N = 3*len(x)
+    if isinstance(kernel, float):
+        # Create logarithmically binned grid:
+        dx = np.mean(np.diff(x))
+        xmin = np.log10(x.min() - 50*dx)
+        xmax = np.log10(x.max() + 50*dx)
+        N = sampling * len(x)
+        profile_wl = np.logspace(xmin, xmax, N)
+        # Calculate actual pixel size in km/s:
+        pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
+        # Set Gaussian kernel width:
+        kernel = kernel / pxs / 2.35482
+    elif isinstance(kernel, np.ndarray):
+        assert kernel.shape[0] == len(x)
+        # evaluate on the input grid
+        profile_wl = x.copy()
+    else:
+        err_msg = "Invalid type of `kernel`: %r" % type(kernel)
+        raise TypeError(err_msg)
 
-    # Calculate logarithmically binned wavelength grid:
-    profile_wl = np.logspace(xmin, xmax, N)
     tau = np.zeros_like(profile_wl)
-
-    # Calculate actual pixel size in km/s:
-    pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
 
     # Determine range in which to evaluate the profile:
     max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
@@ -190,29 +244,22 @@ def evaluate_profile(x, pars, z_sys, lines, components, res, dv=0.1):
                     b = pars['b%i_%s' % (n, ion)].value
                     logN = pars['logN%i_%s' % (n, ion)].value
                     tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                    # tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
                 elif ion == 'HI':
                     b = pars['b%i_%s' % (n, ion)].value
                     logN = pars['logN%i_%s' % (n, ion)].value
                     tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                    # tau += Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
                 else:
                     continue
-                # b = pars['b%i_%s' % (n, ion)].value
-                # logN = pars['logN%i_%s' % (n, ion)].value
-                # tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
 
     profile = np.exp(-tau)
-    # Calculate Line Spread Function, i.e., instrumental broadening:
-    # Since the wavelength grid is logarithmically binned,
-    # the kernel is constant in velocity-space:
-    fwhm_instrumental = res                                   # in units of km/s
-    sigma_instrumental = fwhm_instrumental / 2.35482 / pxs    # in units of pixels
-    LSF = gaussian(len(profile_wl)/2, sigma_instrumental)
-    LSF = LSF/LSF.sum()
-    profile_broad = fftconvolve(profile, LSF, 'same')
 
-    # Interpolate onto the data grid:
-    profile_obs = np.interp(x, profile_wl, profile_broad)
+    if isinstance(kernel, float):
+        LSF = gaussian(10*int(kernel) + 1, kernel)
+        LSF = LSF/LSF.sum()
+        profile_broad = fftconvolve(profile, LSF, 'same')
+        # Interpolate onto the data grid:
+        profile_obs = np.interp(x, profile_wl, profile_broad)
+    else:
+        profile_obs = convolve_numba(profile, kernel)
 
     return profile_obs

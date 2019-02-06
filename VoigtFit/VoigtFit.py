@@ -360,11 +360,13 @@ def main():
     # =========================================================================
     # Back to Common Work Flow for all datasets:
 
+    # HERE masking is correct!
+
     # Load components from file:
     if 'load' in parameters.keys():
         dataset.reset_components()
         for fname in parameters['load']:
-            print "\nLoading parameters from file: %s \n" % fname
+            print "\n Loading parameters from file: %s \n" % fname
             dataset.load_components_from_file(fname)
     else:
         dataset.reset_components()
@@ -520,7 +522,7 @@ def main():
                 dataset.pars[par_name].set(expr=model_constraint, value=b_eff)
 
     # Reset all masks:
-    if 'clear_mask' in parameters.keys():
+    if parameters['clear_mask']:
         for region in dataset.regions:
             region.clear_mask()
 
@@ -545,7 +547,7 @@ def main():
             else:
                 z_sys = None
             for region in dataset.regions:
-                if region.new_mask:
+                if region.new_mask and region.has_active_lines():
                     region.define_mask(z=dataset.redshift,
                                        dataset=dataset,
                                        z_sys=z_sys)
@@ -562,6 +564,13 @@ def main():
     print ""
     print popt.message
     print ""
+
+    # Fix for when the code cannot estimate uncertainties:
+    for parname in dataset.best_fit.keys():
+        err = dataset.best_fit[parname].stderr
+        if err is None:
+            dataset.best_fit[parname].stderr = 0.
+    SaveDataSet(name + '.hdf5', dataset)
 
     # Update systemic redshift
     if parameters['systemic'][1] == 'none':
@@ -624,7 +633,6 @@ def main():
         dataset.print_total()
 
     # save
-    SaveDataSet(name + '.hdf5', dataset)
     if parameters['save']:
         filename = parameters['filename']
         if not filename:

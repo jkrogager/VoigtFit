@@ -7,6 +7,9 @@ z_sys:  1.7941
 norm_method:  linear    # or spline
 save :  testdata_norm
 
+norm_view : velocity
+mask_view : vel
+
 
 # Load spectra:
 #      filename     spectral resolution in km/s
@@ -28,13 +31,14 @@ C_order = -1
 # Uncomment to reset data for all lines in order to make a new fit iteration:
 #reset
 # or for some lines only:
-#reset SiII_1808 HI_1215
+#reset FeII_2374 FeII_2260
+reset CrII_2066
 
 
 # Uncomment to enable interactive masking for all lines:
-#mask
+mask
 # Or enable interactive masking for specific lines only:
-#mask FeII_2374
+#mask CrII_2066
 
 
 # Define the lines that should be included in the fit:

@@ -15,7 +15,7 @@ save :  testdata_norm
 data  'Q1313+1441/1313_VIS_1d.spec' 25.4
 data  'Q1313+1441/1313_UVB_1d.spec' 37.0
 
-# Uncomment this argument to bin the spectra by the given factor 
+# Uncomment this argument to bin the spectra by the given factor
 #fit-options rebin=2
 
 
@@ -38,10 +38,10 @@ C_order = 2
 
 
 # Define the lines that should be included in the fit:
-# The default velocity span is 500 km/s but can specified 
+# The default velocity span is 500 km/s but can specified
 # for each individual lines
 lines FeII_2374 velspan=500
-lines FeII_2260 
+lines FeII_2260
 lines CrII_2026 ZnII_2026
 lines CrII_2056 CrII_2066
 lines MgI_2852 MgI_2026
@@ -57,22 +57,23 @@ lines MgI_2852 MgI_2026
 #component FeII 1.795121 15. 14.5
 
 # Define components using relative velocities
-#         ion  rel_vel   b   logN   keyword  
+#         ion  rel_vel   b   logN   keyword
 #component FeII -50.     20. 14.3   velocity
 #component FeII 0.       20. 15.3   velocity
 #component FeII 23.      20. 14.3   velocity
 #component FeII 72.      20. 14.3   velocity
 #component FeII 115.     20. 14.5   velocity
- 
+
 # Define a component with a fixed b-parameter
 #component HI   z=1.794060 b=20. logN=21.3 var_b=False
 
 
-# Define components for FeII using the interactive window. 
-# The components will be assumed for all lines from the same iron and 
+# Define components for FeII using the interactive window.
+# The components will be assumed for all lines from the same iron and
 # ionization state.
 # The transition used for defining the components should be a strong one:
 interactive FeII_2374
+interactive_view : vel
 # If uncommented, this argument will overwrite the components defined above
 
 
@@ -81,8 +82,8 @@ interactive FeII_2374
 copy components to ZnII from FeII scale logN=12.9 of comp 1
 copy components to CrII from FeII scale logN=13.6 of component 1
 copy components from FeII to MgI and scale logN=12.4 of component 1
-# The default scale applied to logN when copying components is the Solar 
-# abundnace ratio. 
+# The default scale applied to logN when copying components is the Solar
+# abundnace ratio.
 # If no scaling is required:
 #copy components from FeII to SiII
 
@@ -97,7 +98,7 @@ copy components from FeII to MgI and scale logN=12.4 of component 1
 # Print total abundances for each ion:
 abundance
 
-# To print the metallicity for each ion assuming a logNHI: 
+# To print the metallicity for each ion assuming a logNHI:
 print metallicity logNHI = 21.31 +/- 0.01
 # The mini-language is flexible and accepts words
 # between the keywords, so the following works just
@@ -109,4 +110,4 @@ print metallicity logNHI = 21.31 +/- 0.01
 #output velocity
 
 
-### YOU ARE READY TO VOIGTFIT! ### 
+### YOU ARE READY TO VOIGTFIT! ###

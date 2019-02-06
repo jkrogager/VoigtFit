@@ -10,7 +10,7 @@ import os
 from lmfit import Parameters, Minimizer
 
 from voigt import evaluate_profile, evaluate_continuum
-from regions import Region
+from regions import Region, load_lsf
 import output
 import line_complexes
 import molecules
@@ -38,6 +38,15 @@ def calculate_velocity_bin_size(x):
     """Calculate the bin size of *x* in velocity units."""
     log_x = np.logspace(np.log10(x.min()), np.log10(x.max()), len(x))
     return np.diff(log_x)[0] / log_x[0] * 299792.458
+
+
+def verify_lsf(res, wl):
+    """Check that the LSF file covers the whole spectral range of `wl`"""
+    lsf_wl = np.genfromtxt(res, max_rows=1)
+    covering = (lsf_wl.min() <= wl.min()) * (lsf_wl.max() >= wl.max())
+    if not covering:
+        err_msg = "The given LSF file does not cover the wavelength range!"
+        raise ValueError(err_msg)
 
 
 class Line(object):
@@ -231,6 +240,52 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
+    def add_spectrum(self, filename, res, normalized=False, mask=None, continuum=None):
+        """
+        Add spectral data from ASCII file (three or four columns accepted).
+        This is a wrapper of the method `add_data`.
+
+        Parameters
+        ----------
+        filename : string
+            Filename of the ASCII spectrum containing at least 3 columns:
+            (wavelength, flux, error). A fourth column may be included
+            containing a spectral mask.
+
+        res : float or string
+            Spectral resolution either given in km/s  (c/R),
+            which is assumed to be constant over the whole spectrum,
+            or as a string referring to a file containing the detailed
+            line-spread function for the given spectrum.
+            See details in the documentation.
+
+        normalized : bool   [default = False]
+            If the input spectrum is normalized this should be given as True
+            in order to skip normalization steps.
+
+        mask : array, shape (n)
+            Boolean/int array defining the fitting regions.
+            Only pixels with mask=True/1 will be included in the fit.
+
+        continuum : array, shape (n)
+            Continuum spectrum. The input spectrum will be normalized using
+            this continuum spectrum.
+        """
+
+        spectrum = np.loadtxt(filename)
+        wl = spectrum[:, 0]
+        flux = spectrum[:, 1]
+        err = spectrum[:, 2]
+        if spectrum.shape[1] == 4 and mask is None:
+            mask = spectrum[:, 3]
+
+        if continuum is not None:
+            flux = flux/continuum
+            err = err/continuum
+            normalized = True
+
+        self.add_data(wl, flux, res, err=err, normalized=normalized, mask=mask)
+
     def add_data(self, wl, flux, res, err=None, normalized=False, mask=None):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
@@ -243,8 +298,12 @@ class DataSet(object):
         flux : ndarray, shape (n)
             Input flux array, should be same length as wl
 
-        res : float
-            Spectral resolution in km/s  (c/R)
+        res : float or string
+            Spectral resolution either given in km/s  (c/R),
+            which is assumed to be constant over the whole spectrum,
+            or as a string referring to a file containing the detailed
+            line-spread function for the given spectrum.
+            See details in the data section of the :ref:`documentation`.
 
         err : ndarray, shape (n)   [default = None]
             Error array, should be same length as wl
@@ -281,6 +340,9 @@ class DataSet(object):
             if np.sum(mask) == 0:
                 print(mask_warning.strip() % (bold, reset))
                 return
+
+        # if isinstance(res, str):
+        #     verify_lsf(res, wl)
 
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
@@ -331,7 +393,10 @@ class DataSet(object):
             regions_of_line = self.find_line(line_tag)
             for region in regions_of_line:
                 if verbose and self.verbose:
-                    output_msg = " Spectral resolution in the region around %s is %.1f km/s."
+                    if isinstance(region.res, str):
+                        output_msg = "Spectral resolution in the region around %s is defined in file: %s"
+                    else:
+                        output_msg = " Spectral resolution in the region around %s is %.1f km/s."
                     print output_msg % (line_tag, region.res)
                 resolutions.append(region.res)
             return resolutions
@@ -352,13 +417,25 @@ class DataSet(object):
             regions_of_line = self.find_line(line_tag)
             for region in regions_of_line:
                 region.res = res
+                if isinstance(res, str):
+                    # verify_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl)
+                else:
+                    region.kernel = res
 
         else:
             if verbose:
-                warn_msg = " [WARNING] - Setting spectral resolution for all regions, R=%.1f km/s!"
+                print(" [WARNING] - Setting spectral resolution for all regions, R=%.1f km/s!")
+                if isinstance(res, str):
+                    warn_msg = "             LSF-file: %s"
+                else:
+                    warn_msg = "             R = %.1f km/s!"
                 print warn_msg % res
 
             for region in self.regions:
+                if isinstance(res, str):
+                    # verify_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl)
                 region.res = res
 
             for chunk in self.data:
@@ -668,13 +745,15 @@ class DataSet(object):
         for region in regions_of_line:
             if reset:
                 region.clear_mask()
+                region.new_mask = True
 
             if hasattr(mask, '__iter__'):
                 region.mask = mask
                 region.new_mask = False
             else:
-                region.define_mask(z=self.redshift, dataset=self,
-                                   telluric=telluric, z_sys=z_sys)
+                if region.new_mask and region.has_active_lines():
+                    region.define_mask(z=self.redshift, dataset=self,
+                                       telluric=telluric, z_sys=z_sys)
 
     def clear_mask(self, line_tag, idx=None):
         """
@@ -907,9 +986,6 @@ class DataSet(object):
         else:
             self.components[ion] = [[z, b, logN, options]]
 
-    # TODO:
-    # Add velocity view to interactive components...
-
     def interactive_components(self, line_tag, velocity=False):
         """
         Define components interactively for a given ion. The components will be defined on the
@@ -989,7 +1065,7 @@ class DataSet(object):
             comps = plt.ginput(-1, 60)
             num = 0
             # Assume that components are unresolved:
-            b = region.res/2.35482
+            b = region.kernel_fwhm / 2.35482
             comp_list = list()
             for x0, y0 in comps:
                 if velocity:
@@ -1225,7 +1301,7 @@ class DataSet(object):
                 reg.label = line_complexes.full_labels[line_tag]
             else:
                 raw_label = line_tag.replace('_', '\ \\lambda')
-                reg.label = "${\\rm %s}$" % raw_label
+                reg.set_label("${\\rm %s}$" % raw_label)
 
     def remove_fine_lines(self, line_tag, levels=None):
         """
@@ -1565,11 +1641,14 @@ class DataSet(object):
         if self.cheb_order >= 0:
             for reg_num, reg in enumerate(self.regions):
                 p0 = np.median(reg.flux)
+                var_par = reg.has_active_lines()
+                if np.sum(reg.mask) == 0:
+                    var_par = False
                 for cheb_num in range(self.cheb_order+1):
                     if cheb_num == 0:
-                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0)
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0, vary=var_par)
                     else:
-                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0)
+                        self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0, vary=var_par)
 
         # --- mask spectral regions that should not be fitted
         if mask:
@@ -1600,7 +1679,8 @@ class DataSet(object):
                     print " [ERROR] - Components are not defined for element: "+ion
                     print ""
                 self.ready2fit = False
-
+                # TODO:
+                # automatically open interactive window if components are not defined.
                 return False
 
         if self.ready2fit:
@@ -1609,15 +1689,12 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, rebin=1, verbose=True, plot=False, **kwargs):
+    def fit(self, verbose=True, plot=False, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
 
         Parameters
         ----------
-        rebin : int   [default = 1]
-            Rebin data by a factor *rebin* before fitting.
-
         verbose : bool   [default = True]
             This will print the fit results to terminal.
 
@@ -1629,6 +1706,16 @@ class DataSet(object):
             The default method is leastsq_, used in `lmfit <https://lmfit.github.io/lmfit-py/>`_.
             This can be changed using the `method` keyword.
             See documentation in lmfit_ and scipy.optimize_.
+
+        rebin : int   [default = 1]
+            Rebin data by a factor *rebin* before fitting.
+            Passed as part of `kwargs`.
+
+        sampling : int  [default = 3]
+            Subsampling factor for the evaluation of the line profile.
+            This is only used if the kernel is constant in velocity
+            along the spectrum.
+            Passed as part of `kwargs`.
 
         Returns
         -------
@@ -1655,8 +1742,19 @@ class DataSet(object):
                 print "            Run `.prepare_dataset()` before fitting."
             return None, None
 
-        if rebin > 1:
-            print "\n  Rebinning the data by a factor of %i \n" % rebin
+        if 'rebin' in kwargs:
+            rebin = kwargs.pop('rebin')
+        else:
+            rebin = 1
+
+        if 'sampling' in kwargs:
+            sampling = kwargs.pop('sampling')
+        else:
+            sampling = 3
+
+        if rebin > 1 and self.verbose:
+            print("\n  Rebinning the data by a factor of %i \n" % rebin)
+            print(" [WARNING] - rebinning is not supported for LSF file kernel.")
 
         if self.verbose:
             print "\n  Fit is running... Please, be patient.\n"
@@ -1670,18 +1768,16 @@ class DataSet(object):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     if rebin > 1:
-                        x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                        mask = output.rebin_bool_array(mask, rebin)
+                        if isinstance(region.kernel, float):
+                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                            mask = output.rebin_bool_array(mask, rebin)
+                        else:
+                            pass
 
-                    res = region.res
-
-                    # Define flexible subsampling:
-                    dv_pix = calculate_velocity_bin_size(x)
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   # region.lines, self.components,
                                                    self.lines.values(), self.components,
-                                                   res, dv=dv_pix/3.)
+                                                   region.kernel, sampling=sampling)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)
@@ -1700,6 +1796,12 @@ class DataSet(object):
             return residual/error_spectrum
 
         self.minimizer = Minimizer(chi, self.pars, nan_policy='omit')
+        # Set default values for `ftol` and `factor` if method is not given:
+        if 'method' not in kwargs.keys():
+            if 'factor' not in kwargs.keys():
+                kwargs['factor'] = 1.
+            if 'ftol' not in kwargs.keys():
+                kwargs['ftol'] = 0.01
         popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
 
@@ -1718,7 +1820,7 @@ class DataSet(object):
             print ""
 
             if verbose:
-                output.print_results(self, self.best_fit, velocity=False)
+                output.print_results(self, self.best_fit, velocity=True)
                 if self.cheb_order >= 0:
                     output.print_cont_parameters(self)
 

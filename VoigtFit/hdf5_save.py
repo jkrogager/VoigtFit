@@ -78,6 +78,9 @@ def save_hdf_dataset(dataset, fname, verbose=True):
             reg_group.attrs.create('cont_err', reg.cont_err)
             reg_group.attrs.create('new_mask', reg.new_mask)
             reg_group.attrs.create('specID', reg.specID)
+            reg_group.attrs.create('kernel_fwhm', reg.kernel_fwhm)
+            reg_group.attrs.create('label', reg.label)
+            reg_group.create_dataset('kernel', data=reg.kernel)
             reg_group.create_dataset('wl', data=reg.wl)
             reg_group.create_dataset('flux', data=reg.flux)
             reg_group.create_dataset('mask', data=reg.mask)
@@ -199,7 +202,10 @@ def load_dataset_from_hdf(fname):
             Region.normalized = reg.attrs['normalized']
             Region.cont_err = reg.attrs['cont_err']
             Region.new_mask = reg.attrs['new_mask']
+            Region.kernel_fwhm = reg.attrs['kernel_fwhm']
+            Region.label = reg.attrs['label']
 
+            Region.kernel = reg['kernel'].value
             Region.wl = reg['wl'].value
             Region.flux = reg['flux'].value
             Region.mask = reg['mask'].value

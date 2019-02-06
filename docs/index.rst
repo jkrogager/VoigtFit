@@ -26,7 +26,7 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
   I want to thank Jonatan Selsing and Kasper E. Heintz
   who helped putting parts of the documentation together.
-  I also thank Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
+  I also thank Svea Hernandez, Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
   Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
   the software and for their constructive feedback and ideas for new features.
 
@@ -35,11 +35,17 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.10.2:
+
+  Added support for LSF file format to specify the convolution kernel as a function of wavelength.
+
+
 New in version 0.9.10:
 
   Added two keywords to the parameter language in order to allow the user to view fit regions
   in velocity space when defining masks, continuum normalization and components.
   See details under sections `Mask`, `Continuum Normalization` and `Interactive Components` of the :ref:`documentation`.
+
 
 New in version 0.9.9:
 

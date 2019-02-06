@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>regions &#8212; VoigtFit 0.9.10 documentation</title>
+    <title>regions &#8212; VoigtFit 0.10.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -28,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for regions</h1><div class="highlight"><pre>
@@ -37,7 +39,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">curve_fit</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">spline</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">UnivariateSpline</span> <span class="k">as</span> <span class="n">spline</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">RectBivariateSpline</span> <span class="k">as</span> <span class="n">spline2d</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="n">root_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
@@ -46,9 +49,104 @@
 <span class="n">telluric_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">get_FWHM</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure the FWHM of the profile given as `y`.</span>
+<span class="sd">    If `x` is given, then report the FWHM in terms of data units</span>
+<span class="sd">    defined by the `x` array. Otherwise, report pixel units.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : np.ndarray, shape (N)</span>
+<span class="sd">        Input profile whose FWHM should be determined.</span>
+
+<span class="sd">    x : np.ndarray, shape (N)  [default = None]</span>
+<span class="sd">        Input data units, must be same shape as `y`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fwhm : float</span>
+<span class="sd">        FWHM of `y` in units of pixels.</span>
+<span class="sd">        If `x` is given, the FWHM is returned in data units</span>
+<span class="sd">        corresponding to `x`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="n">half</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span>
+    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">half</span><span class="p">))</span>
+    <span class="n">zero_crossings</span> <span class="o">=</span> <span class="p">(</span><span class="n">signs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">signs</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">zero_crossings_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">zero_crossings</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zero_crossings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid profile! More than 2 crossings detected.&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">zero_crossings</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid profile! Less than 2 crossings detected.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">halfmax_x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">zero_crossings_i</span><span class="p">:</span>
+        <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="p">((</span><span class="n">half</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">halfmax_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="n">halfmax_x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">halfmax_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">fwhm</span>
+
+
 <span class="k">def</span> <span class="nf">linfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Linear fitting function of first order.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
+
+
+<span class="k">def</span> <span class="nf">load_lsf</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">,</span> <span class="n">wl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a Line-Spread Function table following format from HST:</span>
+<span class="sd">    First line gives wavelength in Angstrom and the column below</span>
+<span class="sd">    each given wavelength defines the kernel in pixel space:</span>
+
+<span class="sd">    wl1    wl2    wl3   ...  wlN</span>
+<span class="sd">    lsf11  lsf21  lsf31 ...  lsfN1</span>
+<span class="sd">    lsf12  lsf22  lsf32 ...  lsfN2</span>
+<span class="sd">    :      :      :          :</span>
+<span class="sd">    :      :      :          :</span>
+<span class="sd">    lsf1M  lsf2M  lsf3M ...  lsfNM</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lsf_fname : string</span>
+<span class="sd">        The filename containing the LSF data.</span>
+
+<span class="sd">    wl : array like, shape (N)</span>
+<span class="sd">        The wavelength grid onto which the LSF will be evaluated</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kernel : np.array, shape(N, M)</span>
+<span class="sd">        A grid of interpolated LSF evaluated at each given input wavelength</span>
+<span class="sd">        of the array `wl` of shape N, where M is the number of pixels in the LSF.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The output kernel is transposed with respect to the input format</span>
+<span class="sd">    for ease of computation in the convolution since indexing is faster</span>
+<span class="sd">    along rows than columns.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lsf_tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">)</span>
+    <span class="c1"># Get the wavelength array from the first line in the file:</span>
+    <span class="n">lsf_wl</span> <span class="o">=</span> <span class="n">lsf_tab</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># The LSF data is the resulting table excluding the first line:</span>
+    <span class="n">lsf</span> <span class="o">=</span> <span class="n">lsf_tab</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
+
+    <span class="c1"># Make an array of pixel indeces:</span>
+    <span class="n">lsf_pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lsf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Linearly interpolate the LSF grid:</span>
+    <span class="n">LSF</span> <span class="o">=</span> <span class="n">spline2d</span><span class="p">(</span><span class="n">lsf_pix</span><span class="p">,</span> <span class="n">lsf_wl</span><span class="p">,</span> <span class="n">lsf</span><span class="p">,</span> <span class="n">kx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ky</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">LSF</span><span class="p">(</span><span class="n">lsf_pix</span><span class="p">,</span> <span class="n">wl</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">kernel</span>
 
 
 <div class="viewcode-block" id="Region"><a class="viewcode-back" href="../api.html#regions.Region">[docs]</a><span class="k">class</span> <span class="nc">Region</span><span class="p">():</span>
@@ -111,6 +209,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cont_err</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="kc">None</span>
+
 <div class="viewcode-block" id="Region.add_data_to_region"><a class="viewcode-back" href="../api.html#regions.Region.add_data_to_region">[docs]</a>    <span class="k">def</span> <span class="nf">add_data_to_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_chunk</span><span class="p">,</span> <span class="n">cutout</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define the spectral data for the fitting region.</span>
@@ -136,7 +244,22 @@
             <span class="c1"># let the user define new_mask in `prepare_dataset`:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
+            <span class="n">i0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">kernel_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">[</span><span class="n">i0</span><span class="p">]</span>
+            <span class="c1"># Get FWHM in pixel units:</span>
+            <span class="n">fwhm</span> <span class="o">=</span> <span class="n">get_FWHM</span><span class="p">(</span><span class="n">kernel_0</span><span class="p">)</span>
+            <span class="n">lambda0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">[</span><span class="n">i0</span><span class="p">]</span>
+            <span class="n">dx0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">)[</span><span class="n">i0</span><span class="p">]</span>
+            <span class="c1"># Calculate FWHM in km/s:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_fwhm</span> <span class="o">=</span> <span class="mf">299792.458</span> <span class="o">/</span> <span class="n">lambda0</span> <span class="o">*</span> <span class="p">(</span><span class="n">fwhm</span> <span class="o">*</span> <span class="n">dx0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># `str` is a float, already given as FWHM in km/s</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_fwhm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Region.add_line"><a class="viewcode-back" href="../api.html#regions.Region.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a new :class:`dataset.Line` to the fitting region.&quot;&quot;&quot;</span>
@@ -244,14 +367,12 @@
             <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2"> Select a range of continuum spline points over the whole range&quot;</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot; Select a range of continuum spline points over the whole range&quot;</span><span class="p">)</span>
             <span class="n">points</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ginput</span><span class="p">(</span><span class="n">n</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">xk</span><span class="p">,</span> <span class="n">yk</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
-                <span class="n">xk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-                <span class="n">yk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-            <span class="n">xk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xk</span><span class="p">)</span>
-            <span class="n">yk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yk</span><span class="p">)</span>
-            <span class="n">region_wl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">continuum</span> <span class="o">=</span> <span class="n">spline</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">region_wl</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+            <span class="n">xk</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">yk</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># region_wl = self.wl.copy()</span>
+            <span class="n">cont_spline</span> <span class="o">=</span> <span class="n">spline</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">yk</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+            <span class="n">continuum</span> <span class="o">=</span> <span class="n">cont_spline</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="n">e_continuum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
@@ -475,6 +596,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -513,8 +635,8 @@
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

@@ -4,7 +4,8 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy.interpolate import spline
+from scipy.interpolate import UnivariateSpline as spline
+from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
 root_path = os.path.dirname(os.path.abspath(__file__))
@@ -13,9 +14,104 @@ datafile = root_path + '/static/telluric_em_abs.npz'
 telluric_data = np.load(datafile)
 
 
+def get_FWHM(y, x=None):
+    """
+    Measure the FWHM of the profile given as `y`.
+    If `x` is given, then report the FWHM in terms of data units
+    defined by the `x` array. Otherwise, report pixel units.
+
+    Parameters
+    ----------
+    y : np.ndarray, shape (N)
+        Input profile whose FWHM should be determined.
+
+    x : np.ndarray, shape (N)  [default = None]
+        Input data units, must be same shape as `y`.
+
+    Returns
+    -------
+    fwhm : float
+        FWHM of `y` in units of pixels.
+        If `x` is given, the FWHM is returned in data units
+        corresponding to `x`.
+    """
+    if x is None:
+        x = np.arange(len(y))
+
+    half = max(y)/2.0
+    signs = np.sign(np.add(y, -half))
+    zero_crossings = (signs[0:-2] != signs[1:-1])
+    zero_crossings_i = np.where(zero_crossings)[0]
+
+    if np.sum(zero_crossings) > 2:
+        raise ValueError('Invalid profile! More than 2 crossings detected.')
+    elif np.sum(zero_crossings) < 2:
+        raise ValueError('Invalid profile! Less than 2 crossings detected.')
+    else:
+        pass
+
+    halfmax_x = list()
+    for i in zero_crossings_i:
+        x_i = x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
+        halfmax_x.append(x_i)
+
+    fwhm = halfmax_x[1] - halfmax_x[0]
+    return fwhm
+
+
 def linfunc(x, a, b):
     """Linear fitting function of first order."""
     return a*x + b
+
+
+def load_lsf(lsf_fname, wl):
+    """
+    Load a Line-Spread Function table following format from HST:
+    First line gives wavelength in Angstrom and the column below
+    each given wavelength defines the kernel in pixel space:
+
+    wl1    wl2    wl3   ...  wlN
+    lsf11  lsf21  lsf31 ...  lsfN1
+    lsf12  lsf22  lsf32 ...  lsfN2
+    :      :      :          :
+    :      :      :          :
+    lsf1M  lsf2M  lsf3M ...  lsfNM
+
+    Parameters
+    ----------
+    lsf_fname : string
+        The filename containing the LSF data.
+
+    wl : array like, shape (N)
+        The wavelength grid onto which the LSF will be evaluated
+
+    Returns
+    -------
+    kernel : np.array, shape(N, M)
+        A grid of interpolated LSF evaluated at each given input wavelength
+        of the array `wl` of shape N, where M is the number of pixels in the LSF.
+
+    Notes
+    -----
+    The output kernel is transposed with respect to the input format
+    for ease of computation in the convolution since indexing is faster
+    along rows than columns.
+
+    """
+    lsf_tab = np.loadtxt(lsf_fname)
+    # Get the wavelength array from the first line in the file:
+    lsf_wl = lsf_tab[0]
+
+    # The LSF data is the resulting table excluding the first line:
+    lsf = lsf_tab[1:, :]
+
+    # Make an array of pixel indeces:
+    lsf_pix = np.arange(lsf.shape[0])
+
+    # Linearly interpolate the LSF grid:
+    LSF = spline2d(lsf_pix, lsf_wl, lsf, kx=1, ky=1)
+    kernel = LSF(lsf_pix, wl).T
+    return kernel
 
 
 class Region():
@@ -78,6 +174,16 @@ class Region():
             self.lines = list()
         self.label = ''
 
+        self.res = None
+        self.err = None
+        self.flux = None
+        self.wl = None
+        self.normalized = False
+        self.cont_err = 0.
+        self.mask = None
+        self.new_mask = False
+        self.kernel = None
+
     def add_data_to_region(self, data_chunk, cutout):
         """
         Define the spectral data for the fitting region.
@@ -104,6 +210,21 @@ class Region():
             self.new_mask = True
         else:
             self.new_mask = False
+
+        if isinstance(self.res, str):
+            self.kernel = load_lsf(self.res, self.wl)
+            i0 = self.kernel.shape[0]/2
+            kernel_0 = self.kernel[i0]
+            # Get FWHM in pixel units:
+            fwhm = get_FWHM(kernel_0)
+            lambda0 = self.wl[i0]
+            dx0 = np.diff(self.wl)[i0]
+            # Calculate FWHM in km/s:
+            self.kernel_fwhm = 299792.458 / lambda0 * (fwhm * dx0)
+        else:
+            # `str` is a float, already given as FWHM in km/s
+            self.kernel = float(self.res)
+            self.kernel_fwhm = float(self.res)
 
     def add_line(self, line):
         """Add a new :class:`dataset.Line` to the fitting region."""
@@ -211,14 +332,12 @@ class Region():
             print "\n\n Select a range of continuum spline points over the whole range"
             plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
-            xk, yk = [], []
-            for x, y in points:
-                xk.append(x)
-                yk.append(y)
-            xk = np.array(xk)
-            yk = np.array(yk)
-            region_wl = self.wl.copy()
-            continuum = spline(xk, yk, region_wl, order=3)
+            points = np.array(points)
+            xk = points[:, 0]
+            yk = points[:, 1]
+            # region_wl = self.wl.copy()
+            cont_spline = spline(xk, yk, s=0.)
+            continuum = cont_spline(x)
             e_continuum = np.sqrt(np.mean(self.err**2))
 
         if plot:
