@@ -1679,7 +1679,8 @@ class DataSet(object):
                     print " [ERROR] - Components are not defined for element: "+ion
                     print ""
                 self.ready2fit = False
-
+                # TODO:
+                # automatically open interactive window if components are not defined.
                 return False
 
         if self.ready2fit:
@@ -1795,6 +1796,12 @@ class DataSet(object):
             return residual/error_spectrum
 
         self.minimizer = Minimizer(chi, self.pars, nan_policy='omit')
+        # Set default values for `ftol` and `factor` if method is not given:
+        if 'method' not in kwargs.keys():
+            if 'factor' not in kwargs.keys():
+                kwargs['factor'] = 1.
+            if 'ftol' not in kwargs.keys():
+                kwargs['ftol'] = 0.01
         popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
 
