@@ -4,7 +4,7 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy.interpolate import spline
+from scipy.interpolate import UnivariateSpline as spline
 from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
@@ -332,14 +332,12 @@ class Region():
             print "\n\n Select a range of continuum spline points over the whole range"
             plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
-            xk, yk = [], []
-            for x, y in points:
-                xk.append(x)
-                yk.append(y)
-            xk = np.array(xk)
-            yk = np.array(yk)
-            region_wl = self.wl.copy()
-            continuum = spline(xk, yk, region_wl, order=3)
+            points = np.array(points)
+            xk = points[:, 0]
+            yk = points[:, 1]
+            # region_wl = self.wl.copy()
+            cont_spline = spline(xk, yk, s=0.)
+            continuum = cont_spline(x)
             e_continuum = np.sqrt(np.mean(self.err**2))
 
         if plot:
