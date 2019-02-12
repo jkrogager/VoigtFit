@@ -386,7 +386,11 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98,
                             hspace=0.03, bottom=0.14)
 
-        num = 1
+        if len(contents) % 2 == 1:
+            add_on = 1
+        else:
+            add_on = 0
+        num = 1 + add_on
         for line_tag in contents:
             if line_tag in lines_in_figure:
                 pass
@@ -410,10 +414,11 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
 
                 lines_in_figure += LIV
                 ax.tick_params(length=7, labelsize=fontsize)
-                if num <= len(contents)-1:
+                if num <= len(contents) - (1-add_on):
                     # xtl = ax.get_xticklabels()
                     # print [ticklabel.get_text() for ticklabel in xtl]
-                    ax.set_xticklabels([''])
+                    # ax.set_xticklabels([''])
+                    pass
                 else:
                     if xunit == 'wl':
                         ax.set_xlabel("${\\rm Wavelength\ \ (\\AA)}$",
