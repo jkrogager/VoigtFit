@@ -203,7 +203,10 @@ def load_dataset_from_hdf(fname):
             Region.cont_err = reg.attrs['cont_err']
             Region.new_mask = reg.attrs['new_mask']
             Region.kernel_fwhm = reg.attrs['kernel_fwhm']
-            Region.label = reg.attrs['label']
+            try:
+                Region.label = reg.attrs['label']
+            except KeyError:
+                Region.label = ''
 
             Region.kernel = reg['kernel'].value
             Region.wl = reg['wl'].value

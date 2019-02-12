@@ -1915,7 +1915,7 @@ class DataSet(object):
         """Print the total column densities of all components."""
         output.print_total(self)
 
-    def sum_components(self, ions, components):
+    def sum_components(self, ions, components=None):
         """
         Calculate the total column density for the given `components`
         of the given `ion`.
@@ -1955,7 +1955,12 @@ class DataSet(object):
         for ion in ions:
             logN = list()
             logN_err = list()
-            for num in components:
+            if not components:
+                N_comp = len(self.components[ion])
+                comp_nums = range(N_comp)
+            else:
+                comp_nums = components
+            for num in comp_nums:
                 parname = 'logN%i_%s' % (num, ion)
                 par = self.best_fit[parname]
                 logN.append(par.value)
