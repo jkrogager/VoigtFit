@@ -386,7 +386,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98,
                             hspace=0.03, bottom=0.14)
 
-        if len(contents) % 2 == 1:
+        if len(contents) % 2 == 1 and len(contents) > 1:
             add_on = 1
         else:
             add_on = 0
@@ -457,7 +457,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                      default_props={}, element_props={},
                      highlight_props=None,
                      label_all_ions=False, xunit='velocity',
-                     line_props=None, hl_line_props=None):
+                     line_props=None, hl_line_props=None,
+                     sort_f=True):
     """
     Plot a single absorption line.
 
@@ -588,6 +589,11 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         of the best-fit profile for highlighted ions.
         All keywords will be passed to the `plot function`_ of matplotlib.
 
+    sort_f : bool   [default = True]
+        If `True`, calculate velocities with respect to the line with the
+        largest oscillator strength. Otherwise, use the given `line_tag`
+        as reference.
+
 
     .. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
 
@@ -663,7 +669,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     lines_in_view = list()
     for line in region.lines:
         l0 = line.l0
-        if line.f > f_ref:
+        if line.f > f_ref and sort_f:
             l0_ref = line.l0
             l_ref = l0_ref*(dataset.redshift + 1)
             f_ref = line.f

@@ -34,6 +34,18 @@ lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
                       )
 
 
+def mask_vel(dataset, line_tag, v1, v2):
+    regions_of_line = dataset.find_line(line_tag)
+    for reg in regions_of_line:
+        l0 = dataset.lines[line_tag].l0
+        z = dataset.redshift
+        vel = (reg.wl/(l0*(z+1)) - 1.)*299792.458
+        mask = (vel > v1)*(vel < v2)
+        new_mask = reg.mask.copy()
+        new_mask = new_mask * ~mask
+        reg.set_mask(new_mask)
+
+
 def calculate_velocity_bin_size(x):
     """Calculate the bin size of *x* in velocity units."""
     log_x = np.logspace(np.log10(x.min()), np.log10(x.max()), len(x))
@@ -754,6 +766,38 @@ class DataSet(object):
                 if region.new_mask and region.has_active_lines():
                     region.define_mask(z=self.redshift, dataset=self,
                                        telluric=telluric, z_sys=z_sys)
+
+    def mask_range(self, line_tag, x1, x2, idx=None):
+        """Define mask in a range from `x1` to `x2` in velocity space."""
+        regions_of_line = self.find_line(line_tag)
+        z = self.redshift
+        l0 = self.lines[line_tag].l0
+        if idx is None:
+            # Loop over all regions of line:
+            for reg in regions_of_line:
+                vel = (reg.wl/(l0*(z+1)) - 1.)*299792.458
+                mask = (vel > x1)*(vel < x2)
+                new_mask = reg.mask.copy()
+                new_mask = new_mask * ~mask
+                reg.set_mask(new_mask)
+
+        elif hasattr(idx, '__iter__'):
+            # loop over regions in idx
+            for num in idx:
+                reg = regions_of_line[num]
+                vel = (reg.wl/(l0*(z+1)) - 1.)*299792.458
+                mask = (vel > x1)*(vel < x2)
+                new_mask = reg.mask.copy()
+                new_mask = new_mask * ~mask
+                reg.set_mask(new_mask)
+
+        else:
+            reg = regions_of_line[idx]
+            vel = (reg.wl/(l0*(z+1)) - 1.)*299792.458
+            mask = (vel > x1)*(vel < x2)
+            new_mask = reg.mask.copy()
+            new_mask = new_mask * ~mask
+            reg.set_mask(new_mask)
 
     def clear_mask(self, line_tag, idx=None):
         """
@@ -1883,7 +1927,8 @@ class DataSet(object):
                                 legend=legend, label_all_ions=label_all_ions,
                                 default_props=default_props, element_props=element_props,
                                 highlight_props=highlight_props, xunit=xunit,
-                                line_props=line_props, hl_line_props=hl_line_props)
+                                line_props=line_props, hl_line_props=hl_line_props,
+                                sort_f=False)
 
     def print_results(self, velocity=True, elements='all', systemic=None):
         """
