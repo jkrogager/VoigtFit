@@ -252,7 +252,7 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
-    def add_spectrum(self, filename, res, normalized=False, mask=None, continuum=None):
+    def add_spectrum(self, filename, res, normalized=False, mask=None, continuum=None, nsub=1):
         """
         Add spectral data from ASCII file (three or four columns accepted).
         This is a wrapper of the method `add_data`.
@@ -282,6 +282,10 @@ class DataSet(object):
         continuum : array, shape (n)
             Continuum spectrum. The input spectrum will be normalized using
             this continuum spectrum.
+
+        nsub : integer
+            Kernel subsampling factor relative to the data.
+            This is only used if the resolution is given as a LSF file.
         """
 
         spectrum = np.loadtxt(filename)
@@ -296,9 +300,9 @@ class DataSet(object):
             err = err/continuum
             normalized = True
 
-        self.add_data(wl, flux, res, err=err, normalized=normalized, mask=mask)
+        self.add_data(wl, flux, res, err=err, normalized=normalized, mask=mask, nsub=nsub)
 
-    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None):
+    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
 
@@ -328,6 +332,10 @@ class DataSet(object):
         mask : array, shape (n)
             Boolean/int array defining the fitting regions.
             Only pixels with mask=True/1 will be included in the fit.
+
+        nsub : integer
+            Kernel subsampling factor relative to the data.
+            This is only used if the resolution is given as a LSF file.
         """
         mask_warning = """
         All pixels in the spectrum have been masked out.
@@ -359,7 +367,7 @@ class DataSet(object):
         self.data.append({'wl': wl, 'flux': flux,
                           'error': err, 'res': res,
                           'norm': normalized, 'specID': specid,
-                          'mask': mask})
+                          'mask': mask, 'nsub': nsub})
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
@@ -413,7 +421,7 @@ class DataSet(object):
                 resolutions.append(region.res)
             return resolutions
 
-    def set_resolution(self, res, line_tag=None, verbose=True):
+    def set_resolution(self, res, line_tag=None, verbose=True, nsub=1):
         """
         Set the spectral resolution in km/s for the :class:`Region <regions.Region>`
         containing the line with the given `line_tag`. If multiple spectra are fitted
@@ -431,9 +439,11 @@ class DataSet(object):
                 region.res = res
                 if isinstance(res, str):
                     # verify_lsf(res, region.wl)
-                    region.kernel = load_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl, nsub=nsub)
+                    region.kernel_nsub = nsub
                 else:
                     region.kernel = res
+                    region.kernel_nsub = nsub
 
         else:
             if verbose:
@@ -447,7 +457,8 @@ class DataSet(object):
             for region in self.regions:
                 if isinstance(res, str):
                     # verify_lsf(res, region.wl)
-                    region.kernel = load_lsf(res, region.wl)
+                    region.kernel = load_lsf(res, region.wl, nsub=nsub)
+                    region.kernel_nsub = nsub
                 region.res = res
 
             for chunk in self.data:
@@ -1798,7 +1809,7 @@ class DataSet(object):
 
         if rebin > 1 and self.verbose:
             print("\n  Rebinning the data by a factor of %i \n" % rebin)
-            print(" [WARNING] - rebinning is not supported for LSF file kernel.")
+            print(" [WARNING] - rebinning for LSF file kernel is not supported!")
 
         if self.verbose:
             print "\n  Fit is running... Please, be patient.\n"
@@ -1815,13 +1826,20 @@ class DataSet(object):
                         if isinstance(region.kernel, float):
                             x, y, err = output.rebin_spectrum(x, y, err, rebin)
                             mask = output.rebin_bool_array(mask, rebin)
+                            nsub = region.kernel_nsub
                         else:
-                            pass
+                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                            mask = output.rebin_bool_array(mask, rebin)
+                            # Multiply the subsampling factor of the kernel by the rebin factor
+                            nsub = region.kernel_nsub * rebin
+                    else:
+                        nsub = region.kernel_nsub
 
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
                                                    self.lines.values(), self.components,
-                                                   region.kernel, sampling=sampling)
+                                                   region.kernel, sampling=sampling,
+                                                   kernel_nsub=nsub)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)

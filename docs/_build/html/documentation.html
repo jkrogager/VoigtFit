@@ -117,7 +117,7 @@ Relative velocities are calculated with respect to this redshift.</div></blockqu
 </div>
 <div class="section" id="data">
 <h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
-<p><strong>data  filename  resolution  [ norm   air ]</strong></p>
+<p><strong>data  filename  resolution  [ norm   air  nsub=1]</strong></p>
 <blockquote>
 <div><p><em>filename</em> specifies the path to the spectrum
 (should be an ASCII table with up to four columns: wavelength, flux, error, mask).</p>
@@ -174,6 +174,9 @@ each given wavelength defines the kernel in pixel space:</p>
 <blockquote>
 <div><p><em>norm</em> : if present in the line, this indicates that the spectrum in filename are normalized.</p>
 <p><em>air</em> : if present, the wavelengths in the spectrum will be converted from air to vacuum.</p>
+<p><em>nsub=1</em> : use this keyword to set the subsampling factor of the kernel given in the LSF file.
+The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
+If no LSF file is given as <em>res</em> then the keyword will be ignored.</p>
 </div></blockquote>
 <div class="topic">
 <p class="topic-title first">Example</p>
@@ -182,12 +185,15 @@ each given wavelength defines the kernel in pixel space:</p>
 <div>This will load the data from the file named ‘J2350-0052_uvb.tab’,
 convert the wavelength column from air to vacuum, and assign
 a spectral resolution of 40 km/s.</div></blockquote>
-<p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">&quot;norm_data/norm_2350-0052_vis.tab&quot;</span>&#160; <span class="pre">32.7</span>&#160; <span class="pre">norm</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">&quot;norm_data/norm_2350-0052_vis.tab&quot;</span>&#160; <span class="pre">'lsf_file.dat'</span>&#160; <span class="pre">norm</span>&#160; <span class="pre">nsub=3</span></code></p>
 <blockquote>
 <div>This will load the data from the file named ‘norm_2350-0052_vis.tab’
-in the directory ‘norm_data’ and assign a spectral resolution of 32.7 km/s.
-The keyword ‘norm’ is present, so the data will be marked as normalized,
-and no interactive normalization will therefore pop up during data preparation.</div></blockquote>
+in the directory ‘norm_data’ and assign a wavelength dependent line spread function
+as given in the file ‘lsf_file.dat’.
+The keyword <cite>norm</cite> is present, so the data will be marked as normalized,
+and no interactive normalization will therefore pop up during data preparation.
+The keyword <cite>nsub</cite> is set to 3, stating that the kernels provided in the LSF file
+are subsampled by a factor of three relative to the data.</div></blockquote>
 </div>
 </div>
 <div class="section" id="lines">

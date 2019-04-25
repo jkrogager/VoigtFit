@@ -67,11 +67,24 @@ def parse_parameters(fname):
             else:
                 resolution = float(resolution)
 
+            nsub = None
+            if 'nsub=' in line:
+                # find value of nsub:
+                for item in pars[2:]:
+                    if 'nsub=' in item:
+                        nsub = int(item.split('=')[1])
+                if nsub is None:
+                    print("Syntax Error in line:")
+                    print(line)
+                    nsub = 1
+            else:
+                nsub = 1
+
             # search for 'norm' and 'air':
             norm = line.find('norm') > 0
             air = line.find('air') > 0
             airORvac = 'air' if air else 'vac'
-            data.append([filename, resolution, norm, airORvac])
+            data.append([filename, resolution, norm, airORvac, nsub])
 
         elif 'lines' in line and 'save' not in line and 'fine' not in line:
             velspan = None
@@ -423,7 +436,7 @@ def parse_parameters(fname):
             if '=' in line:
                 snr = line.split('=')[1]
             elif ' ' in line:
-                snr = line.split(' ')[1]
+                snr = line.split()[1]
             elif ':' in line:
                 snr = line.split(':')[1]
             parameters['snr'] = float(snr)
@@ -445,7 +458,12 @@ def parse_parameters(fname):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
-            order = line.split('=')[1]
+            if '=' in line:
+                order = line.split('=')[1]
+            elif ':' in line:
+                order = line.split(':')[1]
+            else:
+                order = line.split()[1]
             parameters['cheb_order'] = int(order)
 
         elif 'cheb_order' in line and 'name' not in line and 'save' not in line:

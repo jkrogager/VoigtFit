@@ -117,7 +117,7 @@ z_sys
 Data
 ----
 
-**data  filename  resolution  [ norm   air ]**
+**data  filename  resolution  [ norm   air  nsub=1]**
 
   *filename* specifies the path to the spectrum
   (should be an ASCII table with up to four columns: wavelength, flux, error, mask).
@@ -153,6 +153,10 @@ Optional arguments:
 
   *air* : if present, the wavelengths in the spectrum will be converted from air to vacuum.
 
+  *nsub=1* : use this keyword to set the subsampling factor of the kernel given in the LSF file.
+  The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
+  If no LSF file is given as *res* then the keyword will be ignored.
+
 .. topic:: Example
 
   ``data  'J2350-0052_uvb.tab'  40.  air``
@@ -161,12 +165,15 @@ Optional arguments:
     convert the wavelength column from air to vacuum, and assign
     a spectral resolution of 40 km/s.
 
-  ``data  "norm_data/norm_2350-0052_vis.tab"  32.7  norm``
+  ``data  "norm_data/norm_2350-0052_vis.tab"  'lsf_file.dat'  norm  nsub=3``
 
-    This will load the data from the file named ‘norm_2350-0052_vis.tab’
-    in the directory ‘norm_data’ and assign a spectral resolution of 32.7 km/s.
-    The keyword ‘norm’ is present, so the data will be marked as normalized,
+    This will load the data from the file named 'norm_2350-0052_vis.tab'
+    in the directory ‘norm_data’ and assign a wavelength dependent line spread function
+    as given in the file 'lsf_file.dat'.
+    The keyword `norm` is present, so the data will be marked as normalized,
     and no interactive normalization will therefore pop up during data preparation.
+    The keyword `nsub` is set to 3, stating that the kernels provided in the LSF file
+    are subsampled by a factor of three relative to the data.
 
 
 Lines

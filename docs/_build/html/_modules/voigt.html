@@ -44,6 +44,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">fftconvolve</span><span class="p">,</span> <span class="n">gaussian</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">RectBivariateSpline</span> <span class="k">as</span> <span class="n">spline2d</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="k">import</span> <span class="n">jit</span>
 
 
@@ -187,7 +188,7 @@
     <span class="k">return</span> <span class="n">cont_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="evaluate_profile"><a class="viewcode-back" href="../api.html#voigt.evaluate_profile">[docs]</a><span class="k">def</span> <span class="nf">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="evaluate_profile"><a class="viewcode-back" href="../api.html#voigt.evaluate_profile">[docs]</a><span class="k">def</span> <span class="nf">evaluate_profile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">z_sys</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kernel_nsub</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluate the observed Voigt profile. The calculated optical depth, `tau`,</span>
 <span class="sd">    is converted to observed transmission, `f`:</span>
@@ -230,6 +231,11 @@
 <span class="sd">        The final profile will be interpolated back onto the original</span>
 <span class="sd">        wavelength grid defined by `x`.</span>
 
+
+<span class="sd">    kernel_nsub : integer</span>
+<span class="sd">        Kernel subsampling factor relative to the data.</span>
+<span class="sd">        This is only used if the resolution is given as a LSF file.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    profile_obs : array_like, shape (N)</span>
@@ -247,10 +253,16 @@
         <span class="n">pxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">profile_wl</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">profile_wl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
         <span class="c1"># Set Gaussian kernel width:</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span> <span class="o">/</span> <span class="n">pxs</span> <span class="o">/</span> <span class="mf">2.35482</span>
+
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="c1"># evaluate on the input grid</span>
-        <span class="n">profile_wl</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">kernel_nsub</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">N</span>
+        <span class="c1"># evaluate on the input grid subsampled by `nsub`:</span>
+        <span class="k">if</span> <span class="n">kernel_nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">profile_wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">N</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">profile_wl</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
     <span class="k">else</span><span class="p">:</span>
         <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid type of `kernel`: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
@@ -294,8 +306,14 @@
         <span class="n">profile_broad</span> <span class="o">=</span> <span class="n">fftconvolve</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">LSF</span><span class="p">,</span> <span class="s1">&#39;same&#39;</span><span class="p">)</span>
         <span class="c1"># Interpolate onto the data grid:</span>
         <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">profile_wl</span><span class="p">,</span> <span class="n">profile_broad</span><span class="p">)</span>
+
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">convolve_numba</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+        <span class="n">profile_broad</span> <span class="o">=</span> <span class="n">convolve_numba</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kernel_nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Interpolate onto the data grid:</span>
+            <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">profile_wl</span><span class="p">,</span> <span class="n">profile_broad</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">profile_obs</span> <span class="o">=</span> <span class="n">profile_broad</span>
 
     <span class="k">return</span> <span class="n">profile_obs</span></div>
 </pre></div>

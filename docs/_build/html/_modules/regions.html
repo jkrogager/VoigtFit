@@ -99,7 +99,7 @@
     <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
 
 
-<span class="k">def</span> <span class="nf">load_lsf</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">,</span> <span class="n">wl</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_lsf</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">nsub</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a Line-Spread Function table following format from HST:</span>
 <span class="sd">    First line gives wavelength in Angstrom and the column below</span>
@@ -120,6 +120,10 @@
 <span class="sd">    wl : array like, shape (N)</span>
 <span class="sd">        The wavelength grid onto which the LSF will be evaluated</span>
 
+<span class="sd">    nsub : integer  [default = 1]</span>
+<span class="sd">        Kernel subsampling factor relative to the data.</span>
+<span class="sd">        This is only used if the resolution is given as a LSF file.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    kernel : np.array, shape(N, M)</span>
@@ -133,6 +137,9 @@
 <span class="sd">    along rows than columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">wl</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">nsub</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">wl</span><span class="p">))</span>
+
     <span class="n">lsf_tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">)</span>
     <span class="c1"># Get the wavelength array from the first line in the file:</span>
     <span class="n">lsf_wl</span> <span class="o">=</span> <span class="n">lsf_tab</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -218,6 +225,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_fwhm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_nsub</span> <span class="o">=</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Region.add_data_to_region"><a class="viewcode-back" href="../api.html#regions.Region.add_data_to_region">[docs]</a>    <span class="k">def</span> <span class="nf">add_data_to_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_chunk</span><span class="p">,</span> <span class="n">cutout</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -239,6 +248,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cont_err</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="n">cutout</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_nsub</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;nsub&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">):</span>
             <span class="c1"># If all pixels are 1 in the given mask,</span>
             <span class="c1"># let the user define new_mask in `prepare_dataset`:</span>
@@ -247,8 +257,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">new_mask</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">)</span>
-            <span class="n">i0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wl</span><span class="p">,</span> <span class="n">nsub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_nsub</span><span class="p">)</span>
+            <span class="n">i0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_nsub</span><span class="o">/</span><span class="mi">2</span>
             <span class="n">kernel_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">[</span><span class="n">i0</span><span class="p">]</span>
             <span class="c1"># Get FWHM in pixel units:</span>
             <span class="n">fwhm</span> <span class="o">=</span> <span class="n">get_FWHM</span><span class="p">(</span><span class="n">kernel_0</span><span class="p">)</span>

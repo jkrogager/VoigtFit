@@ -155,7 +155,7 @@ def main():
         dataset.data = list()
         # Setup data:
 
-        for fname, res, norm, airORvac in parameters['data']:
+        for fname, res, norm, airORvac, nsub in parameters['data']:
             if fname[-5:] == '.fits':
                 hdu = pf.open(fname)
                 spec = pf.getdata(fname, 0)
@@ -193,7 +193,7 @@ def main():
                 wl = air2vac(wl)
 
             dataset.add_data(wl, spec, res,
-                             err=err, normalized=norm, mask=mask)
+                             err=err, normalized=norm, mask=mask, nsub=nsub)
 
         # -- Handle `lines`:
         # Add new lines that were not defined before:
@@ -308,7 +308,7 @@ def main():
             dataset.velspan = parameters['velspan']
 
         # Setup data:
-        for fname, res, norm, airORvac in parameters['data']:
+        for fname, res, norm, airORvac, nsub in parameters['data']:
             if fname[-5:] == '.fits':
                 hdu = pf.open(fname)
                 spec = pf.getdata(fname)
@@ -322,6 +322,7 @@ def main():
                 else:
                     err = spec/10.
                 err[err <= 0.] = np.abs(np.mean(err))
+                mask = np.ones_like(wl, dtype=bool)
 
             else:
                 data = np.loadtxt(fname)
@@ -333,15 +334,17 @@ def main():
                     else:
                         err = spec/10.
                     err[err <= 0.] = np.abs(np.mean(err))
+                    mask = np.ones_like(wl, dtype=bool)
                 elif data.shape[1] == 3:
                     wl, spec, err = data.T
+                    mask = np.ones_like(wl, dtype=bool)
                 elif data.shape[1] == 4:
                     wl, spec, err, mask = data.T
 
             if airORvac == 'air':
                 wl = air2vac(wl)
 
-            dataset.add_data(wl, spec, res, err=err, normalized=norm)
+            dataset.add_data(wl, spec, res, err=err, normalized=norm, mask=mask, nsub=nsub)
 
         # Define lines:
         for tag, velspan in parameters['lines']:

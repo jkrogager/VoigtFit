@@ -79,6 +79,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
             reg_group.attrs.create('new_mask', reg.new_mask)
             reg_group.attrs.create('specID', reg.specID)
             reg_group.attrs.create('kernel_fwhm', reg.kernel_fwhm)
+            reg_group.attrs.create('kernel_nsub', reg.kernel_nsub)
             reg_group.attrs.create('label', reg.label)
             reg_group.create_dataset('kernel', data=reg.kernel)
             reg_group.create_dataset('wl', data=reg.wl)
@@ -207,6 +208,10 @@ def load_dataset_from_hdf(fname):
                 Region.label = reg.attrs['label']
             except KeyError:
                 Region.label = ''
+            try:
+                Region.kernel_nsub = reg.attrs['kernel_nsub']
+            except KeyError:
+                Region.kernel_nsub = 1
 
             Region.kernel = reg['kernel'].value
             Region.wl = reg['wl'].value

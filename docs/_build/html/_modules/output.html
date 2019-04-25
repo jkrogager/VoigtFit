@@ -76,7 +76,7 @@
                    <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="load_lsf"><a class="viewcode-back" href="../api.html#output.load_lsf">[docs]</a><span class="k">def</span> <span class="nf">load_lsf</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">,</span> <span class="n">wl</span><span class="p">):</span>
+<div class="viewcode-block" id="load_lsf"><a class="viewcode-back" href="../api.html#output.load_lsf">[docs]</a><span class="k">def</span> <span class="nf">load_lsf</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">nsub</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a Line-Spread Function table following format from HST:</span>
 <span class="sd">    First line gives wavelength in Angstrom and the column below</span>
@@ -97,6 +97,10 @@
 <span class="sd">    wl : array like, shape (N)</span>
 <span class="sd">        The wavelength grid onto which the LSF will be evaluated</span>
 
+<span class="sd">    nsub : integer  [default = 1]</span>
+<span class="sd">        Kernel subsampling factor relative to the data.</span>
+<span class="sd">        This is only used if the resolution is given as a LSF file.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    kernel : np.array, shape(N, M)</span>
@@ -110,6 +114,9 @@
 <span class="sd">    along rows than columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">wl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">wl</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">wl</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">nsub</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">wl</span><span class="p">))</span>
+
     <span class="n">lsf_tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">lsf_fname</span><span class="p">)</span>
     <span class="c1"># Get the wavelength array from the first line in the file:</span>
     <span class="n">lsf_wl</span> <span class="o">=</span> <span class="n">lsf_tab</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -421,7 +428,11 @@
         <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span>
                             <span class="n">hspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.14</span><span class="p">)</span>
 
-        <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">add_on</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">add_on</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">add_on</span>
         <span class="k">for</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line_tag</span> <span class="ow">in</span> <span class="n">lines_in_figure</span><span class="p">:</span>
                 <span class="k">pass</span>
@@ -445,10 +456,11 @@
 
                 <span class="n">lines_in_figure</span> <span class="o">+=</span> <span class="n">LIV</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">add_on</span><span class="p">):</span>
                     <span class="c1"># xtl = ax.get_xticklabels()</span>
                     <span class="c1"># print [ticklabel.get_text() for ticklabel in xtl]</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">])</span>
+                    <span class="c1"># ax.set_xticklabels([&#39;&#39;])</span>
+                    <span class="k">pass</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">xunit</span> <span class="o">==</span> <span class="s1">&#39;wl&#39;</span><span class="p">:</span>
                         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;${</span><span class="se">\\</span><span class="s2">rm Wavelength\ \ (</span><span class="se">\\</span><span class="s2">AA)}$&quot;</span><span class="p">,</span>
@@ -487,7 +499,8 @@
                      <span class="n">default_props</span><span class="o">=</span><span class="p">{},</span> <span class="n">element_props</span><span class="o">=</span><span class="p">{},</span>
                      <span class="n">highlight_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">label_all_ions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span>
-                     <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                     <span class="n">line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hl_line_props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">sort_f</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a single absorption line.</span>
 
@@ -618,6 +631,11 @@
 <span class="sd">        of the best-fit profile for highlighted ions.</span>
 <span class="sd">        All keywords will be passed to the `plot function`_ of matplotlib.</span>
 
+<span class="sd">    sort_f : bool   [default = True]</span>
+<span class="sd">        If `True`, calculate velocities with respect to the line with the</span>
+<span class="sd">        largest oscillator strength. Otherwise, use the given `line_tag`</span>
+<span class="sd">        as reference.</span>
+
 
 <span class="sd">    .. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html</span>
 
@@ -678,6 +696,7 @@
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
     <span class="n">cont_err</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">cont_err</span>
     <span class="n">kernel</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">kernel</span>
+    <span class="n">kernel_nsub</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">kernel_nsub</span>
     <span class="n">x_orig</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -693,7 +712,7 @@
     <span class="n">lines_in_view</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">region</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
         <span class="n">l0</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">l0</span>
-        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">f</span> <span class="o">&gt;</span> <span class="n">f_ref</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">f</span> <span class="o">&gt;</span> <span class="n">f_ref</span> <span class="ow">and</span> <span class="n">sort_f</span><span class="p">:</span>
             <span class="n">l0_ref</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">l0</span>
             <span class="n">l_ref</span> <span class="o">=</span> <span class="n">l0_ref</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">redshift</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">f_ref</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">f</span>
@@ -737,8 +756,12 @@
             <span class="n">wl_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">50</span><span class="o">*</span><span class="n">dx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">50</span><span class="o">*</span><span class="n">dx</span><span class="p">),</span> <span class="n">N_pix</span><span class="p">)</span>
             <span class="n">pxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">wl_line</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">wl_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_orig</span><span class="p">)</span>
-            <span class="n">wl_line</span> <span class="o">=</span> <span class="n">x_orig</span>
+            <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_orig</span><span class="p">)</span> <span class="o">*</span> <span class="n">kernel_nsub</span>
+            <span class="k">if</span> <span class="n">kernel_nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">kernel_nsub</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">wl_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">N</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wl_line</span> <span class="o">=</span> <span class="n">x_orig</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid type of `kernel`: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
@@ -1010,6 +1033,7 @@
     <span class="n">x_orig</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="c1"># cont_err = region.cont_err</span>
     <span class="n">kernel</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">kernel</span>
+    <span class="n">kernel_nsub</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">kernel_nsub</span>
 
     <span class="k">if</span> <span class="n">rebin</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">rebin_spectrum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">rebin</span><span class="p">)</span>
@@ -1046,9 +1070,13 @@
                                   <span class="n">N_pix</span><span class="p">)</span>
             <span class="n">pxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">wl_line</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">wl_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">299792.458</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">kernel_nsub</span>
             <span class="c1"># evaluate on the input grid</span>
-            <span class="n">wl_line</span> <span class="o">=</span> <span class="n">x_orig</span>
+            <span class="k">if</span> <span class="n">kernel_nsub</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">kernel_nsub</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">wl_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">N</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wl_line</span> <span class="o">=</span> <span class="n">x_orig</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid type of `kernel`: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
@@ -1376,8 +1404,9 @@
     <span class="n">flux</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;flux&#39;</span><span class="p">]</span>
     <span class="n">error</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;res&#39;</span><span class="p">]</span>
+    <span class="n">nsub</span> <span class="o">=</span> <span class="n">data_chunk</span><span class="p">[</span><span class="s1">&#39;nsub&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">wl</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">load_lsf</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">wl</span><span class="p">,</span> <span class="n">nsub</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">res</span>
 

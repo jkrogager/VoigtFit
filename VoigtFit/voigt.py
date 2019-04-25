@@ -9,6 +9,7 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 from scipy.signal import fftconvolve, gaussian
+from scipy.interpolate import RectBivariateSpline as spline2d
 from numba import jit
 
 
@@ -152,7 +153,7 @@ def evaluate_continuum(x, pars, reg_num):
     return cont_model(x)
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
+def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kernel_nsub=1):
     """
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
     is converted to observed transmission, `f`:
@@ -195,6 +196,11 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
         The final profile will be interpolated back onto the original
         wavelength grid defined by `x`.
 
+
+    kernel_nsub : integer
+        Kernel subsampling factor relative to the data.
+        This is only used if the resolution is given as a LSF file.
+
     Returns
     -------
     profile_obs : array_like, shape (N)
@@ -212,10 +218,16 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
         pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
         # Set Gaussian kernel width:
         kernel = kernel / pxs / 2.35482
+
     elif isinstance(kernel, np.ndarray):
-        assert kernel.shape[0] == len(x)
-        # evaluate on the input grid
-        profile_wl = x.copy()
+        N = kernel_nsub * len(x)
+        assert kernel.shape[0] == N
+        # evaluate on the input grid subsampled by `nsub`:
+        if kernel_nsub > 1:
+            profile_wl = np.linspace(x.min(), x.max(), N)
+        else:
+            profile_wl = x.copy()
+
     else:
         err_msg = "Invalid type of `kernel`: %r" % type(kernel)
         raise TypeError(err_msg)
@@ -259,7 +271,13 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3):
         profile_broad = fftconvolve(profile, LSF, 'same')
         # Interpolate onto the data grid:
         profile_obs = np.interp(x, profile_wl, profile_broad)
+
     else:
-        profile_obs = convolve_numba(profile, kernel)
+        profile_broad = convolve_numba(profile, kernel)
+        if kernel_nsub > 1:
+            # Interpolate onto the data grid:
+            profile_obs = np.interp(x, profile_wl, profile_broad)
+        else:
+            profile_obs = profile_broad
 
     return profile_obs

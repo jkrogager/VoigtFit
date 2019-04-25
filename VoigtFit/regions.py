@@ -64,7 +64,7 @@ def linfunc(x, a, b):
     return a*x + b
 
 
-def load_lsf(lsf_fname, wl):
+def load_lsf(lsf_fname, wl, nsub=1):
     """
     Load a Line-Spread Function table following format from HST:
     First line gives wavelength in Angstrom and the column below
@@ -85,6 +85,10 @@ def load_lsf(lsf_fname, wl):
     wl : array like, shape (N)
         The wavelength grid onto which the LSF will be evaluated
 
+    nsub : integer  [default = 1]
+        Kernel subsampling factor relative to the data.
+        This is only used if the resolution is given as a LSF file.
+
     Returns
     -------
     kernel : np.array, shape(N, M)
@@ -98,6 +102,9 @@ def load_lsf(lsf_fname, wl):
     along rows than columns.
 
     """
+    if nsub > 1:
+        wl = np.linspace(wl.min(), wl.max(), nsub*len(wl))
+
     lsf_tab = np.loadtxt(lsf_fname)
     # Get the wavelength array from the first line in the file:
     lsf_wl = lsf_tab[0]
@@ -183,6 +190,8 @@ class Region():
         self.mask = None
         self.new_mask = False
         self.kernel = None
+        self.kernel_fwhm = None
+        self.kernel_nsub = 1
 
     def add_data_to_region(self, data_chunk, cutout):
         """
@@ -204,6 +213,7 @@ class Region():
         self.normalized = data_chunk['norm']
         self.cont_err = 0.
         self.mask = data_chunk['mask'][cutout]
+        self.kernel_nsub = data_chunk['nsub']
         if np.sum(self.mask) == len(self.mask):
             # If all pixels are 1 in the given mask,
             # let the user define new_mask in `prepare_dataset`:
@@ -212,8 +222,8 @@ class Region():
             self.new_mask = False
 
         if isinstance(self.res, str):
-            self.kernel = load_lsf(self.res, self.wl)
-            i0 = self.kernel.shape[0]/2
+            self.kernel = load_lsf(self.res, self.wl, nsub=self.kernel_nsub)
+            i0 = self.kernel.shape[0]/self.kernel_nsub/2
             kernel_0 = self.kernel[i0]
             # Get FWHM in pixel units:
             fwhm = get_FWHM(kernel_0)

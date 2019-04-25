@@ -129,7 +129,7 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.add_component_velocity" title="VoigtFit.DataSet.add_component_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_component_velocity</span></code></a>(ion,&nbsp;v,&nbsp;b,&nbsp;logN[,&nbsp;…])</td>
 <td>Same as for <a class="reference internal" href="#VoigtFit.DataSet.add_component" title="VoigtFit.DataSet.add_component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_component</span></code></a> but input is given as relative velocity instead of redshift.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.add_data" title="VoigtFit.DataSet.add_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_data</span></code></a>(wl,&nbsp;flux,&nbsp;res[,&nbsp;err,&nbsp;normalized,&nbsp;mask])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.add_data" title="VoigtFit.DataSet.add_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_data</span></code></a>(wl,&nbsp;flux,&nbsp;res[,&nbsp;err,&nbsp;normalized,&nbsp;…])</td>
 <td>Add spectral data to the DataSet.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.add_fine_lines" title="VoigtFit.DataSet.add_fine_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_fine_lines</span></code></a>(line_tag[,&nbsp;levels,&nbsp;…])</td>
@@ -213,79 +213,82 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.mask_line" title="VoigtFit.DataSet.mask_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_line</span></code></a>(line_tag[,&nbsp;reset,&nbsp;mask,&nbsp;telluric,&nbsp;…])</td>
 <td>Define exclusion masks for the fitting region of a given line.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.normalize_line" title="VoigtFit.DataSet.normalize_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_line</span></code></a>(line_tag[,&nbsp;norm_method,&nbsp;velocity])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.mask_range" title="VoigtFit.DataSet.mask_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_range</span></code></a>(line_tag,&nbsp;x1,&nbsp;x2[,&nbsp;idx])</td>
+<td>Define mask in a range from <cite>x1</cite> to <cite>x2</cite> in velocity space.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.normalize_line" title="VoigtFit.DataSet.normalize_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_line</span></code></a>(line_tag[,&nbsp;norm_method,&nbsp;velocity])</td>
 <td>Normalize or re-normalize a given line</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.plot_fit" title="VoigtFit.DataSet.plot_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fit</span></code></a>([rebin,&nbsp;fontsize,&nbsp;xmin,&nbsp;xmax,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.plot_fit" title="VoigtFit.DataSet.plot_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fit</span></code></a>([rebin,&nbsp;fontsize,&nbsp;xmin,&nbsp;xmax,&nbsp;…])</td>
 <td>Plot <em>all</em> the absorption lines and the best-fit profiles.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.plot_line" title="VoigtFit.DataSet.plot_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_line</span></code></a>(line_tag[,&nbsp;index,&nbsp;plot_fit,&nbsp;loc,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.plot_line" title="VoigtFit.DataSet.plot_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_line</span></code></a>(line_tag[,&nbsp;index,&nbsp;plot_fit,&nbsp;loc,&nbsp;…])</td>
 <td>Plot a single fitting <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> containing the line corresponding to the given <cite>line_tag</cite>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.prepare_dataset" title="VoigtFit.DataSet.prepare_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_dataset</span></code></a>([norm,&nbsp;mask,&nbsp;verbose,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.prepare_dataset" title="VoigtFit.DataSet.prepare_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_dataset</span></code></a>([norm,&nbsp;mask,&nbsp;verbose,&nbsp;…])</td>
 <td>Prepare the data for fitting.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.print_cont_parameters" title="VoigtFit.DataSet.print_cont_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_cont_parameters</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.print_cont_parameters" title="VoigtFit.DataSet.print_cont_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_cont_parameters</span></code></a>()</td>
 <td>Print Chebyshev coefficients for the continuum fit.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.print_metallicity" title="VoigtFit.DataSet.print_metallicity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_metallicity</span></code></a>(logNHI[,&nbsp;err])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.print_metallicity" title="VoigtFit.DataSet.print_metallicity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_metallicity</span></code></a>(logNHI[,&nbsp;err])</td>
 <td>Print the total column densities for each element relative to HI in Solar units.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.print_results" title="VoigtFit.DataSet.print_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_results</span></code></a>([velocity,&nbsp;elements,&nbsp;systemic])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.print_results" title="VoigtFit.DataSet.print_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_results</span></code></a>([velocity,&nbsp;elements,&nbsp;systemic])</td>
 <td>Print the best fit parameters.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.print_total" title="VoigtFit.DataSet.print_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_total</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.print_total" title="VoigtFit.DataSet.print_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_total</span></code></a>()</td>
 <td>Print the total column densities of all components.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_fine_lines" title="VoigtFit.DataSet.remove_fine_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_fine_lines</span></code></a>(line_tag[,&nbsp;levels])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_fine_lines" title="VoigtFit.DataSet.remove_fine_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_fine_lines</span></code></a>(line_tag[,&nbsp;levels])</td>
 <td>Remove lines associated to a given fine-structure complex.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_line" title="VoigtFit.DataSet.remove_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_line</span></code></a>(line_tag)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_line" title="VoigtFit.DataSet.remove_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_line</span></code></a>(line_tag)</td>
 <td>Remove an absorption line from the DataSet.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_molecule" title="VoigtFit.DataSet.remove_molecule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_molecule</span></code></a>(molecule,&nbsp;band)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.remove_molecule" title="VoigtFit.DataSet.remove_molecule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_molecule</span></code></a>(molecule,&nbsp;band)</td>
 <td>Remove all lines for the given band of the given molecule.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_all_regions" title="VoigtFit.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_all_regions</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_all_regions" title="VoigtFit.DataSet.reset_all_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_all_regions</span></code></a>()</td>
 <td>Reset the data in all <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Regions</span></code></a> defined in the DataSet to use the raw input data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_components" title="VoigtFit.DataSet.reset_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_components</span></code></a>([ion])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_components" title="VoigtFit.DataSet.reset_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_components</span></code></a>([ion])</td>
 <td>Reset component structure for a given ion.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_region" title="VoigtFit.DataSet.reset_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_region</span></code></a>(reg)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.reset_region" title="VoigtFit.DataSet.reset_region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_region</span></code></a>(reg)</td>
 <td>Reset the data in a given <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">regions.Region</span></code></a> to use the raw input data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save" title="VoigtFit.DataSet.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([filename,&nbsp;verbose])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save" title="VoigtFit.DataSet.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([filename,&nbsp;verbose])</td>
 <td>Save the DataSet to file using the HDF5 format.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_cont_parameters_to_file" title="VoigtFit.DataSet.save_cont_parameters_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cont_parameters_to_file</span></code></a>(filename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_cont_parameters_to_file" title="VoigtFit.DataSet.save_cont_parameters_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cont_parameters_to_file</span></code></a>(filename)</td>
 <td>Save the best-fit continuum parameters to ASCII table output.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_fit_regions" title="VoigtFit.DataSet.save_fit_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_fit_regions</span></code></a>([filename,&nbsp;individual,&nbsp;path])</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_fit_regions" title="VoigtFit.DataSet.save_fit_regions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_fit_regions</span></code></a>([filename,&nbsp;individual,&nbsp;path])</td>
 <td>Save the fitting regions to ASCII table output.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.save_parameters" title="VoigtFit.DataSet.save_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_parameters</span></code></a>(filename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.save_parameters" title="VoigtFit.DataSet.save_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_parameters</span></code></a>(filename)</td>
 <td>Save the best-fit parameters to ASCII table output.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_name" title="VoigtFit.DataSet.set_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_name</span></code></a>(name)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_name" title="VoigtFit.DataSet.set_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_name</span></code></a>(name)</td>
 <td>Set the name of the DataSet.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_resolution" title="VoigtFit.DataSet.set_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_resolution" title="VoigtFit.DataSet.set_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resolution</span></code></a>(res[,&nbsp;line_tag,&nbsp;verbose,&nbsp;nsub])</td>
 <td>Set the spectral resolution in km/s for the <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> containing the line with the given <cite>line_tag</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.set_systemic_redshift" title="VoigtFit.DataSet.set_systemic_redshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_systemic_redshift</span></code></a>(z_sys)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.set_systemic_redshift" title="VoigtFit.DataSet.set_systemic_redshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_systemic_redshift</span></code></a>(z_sys)</td>
 <td>Update the systemic redshift of the dataset</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.show_components" title="VoigtFit.DataSet.show_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_components</span></code></a>([ion])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.show_components" title="VoigtFit.DataSet.show_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_components</span></code></a>([ion])</td>
 <td>Show the defined components for a given <cite>ion</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.show_lines" title="VoigtFit.DataSet.show_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_lines</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.show_lines" title="VoigtFit.DataSet.show_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_lines</span></code></a>()</td>
 <td>Print all defined lines to terminal.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.sum_components" title="VoigtFit.DataSet.sum_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_components</span></code></a>(ions,&nbsp;components)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.sum_components" title="VoigtFit.DataSet.sum_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_components</span></code></a>(ions[,&nbsp;components])</td>
 <td>Calculate the total column density for the given <cite>components</cite> of the given <cite>ion</cite>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.velocity_plot" title="VoigtFit.DataSet.velocity_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_plot</span></code></a>(**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.velocity_plot" title="VoigtFit.DataSet.velocity_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_plot</span></code></a>(**kwargs)</td>
 <td>Create a velocity plot, showing all the fitting regions defined, in order to compare different lines and to identify blends and contamination.</td>
 </tr>
 </tbody>
@@ -408,7 +411,7 @@ but input is given as relative velocity instead of redshift.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.add_data">
-<code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add spectral data to the DataSet. This will be used to define fitting regions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -439,6 +442,10 @@ in order to skip normalization steps.</p>
 <dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
 <dd><p class="first last">Boolean/int array defining the fitting regions.
 Only pixels with mask=True/1 will be included in the fit.</p>
+</dd>
+<dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Kernel subsampling factor relative to the data.
+This is only used if the resolution is given as a LSF file.</p>
 </dd>
 </dl>
 </td>
@@ -581,7 +588,7 @@ mechanical description of the state.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.add_spectrum">
-<code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>res</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>continuum=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>res</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>continuum=None</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add spectral data from ASCII file (three or four columns accepted).
 This is a wrapper of the method <cite>add_data</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -612,6 +619,10 @@ Only pixels with mask=True/1 will be included in the fit.</p>
 <dt><strong>continuum</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
 <dd><p class="first last">Continuum spectrum. The input spectrum will be normalized using
 this continuum spectrum.</p>
+</dd>
+<dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Kernel subsampling factor relative to the data.
+This is only used if the resolution is given as a LSF file.</p>
 </dd>
 </dl>
 </td>
@@ -1013,6 +1024,12 @@ when masking and defining continuum normalization interactively.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="VoigtFit.DataSet.mask_range">
+<code class="descname">mask_range</code><span class="sig-paren">(</span><em>line_tag</em>, <em>x1</em>, <em>x2</em>, <em>idx=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.mask_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.mask_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define mask in a range from <cite>x1</cite> to <cite>x2</cite> in velocity space.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="VoigtFit.DataSet.normalize_line">
 <code class="descname">normalize_line</code><span class="sig-paren">(</span><em>line_tag</em>, <em>norm_method='spline'</em>, <em>velocity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.normalize_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.normalize_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize or re-normalize a given line</p>
@@ -1318,7 +1335,7 @@ The final filename will be:</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.set_resolution">
-<code class="descname">set_resolution</code><span class="sig-paren">(</span><em>res</em>, <em>line_tag=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.set_resolution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_resolution</code><span class="sig-paren">(</span><em>res</em>, <em>line_tag=None</em>, <em>verbose=True</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.set_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.set_resolution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the spectral resolution in km/s for the <a class="reference internal" href="#regions.Region" title="regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>
 containing the line with the given <cite>line_tag</cite>. If multiple spectra are fitted
 simultaneously, this method will set the same resolution for <em>all</em> spectra.
@@ -1352,7 +1369,7 @@ and the number of components for the given ion.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.sum_components">
-<code class="descname">sum_components</code><span class="sig-paren">(</span><em>ions</em>, <em>components</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.sum_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.sum_components" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sum_components</code><span class="sig-paren">(</span><em>ions</em>, <em>components=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dataset.html#DataSet.sum_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.sum_components" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total column density for the given <cite>components</cite>
 of the given <cite>ion</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1815,7 +1832,7 @@ coefficients for each region.</p>
 
 <dl class="function">
 <dt id="voigt.evaluate_profile">
-<code class="descclassname">voigt.</code><code class="descname">evaluate_profile</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>z_sys</em>, <em>lines</em>, <em>components</em>, <em>kernel</em>, <em>sampling=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">voigt.</code><code class="descname">evaluate_profile</code><span class="sig-paren">(</span><em>x</em>, <em>pars</em>, <em>z_sys</em>, <em>lines</em>, <em>components</em>, <em>kernel</em>, <em>sampling=3</em>, <em>kernel_nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voigt.html#evaluate_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#voigt.evaluate_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the observed Voigt profile. The calculated optical depth, <cite>tau</cite>,
 is converted to observed transmission, <cite>f</cite>:</p>
 <div class="math notranslate nohighlight">
@@ -1858,6 +1875,10 @@ be sampling * N, where N is the number of input pixels.
 The final profile will be interpolated back onto the original
 wavelength grid defined by <cite>x</cite>.</p>
 </dd>
+<dt><strong>kernel_nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Kernel subsampling factor relative to the data.
+This is only used if the resolution is given as a LSF file.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -1889,7 +1910,7 @@ wavelength grid defined by <cite>x</cite>.</p>
 
 <dl class="function">
 <dt id="output.load_lsf">
-<code class="descclassname">output.</code><code class="descname">load_lsf</code><span class="sig-paren">(</span><em>lsf_fname</em>, <em>wl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#load_lsf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.load_lsf" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">output.</code><code class="descname">load_lsf</code><span class="sig-paren">(</span><em>lsf_fname</em>, <em>wl</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#load_lsf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.load_lsf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a Line-Spread Function table following format from HST:
 First line gives wavelength in Angstrom and the column below
 each given wavelength defines the kernel in pixel space:</p>
@@ -1911,6 +1932,10 @@ each given wavelength defines the kernel in pixel space:</p>
 </dd>
 <dt><strong>wl</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array like, shape (N)</span></dt>
 <dd><p class="first last">The wavelength grid onto which the LSF will be evaluated</p>
+</dd>
+<dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer  [default = 1]</span></dt>
+<dd><p class="first last">Kernel subsampling factor relative to the data.
+This is only used if the resolution is given as a LSF file.</p>
 </dd>
 </dl>
 </td>
@@ -2066,7 +2091,7 @@ If <cite>None</cite> is given, a new figure and axis will be created.</p>
 
 <dl class="function">
 <dt id="output.plot_single_line">
-<code class="descclassname">output.</code><code class="descname">plot_single_line</code><span class="sig-paren">(</span><em>dataset</em>, <em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>subsample_profile=1</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>npad=50</em>, <em>legend=True</em>, <em>residuals=False</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_single_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_single_line" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">output.</code><code class="descname">plot_single_line</code><span class="sig-paren">(</span><em>dataset</em>, <em>line_tag</em>, <em>index=0</em>, <em>plot_fit=False</em>, <em>loc='left'</em>, <em>rebin=1</em>, <em>nolabels=False</em>, <em>axis=None</em>, <em>fontsize=12</em>, <em>subsample_profile=1</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>show=True</em>, <em>npad=50</em>, <em>legend=True</em>, <em>residuals=False</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>highlight_props=None</em>, <em>label_all_ions=False</em>, <em>xunit='velocity'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em>, <em>sort_f=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output.html#plot_single_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.plot_single_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a single absorption line.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2200,6 +2225,11 @@ All keywords will be passed to the <a href="#id16"><span class="problematic" id=
 <dd><p class="first last">A dictionary of keywords to change the default line properties
 of the best-fit profile for highlighted ions.
 All keywords will be passed to the <a href="#id18"><span class="problematic" id="id19">`plot function`_</span></a> of matplotlib.</p>
+</dd>
+<dt><strong>sort_f</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If <cite>True</cite>, calculate velocities with respect to the line with the
+largest oscillator strength. Otherwise, use the given <cite>line_tag</cite>
+as reference.</p>
 </dd>
 <dt><strong>.. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html</strong></dt>
 <dd></dd>

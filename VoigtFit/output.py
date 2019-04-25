@@ -41,7 +41,7 @@ default_hl_line = {'color': 'orange', 'ls': '--',
                    'lw': 1.0, 'alpha': 1.0}
 
 
-def load_lsf(lsf_fname, wl):
+def load_lsf(lsf_fname, wl, nsub=1):
     """
     Load a Line-Spread Function table following format from HST:
     First line gives wavelength in Angstrom and the column below
@@ -62,6 +62,10 @@ def load_lsf(lsf_fname, wl):
     wl : array like, shape (N)
         The wavelength grid onto which the LSF will be evaluated
 
+    nsub : integer  [default = 1]
+        Kernel subsampling factor relative to the data.
+        This is only used if the resolution is given as a LSF file.
+
     Returns
     -------
     kernel : np.array, shape(N, M)
@@ -75,6 +79,9 @@ def load_lsf(lsf_fname, wl):
     along rows than columns.
 
     """
+    if nsub > 1:
+        wl = np.linspace(wl.min(), wl.max(), nsub*len(wl))
+
     lsf_tab = np.loadtxt(lsf_fname)
     # Get the wavelength array from the first line in the file:
     lsf_wl = lsf_tab[0]
@@ -654,6 +661,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     x, y, err, mask = region.unpack()
     cont_err = region.cont_err
     kernel = region.kernel
+    kernel_nsub = region.kernel_nsub
     x_orig = x.copy()
 
     if rebin > 1:
@@ -713,8 +721,12 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
             pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
         elif isinstance(kernel, np.ndarray):
-            assert kernel.shape[0] == len(x_orig)
-            wl_line = x_orig
+            assert kernel.shape[0] == len(x_orig) * kernel_nsub
+            if kernel_nsub > 1:
+                N = kernel_nsub * len(x)
+                wl_line = np.linspace(x.min(), x.max(), N)
+            else:
+                wl_line = x_orig
         else:
             err_msg = "Invalid type of `kernel`: %r" % type(kernel)
             raise TypeError(err_msg)
@@ -986,6 +998,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
     x_orig = x.copy()
     # cont_err = region.cont_err
     kernel = region.kernel
+    kernel_nsub = region.kernel_nsub
 
     if rebin > 1:
         x, y, err = rebin_spectrum(x, y, err, rebin)
@@ -1022,9 +1035,13 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
                                   N_pix)
             pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458
         elif isinstance(kernel, np.ndarray):
-            assert kernel.shape[0] == len(x)
+            assert kernel.shape[0] == len(x) * kernel_nsub
             # evaluate on the input grid
-            wl_line = x_orig
+            if kernel_nsub > 1:
+                N = kernel_nsub * len(x)
+                wl_line = np.linspace(x.min(), x.max(), N)
+            else:
+                wl_line = x_orig
         else:
             err_msg = "Invalid type of `kernel`: %r" % type(kernel)
             raise TypeError(err_msg)
@@ -1352,8 +1369,9 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     flux = data_chunk['flux']
     error = data_chunk['error']
     res = data_chunk['res']
+    nsub = data_chunk['nsub']
     if isinstance(res, str):
-        kernel = load_lsf(res, wl)
+        kernel = load_lsf(res, wl, nsub)
     else:
         kernel = res
 
