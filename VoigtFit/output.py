@@ -716,7 +716,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             cax = divider.append_axes('top', size='20%', pad=0., sharex=ax)
 
         if isinstance(kernel, float):
-            N_pix = len(x)*2
+            N_pix = len(x)*subsample_profile
             dx = np.diff(x)[0]
             wl_line = np.logspace(np.log10(x.min() - 50*dx), np.log10(x.max() + 50*dx), N_pix)
             pxs = np.diff(wl_line)[0] / wl_line[0] * 299792.458

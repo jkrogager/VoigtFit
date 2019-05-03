@@ -647,7 +647,7 @@ def main():
             rebin = parameters['fit_options']['rebin']
         else:
             rebin = 1
-        dataset.plot_fit(filename=filename, rebin=rebin)
+        dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
         output.save_parameters_to_file(dataset, filename+'.fit')
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
         output.save_fit_regions(dataset, filename+'.reg',
@@ -655,11 +655,18 @@ def main():
         plt.show(block=True)
 
     else:
+        print(" --- Plotting output without saving!!!")
         if 'rebin' in parameters['fit_options'].keys():
             rebin = parameters['fit_options']['rebin']
         else:
             rebin = 1
-        dataset.plot_fit(rebin=rebin)
+
+        if 'sampling' in parameters['fit_options'].keys():
+            sampling = parameters['fit_options']['sampling']
+        else:
+            sampling = 3
+
+        dataset.plot_fit(rebin=rebin, subsample_profile=sampling)
         plt.show(block=True)
 
 
