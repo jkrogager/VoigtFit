@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 plt.interactive(True)
 
 
-def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
+def show_transitions(ion=None, lower=0., upper=1.e4, fine_lines=False, flim=0.):
     """
     Show the transitions defined in the atomic database.
 
@@ -46,6 +46,9 @@ def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
     fine_lines : bool   [default = False]
         If `True`, then fine-structure transistions for the given ion is included.
 
+    flim : float  [default = 0.]
+        Only return transitions whose oscillator strength is larger than flim.
+
     Returns
     -------
     all_lines : list(trans)
@@ -53,25 +56,28 @@ def show_transitions(ion='', lower=0., upper=None, fine_lines=False):
         and contains the following indices: `l0`, `trans`, `ion`, `f`, `gam`, `mass`.
     """
     all_lines = list()
-    if upper is None:
-        upper = max(lineList['l0'])
-        if len(ion) == 0:
-            print " [WARNING] - No element nor upper limit on wavelength is given!"
-            print "             This will return %i lines." % len(lineList)
-            proceed = raw_input("Continue? (yes/NO)  > ")
-            if proceed.lower() in ['y', 'yes']:
-                return lineList
-            else:
-                return None
-
-    if len(ion) > 0:
+    if ion:
+        # only return given ion
         for trans in lineList:
             if trans['ion'] == ion:
                 if trans['l0'] > lower and trans['l0'] < upper:
-                    all_lines.append(trans)
-            elif trans['ion'][:-1] == ion and fine_lines is True:
+                    if trans['f'] > flim:
+                        all_lines.append(trans)
+
+            elif trans['ion'][:-1] == ion and trans['ion'][-1].islower() and fine_lines is True:
                 if trans['l0'] > lower and trans['l0'] < upper:
+                    if trans['f'] > flim:
+                        all_lines.append(trans)
+
+    else:
+        for trans in lineList:
+            if trans['l0'] > lower and trans['l0'] < upper and trans['f'] > flim:
+                if trans['ion'][-1].islower():
+                    if fine_lines is True:
+                        all_lines.append(trans)
+                else:
                     all_lines.append(trans)
+
     return all_lines
 
 
