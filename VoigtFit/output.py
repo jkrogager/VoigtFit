@@ -337,7 +337,9 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                     l0 = line.l0
                     delta_lam = (l0*(dataset.redshift + 1) - l_ref)
                     delta_v = delta_lam / l_ref * 299792.458
-                    if np.abs(delta_v) <= 150 or line.ion[-1].islower():
+                    if line.tag in included_lines:
+                        pass
+                    elif np.abs(delta_v) <= 150 or line.ion[-1].islower():
                         included_lines.append(line.tag)
 
     # --- Pack keyword arguments for plot_single_line:
@@ -677,11 +679,11 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     lines_in_view = list()
     for line in region.lines:
         l0 = line.l0
-        if line.f > f_ref and sort_f:
-            l0_ref = line.l0
-            l_ref = l0_ref*(dataset.redshift + 1)
-            f_ref = line.f
-            ref_line = line
+        # if line.f > f_ref and sort_f:
+        #     l0_ref = line.l0
+        #     l_ref = l0_ref*(dataset.redshift + 1)
+        #     f_ref = line.f
+        #     ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
         if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
             lines_in_view.append(line.tag)
