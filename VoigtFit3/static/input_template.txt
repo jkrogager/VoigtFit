@@ -1,0 +1,115 @@
+# Input parameter file for VoigtFit
+# Please fill in the blanks (__), in some cases I have left clues for the type of input.
+# If in doubt, see the manual describing the input parameter language.
+
+
+# Define metadata for the dataset
+name :  __
+z_sys:  __
+norm_method:  linear   # or spline
+save :  __
+interactive_view : wave   # or velocity
+mask_view : wave   # or velocity
+norm_view : wave   # or velocity
+
+
+# Load spectra:
+#     filename     spectral resolution
+data  ____         ___
+# spectral resolution can either be a float (resolution in km/s)
+# or a filename containing the line-spread function as a function of wavelength.
+# add the keyword 'norm' at the end of the line if the spectrum is normalized
+# add the keyword 'air' at the end of the line if the wavelength are air wavelengths
+
+
+# Include optional commands to the fit, e.g., rebin=2, method='nelder', sampling=5
+# or ftol=0.001, factor=10. etc. Check the documentation for more details.
+#fit-options rebin=2 sampling=5
+
+
+# Continuum Fitting using Chebyshev Polynomials:
+# Use negative order to turn off the Chebyshev fitting, this is the default behaviour
+C_order = -1
+
+
+# Uncomment to reset data for all lines:
+#reset
+# or for some lines only:
+#reset __line__  __line__
+# This is useful when using a Chebyshev continuum model, since the fit region data
+# is updated with the newly adjusted continuum after the fit converges.
+# In order to use the raw data in a new fit iteration, the reset keyword should be set.
+
+
+# Uncomment to enable interactive masking for all lines:
+#mask
+# Or enable interactive masking for specific lines only:
+#mask __line__
+
+
+# Define the lines that should be included in the fit:
+# The default velocity span is 500 km/s but can specified
+# for each individual lines
+lines __line__  velspan=300
+lines __line__
+
+
+# Define components in redshift space:
+#          ion   z    b   logN
+#component ___  ___  ___  ____
+
+
+# Define components using relative velocities
+# by including the 'velocity' keyword at the end:
+#           ion  rel_vel   b    logN   keyword
+#component  FeII  -50.     20.  14.3   velocity
+
+
+
+# Define components using the interactive mode:
+# The components will be used for all lines from the same ion
+interactive  __
+# But the interactive mode can be run multiple times for different
+# lines of the same ion to append new components.
+# Interactive components will overwrite the components defined above
+# through the normal 'component' statement.
+
+
+# Copy components to other ions.
+# The parameter language is flexible, so all of the following are acceptable:
+copy components to __ion__ from __ion__
+
+# By default when copying components, the column densities are scaled
+# using Solar relative abundances. Otherwise use the 'scale' statement:
+copy components from __ion__ to __ion__ and scale logN=__ of component __
+
+# In order to remove components from a copied structure do the following:
+#delete component 3 from __ion__
+#delete component 2 from __ion__
+# -- Note:  Component numbers start from 0.
+#           Components should be removed 'last-to-first', i.e., higher component numbers
+#           should be removed first in order to keep the component structure intact.
+
+
+# --- Output Commands:
+
+# To print the relative velocity of the best-fit line components
+# instead of redshifts, use the output option 'velocity':
+output velocity
+
+
+# Print total column densities for each ion:
+total
+
+
+# To print the metallicity for each ion assuming a logNHI:
+print metallicity logNHI = __ +/- __
+# The parameter language is flexible and accepts words
+# between the keywords, so the following works just
+# as well as the line above:
+#calculate metallicity based on logNHI  21.3   0.1
+
+
+
+# Great job, now you're ready to fit the data.
+# Go ahead, try it out!
