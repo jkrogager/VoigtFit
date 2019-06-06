@@ -1855,10 +1855,11 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
     if individual:
         for reg_num, region in enumerate(dataset.regions):
             wl, flux, err, mask = region.unpack()
+            nsub = region.kernel_nsub
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
-                                               region.kernel)
+                                               region.kernel, kernel_nsub=nsub)
             else:
                 p_obs = np.ones_like(wl)
             data_table = np.column_stack([wl, flux, err, p_obs, mask])
