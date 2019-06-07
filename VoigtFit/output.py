@@ -1856,7 +1856,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
         for reg_num, region in enumerate(dataset.regions):
             wl, flux, err, mask = region.unpack()
             nsub = region.kernel_nsub
-            if dataset.best_fit:
+            if dataset.best_fit and region.has_active_lines():
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
                                                dataset.lines.values(), dataset.components,
                                                region.kernel, kernel_nsub=nsub)

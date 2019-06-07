@@ -110,6 +110,17 @@ def LoadDataSet(filename):
     return dataset
 
 
+def save_dataset(filename, dataset):
+    """Save dataset to HDF5 file."""
+    hdf5_save.save_hdf_dataset(dataset, filename)
+
+
+def load_dataset(filename):
+    """Load a dataset from a HDF5 file."""
+    dataset = hdf5_save.load_dataset_from_hdf(filename)
+    return dataset
+
+
 def main():
 
     print "\n"
