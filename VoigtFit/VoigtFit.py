@@ -586,10 +586,16 @@ def main():
     print ""
 
     # Fix for when the code cannot estimate uncertainties:
+    all_uncertainties_good = True
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
         if err is None:
             dataset.best_fit[parname].stderr = 0.
+            all_uncertainties_good &= False
+    if not all_uncertainties_good:
+        print(" [WARNING] - Fit has not converged properly.")
+        print("             Some uncertainties have been set artificially to 0!\n")
+
     SaveDataSet(name + '.hdf5', dataset)
 
     # Update systemic redshift

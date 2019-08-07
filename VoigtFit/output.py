@@ -685,7 +685,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         #     f_ref = line.f
         #     ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
-        if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
+        # if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
+        if np.abs(delta_v) <= 150:
             lines_in_view.append(line.tag)
 
     if axis:
@@ -1538,6 +1539,11 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 logN = params['logN%i_%s' % (n, ion)].value
                 b_err = params['b%i_%s' % (n, ion)].stderr
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
+
+                if b_err is None:
+                    b_err = -1.
+                if logN_err is None:
+                    logN_err = -1.
 
                 if velocity:
                     z_val = (z-z_sys)/(z_sys+1)*299792.458
