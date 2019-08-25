@@ -685,8 +685,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         #     f_ref = line.f
         #     ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
-        # if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
-        if np.abs(delta_v) <= 150:
+        if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
             lines_in_view.append(line.tag)
 
     if axis:
@@ -1540,11 +1539,6 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 b_err = params['b%i_%s' % (n, ion)].stderr
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
 
-                if b_err is None:
-                    b_err = -1.
-                if logN_err is None:
-                    logN_err = -1.
-
                 if velocity:
                     z_val = (z-z_sys)/(z_sys+1)*299792.458
                     z_format = "v = %5.1f\t"
@@ -1920,6 +1914,125 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             out_file.write("# column 4 : Best-fit profile\n")
             out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
             np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
+
+
+def save_individual_components(dataset, filename, path=''):
+    """
+    Save best-fit profile to ASCII file for each individual component of each ion.
+    By default the profiles are calcuated on a logarithmically binned wavelength
+    array over the entire range of the input data. If a sampling factor other than
+    one is given, the wavelength grid is subsampled by this factor.
+
+    Parameters
+    ----------
+    dataset : dataset.DataSet
+        Dataset with the fitted data and parameters
+
+    filename : str
+        Filename to be used. If the filename already exists, it will be overwritten.
+
+    path : str   [default = '']
+        Specify a path to prepend to the filename in order to save output to a given
+        directory or path. Can be given both as relative or absolute path.
+        If the directory does not exist, it will be created.
+        The final filename will be:
+
+            `path/` + `filename`
+
+    """
+
+    if path:
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        if path[-1] != '/':
+            path += '/'
+
+    elif path is None:
+        path = ''
+
+    filename = path + filename
+
+    # define lines for a given ion:
+    lines_per_ion = dict()
+    for ion in list(dataset.components.keys()):
+        lines_per_ion[ion] = list()
+        for line in dataset.lines.values():
+            if line.ion == ion:
+                lines_per_ion[ion].append(line)
+
+    if dataset.best_fit:
+        pars = dataset.best_fit
+        sampling = 3
+        # Calculate profiles for each component of each ion:
+        component_list = list()
+        component_header = list()
+        for ion, lines in lines_per_ion.items():
+            n_comp = len(dataset.components[ion])
+            for n in range(n_comp):
+                component_id = '%s_%i' % (ion, n)
+                component_wl = list()
+                component_profile = list()
+                for chunk in dataset.data:
+                    x = chunk['wl']
+                    dx = np.mean(np.diff(x))
+                    xmin = np.log10(x.min() - 50*dx)
+                    xmax = np.log10(x.max() + 50*dx)
+                    N = sampling * len(x)
+                    profile_wl = np.logspace(xmin, xmax, N)
+                    tau = np.zeros_like(profile_wl)
+                    # Calculate actual pixel size in km/s:
+                    pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
+                    # Set Gaussian kernel width:
+                    if isinstance(chunk['res'], float):
+                        kernel = chunk['res'] / pxs / 2.35482
+                    else:
+                        print(" LSF kernel is not supported yet... skipping this data chunk!")
+                        continue
+
+                    for line in lines:
+                        l0, f, gam = line.get_properties()
+                        z = pars['z%i_%s' % (n, ion)].value
+                        b = pars['b%i_%s' % (n, ion)].value
+                        logN = pars['logN%i_%s' % (n, ion)].value
+                        tau += voigt.Voigt(profile_wl, l0, f, 10**logN, 1.e5*b, gam, z=z)
+
+                    profile = np.exp(-tau)
+
+                    if isinstance(kernel, float):
+                        LSF = voigt.gaussian(10*int(kernel) + 1, kernel)
+                        LSF = LSF/LSF.sum()
+                        profile_broad = voigt.fftconvolve(profile, LSF, 'same')
+                        # Interpolate onto the data grid:
+                        profile_obs = np.interp(x, profile_wl, profile_broad)
+
+                    else:
+                        print(" LSF kernel is not supported yet... skipping this data chunk!")
+                        # profile_broad = convolve_numba(profile, kernel)
+                        # if kernel_nsub > 1:
+                        #     # Interpolate onto the data grid:
+                        #     profile_obs = np.interp(x, profile_wl, profile_broad)
+                        # else:
+                        #     profile_obs = profile_broad
+                    component_wl.append(x)
+                    component_profile.append(profile_obs)
+
+                total_profile = np.concatenate(component_profile)
+                total_wl = np.concatenate(component_wl)
+                component_list.append(total_profile)
+                component_header.append(component_id)
+
+        # Save to file
+        header = '#wl     ' + '   '.join(component_header)
+        data = np.column_stack([total_wl] + component_list)
+        data_fmt = "%.3f" + len(component_list) * "  %.4f"
+        with open(filename, 'w') as output:
+            output.write(header+'\n')
+            np.savetxt(output, data, fmt=data_fmt)
+
+    else:
+        print(" [ERROR] - No fit parameters found! \n")
+        return
 
 
 def show_components(self, ion=None):

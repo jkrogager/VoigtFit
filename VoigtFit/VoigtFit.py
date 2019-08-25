@@ -586,16 +586,10 @@ def main():
     print ""
 
     # Fix for when the code cannot estimate uncertainties:
-    all_uncertainties_good = True
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
         if err is None:
             dataset.best_fit[parname].stderr = 0.
-            all_uncertainties_good &= False
-    if not all_uncertainties_good:
-        print(" [WARNING] - Fit has not converged properly.")
-        print("             Some uncertainties have been set artificially to 0!\n")
-
     SaveDataSet(name + '.hdf5', dataset)
 
     # Update systemic redshift
@@ -649,6 +643,11 @@ def main():
     else:
         individual_regions = False
 
+    if 'individual-components' in parameters['output_pars']:
+        individual_components = True
+    else:
+        individual_components = False
+
     # print metallicity
     logNHI = parameters['logNHI']
     if logNHI:
@@ -675,6 +674,8 @@ def main():
         output.save_cont_parameters_to_file(dataset, filename+'.cont')
         output.save_fit_regions(dataset, filename+'.reg',
                                 individual=individual_regions)
+        if individual_components:
+            output.save_individual_components(dataset, filename+'.components')
         plt.show(block=True)
 
     else:
