@@ -802,7 +802,7 @@ Fit-Options
 Output
 ------
 
-**output  individual-regions  velocity**
+**output  individual-regions  velocity  individual-components**
 
 The output statement takes two optional keywords:
 
@@ -812,6 +812,12 @@ The output statement takes two optional keywords:
   *velocity* : which prints the best-fit parameters in terms of relative velocity
   instead of redshift. For the detailed behavior of this features, see the section on how to
   `change systemic redshift`_.
+
+  *individual-components* : which saves the profiles of individual components of all lines
+  that are defined. The profiles are calculated over the full wavelength range of the dataset.
+  These are all saved as columns in a file with extension `.components`. Each component is
+  identified by its ion and the component number, e.g., `FeII_0` for the first component
+  of singly ionized iron (FeII).
 
 
 Load
