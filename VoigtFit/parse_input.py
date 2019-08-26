@@ -169,7 +169,7 @@ def parse_parameters(fname):
             else:
                 print "\n [ERROR] - Could not detect any molecular species to add!\n"
 
-        elif 'component' in line and 'copy' not in line and 'delete' not in line:
+        elif 'component' in line and 'copy' not in line and 'delete' not in line and 'output' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
