@@ -137,7 +137,7 @@ def evaluate_continuum(x, pars, reg_num):
 
     # Find Chebyshev parameters for this region:
     # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
-    for parname in pars.keys():
+    for parname in list(pars.keys()):
         if 'R%i_cheb' % reg_num in parname:
             cheb_parnames.append(parname)
     # This should be calculated at the point of generating
@@ -235,7 +235,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
     tau = np.zeros_like(profile_wl)
 
     # Determine range in which to evaluate the profile:
-    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
+    max_logN = max([val.value for key, val in list(pars.items()) if 'logN' in key])
     if max_logN > 19.0:
         velspan = 20000.*(1. + 1.0*(max_logN-19.))
     else:

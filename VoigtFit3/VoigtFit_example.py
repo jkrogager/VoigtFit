@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import VoigtFit
+from . import VoigtFit
 import pickle
 
 ### Fit DLA towards quasar Q1313+1441
@@ -108,9 +108,9 @@ dataset.print_abundance()
 #### Remove parameter links
 #### The links may result in error when loadning the parameters later.
 
-for par in popt.params.values():
+for par in list(popt.params.values()):
 	par.expr = None
-for par in dataset.pars.values():
+for par in list(dataset.pars.values()):
 	par.expr = None
 
 pickle.dump(popt.params, open('example_best_fit.pars','w'))

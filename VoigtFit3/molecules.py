@@ -481,9 +481,9 @@ def population_of_level(element, T, J):
 
     n(J) \propto g(J) e^(-E(J) / kT)
     """
-    if element not in rotational_constant.keys():
+    if element not in list(rotational_constant.keys()):
         print(" Element is not in database! ")
-        print " All elements in database are: " + ", ".join(rotational_constant.keys())
+        print(" All elements in database are: " + ", ".join(list(rotational_constant.keys())))
         return None
 
     if element == 'H2':

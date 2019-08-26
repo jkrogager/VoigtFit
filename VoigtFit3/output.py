@@ -13,17 +13,17 @@ from scipy.ndimage import gaussian_filter1d
 from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
 
-import voigt
-import Asplund
-import molecules
-from dataset import Line
-from voigt import evaluate_profile
-import terminal_attributes as term
+from . import voigt
+from . import Asplund
+from . import molecules
+from .dataset import Line
+from .voigt import evaluate_profile
+from . import terminal_attributes as term
 
 plt.rcParams['lines.linewidth'] = 1.0
 
 
-valid_kwargs = Line2D.properties(Line2D([0], [0])).keys()
+valid_kwargs = list(Line2D.properties(Line2D([0], [0])).keys())
 valid_kwargs += ['ymin', 'ymax', 'ls', 'lw']
 
 default_comp = {'color': 'b', 'ls': '-',
@@ -118,10 +118,10 @@ class CompProp(object):
 
     def set_properties(self, ion, prop):
         """Set properties of `ion` from a dictionary."""
-        if ion not in self.properties.keys():
+        if ion not in list(self.properties.keys()):
             self.properties[ion] = default_comp.copy()
 
-        for key, val in prop.items():
+        for key, val in list(prop.items()):
             self.properties[ion][key] = val
 
     def set_value(self, ion, key, value):
@@ -135,7 +135,7 @@ class CompProp(object):
     def get_line_props(self, ion):
         """Return only properties appropriate for matplotlib.axvline"""
         vline_props = self.properties[ion].copy()
-        for key in vline_props.keys():
+        for key in list(vline_props.keys()):
             if key not in valid_kwargs:
                 vline_props.pop(key)
         return vline_props
@@ -163,7 +163,7 @@ def mad(x):
 
 def chunks(l, n):
     """Yield successive `n`-sized chunks from `l`."""
-    for i in xrange(0, len(l), n):
+    for i in range(0, len(l), n):
         yield l[i:i+n]
 
 
@@ -302,7 +302,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
     #     of several lines defined in the same region.
     included_lines = list()
     lines_to_plot = list()
-    for ref_line in dataset.lines.values():
+    for ref_line in list(dataset.lines.values()):
         # If the line is not active, skip this line:
         if not ref_line.active:
             continue
@@ -405,7 +405,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 pass
             else:
                 num_regions = len(dataset.find_line(line_tag))
-                if line_tag not in regionidx_of_line.keys():
+                if line_tag not in list(regionidx_of_line.keys()):
                     regionidx_of_line[line_tag] = list()
                 for idx in range(num_regions):
                     if idx in regionidx_of_line[line_tag]:
@@ -448,7 +448,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         fig.set_tight_layout(True)
         if filename:
             pdf.close()
-            print("\n  Output saved to PDF file:  " + filename)
+            print(("\n  Output saved to PDF file:  " + filename))
 
         if show:
             plt.show()
@@ -626,16 +626,16 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
     # Setup the line properties:
     ions_in_dataset = list()
-    for line in dataset.lines.values():
+    for line in list(dataset.lines.values()):
         if line.ion not in ions_in_dataset:
             ions_in_dataset.append(line.ion)
 
     comp_props = CompProp(ions_in_dataset, default_props)
     hl_comp_props = CompProp(ions_in_dataset)
-    for this_ion, these_props in element_props.items():
+    for this_ion, these_props in list(element_props.items()):
         comp_props.set_properties(this_ion, these_props)
 
-    for this_ion, these_props in highlight_props.items():
+    for this_ion, these_props in list(highlight_props.items()):
         hl_comp_props.set_properties(this_ion, these_props)
 
     if line_tag not in dataset.all_lines:
@@ -746,7 +746,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         else:
             params = dataset.pars
 
-        for line in dataset.lines.values():
+        for line in list(dataset.lines.values()):
             if line.active:
                 # Get transition mark properties for this element
                 component_prop = comp_props.get_line_props(line.ion)
@@ -769,7 +769,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     logN = params['logN%i_%s' % (n, ion)].value
                     tau += voigt.Voigt(wl_line, l0, f,
                                        10**logN, 1.e5*b, gam, z=z)
-                    if ion in highlight_props.keys():
+                    if ion in list(highlight_props.keys()):
                         tau_hl += voigt.Voigt(wl_line, l0, f,
                                               10**logN, 1.e5*b, gam, z=z)
                         if xunit == 'vel':
@@ -1213,8 +1213,8 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
     for band, this_Jmax in zip(bands, Jmax):
-        if band not in molecules.H2.keys():
-            print(" Invalid band name: %s" % band)
+        if band not in list(molecules.H2.keys()):
+            print((" Invalid band name: %s" % band))
             continue
 
         transitions = molecules.H2[band]
@@ -1344,7 +1344,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
             print(complex_warning)
             return
         elif len(specIDs) == 0:
-            print("No lines for %s were found!" % molecule)
+            print(("No lines for %s were found!" % molecule))
             return
 
         # Find the data chunk that defines the molecular lines:
@@ -1385,7 +1385,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
 
     bands = [item[0] for item in dataset.molecules[molecule]]
     Jmax = [item[1] for item in dataset.molecules[molecule]]
-    molecular_lines = [line for line in dataset.lines.values()
+    molecular_lines = [line for line in list(dataset.lines.values())
                        if molecule in line.tag]
     profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
                                molecular_lines, dataset.components, kernel,
@@ -1411,11 +1411,11 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
         ax.axhline(1., ls=':', color='0.4')
         ax.set_xlim(xmin + num*wl_range, xmin + (num+1)*wl_range)
         ax.set_ylim(ymin, ymax)
-        ax.set_ylabel(u"Normalized Flux", fontsize=12)
+        ax.set_ylabel("Normalized Flux", fontsize=12)
         ax.minorticks_on()
 
         if num == n_rows-1:
-            ax.set_xlabel(u"Observed Wavelength  (Å)", fontsize=14)
+            ax.set_xlabel("Observed Wavelength  (Å)", fontsize=14)
 
         show_H2_bands(ax, z, bands, Jmax, color='blue',
                       short_labels=short_labels)
@@ -1465,13 +1465,13 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     else:
         z_sys = dataset.redshift
 
-    print "\n  Best fit parameters\n"
+    print("\n  Best fit parameters\n")
     # print "\t\t\t\tlog(N)\t\t\tb"
-    print "\t\t\t\tb\t\t\tlog(N)"
+    print("\t\t\t\tb\t\t\tlog(N)")
     if elements == 'all':
         for ion in sorted(dataset.components.keys()):
             lines_for_this_ion = []
-            for line_tag, line in dataset.lines.items():
+            for line_tag, line in list(dataset.lines.items()):
                 if line.ion == ion and line.active:
                     lines_for_this_ion.append(line_tag)
 
@@ -1485,7 +1485,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             indent = '\n'+(len(ion)+2)*' '
             trans_string = indent.join(trans_chunks)
 
-            print ion + "  "+trans_string
+            print(ion + "  "+trans_string)
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
                 ion = ion.replace('*', 'x')
@@ -1515,21 +1515,21 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
                 output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
-                print output_string
+                print(output_string)
 
-            print ""
+            print("")
 
     else:
         for ion in elements:
             lines_for_this_ion = []
-            for line_tag, line in dataset.lines.items():
+            for line_tag, line in list(dataset.lines.items()):
                 if line.ion == ion and line.active:
                     lines_for_this_ion.append(line_tag)
 
             all_transitions = [trans.split('_')[1]
                                for trans in sorted(lines_for_this_ion)]
             all_transitions = ", ".join(all_transitions)
-            print ion + "  "+all_transitions
+            print(ion + "  "+all_transitions)
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
                 ion = ion.replace('*', 'x')
@@ -1550,23 +1550,23 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
                 output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
-                print output_string
+                print(output_string)
 
-            print ""
+            print("")
 
 
 def print_cont_parameters(dataset):
     """ Print the Chebyshev coefficients of the continuum normalization."""
     if dataset.cheb_order >= 0:
-        print ""
-        print "  Chebyshev coefficients for fitting regions:"
+        print("")
+        print("  Chebyshev coefficients for fitting regions:")
         for reg_num, region in enumerate(dataset.regions):
             lines_in_region = ", ".join([line.tag for line in region.lines])
-            print "   Region no. %i : %s" % (reg_num, lines_in_region)
+            print("   Region no. %i : %s" % (reg_num, lines_in_region))
             cheb_parnames = list()
             # Find Chebyshev parameters for this region:
             # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
-            for parname in dataset.best_fit.keys():
+            for parname in list(dataset.best_fit.keys()):
                 if 'R%i_cheb' % reg_num in parname:
                     cheb_parnames.append(parname)
             # This could be calculated at the point of generating
@@ -1577,11 +1577,11 @@ def print_cont_parameters(dataset):
                 coeff = dataset.best_fit[parname]
                 line = " p%-2i  =  %.3e    %.3e" % (i,
                                                     coeff.value, coeff.stderr)
-                print line
-            print ""
+                print(line)
+            print("")
     else:
-        print "\n  No Chebyshev polynomials have been defined."
-        print "  cheb_order = %i " % dataset.cheb_order
+        print("\n  No Chebyshev polynomials have been defined.")
+        print("  cheb_order = %i " % dataset.cheb_order)
 
 
 def print_metallicity(dataset, params, logNHI, err=0.1):
@@ -1610,15 +1610,15 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     """
 
-    print "\n  Metallicities\n"
-    print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
+    print("\n  Metallicities\n")
+    print("  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err))
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
         logN = []
         logN_err = []
         N_tot = []
-        for par in params.keys():
+        for par in list(params.keys()):
             if par.find('logN') >= 0 and par.find(ion) >= 0:
                 N_tot.append(params[par].value)
                 if params[par].stderr < 0.8:
@@ -1637,7 +1637,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print "  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err)
+        print("  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err))
 
 
 def print_total(dataset):
@@ -1649,13 +1649,13 @@ def print_total(dataset):
 
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        print "\n  Total Column Densities\n"
+        print("\n  Total Column Densities\n")
         for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
             logN_err = []
             N_tot = []
-            for par in params.keys():
+            for par in list(params.keys()):
                 if par.find('logN') >= 0 and par.split('_')[1] == ion:
                     N_tot.append(params[par].value)
                     if params[par].stderr < 0.5:
@@ -1671,7 +1671,7 @@ def print_total(dataset):
             l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
             std_err = np.std(logsum)
 
-            print "  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err)
+            print("  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err))
 
     else:
         error_msg = """
@@ -1683,12 +1683,12 @@ def print_total(dataset):
 def print_T_model_pars(dataset, thermal_model, filename=None):
     """Print the turbulence and temperature parameters for physical model."""
     print("")
-    print(u"  No:     Temperature [K]       Turbulence [km/s]")
+    print("  No:     Temperature [K]       Turbulence [km/s]")
     if filename:
         out_file = open(filename, 'w')
-        out_file.write(u"# No:     Temperature [K]       Turbulence [km/s] \n")
+        out_file.write("# No:     Temperature [K]       Turbulence [km/s] \n")
 
-    thermal_components = list(set(sum(thermal_model.values(), [])))
+    thermal_components = list(set(sum(list(thermal_model.values()), [])))
 
     for comp_num in thermal_components:
         T_name = 'T_%i' % comp_num
@@ -1697,9 +1697,9 @@ def print_T_model_pars(dataset, thermal_model, filename=None):
         turb_fit = dataset.best_fit[turb_name]
         par_tuple = (comp_num, T_fit.value, T_fit.stderr,
                      turb_fit.value, turb_fit.stderr)
-        print(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
+        print(("  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple))
         if filename:
-            out_file.write(u"  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
+            out_file.write("  %-3i   %.2e ± %.2e    %.2e ± %.2e" % par_tuple)
 
     print("\n")
     if filename:
@@ -1733,8 +1733,8 @@ def sum_components(dataset, ion, components):
     if hasattr(dataset.best_fit, 'keys'):
         pass
     else:
-        print " [ERROR] - Best fit parameters are not found."
-        print "           Make sure the fit has converged..."
+        print(" [ERROR] - Best fit parameters are not found.")
+        print("           Make sure the fit has converged...")
         return None
 
     logN = list()
@@ -1775,7 +1775,7 @@ def save_parameters_to_file(dataset, filename):
         output.write("# The commands below can be copied directly to a script.\n")
         z_sys = dataset.redshift
         output.write("# dataset.redshift = %.6f.\n" % z_sys)
-        for ion in dataset.components.keys():
+        for ion in list(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
@@ -1798,7 +1798,7 @@ def save_cont_parameters_to_file(dataset, filename):
             cheb_parnames = list()
             # Find Chebyshev parameters for this region:
             # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
-            for parname in dataset.best_fit.keys():
+            for parname in list(dataset.best_fit.keys()):
                 if 'R%i_cheb' % reg_num in parname:
                     cheb_parnames.append(parname)
             # This should be calculated at the point of generating
@@ -1857,7 +1857,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             wl, flux, err, mask = region.unpack()
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
+                                               list(dataset.lines.values()), dataset.components,
                                                region.kernel)
             else:
                 p_obs = np.ones_like(wl)
@@ -1887,7 +1887,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             wl, flux, err, mask = region.unpack()
             if dataset.best_fit:
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
+                                               list(dataset.lines.values()), dataset.components,
                                                region.kernel)
             else:
                 p_obs = np.ones_like(wl)
@@ -1920,10 +1920,10 @@ def show_components(self, ion=None):
     By default, all ions are shown.
     """
     z_sys = self.redshift
-    for ion, comps in self.components.items():
-        print term.underline + "  %s:" % ion + term.reset
+    for ion, comps in list(self.components.items()):
+        print(term.underline + "  %s:" % ion + term.reset)
         for num, comp in enumerate(comps):
             z = comp[0]
             vel = (z - z_sys) / (z_sys + 1) * 299792.458
-            print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                            comp[1], comp[2])
+            print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                            comp[1], comp[2]))

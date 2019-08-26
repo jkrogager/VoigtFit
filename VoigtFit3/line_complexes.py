@@ -34,7 +34,7 @@ CI_label_file = root_path + '/static/C_full_labels.txt'
 CI_file = root_path + '/static/C_complexes.dict.pickle'
 
 fine_structure_complexes = dict()
-CI_complex = pickle.load(open(CI_file))
+CI_complex = pickle.load(open(CI_file, 'rb'))
 # Load more complexes here and merge them with the existing dictionary:
 fine_structure_complexes = merge_two_dicts(fine_structure_complexes,
                                            CI_complex)

@@ -291,12 +291,12 @@ class Region():
         plt.figure()
 
         x = self.wl.copy()
-        x_label = u"Wavelength  [Å]"
+        x_label = "Wavelength  [Å]"
         if z_sys is not None:
             # Calculate velocity:
             l0 = self.lines[0].l0 * (z_sys + 1.)
             x = (x - l0)/l0 * 299792.458
-            x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+            x_label = "Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
 
         dx = 0.1*(x.max() - x.min())
         lines_title_string = ", ".join([line.tag for line in self.lines])
@@ -309,7 +309,7 @@ class Region():
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
-            print "\n\n  Mark left continuum region, left and right boundary."
+            print("\n\n  Mark left continuum region, left and right boundary.")
             plt.title("Mark left continuum region, left and right boundary.")
 
             bounds = plt.ginput(2, -1)
@@ -321,7 +321,7 @@ class Region():
 
             lines_title_string = ", ".join([line.tag for line in self.lines])
             plt.title(lines_title_string)
-            print "\n  Mark right continuum region, left and right boundary."
+            print("\n  Mark right continuum region, left and right boundary.")
             plt.title("Mark right continuum region, left and right boundary.")
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
@@ -339,7 +339,7 @@ class Region():
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print "\n\n Select a range of continuum spline points over the whole range"
+            print("\n\n Select a range of continuum spline points over the whole range")
             plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
             points = np.array(points)
@@ -364,7 +364,7 @@ class Region():
             plt.draw()
 
             plt.title("Go back to terminal...")
-            prompt = raw_input(" Is normalization correct?  (YES/no) ")
+            prompt = input(" Is normalization correct?  (YES/no) ")
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err
@@ -406,12 +406,12 @@ class Region():
         plt.close('all')
 
         x = self.wl.copy()
-        x_label = u"Wavelength  [Å]"
+        x_label = "Wavelength  [Å]"
         if z_sys is not None:
             # Calculate velocity:
             l_ref = self.lines[0].l0 * (z_sys + 1.)
             x = (x - l_ref)/l_ref * 299792.458
-            x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+            x_label = "Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
 
         plt.xlim(x.min(), x.max())
         # plt.ylim(max(0, 0.8*self.flux.min()), 1.2)
@@ -467,7 +467,7 @@ class Region():
                         plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
         plt.title("Mark regions to mask, left and right boundary.")
-        print "\n\n  Mark regions to mask, left and right boundary."
+        print("\n\n  Mark regions to mask, left and right boundary.")
         plt.draw()
 
         ok = 0
@@ -489,7 +489,7 @@ class Region():
                 mask_line = plt.plot(x, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
-                prompt = raw_input("Are the masked regions correct? (YES/no/clear)")
+                prompt = input("Are the masked regions correct? (YES/no/clear)")
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.mask = mask
@@ -511,8 +511,8 @@ class Region():
                     ok += 1
 
             elif len(sel) == 0:
-                print "\nNo masks were defined."
-                prompt = raw_input("Continue? (yes/no)")
+                print("\nNo masks were defined.")
+                prompt = input("Continue? (yes/no)")
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.new_mask = False

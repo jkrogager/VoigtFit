@@ -17,8 +17,8 @@ with warnings.catch_warnings():
     import h5py
 from lmfit import Parameters
 
-import regions
-import dataset
+from . import regions
+from . import dataset
 
 
 def dataset_to_hdf(fname):
@@ -94,7 +94,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         # .molecules:
         molecules = hdf.create_group('molecules')
         if hasattr(dataset, 'molecules'):
-            for molecule, items in dataset.molecules.items():
+            for molecule, items in list(dataset.molecules.items()):
                 pre_array = [tuple(item) for item in items]
                 band_data = np.array(pre_array,
                                      dtype=[('band', 'S8'), ('Jmax', 'i4')])
@@ -102,7 +102,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
         # .components:
         components = hdf.create_group('components')
-        for ion, comps in dataset.components.items():
+        for ion, comps in list(dataset.components.items()):
             ion_group = components.create_group(ion)
             if len(comps) > 0:
                 for cnum, comp in enumerate(comps):
@@ -126,7 +126,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         if dataset.best_fit is not None:
             p_opt = dataset.best_fit
             best_fit = hdf.create_group('best_fit')
-            for ion, comps in dataset.components.items():
+            for ion, comps in list(dataset.components.items()):
                 params = best_fit.create_group(ion)
                 for n in range(len(comps)):
                     param_group = params.create_group("comp%i" % (n+1))
@@ -139,7 +139,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                     param_group['logN'].attrs.create('error', p_opt['logN%i_%s' % (n, ion)].stderr)
 
     if verbose:
-        print "Successfully saved the dataset to file: " + fname
+        print("Successfully saved the dataset to file: " + fname)
 
 
 def load_dataset_from_hdf(fname):
@@ -149,14 +149,14 @@ def load_dataset_from_hdf(fname):
         ds = dataset.DataSet(z_sys)
         ds.velspan = hdf.attrs['velspan']
         ds.verbose = hdf.attrs['verbose']
-        if 'name' in hdf.attrs.keys():
+        if 'name' in list(hdf.attrs.keys()):
             ds.set_name(hdf.attrs['name'])
         else:
             ds.set_name('')
 
         # Load .data:
         data = hdf['data']
-        for chunk in data.values():
+        for chunk in list(data.values()):
             res = chunk.attrs['res']
             norm = chunk.attrs['norm']
             ds.add_data(chunk['wl'].value, chunk['flux'].value, res,
@@ -165,9 +165,9 @@ def load_dataset_from_hdf(fname):
         # Load .regions:
         # --- this will be deprecated in later versions
         hdf_regions = hdf['regions']
-        for reg in hdf_regions.values():
+        for reg in list(hdf_regions.values()):
             region_lines = list()
-            for line_tag, line_group in reg['lines'].items():
+            for line_tag, line_group in list(reg['lines'].items()):
                 act = line_group.attrs['active']
                 # Add check for backward compatibility:
                 if line_tag in dataset.lineList['trans']:
@@ -177,7 +177,7 @@ def load_dataset_from_hdf(fname):
                     ds.lines[line_tag] = line_instance
                 else:
                     print(" [WARNING] - Anomaly detected for line:")
-                    print("             %s" % line_tag)
+                    print(("             %s" % line_tag))
                     print(" I suspect that the atomic linelist has changed...")
                     print("")
 
@@ -224,7 +224,7 @@ def load_dataset_from_hdf(fname):
         # Load .molecules:
         molecules = hdf['molecules']
         if len(molecules) > 0:
-            for molecule, band_data in molecules.items():
+            for molecule, band_data in list(molecules.items()):
                 bands = [[b, J] for b, J in band_data]
                 ds.molecules[molecule] = bands
                 # No need to call ds.add_molecule
@@ -236,7 +236,7 @@ def load_dataset_from_hdf(fname):
             # --- Prepare fit parameters  [class: lmfit.Parameters]
             ds.best_fit = Parameters()
 
-        for ion, comps in components.items():
+        for ion, comps in list(components.items()):
             ds.components[ion] = list()
             if len(comps) > 0:
                 for n, comp in enumerate(comps.values()):
@@ -296,7 +296,7 @@ def load_dataset_from_hdf(fname):
         if 'best_fit' in hdf:
             # Now the components have been defined in ds, so I can use them for the loop
             # to set the parameter ties:
-            for ion, comps in ds.components.items():
+            for ion, comps in list(ds.components.items()):
                 for n, comp in enumerate(comps):
                     z, b, logN, opts = comp
                     z_name = 'z%i_%s' % (n, ion)

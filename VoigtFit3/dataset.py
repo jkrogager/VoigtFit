@@ -9,15 +9,15 @@ import os
 
 from lmfit import Parameters, Minimizer
 
-from voigt import evaluate_profile, evaluate_continuum
-from regions import Region, load_lsf
-import output
-import line_complexes
-import molecules
-from line_complexes import fine_structure_complexes
-import Asplund
-import hdf5_save
-import terminal_attributes as term
+from .voigt import evaluate_profile, evaluate_continuum
+from .regions import Region, load_lsf
+from . import output
+from . import line_complexes
+from . import molecules
+from .line_complexes import fine_structure_complexes
+from . import Asplund
+from . import hdf5_save
+from . import terminal_attributes as term
 
 myfloat = np.float64
 
@@ -358,7 +358,7 @@ class DataSet(object):
         else:
             mask = mask.astype(bool)
             if np.sum(mask) == 0:
-                print(mask_warning.strip() % (bold, reset))
+                print((mask_warning.strip() % (bold, reset)))
                 return
 
         # if isinstance(res, str):
@@ -417,7 +417,7 @@ class DataSet(object):
                         output_msg = "Spectral resolution in the region around %s is defined in file: %s"
                     else:
                         output_msg = " Spectral resolution in the region around %s is %.1f km/s."
-                    print output_msg % (line_tag, region.res)
+                    print(output_msg % (line_tag, region.res))
                 resolutions.append(region.res)
             return resolutions
 
@@ -452,7 +452,7 @@ class DataSet(object):
                     warn_msg = "             LSF-file: %s"
                 else:
                     warn_msg = "             R = %.1f km/s!"
-                print warn_msg % res
+                print(warn_msg % res)
 
             for region in self.regions:
                 if isinstance(res, str):
@@ -498,21 +498,21 @@ class DataSet(object):
         self.ready2fit = False
         if line_tag in self.all_lines:
             if self.verbose:
-                print " [WARNING] - %s is already defined." % line_tag
+                print(" [WARNING] - %s is already defined." % line_tag)
             return False
 
         if line_tag in lineList['trans']:
             new_line = Line(line_tag)
         else:
             if self.verbose:
-                print("\nThe transition (%s) not found in line list!"
-                      % line_tag)
+                print(("\nThe transition (%s) not found in line list!"
+                      % line_tag))
             return False
 
         if velspan is None:
             velspan = self.velspan
 
-        if new_line.element not in self.components.keys():
+        if new_line.element not in list(self.components.keys()):
             # Initiate component list if ion has not been defined before:
             self.components[new_line.ion] = list()
 
@@ -598,7 +598,7 @@ class DataSet(object):
                 if self.verbose:
                     err_msg = ("\n [ERROR] - The given line is not covered "
                                "by the spectral data: %s \n")
-                    print err_msg % line_tag
+                    print(err_msg % line_tag)
                 return False
 
         else:
@@ -648,19 +648,19 @@ class DataSet(object):
         line_tag : str
             Line tag of the transition that should be removed.
         """
-        if line_tag in self.all_lines and line_tag in self.lines.keys():
+        if line_tag in self.all_lines and line_tag in list(self.lines.keys()):
             self.all_lines.remove(line_tag)
             self.lines.pop(line_tag)
         else:
             in_all_lines = "" if line_tag in self.all_lines else "not "
-            in_lines = "" if line_tag in self.lines.keys() else "not "
-            print ""
-            print " [ERROR] - Problem detected in database."
-            print(" The line %s is %sdefined in `self.all_lines`." %
-                  (line_tag, in_all_lines))
-            print(" The line %s is %sdefined in `self.lines`." %
-                  (line_tag, in_lines))
-            print ""
+            in_lines = "" if line_tag in list(self.lines.keys()) else "not "
+            print("")
+            print(" [ERROR] - Problem detected in database.")
+            print((" The line %s is %sdefined in `self.all_lines`." %
+                  (line_tag, in_all_lines)))
+            print((" The line %s is %sdefined in `self.lines`." %
+                  (line_tag, in_lines)))
+            print("")
 
         # --- Check if the ion has transistions defined in other regions
         ion = line_tag.split('_')[0]
@@ -677,7 +677,7 @@ class DataSet(object):
         # --- If it is not defined elsewhere, remove it from components
         if not ion_defined_elsewhere and ion not in all_ions:
             # Check if components have been defined for the ion:
-            if ion in self.components.keys():
+            if ion in list(self.components.keys()):
                 self.components.pop(ion)
 
         remove_this = -1
@@ -694,11 +694,11 @@ class DataSet(object):
         else:
             if self.verbose:
                 print("")
-                print(" The line, %s, is not defined. Nothing to remove." %
-                      line_tag)
+                print((" The line, %s, is not defined. Nothing to remove." %
+                      line_tag))
 
     def remove_all_lines(self):
-        lines_to_remove = self.lines.keys()
+        lines_to_remove = list(self.lines.keys())
         for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
@@ -850,13 +850,13 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print "\n The line (%s) is not defined." % line_tag
+                print("\n The line (%s) is not defined." % line_tag)
 
         return None
 
     def find_ion(self, ion):
         """Return a list of all line tags for a given ion."""
-        return [l.tag for l in self.lines.values() if l.ion == ion]
+        return [l.tag for l in list(self.lines.values()) if l.ion == ion]
 
     def has_line(self, line_tag, active_only=False):
         """Return True if the given line is defined."""
@@ -868,14 +868,14 @@ class DataSet(object):
     def has_ion(self, ion, active_only=False):
         """Return True if the dataset has lines defined for the given ion."""
         if active_only:
-            all_ions = list(set([l.ion for l in self.lines.values() if l.active]))
+            all_ions = list(set([l.ion for l in list(self.lines.values()) if l.active]))
         else:
-            all_ions = list(set([l.ion for l in self.lines.values()]))
+            all_ions = list(set([l.ion for l in list(self.lines.values())]))
         return ion in all_ions
 
     def activate_line(self, line_tag):
         """Activate a given line defined by its `line_tag`"""
-        if line_tag in self.lines.keys():
+        if line_tag in list(self.lines.keys()):
             line = self.lines[line_tag]
             line.set_active()
             self.ready2fit = False
@@ -892,7 +892,7 @@ class DataSet(object):
         Deactivate a given line defined by its `line_tag`.
         This will exclude the line during the fit but will not remove the data.
         """
-        if line_tag in self.lines.keys():
+        if line_tag in list(self.lines.keys()):
             line = self.lines[line_tag]
             line.set_inactive()
 
@@ -929,7 +929,7 @@ class DataSet(object):
     def all_active_lines(self):
         """Returns a list of all the active lines defined by their `line_tag`."""
         act_lines = list()
-        for line_tag, line in self.lines.items():
+        for line_tag, line in list(self.lines.items()):
             if line.active:
                 act_lines.append(line_tag)
         return act_lines
@@ -951,7 +951,7 @@ class DataSet(object):
 
         """
         lines_for_ion = list()
-        for line in self.lines.values():
+        for line in list(self.lines.values()):
             if line.ion == ion:
                 lines_for_ion.append(line)
 
@@ -969,11 +969,11 @@ class DataSet(object):
         """
 
         if ion:
-            if ion in self.components.keys():
+            if ion in list(self.components.keys()):
                 self.components.pop(ion)
             else:
                 if self.verbose:
-                    print " [ERROR] - No components defined for ion: %s" % ion
+                    print(" [ERROR] - No components defined for ion: %s" % ion)
 
         else:
             self.components = dict()
@@ -1022,7 +1022,7 @@ class DataSet(object):
         """
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
-        if ion in self.components.keys():
+        if ion in list(self.components.keys()):
             self.components[ion].append([z, b, logN, options])
         else:
             self.components[ion] = [[z, b, logN, options]]
@@ -1036,7 +1036,7 @@ class DataSet(object):
         options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
                    'tie_N': tie_N}
         z = self.redshift + v/299792.458*(self.redshift + 1.)
-        if ion in self.components.keys():
+        if ion in list(self.components.keys()):
             self.components[ion].append([z, b, logN, options])
         else:
             self.components[ion] = [[z, b, logN, options]]
@@ -1085,15 +1085,15 @@ class DataSet(object):
             if velocity:
                 l_ref = line.l0 * (self.redshift + 1.)
                 x = (wl - l_ref)/l_ref * 299792.458
-                x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+                x_label = "Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
             else:
                 x = wl
-                x_label = u"Wavelength  [Å]"
+                x_label = "Wavelength  [Å]"
 
             ax.plot(x, masked_range, color='0.7', drawstyle='steps-mid', lw=0.9)
             ax.plot(x, flux, 'k', drawstyle='steps-mid')
 
-            if line.element in self.components.keys():
+            if line.element in list(self.components.keys()):
                 l0, f, gam = line.get_properties()
                 ion = line.ion
                 for comp in self.components[ion]:
@@ -1114,9 +1114,9 @@ class DataSet(object):
             ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
             ax.set_xlabel(x_label)
             if region.normalized:
-                ax.set_ylabel(u"Normalized Flux")
+                ax.set_ylabel("Normalized Flux")
             else:
-                ax.set_ylabel(u"Flux")
+                ax.set_ylabel("Flux")
             comps = plt.ginput(-1, 60)
             num = 0
             # Assume that components are unresolved:
@@ -1130,7 +1130,7 @@ class DataSet(object):
                 # Calculate logN from peak depth:
                 y0 = max(y0/c_level, 0.01)
                 logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
-                print "Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN)
+                print("Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN))
                 ax.axvline(x0, color='darkblue', alpha=0.8)
                 comp_list.append([z0, b, logN])
                 num += 1
@@ -1144,12 +1144,12 @@ class DataSet(object):
 
     def delete_component(self, ion, index):
         """Remove component of the given `ion` with the given `index`."""
-        if ion in self.components.keys():
+        if ion in list(self.components.keys()):
             self.components[ion].pop(index)
 
         else:
             if self.verbose:
-                print " [ERROR] - No components defined for ion: "+ion
+                print(" [ERROR] - No components defined for ion: "+ion)
 
     def copy_components(self, to_ion='', from_ion='', logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
@@ -1180,7 +1180,7 @@ class DataSet(object):
         if to_ion == '' and from_ion == '':
             err_msg = " [ERROR] - Must specify both 'to_ion' and 'from_ion'!"
             raise ValueError(err_msg)
-        elif from_ion not in self.components.keys():
+        elif from_ion not in list(self.components.keys()):
             err_msg = " [ERROR] - The base ion ('from_ion') is not defined in the dataset!"
             raise KeyError(err_msg)
 
@@ -1196,7 +1196,7 @@ class DataSet(object):
             element = ion_tmp[:1] + ion_tmp[1:].replace('V', '')
             anchor_tmp = from_ion[:1] + from_ion[1:].replace('I', '')
             element_anchor = anchor_tmp[:1] + anchor_tmp[1:].replace('V', '')
-            solar_elements = Asplund.photosphere.keys()
+            solar_elements = list(Asplund.photosphere.keys())
             if element in solar_elements and element_anchor in solar_elements:
                 # Use Solar abundance ratios:
                 offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
@@ -1240,12 +1240,12 @@ class DataSet(object):
                     all_ions_in_file.append(ion)
 
         for ion in all_ions_in_file:
-            if ion in self.components.keys():
+            if ion in list(self.components.keys()):
                 self.reset_components(ion)
                 # Remove all parameters from self.best_fit
                 if isinstance(self.best_fit, dict) and fit_pars:
                     pars_to_delete = list()
-                    for parname in self.best_fit.keys():
+                    for parname in list(self.best_fit.keys()):
                         if ion in parname:
                             pars_to_delete.append(parname)
                     for parname in pars_to_delete:
@@ -1281,7 +1281,7 @@ class DataSet(object):
                 comp[3]['var_b'] = False
                 comp[3]['var_z'] = False
         else:
-            for ion in self.components.keys():
+            for ion in list(self.components.keys()):
                 for comp in self.components[ion]:
                     comp[3]['var_b'] = False
                     comp[3]['var_z'] = False
@@ -1300,7 +1300,7 @@ class DataSet(object):
                 comp[3]['var_b'] = True
                 comp[3]['var_z'] = True
         else:
-            for ion in self.components.keys():
+            for ion in list(self.components.keys()):
                 for comp in self.components[ion]:
                     comp[3]['var_b'] = True
                     comp[3]['var_z'] = True
@@ -1385,7 +1385,7 @@ class DataSet(object):
                     continue
                 self.remove_line(fineline)
                 if self.verbose:
-                    print "Removing line: %s" % fineline
+                    print("Removing line: %s" % fineline)
 
     def deactivate_fine_lines(self, line_tag, levels=None):
         """
@@ -1416,7 +1416,7 @@ class DataSet(object):
 
                 self.deactivate_line(fineline)
                 if self.verbose:
-                    print "Deactivated line: %s" % fineline
+                    print("Deactivated line: %s" % fineline)
 
     def activate_fine_lines(self, line_tag, levels=None):
         """
@@ -1447,7 +1447,7 @@ class DataSet(object):
 
                 self.activate_line(fineline)
                 if self.verbose:
-                    print "Activated line: %s" % fineline
+                    print("Activated line: %s" % fineline)
     # =========================================================================
 
     # Molecules:
@@ -1496,7 +1496,7 @@ class DataSet(object):
             else:
                 region.label = "%s %s" % (molecule, band)
 
-        if molecule not in self.molecules.keys():
+        if molecule not in list(self.molecules.keys()):
             self.molecules[molecule] = list()
         self.molecules[molecule].append([band, Jmax])
 
@@ -1507,7 +1507,7 @@ class DataSet(object):
             if self.verbose:
                 warning_msg = " [ERROR] - The %s band for %s is not defined!"
                 print("")
-                print(warning_msg % (band, molecule))
+                print((warning_msg % (band, molecule)))
             return None
 
         if molecule == 'CO':
@@ -1527,7 +1527,7 @@ class DataSet(object):
         if remove_idx >= 0:
             self.molecules[molecule].pop(remove_idx)
         else:
-            print " [ERROR] - %s was not found in self.molecules['%s']" % (band, molecule)
+            print(" [ERROR] - %s was not found in self.molecules['%s']" % (band, molecule))
 
         if len(self.molecules[molecule]) == 0:
             self.molecules.pop(molecule)
@@ -1543,7 +1543,7 @@ class DataSet(object):
             if self.verbose:
                 warning_msg = " [ERROR] - The %s band for %s is not defined!"
                 print("")
-                print(warning_msg % (band, molecule))
+                print((warning_msg % (band, molecule)))
             return None
 
         if molecule == 'CO':
@@ -1567,7 +1567,7 @@ class DataSet(object):
             if self.verbose:
                 warning_msg = " [ERROR] - The %s band for %s is not defined!"
                 print("")
-                print(warning_msg % (band, molecule))
+                print((warning_msg % (band, molecule)))
             return None
 
         if molecule == 'CO':
@@ -1637,32 +1637,32 @@ class DataSet(object):
                         # region.normalize returns 1 when continuum is fitted
 
             if verbose and self.verbose:
-                print ""
-                print " [DONE] - Continuum fitting successfully finished."
-                print ""
+                print("")
+                print(" [DONE] - Continuum fitting successfully finished.")
+                print("")
 
         # --- Check that no components for inactive elements are defined:
-        for this_ion in self.components.keys():
-            lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
+        for this_ion in list(self.components.keys()):
+            lines_for_this_ion = [l.active for l in list(self.lines.values()) if l.ion == this_ion]
 
             if np.any(lines_for_this_ion):
                 pass
             else:
                 if self.verbose:
                     warn_msg = "\n [WARNING] - Components defined for inactive element: %s"
-                    print warn_msg % this_ion
+                    print(warn_msg % this_ion)
 
                 if force_clean:
                     # Remove components for inactive elements
                     self.components.pop(this_ion)
                     if verbose:
-                        print "             The components have been removed."
-                print ""
+                        print("             The components have been removed.")
+                print("")
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
         # - First setup parameters with values only:
-        for ion in self.components.keys():
+        for ion in list(self.components.keys()):
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
                 z, b, logN, opts = comp
@@ -1677,7 +1677,7 @@ class DataSet(object):
                               min=0., max=40.)
 
         # - Then setup parameter links:
-        for ion in self.components.keys():
+        for ion in list(self.components.keys()):
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
                 z, b, logN, opts = comp
@@ -1718,9 +1718,9 @@ class DataSet(object):
                                            z_sys=z_sys)
 
             if verbose and self.verbose:
-                print ""
-                print " [DONE] - Spectral masks successfully created."
-                print ""
+                print("")
+                print(" [DONE] - Spectral masks successfully created.")
+                print("")
 
         self.ready2fit = True
 
@@ -1728,11 +1728,11 @@ class DataSet(object):
         for line_tag in self.all_lines:
             ion = line_tag.split('_')[0]
             line = self.lines[line_tag]
-            if ion not in self.components.keys() and line.active:
+            if ion not in list(self.components.keys()) and line.active:
                 if self.verbose:
-                    print ""
-                    print " [ERROR] - Components are not defined for element: "+ion
-                    print ""
+                    print("")
+                    print(" [ERROR] - Components are not defined for element: "+ion)
+                    print("")
                 self.ready2fit = False
                 # TODO:
                 # automatically open interactive window if components are not defined.
@@ -1740,8 +1740,8 @@ class DataSet(object):
 
         if self.ready2fit:
             if verbose and self.verbose:
-                print "\n  Dataset is ready to be fitted."
-                print ""
+                print("\n  Dataset is ready to be fitted.")
+                print("")
             return True
 
     def fit(self, verbose=True, plot=False, **kwargs):
@@ -1793,8 +1793,8 @@ class DataSet(object):
 
         if not self.ready2fit:
             if self.verbose:
-                print " [Error]  - Dataset is not ready to be fitted."
-                print "            Run `.prepare_dataset()` before fitting."
+                print(" [Error]  - Dataset is not ready to be fitted.")
+                print("            Run `.prepare_dataset()` before fitting.")
             return None, None
 
         if 'rebin' in kwargs:
@@ -1808,11 +1808,11 @@ class DataSet(object):
             sampling = 3
 
         if rebin > 1 and self.verbose:
-            print("\n  Rebinning the data by a factor of %i \n" % rebin)
+            print(("\n  Rebinning the data by a factor of %i \n" % rebin))
             print(" [WARNING] - rebinning for LSF file kernel is not supported!")
 
         if self.verbose:
-            print "\n  Fit is running... Please, be patient.\n"
+            print("\n  Fit is running... Please, be patient.\n")
 
         def chi(pars):
             model = list()
@@ -1837,7 +1837,7 @@ class DataSet(object):
 
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   self.lines.values(), self.components,
+                                                   list(self.lines.values()), self.components,
                                                    region.kernel, sampling=sampling,
                                                    kernel_nsub=nsub)
 
@@ -1859,10 +1859,10 @@ class DataSet(object):
 
         self.minimizer = Minimizer(chi, self.pars, nan_policy='omit')
         # Set default values for `ftol` and `factor` if method is not given:
-        if 'method' not in kwargs.keys():
-            if 'factor' not in kwargs.keys():
+        if 'method' not in list(kwargs.keys()):
+            if 'factor' not in list(kwargs.keys()):
                 kwargs['factor'] = 1.
-            if 'ftol' not in kwargs.keys():
+            if 'ftol' not in list(kwargs.keys()):
                 kwargs['ftol'] = 0.01
         popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
@@ -1877,9 +1877,9 @@ class DataSet(object):
                 region.normalized = True
 
         if self.verbose:
-            print "\n The fit has finished with the following exit message:"
-            print "  " + popt.message
-            print ""
+            print("\n The fit has finished with the following exit message:")
+            print("  " + popt.message)
+            print("")
 
             if verbose:
                 output.print_results(self, self.best_fit, velocity=True)
@@ -2005,8 +2005,8 @@ class DataSet(object):
         if hasattr(self.best_fit, 'keys'):
             pass
         else:
-            print " [ERROR] - Best fit parameters are not found."
-            print "           Make sure the fit has converged..."
+            print(" [ERROR] - Best fit parameters are not found.")
+            print("           Make sure the fit has converged...")
             return {}, {}
 
         if hasattr(ions, '__iter__'):
@@ -2020,7 +2020,7 @@ class DataSet(object):
             logN_err = list()
             if not components:
                 N_comp = len(self.components[ion])
-                comp_nums = range(N_comp)
+                comp_nums = list(range(N_comp))
             else:
                 comp_nums = components
             for num in comp_nums:
@@ -2048,7 +2048,7 @@ class DataSet(object):
         if self.best_fit:
             output.save_parameters_to_file(self, filename)
         else:
-            print "\n [ERROR] - No fit parameters are defined."
+            print("\n [ERROR] - No fit parameters are defined.")
 
     def save_cont_parameters_to_file(self, filename):
         """
@@ -2090,8 +2090,8 @@ class DataSet(object):
             if self.name:
                 filename = self.name + '.reg'
             else:
-                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
-                print "           or give filename [dataset.save(filename='filename')]"
+                print(" [ERROR] - Must specify dataset.name [dataset.set_name('name')]")
+                print("           or give filename [dataset.save(filename='filename')]")
         output.save_fit_regions(self, filename, individual=individual, path=path)
 
     def save(self, filename=None, verbose=False):
@@ -2100,8 +2100,8 @@ class DataSet(object):
             if self.name:
                 filename = self.name
             else:
-                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
-                print "           or give filename [dataset.save(filename='filename')]"
+                print(" [ERROR] - Must specify dataset.name [dataset.set_name('name')]")
+                print("           or give filename [dataset.save(filename='filename')]")
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
 
     def show_lines(self):
@@ -2111,12 +2111,12 @@ class DataSet(object):
         and the number of components for the given ion.
         """
         header = "%15s   State     " % 'Line ID'
-        print term.underline + header + term.reset
-        for line_tag, line in self.lines.items():
+        print(term.underline + header + term.reset)
+        for line_tag, line in list(self.lines.items()):
             active = 'active' if line.active else 'not active'
             fmt = '' if line.active else term.red
             output = "%15s : %s" % (line_tag, active)
-            print fmt + output + term.reset
+            print(fmt + output + term.reset)
 
     def show_components(self, ion=None):
         """
@@ -2124,10 +2124,10 @@ class DataSet(object):
         By default, all ions are shown.
         """
         z_sys = self.redshift
-        for ion, comps in self.components.items():
-            print "\n - %6s:" % ion
+        for ion, comps in list(self.components.items()):
+            print("\n - %6s:" % ion)
             for num, comp in enumerate(comps):
                 z = comp[0]
                 vel = (z - z_sys) / (z_sys + 1) * 299792.458
-                print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                                comp[1], comp[2])
+                print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                                comp[1], comp[2]))

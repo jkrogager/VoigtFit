@@ -146,7 +146,7 @@ def parse_parameters(fname):
                 CO_begin = line.find('CO')
                 band_string = line[CO_begin:].replace(',', '')
                 bands = band_string.split()[1:]
-                if 'CO' in molecules.keys():
+                if 'CO' in list(molecules.keys()):
                     for band in bands:
                         molecules['CO'] += [band, Jmax, velspan]
                 else:
@@ -158,7 +158,7 @@ def parse_parameters(fname):
                 H2_begin = line.find('H2')
                 band_string = line[H2_begin:].replace(',', '')
                 bands = band_string.split()[1:]
-                if 'H2' in molecules.keys():
+                if 'H2' in list(molecules.keys()):
                     for band in bands:
                         molecules['H2'] += [band, Jmax, velspan]
                 else:
@@ -167,7 +167,7 @@ def parse_parameters(fname):
                         molecules['H2'] += [band, Jmax, velspan]
 
             else:
-                print "\n [ERROR] - Could not detect any molecular species to add!\n"
+                print("\n [ERROR] - Could not detect any molecular species to add!\n")
 
         elif 'component' in line and 'copy' not in line and 'delete' not in line:
             # strip comments:
@@ -351,7 +351,7 @@ def parse_parameters(fname):
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
             items = line.split()[1:]
-            if 'mask' in parameters.keys():
+            if 'mask' in list(parameters.keys()):
                 parameters['mask'] += items
             else:
                 parameters['mask'] = items
@@ -375,7 +375,7 @@ def parse_parameters(fname):
             elif len(numbers) == 1:
                 logNHI = [float(numbers[0]), 0.1]
             else:
-                print " Error - In order to print metallicities you must give log(NHI)."
+                print(" Error - In order to print metallicities you must give log(NHI).")
             parameters['logNHI'] = logNHI
 
         elif 'fit-options' in line and 'name' not in line and 'save' not in line:
@@ -496,7 +496,7 @@ def parse_parameters(fname):
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
             items = line.split()[1:]
-            if 'reset' in parameters.keys():
+            if 'reset' in list(parameters.keys()):
                 parameters['reset'] += items
             else:
                 parameters['reset'] = items
@@ -507,7 +507,7 @@ def parse_parameters(fname):
             line = line.replace('"', '')
             line = line.replace("'", '')
             filenames = line.split()[1:]
-            if 'load' in parameters.keys():
+            if 'load' in list(parameters.keys()):
                 parameters['load'] += filenames
             else:
                 parameters['load'] = filenames

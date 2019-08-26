@@ -15,11 +15,11 @@ from matplotlib import pyplot as plt
 from astropy.io import fits as pf
 from argparse import ArgumentParser
 
-import output
-from parse_input import parse_parameters
-from dataset import DataSet, lineList
-import hdf5_save
-from line_complexes import fine_structure_complexes
+from . import output
+from .parse_input import parse_parameters
+from .dataset import DataSet, lineList
+from . import hdf5_save
+from .line_complexes import fine_structure_complexes
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -112,22 +112,22 @@ def LoadDataSet(filename):
 
 def main():
 
-    print "\n"
-    print "       VoigtFit                        "
-    print ""
-    print "    by Jens-Kristian Krogager          "
-    print ""
-    print "    Institut d'Astrophysique de Paris  "
-    print "    November 2017                      "
-    print ""
-    print "  ____  _           ___________________"
-    print "      \/ \  _/\    /                   "
-    print "          \/   \  / oigtFit            "
-    print "                \/                     "
-    print ""
-    print ""
-    print " Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
-    print ""
+    print("\n")
+    print("       VoigtFit                        ")
+    print("")
+    print("    by Jens-Kristian Krogager          ")
+    print("")
+    print("    Institut d'Astrophysique de Paris  ")
+    print("    November 2017                      ")
+    print("")
+    print("  ____  _           ___________________")
+    print("      \/ \  _/\    /                   ")
+    print("          \/   \  / oigtFit            ")
+    print("                \/                     ")
+    print("")
+    print("")
+    print(" Loaded Solar abundances from Asplund et al. 2009  (photospheric)")
+    print("")
 
     descr = """VoigtFit Absorption Line Fitting.
     Please give an input parameter file.
@@ -150,7 +150,7 @@ def main():
         return
 
     parameters = parse_parameters(parfile)
-    print " Reading Parameters from file: " + parfile
+    print(" Reading Parameters from file: " + parfile)
 
     name = parameters['name']
     # -- Load DataSet if the file already exists
@@ -228,12 +228,12 @@ def main():
 
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
-        for tag, line in dataset.lines.items():
+        for tag, line in list(dataset.lines.items()):
             if line.ion[-1].islower():
                 # skip this line, cause it's a fine-structure line:
                 continue
 
-            elif any([m in tag for m in dataset.molecules.keys()]):
+            elif any([m in tag for m in list(dataset.molecules.keys())]):
                 # skip this line, cause it's a molecular line:
                 continue
 
@@ -266,9 +266,9 @@ def main():
 
         # Remove old fine-structure lines which should not be fitted:
         input_tags = [item[0] for item in parameters['fine-lines']]
-        for tag, line in dataset.lines.items():
+        for tag, line in list(dataset.lines.items()):
             # Only consider fine-structure lines:
-            fine_line_states = fine_structure_complexes.keys()
+            fine_line_states = list(fine_structure_complexes.keys())
             if tag in fine_line_states and tag not in input_tags:
                 dataset.deactivate_fine_lines(tag)
 
@@ -277,18 +277,18 @@ def main():
         # -- Handle `molecules`:
         # Add new molecules that were not defined before:
         new_molecules = dict()
-        if len(parameters['molecules'].items()) > 0:
-            for molecule, bands in parameters['molecules'].items():
-                if molecule not in new_molecules.keys():
+        if len(list(parameters['molecules'].items())) > 0:
+            for molecule, bands in list(parameters['molecules'].items()):
+                if molecule not in list(new_molecules.keys()):
                     new_molecules[molecule] = list()
 
-                if molecule in dataset.molecules.keys():
+                if molecule in list(dataset.molecules.keys()):
                     for band, Jmax, velspan in bands:
                         if band not in dataset.molecules[molecule]:
                             new_molecules[molecule].append([band, Jmax, velspan])
 
-        if len(new_molecules.items()) > 0:
-            for molecule, bands in new_molecules.items():
+        if len(list(new_molecules.items())) > 0:
+            for molecule, bands in list(new_molecules.items()):
                 for band, Jmax, velspan in bands:
                     dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
 
@@ -298,7 +298,7 @@ def main():
             for band, Jmax, velspan in bands:
                 defined_molecular_bands.append(band)
 
-        for molecule, bands in dataset.molecules.items():
+        for molecule, bands in list(dataset.molecules.items()):
             for band, Jmax in bands:
                 if band not in defined_molecular_bands:
                     dataset.deactivate_molecule(molecule, band)
@@ -310,7 +310,7 @@ def main():
         #
         dataset = DataSet(parameters['z_sys'], parameters['name'])
 
-        if 'velspan' in parameters.keys():
+        if 'velspan' in list(parameters.keys()):
             dataset.velspan = parameters['velspan']
 
         # Setup data:
@@ -361,8 +361,8 @@ def main():
             dataset.add_fine_lines(ground_state, levels=levels, velspan=velspan)
 
         # Define molecules:
-        if len(parameters['molecules'].items()) > 0:
-            for molecule, bands in parameters['molecules'].items():
+        if len(list(parameters['molecules'].items())) > 0:
+            for molecule, bands in list(parameters['molecules'].items()):
                 for band, Jmax, velspan in bands:
                     dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
 
@@ -372,10 +372,10 @@ def main():
     # HERE masking is correct!
 
     # Load components from file:
-    if 'load' in parameters.keys():
+    if 'load' in list(parameters.keys()):
         dataset.reset_components()
         for fname in parameters['load']:
-            print "\n Loading parameters from file: %s \n" % fname
+            print("\n Loading parameters from file: %s \n" % fname)
             dataset.load_components_from_file(fname)
     else:
         dataset.reset_components()
@@ -388,8 +388,8 @@ def main():
     if len(parameters['thermal_model']) > 0:
         thermal_model = {ion: [] for ion in parameters['thermal_model'][0]}
         ions_in_model = ', '.join(parameters['thermal_model'][0])
-        print ""
-        print "  Fitting Thermal Model for ions: " + ions_in_model
+        print("")
+        print("  Fitting Thermal Model for ions: " + ions_in_model)
     else:
         thermal_model = dict()
 
@@ -410,12 +410,12 @@ def main():
                                   var_z=var_z, var_b=var_b, var_N=var_N,
                                   tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
 
-        if ion in thermal_model.keys():
+        if ion in list(thermal_model.keys()):
             thermal_model[ion].append(thermal)
 
     # Convert boolean indices to component indcides:
     # Ex: [True, False, True, False] -> [0, 2]
-    for ion, values in thermal_model.items():
+    for ion, values in list(thermal_model.items()):
         if np.any(values):
             pass
         else:
@@ -424,13 +424,13 @@ def main():
             values = [True for _ in values]
         thermal_model[ion] = list(np.nonzero(values)[0])
 
-    if 'interactive' in parameters.keys():
+    if 'interactive' in list(parameters.keys()):
         for line_tag in parameters['interactive']:
             dataset.interactive_components(line_tag, velocity=parameters['interactive_view'])
 
     for component in parameters['components_to_copy']:
         ion, anchor, logN, ref_comp, tie_z, tie_b = component
-        if anchor in thermal_model.keys():
+        if anchor in list(thermal_model.keys()):
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
                                     tie_z=tie_z, tie_b=False)
             thermal_model[ion] = thermal_model[anchor]
@@ -443,13 +443,13 @@ def main():
 
         # Also remove component from therma_model
         ion, num = component
-        if ion in thermal_model.keys():
+        if ion in list(thermal_model.keys()):
             if num in thermal_model[ion]:
                 thermal_model[ion].remove(num)
 
     # Set default value of norm:
     norm = False
-    if 'cheb_order' in parameters.keys():
+    if 'cheb_order' in list(parameters.keys()):
         dataset.cheb_order = parameters['cheb_order']
         if parameters['cheb_order'] >= 0:
             norm = False
@@ -461,9 +461,9 @@ def main():
             dataset.norm_method = parameters['norm_method'].lower()
         else:
             warn_msg = "\n [WARNING] - Unexpected value for norm_method: %r"
-            print warn_msg % parameters['norm_method']
-            print "             Using default normalization method : linear\n"
-        print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
+            print(warn_msg % parameters['norm_method'])
+            print("             Using default normalization method : linear\n")
+        print("\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method))
 
     else:
         if dataset.cheb_order == 1:
@@ -475,9 +475,9 @@ def main():
         else:
             order_str = "%ith" % (dataset.cheb_order)
         stat_msg = " Continuum Fitting : Chebyshev Polynomial up to %s order"
-        print ""
-        print stat_msg % (order_str)
-        print ""
+        print("")
+        print(stat_msg % (order_str))
+        print("")
 
     # Parse show_vel_norm from parameter file:
     # Ketyword 'norm_view' either vel or wave.
@@ -489,7 +489,7 @@ def main():
         show_vel_norm = False
 
     # Reset data in regions:
-    if 'reset' in parameters.keys():
+    if 'reset' in list(parameters.keys()):
         if len(parameters['reset']) > 0:
             for line_tag in parameters['reset']:
                 regions_of_line = dataset.find_line(line_tag)
@@ -502,9 +502,9 @@ def main():
     dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm)
 
     # Define thermal model
-    if len(thermal_model.keys()) > 0:
+    if len(list(thermal_model.keys())) > 0:
         # Get all the indices of components that have thermal components
-        thermal_components = list(set(sum(thermal_model.values(), [])))
+        thermal_components = list(set(sum(list(thermal_model.values()), [])))
         (thermal_ions, T_init, turb_init,
          fix_T, fix_turb) = parameters['thermal_model']
 
@@ -545,7 +545,7 @@ def main():
         show_vel_mask = False
 
     # Mask invidiual lines
-    if 'mask' in parameters.keys():
+    if 'mask' in list(parameters.keys()):
         if len(parameters['mask']) > 0:
             for line_tag in parameters['mask']:
                 dataset.mask_line(line_tag, reset=False,
@@ -570,12 +570,12 @@ def main():
     popt, chi2 = dataset.fit(verbose=False, plot=False,
                              **parameters['fit_options'])
 
-    print ""
-    print popt.message
-    print ""
+    print("")
+    print(popt.message)
+    print("")
 
     # Fix for when the code cannot estimate uncertainties:
-    for parname in dataset.best_fit.keys():
+    for parname in list(dataset.best_fit.keys()):
         err = dataset.best_fit[parname].stderr
         if err is None:
             dataset.best_fit[parname].stderr = 0.
@@ -595,12 +595,12 @@ def main():
 
     elif parameters['systemic'][1] == 'auto':
         # find ion to search for strongest component:
-        if 'FeII' in dataset.components.keys():
+        if 'FeII' in list(dataset.components.keys()):
             ion = 'FeII'
-        elif 'SiII' in dataset.components.keys():
+        elif 'SiII' in list(dataset.components.keys()):
             ion = 'SiII'
         else:
-            ion = dataset.components.keys()[0]
+            ion = list(dataset.components.keys())[0]
 
         # find strongest component:
         n_comp = len(dataset.components[ion])
@@ -620,7 +620,7 @@ def main():
     else:
         dataset.print_results(velocity=False)
 
-    if len(thermal_model.keys()) > 0:
+    if len(list(thermal_model.keys())) > 0:
         # print Thermal Model Parameters
         output.print_T_model_pars(dataset, thermal_model)
 
@@ -649,7 +649,7 @@ def main():
         if filename.split('.')[-1] in ['pdf']:
             filename = filename[:-4]
         # plot and save
-        if 'rebin' in parameters['fit_options'].keys():
+        if 'rebin' in list(parameters['fit_options'].keys()):
             rebin = parameters['fit_options']['rebin']
         else:
             rebin = 1
@@ -662,12 +662,12 @@ def main():
 
     else:
         print(" --- Plotting output without saving!!!")
-        if 'rebin' in parameters['fit_options'].keys():
+        if 'rebin' in list(parameters['fit_options'].keys()):
             rebin = parameters['fit_options']['rebin']
         else:
             rebin = 1
 
-        if 'sampling' in parameters['fit_options'].keys():
+        if 'sampling' in list(parameters['fit_options'].keys()):
             sampling = parameters['fit_options']['sampling']
         else:
             sampling = 3

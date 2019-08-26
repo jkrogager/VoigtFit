@@ -10,16 +10,16 @@ Written by Jens-Kristian Krogager.
 __author__ = 'Jens-Kristian Krogager'
 
 from os import path
-from VoigtFit import *
-from dataset import DataSet
-from dataset import Line
-import dataset
-import hdf5_save as hdf5
-import line_complexes
-import molecules
-import output
-import regions
-import voigt
+from .VoigtFit import *
+from .dataset import DataSet
+from .dataset import Line
+from . import dataset
+from . import hdf5_save as hdf5
+from . import line_complexes
+from . import molecules
+from . import output
+from . import regions
+from . import voigt
 
 code_dir = path.dirname(path.abspath(__file__))
 with open(path.join(code_dir, 'VERSION')) as version_file:
