@@ -42,6 +42,8 @@ setup(
 
     python_requires=python_version_requirement,
 
+    use_2to3=True,
+
     description='Voigt Profile Fitting in Python',
     long_description=long_description,
 
