@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+import sys
 
 here = path.abspath(path.dirname(__file__))
 
@@ -21,6 +22,16 @@ mypackage_root_dir = path.dirname(path.abspath(__file__))
 with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
     version = v_file.read().strip()
 
+if sys.version_info[0] < 3:
+    python_version_requirement = '==2.7.*'
+    programming_language = 'Programming Language :: Python :: 2.7'
+else:
+    python_version_requirement = '>=3.5'
+    v_items = version.split('.')
+    v_items[0] = '3'
+    version = '.'.join(v_items)
+    programming_language = 'Programming Language :: Python :: 3'
+
 setup(
     name='VoigtFit',
 
@@ -29,7 +40,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version=version,
 
-    python_requires='==2.7.*',
+    python_requires=python_version_requirement,
 
     description='Voigt Profile Fitting in Python',
     long_description=long_description,
@@ -50,7 +61,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Science/Research',
@@ -61,8 +72,7 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        programming_language,
     ],
 
     # What does your project relate to?
