@@ -794,7 +794,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         profile_int_hl = np.exp(-tau_hl)
         if isinstance(kernel, float):
             sigma_instrumental = kernel / 2.35482 / pxs
-            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = gaussian(len(wl_line) // 2, sigma_instrumental)
             LSF = LSF/LSF.sum()
             profile = fftconvolve(profile_int, LSF, 'same')
             profile_hl = fftconvolve(profile_int_hl, LSF, 'same')

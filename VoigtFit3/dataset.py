@@ -25,8 +25,8 @@ root_path = os.path.dirname(os.path.abspath(__file__))
 # atomfile = root_path + '/static/atomdata_updated.dat'
 atomfile = root_path + '/static/linelist.dat'
 
-lineList = np.loadtxt(atomfile, dtype=[('trans', 'S13'),
-                                       ('ion', 'S6'),
+lineList = np.loadtxt(atomfile, dtype=[('trans', 'U13'),
+                                       ('ion', 'U6'),
                                        ('l0', 'f4'),
                                        ('f', 'f8'),
                                        ('gam', 'f8'),
