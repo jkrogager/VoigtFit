@@ -9,7 +9,6 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 from scipy.signal import fftconvolve, gaussian
-from scipy.interpolate import RectBivariateSpline as spline2d
 from numba import jit
 
 
@@ -99,7 +98,7 @@ def convolve_numba(P, kernel):
     This function is decorated by the `jit` decorator from `numba`_ in order
     to speed up the calculation.
     """
-    N = kernel.shape[1]/2
+    N = kernel.shape[1]//2
     pad = np.ones(N)
     P_pad = np.concatenate([pad, P, pad])
     P_con = np.zeros_like(P)
@@ -212,7 +211,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         dx = np.mean(np.diff(x))
         xmin = np.log10(x.min() - 50*dx)
         xmax = np.log10(x.max() + 50*dx)
-        N = sampling * len(x)
+        N = int(sampling * len(x))
         profile_wl = np.logspace(xmin, xmax, N)
         # Calculate actual pixel size in km/s:
         pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
@@ -220,7 +219,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         kernel = kernel / pxs / 2.35482
 
     elif isinstance(kernel, np.ndarray):
-        N = kernel_nsub * len(x)
+        N = int(kernel_nsub * len(x))
         assert kernel.shape[0] == N
         # evaluate on the input grid subsampled by `nsub`:
         if kernel_nsub > 1:

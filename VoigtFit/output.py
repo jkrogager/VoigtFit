@@ -794,7 +794,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         profile_int_hl = np.exp(-tau_hl)
         if isinstance(kernel, float):
             sigma_instrumental = kernel / 2.35482 / pxs
-            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = gaussian(len(wl_line) // 2, sigma_instrumental)
             LSF = LSF/LSF.sum()
             profile = fftconvolve(profile_int, LSF, 'same')
             profile_hl = fftconvolve(profile_int_hl, LSF, 'same')
@@ -1040,7 +1040,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
             assert kernel.shape[0] == len(x) * kernel_nsub
             # evaluate on the input grid
             if kernel_nsub > 1:
-                N = kernel_nsub * len(x)
+                N = int(kernel_nsub * len(x))
                 wl_line = np.linspace(x.min(), x.max(), N)
             else:
                 wl_line = x_orig
@@ -1076,7 +1076,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1,
         profile_int = np.exp(-tau)
         if isinstance(kernel, float):
             sigma_instrumental = kernel / 2.35482 / pxs
-            LSF = gaussian(len(wl_line)/2, sigma_instrumental)
+            LSF = gaussian(len(wl_line) // 2, sigma_instrumental)
             LSF = LSF/LSF.sum()
             profile_broad = fftconvolve(profile_int, LSF, 'same')
             profile = profile_broad[npad:-npad]
