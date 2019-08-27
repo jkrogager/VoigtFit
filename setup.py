@@ -29,6 +29,8 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version=version,
 
+    python_requires='==2.7.*',
+
     description='Voigt Profile Fitting in Python',
     long_description=long_description,
 
