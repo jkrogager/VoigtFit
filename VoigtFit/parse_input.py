@@ -15,6 +15,12 @@ def clean_line(line):
     return line
 
 
+check_lines_defaults = dict(f_lower=0., f_upper=100.,
+                            l_lower=0., l_upper=1.e4)
+
+fit_options_defaults = dict(rebin=1, method='leastsq')
+
+
 def parse_parameters(fname):
     """Parse parameters from input file."""
     parameters = dict()
@@ -31,11 +37,12 @@ def parse_parameters(fname):
     parameters['snr'] = None
     parameters['output_pars'] = list()
     parameters['options'] = list()
-    parameters['fit_options'] = {'rebin': 1, 'method': 'leastsq'}
+    parameters['fit_options'] = fit_options_defaults
     parameters['fix_velocity'] = False
     parameters['norm_view'] = 'wave'
     parameters['mask_view'] = 'wave'
     parameters['interactive_view'] = 'wave'
+    parameters['check_lines'] = check_lines_defaults
     par_file = open(fname)
     data = list()
     components = list()
@@ -86,7 +93,7 @@ def parse_parameters(fname):
             airORvac = 'air' if air else 'vac'
             data.append([filename, resolution, norm, airORvac, nsub])
 
-        elif 'lines' in line and 'save' not in line and 'fine' not in line:
+        elif 'lines' in line and 'save' not in line and 'fine' not in line and 'check' not in line:
             velspan = None
             # strip comments:
             comment_begin = line.find('#')
@@ -454,7 +461,7 @@ def parse_parameters(fname):
                 velspan = line.split()[1]
             parameters['velspan'] = float(velspan)
 
-        elif 'C_order' in line and 'name' not in line and 'save' not in line:
+        elif 'c_order' in line and 'name' not in line and 'save' not in line.lower():
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -466,7 +473,7 @@ def parse_parameters(fname):
                 order = line.split()[1]
             parameters['cheb_order'] = int(order)
 
-        elif 'cheb_order' in line and 'name' not in line and 'save' not in line:
+        elif 'cheb_order' in line and 'name' not in line and 'save' not in line.lower():
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -564,6 +571,23 @@ def parse_parameters(fname):
             key, value = line.split(':')
             if key.strip().lower() == 'interactive_view':
                 parameters['interactive_view'] = value.strip().lower()
+
+        elif 'check-lines' in line.lower():
+            line = clean_line(line.lower())
+            args = line.split()
+            if 'ignore' in args:
+                # Set lower limit of f_osc to 10 effectively skipping all lines
+                parameters['check_lines']['f_lower'] = 10.
+
+            else:
+                assert len(args) <= 5, "Too many arguments for command `check-lines`!"
+                for keyval in args[1:]:
+                    keyword_error = "Wrong definition of keywords for `check-lines`!\nMust be `keyword=value`"
+                    assert len(keyval.split('=')) == 2, keyword_error
+                    key, val = keyval.split('=')
+                    key = key.lower()
+                    val = float(val)
+                    parameters['check_lines'][key] = val
 
         else:
             pass

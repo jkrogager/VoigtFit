@@ -1387,7 +1387,7 @@ class DataSet(object):
                 if self.verbose:
                     print "Removing line: %s" % fineline
 
-    def deactivate_fine_lines(self, line_tag, levels=None):
+    def deactivate_fine_lines(self, line_tag, levels=None, verbose=True):
         """
         Deactivate all lines associated to a given fine-structure complex.
 
@@ -1415,8 +1415,8 @@ class DataSet(object):
                     continue
 
                 self.deactivate_line(fineline)
-                if self.verbose:
-                    print "Deactivated line: %s" % fineline
+                if self.verbose and verbose:
+                    print("Deactivated line: %s" % fineline)
 
     def activate_fine_lines(self, line_tag, levels=None):
         """
@@ -1584,8 +1584,10 @@ class DataSet(object):
 
     def prepare_dataset(self, norm=True, mask=False, verbose=True,
                         active_only=False,
-                        force_clean=False,
-                        velocity=False):
+                        force_clean=True,
+                        velocity=False,
+                        f_lower=0., f_upper=100.,
+                        l_lower=0., l_upper=1.e4):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
@@ -1609,6 +1611,22 @@ class DataSet(object):
             If a `True`, the regions are displayed in velocity space
             relative to the systemic redshift instead of in wavelength space
             when masking and defining continuum normalization interactively.
+
+        f_lower : float   [default = 0.]
+            Lower limit on oscillator strengths for transitions when verifying
+            all transitions for defined ions.
+
+        f_upper : float   [default = 100.]
+            Upper limit on oscillator strengths for transitions when verifying
+            all transitions for defined ions.
+
+        l_lower : float   [default = 0.]
+            Lower limit on rest-frame wavelength for transitions when verifying
+            all transitions for defined ions.
+
+        l_upper : float   [default = 1.e4]
+            Upper limit on rest-frame wavelength for transitions when verifying
+            all transitions for defined ions.
 
         Returns
         -------
@@ -1695,6 +1713,8 @@ class DataSet(object):
         # Setup Chebyshev parameters:
         if self.cheb_order >= 0:
             for reg_num, reg in enumerate(self.regions):
+                if not reg.has_active_lines():
+                    continue
                 p0 = np.median(reg.flux)
                 var_par = reg.has_active_lines()
                 if np.sum(reg.mask) == 0:
@@ -1746,6 +1766,8 @@ class DataSet(object):
                 lmin = wl_tot.min() / (self.redshift + 1.)
                 lmax = wl_tot.max() / (self.redshift + 1.)
                 cut = (lineList['l0'] > lmin) & (lineList['l0'] < lmax) & (lineList['ion'] == this_ion)
+                cut &= (lineList['l0'] >= l_lower) & (lineList['l0'] <= l_upper)
+                cut &= (lineList['f'] >= f_lower) & (lineList['f'] <= f_upper)
                 for entry in lineList[cut]:
                     if entry['trans'] in self.lines.keys():
                         pass
@@ -1893,6 +1915,8 @@ class DataSet(object):
         if self.cheb_order >= 0:
             # Normalize region data with best-fit polynomial:
             for reg_num, region in enumerate(self.regions):
+                if not region.has_active_lines():
+                    continue
                 x, y, err, mask = region.unpack()
                 cont_model = evaluate_continuum(x, self.best_fit, reg_num)
                 region.flux /= cont_model

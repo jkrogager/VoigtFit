@@ -1561,6 +1561,8 @@ def print_cont_parameters(dataset):
         print ""
         print "  Chebyshev coefficients for fitting regions:"
         for reg_num, region in enumerate(dataset.regions):
+            if not region.has_active_lines():
+                continue
             lines_in_region = ", ".join([line.tag for line in region.lines])
             print "   Region no. %i : %s" % (reg_num, lines_in_region)
             cheb_parnames = list()
