@@ -838,6 +838,31 @@ Fix Velocity Structure
 
 **fix-velocity**
 
-If this keyword is present in the parameter file, then the velocity structure
-(i.e., the relative velocities and broadening parameters) of all elements
-is kept fixed.
+  If this keyword is present in the parameter file, then the velocity structure
+  (i.e., the relative velocities and broadening parameters) of all elements
+  is kept fixed.
+
+
+Check-Lines
+-----------
+
+**check-lines  [f_lower=0  f_upper=100  l_lower=0  l_upper=1.e4]  [ignore]**
+
+  If the keyword `ignore` appears in the command this will turn off the `check lines` functionality
+  which prompts the user if other transitions for defined ions are available in the spectral coverage
+  of the data.
+  The user can filter the lines that will be prompted by setting the upper and lower limits on
+  oscillator strength (f) or rest-frame wavelength (l) in Angstrom.
+
+.. topic:: Example
+
+  ``check-lines  ignore``
+
+    this turns off the check lines function. The user will not be warned if other lines of already
+    defined ions are available within the spectral data. Use this with caution unless you are very
+    familiar with the atomic line list.
+
+  ``check-lines  f_lower=0.001  l_lower=1200``
+
+    this will only prompt the user if the missing lines have an oscillator strength larger than 0.001
+    and a rest-frame wavelength larger than 1200 Angstrom.

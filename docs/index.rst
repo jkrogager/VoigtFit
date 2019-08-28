@@ -35,9 +35,19 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11:
+
+  The code now checks that all lines for the defined ions have been added to the fit
+  if they are covered by the data. The user can adjust this behaviour or turn it off.
+  Further small bugfixes were added and the code has been prepared for python 3 migration.
+  A new function to output individual components of all the best-fit profiles has been added.
+  See updates in the sections `Check-Lines` and `Output` of the :ref:`documentation`.
+
+
 New in version 0.10.2:
 
   Added support for LSF file format to specify the convolution kernel as a function of wavelength.
+  See details under the `Data` section of the :ref:`documentation`.
 
 
 New in version 0.9.10:
