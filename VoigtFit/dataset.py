@@ -662,7 +662,7 @@ class DataSet(object):
                   (line_tag, in_lines))
             print ""
 
-        # --- Check if the ion has transistions defined in other regions
+        # --- Check if the ion has transitions defined in other regions
         ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
         all_ions = list()
@@ -903,7 +903,7 @@ class DataSet(object):
                     if line.tag == line_tag:
                         line.set_inactive()
 
-        # --- Check if the ion has transistions defined in other regions
+        # --- Check if the ion has transitions defined in other regions
         ion = line_tag.split('_')[0]
         ion_defined_elsewhere = False
         for this_line_tag in self.all_lines:
@@ -1355,7 +1355,7 @@ class DataSet(object):
             if full_label:
                 reg.label = line_complexes.full_labels[line_tag]
             else:
-                raw_label = line_tag.replace('_', '\ \\lambda')
+                raw_label = line_tag.replace('_', r'\ \\lambda')
                 reg.set_label("${\\rm %s}$" % raw_label)
 
     def remove_fine_lines(self, line_tag, levels=None):
@@ -1387,7 +1387,7 @@ class DataSet(object):
                 if self.verbose:
                     print "Removing line: %s" % fineline
 
-    def deactivate_fine_lines(self, line_tag, levels=None):
+    def deactivate_fine_lines(self, line_tag, levels=None, verbose=True):
         """
         Deactivate all lines associated to a given fine-structure complex.
 
@@ -1415,8 +1415,8 @@ class DataSet(object):
                     continue
 
                 self.deactivate_line(fineline)
-                if self.verbose:
-                    print "Deactivated line: %s" % fineline
+                if self.verbose and verbose:
+                    print("Deactivated line: %s" % fineline)
 
     def activate_fine_lines(self, line_tag, levels=None):
         """
@@ -1584,8 +1584,10 @@ class DataSet(object):
 
     def prepare_dataset(self, norm=True, mask=False, verbose=True,
                         active_only=False,
-                        force_clean=False,
-                        velocity=False):
+                        force_clean=True,
+                        velocity=False,
+                        f_lower=0., f_upper=100.,
+                        l_lower=0., l_upper=1.e4):
         """
         Prepare the data for fitting. This function sets up the parameter structure,
         and handles the normalization and masking of fitting regions.
@@ -1609,6 +1611,22 @@ class DataSet(object):
             If a `True`, the regions are displayed in velocity space
             relative to the systemic redshift instead of in wavelength space
             when masking and defining continuum normalization interactively.
+
+        f_lower : float   [default = 0.]
+            Lower limit on oscillator strengths for transitions when verifying
+            all transitions for defined ions.
+
+        f_upper : float   [default = 100.]
+            Upper limit on oscillator strengths for transitions when verifying
+            all transitions for defined ions.
+
+        l_lower : float   [default = 0.]
+            Lower limit on rest-frame wavelength for transitions when verifying
+            all transitions for defined ions.
+
+        l_upper : float   [default = 1.e4]
+            Upper limit on rest-frame wavelength for transitions when verifying
+            all transitions for defined ions.
 
         Returns
         -------
@@ -1695,6 +1713,8 @@ class DataSet(object):
         # Setup Chebyshev parameters:
         if self.cheb_order >= 0:
             for reg_num, reg in enumerate(self.regions):
+                if not reg.has_active_lines():
+                    continue
                 p0 = np.median(reg.flux)
                 var_par = reg.has_active_lines()
                 if np.sum(reg.mask) == 0:
@@ -1737,6 +1757,31 @@ class DataSet(object):
                 # TODO:
                 # automatically open interactive window if components are not defined.
                 return False
+
+        # -- Check all transitions of the given ions that are covered by the data:
+        lines_not_defined = list()
+        for this_ion in self.components.keys():
+            for chunk in self.data:
+                wl_tot = chunk['wl']
+                lmin = wl_tot.min() / (self.redshift + 1.)
+                lmax = wl_tot.max() / (self.redshift + 1.)
+                cut = (lineList['l0'] > lmin) & (lineList['l0'] < lmax) & (lineList['ion'] == this_ion)
+                cut &= (lineList['l0'] >= l_lower) & (lineList['l0'] <= l_upper)
+                cut &= (lineList['f'] >= f_lower) & (lineList['f'] <= f_upper)
+                for entry in lineList[cut]:
+                    if entry['trans'] in self.lines.keys():
+                        pass
+                    else:
+                        lines_not_defined.append(entry)
+
+        if len(lines_not_defined) > 0 and self.verbose:
+            print("")
+            print(term.red)
+            print(" [WARNING]")
+            print(" The following lines of included ions are also covered by the data:"+term.reset)
+            for entry in lines_not_defined:
+                print(" %13s :  f = %.2e" % (entry[0], entry[3]))
+            print("\n")
 
         if self.ready2fit:
             if verbose and self.verbose:
@@ -1870,6 +1915,8 @@ class DataSet(object):
         if self.cheb_order >= 0:
             # Normalize region data with best-fit polynomial:
             for reg_num, region in enumerate(self.regions):
+                if not region.has_active_lines():
+                    continue
                 x, y, err, mask = region.unpack()
                 cont_model = evaluate_continuum(x, self.best_fit, reg_num)
                 region.flux /= cont_model

@@ -101,11 +101,13 @@ def air2vac(air):
 
 def SaveDataSet(filename, dataset):
     """Save dataset to HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use save_dataset()")
     hdf5_save.save_hdf_dataset(dataset, filename)
 
 
 def LoadDataSet(filename):
     """Load a dataset from a HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use load_dataset()")
     dataset = hdf5_save.load_dataset_from_hdf(filename)
     return dataset
 
@@ -166,7 +168,7 @@ def main():
     name = parameters['name']
     # -- Load DataSet if the file already exists
     if os.path.exists(name+'.hdf5') and not args.f:
-        dataset = LoadDataSet(name+'.hdf5')
+        dataset = load_dataset(name+'.hdf5')
 
         # if len(dataset.data) != len(parameters['data']):
         dataset.data = list()
@@ -281,7 +283,7 @@ def main():
             # Only consider fine-structure lines:
             fine_line_states = fine_structure_complexes.keys()
             if tag in fine_line_states and tag not in input_tags:
-                dataset.deactivate_fine_lines(tag)
+                dataset.deactivate_fine_lines(tag, verbose=False)
 
         # --------------------------------------------------------------------
 
@@ -510,7 +512,8 @@ def main():
             dataset.reset_all_regions()
 
     # prepare_dataset
-    dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm)
+    dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
+                            **parameters['check_lines'])
 
     # Define thermal model
     if len(thermal_model.keys()) > 0:
