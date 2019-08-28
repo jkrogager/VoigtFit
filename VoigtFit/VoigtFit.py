@@ -101,11 +101,13 @@ def air2vac(air):
 
 def SaveDataSet(filename, dataset):
     """Save dataset to HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use save_dataset()")
     hdf5_save.save_hdf_dataset(dataset, filename)
 
 
 def LoadDataSet(filename):
     """Load a dataset from a HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use load_dataset()")
     dataset = hdf5_save.load_dataset_from_hdf(filename)
     return dataset
 
