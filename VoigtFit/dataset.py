@@ -1411,6 +1411,8 @@ class DataSet(object):
                     pass
                 elif line.ion[-1] in levels:
                     pass
+                elif line.ion[-1].isupper():
+                    pass
                 else:
                     continue
 
@@ -1441,6 +1443,8 @@ class DataSet(object):
                 if levels is None:
                     pass
                 elif line.ion[-1] in levels:
+                    pass
+                elif line.ion[-1].isupper():
                     pass
                 else:
                     continue
@@ -1586,6 +1590,7 @@ class DataSet(object):
                         active_only=False,
                         force_clean=True,
                         velocity=False,
+                        check_lines=True,
                         f_lower=0., f_upper=100.,
                         l_lower=0., l_upper=1.e4):
         """
@@ -1608,9 +1613,14 @@ class DataSet(object):
             If this is True, components for inactive elements will be removed.
 
         velocity : bool   [default = False]
-            If a `True`, the regions are displayed in velocity space
+            If `True`, the regions are displayed in velocity space
             relative to the systemic redshift instead of in wavelength space
             when masking and defining continuum normalization interactively.
+
+        check_lines : bool   [default = True]
+            If `True`, all available lines covered by the data will be checked.
+            The user will be propmted if lines are available for ions that have
+            already been defined.
 
         f_lower : float   [default = 0.]
             Lower limit on oscillator strengths for transitions when verifying
@@ -1759,29 +1769,32 @@ class DataSet(object):
                 return False
 
         # -- Check all transitions of the given ions that are covered by the data:
-        lines_not_defined = list()
-        for this_ion in self.components.keys():
-            for chunk in self.data:
-                wl_tot = chunk['wl']
-                lmin = wl_tot.min() / (self.redshift + 1.)
-                lmax = wl_tot.max() / (self.redshift + 1.)
-                cut = (lineList['l0'] > lmin) & (lineList['l0'] < lmax) & (lineList['ion'] == this_ion)
-                cut &= (lineList['l0'] >= l_lower) & (lineList['l0'] <= l_upper)
-                cut &= (lineList['f'] >= f_lower) & (lineList['f'] <= f_upper)
-                for entry in lineList[cut]:
-                    if entry['trans'] in self.lines.keys():
-                        pass
-                    else:
-                        lines_not_defined.append(entry)
+        if check_lines:
+            lines_not_defined = list()
+            for this_ion in self.components.keys():
+                for chunk in self.data:
+                    wl_tot = chunk['wl']
+                    lmin = wl_tot.min() / (self.redshift + 1.)
+                    lmax = wl_tot.max() / (self.redshift + 1.)
+                    cut = (lineList['l0'] > lmin) & (lineList['l0'] < lmax)
+                    cut &= (lineList['ion'] == this_ion)
+                    cut &= (lineList['l0'] >= l_lower) & (lineList['l0'] <= l_upper)
+                    cut &= (lineList['f'] >= f_lower) & (lineList['f'] <= f_upper)
+                    for entry in lineList[cut]:
+                        if entry['trans'] in self.lines.keys():
+                            pass
+                        else:
+                            lines_not_defined.append(entry)
 
-        if len(lines_not_defined) > 0 and self.verbose:
-            print("")
-            print(term.red)
-            print(" [WARNING]")
-            print(" The following lines of included ions are also covered by the data:"+term.reset)
-            for entry in lines_not_defined:
-                print(" %13s :  f = %.2e" % (entry[0], entry[3]))
-            print("\n")
+            if len(lines_not_defined) > 0 and self.verbose:
+                print("")
+                print(term.red)
+                print(" [WARNING]")
+                print(" The following lines of included ions are also covered by the data:")
+                print(term.reset)
+                for entry in lines_not_defined:
+                    print(" %13s :  f = %.2e" % (entry[0], entry[3]))
+                print("\n")
 
         if self.ready2fit:
             if verbose and self.verbose:
