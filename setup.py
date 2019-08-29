@@ -25,12 +25,14 @@ with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
 if sys.version_info[0] < 3:
     python_version_requirement = '==2.7.*'
     programming_language = 'Programming Language :: Python :: 2.7'
+    use_2to3 = False
 else:
     python_version_requirement = '>=3.5'
     v_items = version.split('.')
     v_items[0] = '3'
     version = '.'.join(v_items)
     programming_language = 'Programming Language :: Python :: 3'
+    use_2to3 = True
 
 setup(
     name='VoigtFit',
@@ -42,7 +44,7 @@ setup(
 
     python_requires=python_version_requirement,
 
-    use_2to3=True,
+    use_2to3=use_2to3,
 
     description='Voigt Profile Fitting in Python',
     long_description=long_description,
