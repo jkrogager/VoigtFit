@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from numpy import loadtxt, log10
+import numpy as np
 from os.path import exists
 from os import remove
 
@@ -26,7 +26,7 @@ import VoigtFit as vfit
 def test_column_densities():
 
     input_data = dict()
-    dat_in = loadtxt('test_2comp.input', dtype=str)
+    dat_in = np.loadtxt('test_2comp.input', dtype=str)
     for line in dat_in:
         ion = line[0]
         input_data[ion] = float(line[3])
@@ -54,7 +54,7 @@ def test_column_densities():
     for ion in list(ds.components.keys()):
         logN1 = popt.params['logN0_%s' % ion].value
         logN2 = popt.params['logN1_%s' % ion].value
-        logN_tot = log10(10**logN1 + 10**logN2)
+        logN_tot = np.log10(10**logN1 + 10**logN2)
         delta = logN_tot - input_data[ion]
         logN_criteria.append(delta <= 0.01)
 
@@ -134,3 +134,34 @@ def test_output():
 
     # Remove temporary file:
     remove(dataset_fname)
+
+
+def test_masking():
+    z_sys = 2.3538
+    test_fname = 'test_2comp.dat'
+    ds = vfit.DataSet(z_sys)
+    ds.verbose = False
+    ds.cheb_order = -1
+    ds.velspan = 200.
+    res = 299792. / 10000.
+    ds.add_spectrum(test_fname, res, normalized=True)
+    ds.add_line('SiII_1808')
+    region, = ds.find_line('SiII_1808')
+    mask = np.random.randint(0, 2, len(region.mask), dtype=bool)
+    N_mask_old = np.sum(mask)
+    region.set_mask(mask)
+
+    dataset_fname = 'test_dataset.hdf5'
+    ds.save(dataset_fname)
+    assert exists(dataset_fname)
+
+    del ds
+    ds = vfit.load_dataset(dataset_fname)
+    region, = ds.find_line('SiII_1808')
+    N_mask_new = np.sum(region.mask)
+    assert N_mask_new == N_mask_old, "Wrong number of masked pixels."
+
+
+def test_lsf():
+    # load LSF file with dataset and check format and that the LSF is correctly retained after saving
+    pass
