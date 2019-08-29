@@ -97,6 +97,10 @@ copy components from __ion__ to __ion__ and scale logN=__ of component __
 # instead of redshifts, use the output option 'velocity':
 output velocity
 
+# Use the output option 'individual-components' to output individual components
+# of all lines to a file ending in .components:
+#output  individual-components
+
 
 # Print total column densities for each ion:
 total
