@@ -1574,7 +1574,7 @@ def print_cont_parameters(dataset):
             # This could be calculated at the point of generating
             # the parameters, since this is a fixed data structure
             # Sort the names, to arange the coefficients right:
-            cheb_parnames = sorted(cheb_parnames)
+            cheb_parnames = sorted(cheb_parnames, key=lambda x: int((x.split('_')[-1])[1:]))
             for i, parname in enumerate(cheb_parnames):
                 coeff = dataset.best_fit[parname]
                 line = " p%-2i  =  %.3e    %.3e" % (i,
