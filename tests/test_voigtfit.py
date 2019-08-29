@@ -2,6 +2,7 @@
 
 from numpy import loadtxt, log10
 from os.path import exists
+from os import remove
 
 import VoigtFit as vfit
 
@@ -130,3 +131,6 @@ def test_output():
     assert hasattr(ds, 'best_fit'), "Dataset does not have .best_fit parameters."
     N_parameters = len(list(ds.best_fit.keys()))
     assert N_parameters == 17, "Incorrect number of parameters defined in ds.best_fit."
+
+    # Remove temporary file:
+    remove(dataset_fname)
