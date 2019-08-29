@@ -31,3 +31,5 @@ VoigtFit.egg-info
 TODO
 
 VoigtFit3
+
+.pytest_cache
