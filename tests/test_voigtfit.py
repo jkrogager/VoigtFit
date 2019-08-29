@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 from numpy import loadtxt, log10
+from os.path import exists
+
 import VoigtFit as vfit
 
 # Input from synpars_simple.dat
@@ -97,3 +99,34 @@ def test_dataset():
     assert len(ds.pars.keys()) == 24
     N_lines = len(ds.all_lines)
     assert N_lines == 11, "Incorrect number of lines"
+
+
+def test_output():
+
+    ### Load the test data and save output
+    z_sys = 2.3538
+    test_fname = 'test_2comp.dat'
+    ds = vfit.DataSet(z_sys)
+    ds.verbose = False
+    ds.cheb_order = 0
+    ds.velspan = 200.
+    res = 299792. / 10000.
+    ds.add_spectrum(test_fname, res, normalized=True)
+    ds.add_lines(['SiII_1808', 'FeII_1611', 'FeII_2249', 'FeII_2260', 'FeII_2374'])
+    ds.add_component('SiII', 2.3532, 10., 15.4)
+    ds.add_component('SiII', 2.3539, 10., 15.8)
+    ds.copy_components(from_ion='SiII', to_ion='FeII')
+    ds.prepare_dataset(mask=False, f_lower=10.)
+
+    popt, chi2 = ds.fit(verbose=False)
+    dataset_fname = 'test_dataset.hdf5'
+    ds.save(dataset_fname)
+    assert exists(dataset_fname)
+
+    # Reload dataset from hdf5 dataset:
+    del ds
+    ds = vfit.load_dataset(dataset_fname)
+    assert len(ds.all_lines) == 5, "Incorrect number of lines defined in dataset."
+    assert hasattr(ds, 'best_fit'), "Dataset does not have .best_fit parameters."
+    N_parameters = len(list(ds.best_fit.keys()))
+    assert N_parameters == 17, "Incorrect number of parameters defined in ds.best_fit."
