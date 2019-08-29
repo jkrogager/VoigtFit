@@ -138,6 +138,14 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                     param_group['b'].attrs.create('error', p_opt['b%i_%s' % (n, ion)].stderr)
                     param_group['logN'].attrs.create('error', p_opt['logN%i_%s' % (n, ion)].stderr)
 
+            # Save Chebyshev parameters:
+            cheb_group = best_fit.create_group('cheb_params')
+            for parname in list(dataset.best_fit.keys()):
+                if '_cheb_p' in parname:
+                    coeff = dataset.best_fit[parname]
+                    cheb_group.create_dataset(parname, data=coeff.value)
+                    cheb_group[parname].attrs.create('error', coeff.stderr)
+
     if verbose:
         print "Successfully saved the dataset to file: " + fname
 
@@ -309,5 +317,11 @@ def load_dataset_from_hdf(fname):
                         ds.best_fit[b_name].expr = opts['tie_b']
                     if opts['tie_N']:
                         ds.best_fit[N_name].expr = opts['tie_N']
+
+            # Load Chebyshev parameters:
+            cheb_group = hdf['best_fit/cheb_params']
+            for parname, cheb_par in cheb_group.items():
+                ds.best_fit.add(parname, value=cheb_par.value)
+                ds.best_fit[parname].stderr = cheb_par.attrs['error']
 
         return ds
