@@ -6,22 +6,6 @@ from os import remove
 
 import VoigtFit as vfit
 
-# Input from synpars_simple.dat
-# R = 10000 # Resolution
-#
-# # Input Parameters:
-# SiII: 13.95
-# SII: 13.69
-# FeII: 13.59
-# ZnII: 11.54,
-# CrII: 12.10
-#
-# z1 = 2.3532
-# z2 = 2.3539
-#
-# b1 = 15.
-# b2 = 11.
-
 
 def test_column_densities():
 
@@ -162,6 +146,6 @@ def test_masking():
     assert N_mask_new == N_mask_old, "Wrong number of masked pixels."
 
 
-def test_lsf():
-    # load LSF file with dataset and check format and that the LSF is correctly retained after saving
-    pass
+# def test_lsf():
+#     # load LSF file with dataset and check format and that the LSF is correctly retained after saving
+#     pass
