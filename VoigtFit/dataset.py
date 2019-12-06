@@ -222,6 +222,9 @@ class DataSet(object):
         self.lines = dict()
         # a list containing all the line-tags defined. The same as lines.keys()
         self.all_lines = list()
+        # a dictionary conatining a list of transitions for each fine-structure ground state:
+        # Ex: self.fine_lines = {'CI_1656': ['CI_1656', 'CIa_1656', 'CIa_1657', ...]}
+        self.fine_lines = dict()
         # a dictionary conatining a list of bands defined for each molecule:
         # Ex: self.molecules = {'CO': ['AX(0-0)', 'AX(1-0)']}
         self.molecules = dict()
@@ -1328,6 +1331,8 @@ class DataSet(object):
             If `True`, the label will be translated to the full quantum
             mechanical description of the state.
         """
+        self.fine_lines[line_tag] = list()
+
         if velspan is None:
             velspan = self.velspan
         else:
@@ -1338,16 +1343,19 @@ class DataSet(object):
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
+                    self.fine_lines[line_tag].append(fineline)
 
         elif levels is None:
             for fineline in fine_structure_complexes[line_tag]:
                 self.add_line(fineline, velspan)
+                self.fine_lines[line_tag].append(fineline)
 
         else:
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
+                    self.fine_lines[line_tag].append(fineline)
 
         # Set label:
         regions_of_line = self.find_line(line_tag)
@@ -1384,6 +1392,7 @@ class DataSet(object):
                 else:
                     continue
                 self.remove_line(fineline)
+                self.fine_lines.pop(line_tag)
                 if self.verbose:
                     print "Removing line: %s" % fineline
 
@@ -1417,6 +1426,7 @@ class DataSet(object):
                     continue
 
                 self.deactivate_line(fineline)
+                self.fine_lines[line_tag].remove(fineline)
                 if self.verbose and verbose:
                     print("Deactivated line: %s" % fineline)
 
@@ -1450,6 +1460,8 @@ class DataSet(object):
                     continue
 
                 self.activate_line(fineline)
+                if fineline not in self.fine_lines[line_tag]:
+                    self.fine_lines[line_tag].append(fineline)
                 if self.verbose:
                     print "Activated line: %s" % fineline
     # =========================================================================
