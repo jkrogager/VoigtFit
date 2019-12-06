@@ -242,8 +242,8 @@ def main():
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
         for tag, line in dataset.lines.items():
-            if line.ion[-1].islower():
-                # skip this line, cause it's a fine-structure line:
+            if line.ion[-1].islower() and 'CI' in line.ion:
+                # skip this line, cause it's a fine-structure complex of CI:
                 continue
 
             elif any([m in tag for m in dataset.molecules.keys()]):
@@ -573,8 +573,8 @@ def main():
     # Mask invidiual lines
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
-            for line_tag in parameters['mask']:
-                dataset.mask_line(line_tag, reset=False,
+            for line_tag, reset in zip(parameters['mask'], parameters['forced_mask']):
+                dataset.mask_line(line_tag, reset=reset,
                                   velocity=show_vel_mask)
         else:
             if show_vel_mask:

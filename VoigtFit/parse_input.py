@@ -276,7 +276,7 @@ def parse_parameters(fname):
             logN_scale = 0.
             ref_comp = 0
             if 'scale' in line:
-                numbers = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
+                numbers = re.findall(r"[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
                 if len(numbers) == 2:
                     logN_scale = float(numbers[0])
                     ref_comp = int(numbers[1])
@@ -311,7 +311,7 @@ def parse_parameters(fname):
             else:
                 ion = line.split()[-1]
 
-            number = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
+            number = re.findall(r"[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
             if len(number) == 1:
                 comp = int(number[0])
 
@@ -349,19 +349,29 @@ def parse_parameters(fname):
         elif 'clear mask' in line.lower():
             parameters['clear_mask'] = True
 
-        elif ('mask' in line and
-              'name' not in line and
-              'save' not in line and
-              'nomask' not in line and
-              'view' not in line):
+        elif ('mask' in line
+              and 'name' not in line
+              and 'save' not in line
+              and 'nomask' not in line
+              and 'view' not in line):
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
+            if 'force' in line.lower():
+                force = True
+                f_idx = line.lower().find('force')
+                f_str = line[f_idx:f_idx+6]
+                line.replace(f_str, '')
+            else:
+                force = False
             items = line.split()[1:]
+            force_items = [force for _ in items]
             if 'mask' in parameters.keys():
                 parameters['mask'] += items
+                parameters['forced_mask'] += force_items
             else:
                 parameters['mask'] = items
+                parameters['forced_mask'] = force_items
 
         elif 'resolution' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
@@ -376,7 +386,7 @@ def parse_parameters(fname):
             parameters['resolution'].append([res, line])
 
         elif 'metallicity' in line and 'name' not in line and 'save' not in line:
-            numbers = re.findall("[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
+            numbers = re.findall(r"[-+]?\d+[\.]?\d*[eE]?[-+]?\d*", line)
             if len(numbers) == 2:
                 logNHI = [float(n) for n in numbers]
             elif len(numbers) == 1:
@@ -448,8 +458,7 @@ def parse_parameters(fname):
                 snr = line.split(':')[1]
             parameters['snr'] = float(snr)
 
-        elif ('velspan' in line and 'lines' not in line and
-              'molecules' not in line and 'save' not in line):
+        elif (('velspan' in line) and ('lines' not in line) and ('molecules' not in line) and ('save' not in line)):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
