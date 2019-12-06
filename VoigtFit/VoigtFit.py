@@ -524,6 +524,7 @@ def main():
         show_vel_norm = False
 
     # Reset data in regions:
+    # This keyword is deprecated and will be removed shortly!!
     if 'reset' in parameters.keys():
         if len(parameters['reset']) > 0:
             for line_tag in parameters['reset']:

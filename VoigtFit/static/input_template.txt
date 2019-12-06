@@ -77,8 +77,11 @@ interactive  __
 
 
 # Copy components to other ions.
-# The parameter language is flexible, so all of the following are acceptable:
+# The parameter language is flexible, so both statements are acceptable:
 copy components to __ion__ from __ion__
+copy components from __ion__ to __ion__
+# -- Note: Components defined above using the component statement are kept
+#          and included together with the components copied from another ion!
 
 # By default when copying components, the column densities are scaled
 # using Solar relative abundances. Otherwise use the 'scale' statement:
