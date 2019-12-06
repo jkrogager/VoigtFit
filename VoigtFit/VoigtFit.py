@@ -425,6 +425,7 @@ def main():
     # Back to Common Work Flow for all datasets:
 
     # HERE masking is correct!
+    dataset.verbose = verbose
 
     # Load components from file:
     if 'load' in parameters.keys():
@@ -650,19 +651,18 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # Run the fit:
-    popt, chi2 = dataset.fit(verbose=False, plot=False,
-                             **parameters['fit_options'])
+    popt, chi2 = dataset.fit(verbose=False, **parameters['fit_options'])
 
-    print ""
-    print popt.message
-    print ""
+    print(" The fit has finished with the following exit message:")
+    print("  " + popt.message)
+    print("")
 
     # Fix for when the code cannot estimate uncertainties:
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
         if err is None:
             dataset.best_fit[parname].stderr = 0.
-    SaveDataSet(name + '.hdf5', dataset)
+    dataset.save(name + '.hdf5', verbose=verbose)
 
     # Update systemic redshift
     if parameters['systemic'][1] == 'none':

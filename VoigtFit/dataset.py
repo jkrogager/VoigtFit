@@ -1945,7 +1945,7 @@ class DataSet(object):
                 region.err /= cont_model
                 region.normalized = True
 
-        if self.verbose:
+        if self.verbose and verbose:
             print "\n The fit has finished with the following exit message:"
             print "  " + popt.message
             print ""
