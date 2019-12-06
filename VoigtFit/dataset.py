@@ -1811,7 +1811,7 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, verbose=True, plot=False, **kwargs):
+    def fit(self, verbose=True, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
 
@@ -1954,9 +1954,6 @@ class DataSet(object):
                 output.print_results(self, self.best_fit, velocity=True)
                 if self.cheb_order >= 0:
                     output.print_cont_parameters(self)
-
-        if plot:
-            self.plot_fit(rebin=rebin, subsample_profile=rebin)
 
         chi2 = popt.chisqr
         return popt, chi2

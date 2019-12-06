@@ -710,16 +710,6 @@ def main():
     if dataset.cheb_order >= 0:
         dataset.print_cont_parameters()
 
-    if 'individual-regions' in parameters['output_pars']:
-        individual_regions = True
-    else:
-        individual_regions = False
-
-    if 'individual-components' in parameters['output_pars']:
-        individual_components = True
-    else:
-        individual_components = False
-
     # print metallicity
     logNHI = parameters['logNHI']
     if 'HI' in dataset.components.keys():
@@ -731,41 +721,31 @@ def main():
     if parameters['show_total']:
         dataset.print_total()
 
-    # save
-    if parameters['save']:
-        filename = parameters['filename']
-        if not filename:
-            filename = name
-        if filename.split('.')[-1] in ['pdf']:
-            filename = filename[:-4]
-        # plot and save
-        if 'rebin' in parameters['fit_options'].keys():
-            rebin = parameters['fit_options']['rebin']
-        else:
-            rebin = 1
-        dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
-        output.save_parameters_to_file(dataset, filename+'.fit')
-        output.save_cont_parameters_to_file(dataset, filename+'.cont')
-        output.save_fit_regions(dataset, filename+'.reg',
-                                individual=individual_regions)
-        if individual_components:
-            output.save_individual_components(dataset, filename+'.components')
-        plt.show(block=True)
-
+    # Output:
+    if 'individual-regions' in parameters['output_pars']:
+        individual_regions = True
     else:
-        print(" --- Plotting output without saving!!!")
-        if 'rebin' in parameters['fit_options'].keys():
-            rebin = parameters['fit_options']['rebin']
-        else:
-            rebin = 1
+        individual_regions = False
 
-        if 'sampling' in parameters['fit_options'].keys():
-            sampling = parameters['fit_options']['sampling']
-        else:
-            sampling = 3
+    if 'individual-components' in parameters['output_pars']:
+        individual_components = True
+    else:
+        individual_components = False
 
-        dataset.plot_fit(rebin=rebin, subsample_profile=sampling)
-        plt.show(block=True)
+    filename = name
+    # plot and save
+    if 'rebin' in parameters['fit_options'].keys():
+        rebin = parameters['fit_options']['rebin']
+    else:
+        rebin = 1
+    dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
+    output.save_parameters_to_file(dataset, filename+'.fit')
+    output.save_cont_parameters_to_file(dataset, filename+'.cont')
+    output.save_fit_regions(dataset, filename+'.reg',
+                            individual=individual_regions)
+    if individual_components:
+        output.save_individual_components(dataset, filename+'.components')
+    plt.show(block=True)
 
 
 if __name__ == '__main__':

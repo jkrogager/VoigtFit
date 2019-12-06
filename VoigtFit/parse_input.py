@@ -29,7 +29,7 @@ def parse_parameters(fname):
     parameters['show_total'] = False
     parameters['plot'] = False
     parameters['resolution'] = list()
-    parameters['save'] = False
+    parameters['save'] = True
     parameters['cheb_order'] = -1
     parameters['systemic'] = [None, 'none']
     parameters['clear_mask'] = False
@@ -426,6 +426,7 @@ def parse_parameters(fname):
             # 'individual-regions' saves individual regions to separate files
             parameters['output_pars'] = items
 
+        # The save statement is deprecated and will be removed shortly!
         elif 'save' in line and 'name' not in line:
             parameters['save'] = True
             # strip comments:

@@ -7,7 +7,6 @@
 name :  __
 z_sys:  __
 norm_method:  linear   # or spline
-save :  __
 interactive_view : wave   # or velocity
 mask_view : wave   # or velocity
 norm_view : wave   # or velocity

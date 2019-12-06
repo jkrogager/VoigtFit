@@ -448,10 +448,10 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                     pass
                 else:
                     if xunit == 'wl':
-                        ax.set_xlabel("${\\rm Wavelength\ \ (\\AA)}$",
+                        ax.set_xlabel(r"${\rm Wavelength\ \ (\AA)}$",
                                       fontsize=12)
                     else:
-                        ax.set_xlabel("${\\rm Rel. velocity\ \ (km\ s^{-1})}$",
+                        ax.set_xlabel(r"${\rm Rel. velocity\ \ (km\ s^{-1})}$",
                                       fontsize=12)
 
                 if num % 2 == 0:
@@ -703,7 +703,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         #     f_ref = line.f
         #     ref_line = line
         delta_v = (l0*(dataset.redshift + 1) - l_ref) / l_ref * 299792.
-        if np.abs(delta_v) <= 150 or line.ion[-1].islower() is True:
+        if np.abs(delta_v) <= 200 or (line.ion[-1].islower() and line.ion[:-1] == 'CI'):
             lines_in_view.append(line.tag)
 
     if axis:
