@@ -471,7 +471,7 @@ def main():
     for component in parameters['components_to_copy']:
         ion, anchor, logN, ref_comp, tie_z, tie_b = component
         dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                tie_z=tie_z, tie_b=False)
+                                tie_z=tie_z, tie_b=tie_b)
         if anchor in thermal_model.keys():
             thermal_model[ion] = thermal_model[anchor]
 
@@ -606,6 +606,8 @@ def main():
         show_vel_mask = False
 
     # Mask invidiual lines
+    if verbose:
+        print(" Masking parameters:", parameters['mask'])
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
             for line_tag, reset in zip(parameters['mask'], parameters['forced_mask']):
@@ -700,7 +702,9 @@ def main():
 
     # print metallicity
     logNHI = parameters['logNHI']
-    if logNHI:
+    if 'HI' in dataset.components.keys():
+        dataset.print_metallicity(*dataset.get_NHI())
+    elif logNHI:
         dataset.print_metallicity(*logNHI)
 
     # print abundance

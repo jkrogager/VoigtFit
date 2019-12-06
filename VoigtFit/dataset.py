@@ -2171,6 +2171,11 @@ class DataSet(object):
                 print "           or give filename [dataset.save(filename='filename')]"
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
 
+    def get_NHI(self):
+        if 'HI' in self.components.keys() and hasattr(self.best_fit, 'keys'):
+            best_fit_NHI = self.best_fit['logN0_HI']
+            return (best_fit_NHI.value, best_fit_NHI.stderr)
+
     def show_lines(self):
         """
         Print all defined lines to terminal.

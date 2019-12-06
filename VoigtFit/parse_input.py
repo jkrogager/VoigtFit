@@ -361,7 +361,7 @@ def parse_parameters(fname):
                 force = True
                 f_idx = line.lower().find('force')
                 f_str = line[f_idx:f_idx+6]
-                line.replace(f_str, '')
+                line = line.replace(f_str, '')
             else:
                 force = False
             items = line.split()[1:]
