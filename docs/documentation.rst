@@ -420,6 +420,8 @@ Copy Components
   Lines must be defined for this *ion* using a ``lines`` statement.
 
   Note -- The order is not important. This is inferred from the position of the words *to* and *from*.
+          If components are also defined using the regular `component` statement
+          then both the copied components and the individual components are included in the fit!
 
 
 Optinal arguments:
