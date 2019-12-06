@@ -407,21 +407,24 @@ def main():
         thermal_model = dict()
 
     # Define Components:
+    component_dict = dict()
     for component in parameters['components']:
         (ion, z, b, logN,
          var_z, var_b, var_N,
          tie_z, tie_b, tie_N,
          vel, thermal) = component
 
+        comp_options = dict(var_z=var_z, tie_z=tie_z,
+                            var_b=var_b, tie_b=tie_b,
+                            var_N=var_N, tie_N=tie_N)
+        if ion not in component_dict.keys():
+            component_dict[ion] = list()
+        component_dict[ion].append([z, b, logN, comp_options, vel])
+
         if vel:
-            dataset.add_component_velocity(ion, z, b, logN,
-                                           var_z=var_z, var_b=var_b,
-                                           var_N=var_N, tie_z=tie_z,
-                                           tie_b=tie_b, tie_N=tie_N)
+            dataset.add_component_velocity(ion, z, b, logN, **comp_options)
         else:
-            dataset.add_component(ion, z, b, logN,
-                                  var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            dataset.add_component(ion, z, b, logN, **comp_options)
 
         if ion in thermal_model.keys():
             thermal_model[ion].append(thermal)
@@ -443,13 +446,19 @@ def main():
 
     for component in parameters['components_to_copy']:
         ion, anchor, logN, ref_comp, tie_z, tie_b = component
+        dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
+                                tie_z=tie_z, tie_b=False)
         if anchor in thermal_model.keys():
-            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                    tie_z=tie_z, tie_b=False)
             thermal_model[ion] = thermal_model[anchor]
-        else:
-            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                    tie_z=tie_z, tie_b=tie_b)
+
+        # Check if separate components are defined for the ion:
+        if ion in component_dict.keys():
+            for component in component_dict[ion]:
+                z, b, logN, comp_options, vel = component
+                if vel:
+                    dataset.add_component_velocity(ion, z, b, logN, **comp_options)
+                else:
+                    dataset.add_component(ion, z, b, logN, **comp_options)
 
     # Format component list to dictionary:
     components_to_delete = dict()
