@@ -257,7 +257,7 @@ def parse_parameters(fname):
 
             components.append([ion, z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N, vel, thermal])
 
-        elif 'copy' in line:
+        elif 'copy' in line and 'output' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -300,7 +300,7 @@ def parse_parameters(fname):
 
             components_to_copy.append([ion, anchor, logN_scale, ref_comp, tie_z, tie_b])
 
-        elif 'delete' in line:
+        elif 'delete' in line and 'output' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
