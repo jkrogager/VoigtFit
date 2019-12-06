@@ -46,6 +46,13 @@ C_order = -1
 # Or enable interactive masking for specific lines only:
 #mask __line__
 
+# If you want to regenerate the mask of a specific line or lines
+# you can include the option *force* in the statement, ex:
+#mask __line1__  force
+#mask __line2__
+# This will only reset the mask of line1 everytime the dataset is fitted.
+# The mask of line2 will be loaded from the saved dataset.
+
 
 # Define the lines that should be included in the fit:
 # The default velocity span is 500 km/s but can specified

@@ -473,7 +473,7 @@ a component can simply be commented out (using ‘#’) to delete it from the fi
 .. topic:: Example
 
   Suppose that FeII has 5 components defined and the same component structure has been copied to
-  ZnII; However, the zinc lines are much weaker and therefore only 4 components can be
+  ZnII; However, the zinc lines are much weaker and therefore only the 4 strongest components can be
   constrained for ZnII. This would be defined as follows:
 
     | ``component FeII  2.0456  15.5  14.6``
@@ -483,7 +483,7 @@ a component can simply be commented out (using ‘#’) to delete it from the fi
     | ``component FeII  2.0495  13.5  14.7``
 
     | ``copy components from FeII to ZnII  scale 13.2  0``
-    | ``delete component 1 from ZnII``
+    | ``delete component 2 from ZnII``
 
 
 Continuum Normalization
@@ -559,13 +559,18 @@ The default is -1, i.e., no Chebyshev_ model is used.
 Mask
 ----
 
-**mask  [ line_tags ]**
+**mask  [ line_tags ]  [ force ]**
 
 Optional arguments:
 
   *line_tags* : either a single line identifier (e.g., 'FeII_2374') or a space separated list
   of identifiers for which to run the interactive masking procedure.
   Default is to define masks for all lines.
+
+  *force* : if present, the masking for the given line_tags will be reset everytime the user
+  runs the fit. Otherwise the mask will only be defined the first time the dataset is fitted
+  and the subsequent runs will load the mask from the previous generation unless the dataset
+  file (.hdf5) is deleted or reset using the `-f` option of `VoigtFit`.
 
 This statement allows the user to define mask interactively for all lines or individual lines.
 

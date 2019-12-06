@@ -35,6 +35,26 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.3:
+
+  The user can now reset the masking of specific lines in a dataset by using the *force* option in the
+  `mask` statement. For more details, see the `Mask` section of the :ref:`documentation`.
+  Bugfixes: The indexing of components to delete is automatically sorted so that the component structure
+  is kept intact during the removal of components.
+  Small bugs in the handling of fine-structure lines has been fixed.
+
+
+New in version 0.11.2:
+
+  Technical update: Implementing tests.
+
+
+New in version 0.11.1:
+
+  Bugfixes: The Chebyshev parameters were not saved in the HDF5 dataset and they were sorted incorrectly
+  as strings instead of numbers.
+
+
 New in version 0.11:
 
   The code now checks that all lines for the defined ions have been added to the fit
