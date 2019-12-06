@@ -150,9 +150,12 @@ def main():
                         help="VoigtFit input parameter file.")
     parser.add_argument("-f", action="store_true",
                         help="Force new dataset to be created. This will overwrite existing data.")
+    parser.add_argument("-v", action="store_true",
+                        help="Verbose")
 
     args = parser.parse_args()
     parfile = args.input
+    verbose = args.v
     if parfile is None:
         print("")
         print("  No input file was given.")
@@ -175,6 +178,9 @@ def main():
         # Setup data:
 
         for fname, res, norm, airORvac, nsub in parameters['data']:
+            if verbose:
+                print(" Loading data: " + fname)
+
             if fname[-5:] == '.fits':
                 hdu = pf.open(fname)
                 spec = pf.getdata(fname, 0)
@@ -209,17 +215,25 @@ def main():
                     wl, spec, err, mask = data.T
 
             if airORvac == 'air':
+                if verbose:
+                    print(" Converting wavelength from air to vacuum.")
                 wl = air2vac(wl)
 
             dataset.add_data(wl, spec, res,
                              err=err, normalized=norm, mask=mask, nsub=nsub)
+            if verbose:
+                print(" Successfully added spectrum to dataset.\n")
 
         # -- Handle `lines`:
         # Add new lines that were not defined before:
         new_lines = list()
+        if verbose:
+            print(" - Lines in parameter file:")
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
+                if verbose:
+                    print(" %s  -  new line! Adding to dataset..." % tag)
             else:
                 # Check if velocity span has changed:
                 regions_of_line = dataset.find_line(tag)
@@ -230,10 +244,14 @@ def main():
                     if reg.velspan != velspan:
                         dataset.remove_line(tag)
                         new_lines.append([tag, velspan])
+                        if verbose:
+                            print(" %s  -  velspan has changed! Updating dataset..." % tag)
 
                 # Check if line is active:
                 this_line = dataset.lines[tag]
                 if not this_line.active:
+                    if verbose:
+                        print(" %s  -  line was inactive! Activating line..." % tag)
                     dataset.activate_line(tag)
 
         for tag, velspan in new_lines:
@@ -242,7 +260,7 @@ def main():
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
         for tag, line in dataset.lines.items():
-            if line.ion[-1].islower() and 'CI' in line.ion:
+            if line.ion[-1].islower() and line.ion[:-1] == 'CI':
                 # skip this line, cause it's a fine-structure complex of CI:
                 continue
 
@@ -251,15 +269,21 @@ def main():
                 continue
 
             elif tag not in defined_tags:
+                if verbose:
+                    print(" %s - line was defined in dataset but not in parameter file" % tag)
                 dataset.deactivate_line(tag)
         # --------------------------------------------------------------------
 
         # -- Handle `fine-structure lines`:
         # Add new fine-structure lines that were not defined before:
         new_fine_lines = list()
+        if verbose:
+            print("\n - Fine-structure lines:")
         if len(parameters['fine-lines']) > 0:
             for ground_state, levels, velspan in parameters['fine-lines']:
                 if ground_state not in dataset.all_lines:
+                    if verbose:
+                        print(" %s  -  new fine-structure complex" % ground_state)
                     new_fine_lines.append([ground_state, levels, velspan])
                 else:
                     # Check if velocity span has changed:
@@ -283,7 +307,9 @@ def main():
             # Only consider fine-structure lines:
             fine_line_states = fine_structure_complexes.keys()
             if tag in fine_line_states and tag not in input_tags:
-                dataset.deactivate_fine_lines(tag, verbose=False)
+                if verbose:
+                    print(" %s  -  deactivating fine-lines" % tag)
+                dataset.deactivate_fine_lines(tag, verbose=verbose)
 
         # --------------------------------------------------------------------
 
