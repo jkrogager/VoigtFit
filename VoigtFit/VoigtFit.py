@@ -303,13 +303,11 @@ def main():
 
         # Remove old fine-structure lines which should not be fitted:
         input_tags = [item[0] for item in parameters['fine-lines']]
-        for tag, line in dataset.lines.items():
-            # Only consider fine-structure lines:
-            fine_line_states = fine_structure_complexes.keys()
-            if tag in fine_line_states and tag not in input_tags:
+        for ground_state, line in dataset.fine_lines.items():
+            if ground_state not in input_tags:
                 if verbose:
-                    print(" %s  -  deactivating fine-lines" % tag)
-                dataset.deactivate_fine_lines(tag, verbose=verbose)
+                    print(" %s  -  deactivating fine-lines" % ground_state)
+                dataset.deactivate_fine_lines(ground_state, verbose=verbose)
 
         # --------------------------------------------------------------------
 
