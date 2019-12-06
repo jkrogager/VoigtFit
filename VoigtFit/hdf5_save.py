@@ -100,6 +100,12 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                                      dtype=[('band', 'S8'), ('Jmax', 'i4')])
                 molecules.create_dataset(molecule, data=band_data)
 
+        fine_lines = hdf.create_group('fine_lines')
+        if hasattr(dataset, 'fine_lines'):
+            for ground_state, lines in dataset.fine_lines.items():
+                line_array = np.array(lines, dtype='str')
+                fine_lines.create_dataset(ground_state, data=line_array)
+
         # .components:
         components = hdf.create_group('components')
         for ion, comps in dataset.components.items():
@@ -237,6 +243,14 @@ def load_dataset_from_hdf(fname):
                 ds.molecules[molecule] = bands
                 # No need to call ds.add_molecule
                 # lines are added above when defining the regions.
+
+        # Load .fine_lines:
+        # Older datasets do not have 'fine_lines', so add a check for backwards compatibility:
+        if 'fine_lines' in hdf:
+            fine_lines = hdf['fine_lines']
+            if len(fine_lines) > 0:
+                for ground_state, line_tags in fine_lines.items():
+                    ds.fine_lines[ground_state] = list(line_tags)
 
         # Load .components:
         components = hdf['components']

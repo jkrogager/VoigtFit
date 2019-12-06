@@ -222,6 +222,9 @@ class DataSet(object):
         self.lines = dict()
         # a list containing all the line-tags defined. The same as lines.keys()
         self.all_lines = list()
+        # a dictionary conatining a list of transitions for each fine-structure ground state:
+        # Ex: self.fine_lines = {'CI_1656': ['CI_1656', 'CIa_1656', 'CIa_1657', ...]}
+        self.fine_lines = dict()
         # a dictionary conatining a list of bands defined for each molecule:
         # Ex: self.molecules = {'CO': ['AX(0-0)', 'AX(1-0)']}
         self.molecules = dict()
@@ -1328,6 +1331,8 @@ class DataSet(object):
             If `True`, the label will be translated to the full quantum
             mechanical description of the state.
         """
+        self.fine_lines[line_tag] = list()
+
         if velspan is None:
             velspan = self.velspan
         else:
@@ -1338,16 +1343,19 @@ class DataSet(object):
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
+                    self.fine_lines[line_tag].append(fineline)
 
         elif levels is None:
             for fineline in fine_structure_complexes[line_tag]:
                 self.add_line(fineline, velspan)
+                self.fine_lines[line_tag].append(fineline)
 
         else:
             for fineline in fine_structure_complexes[line_tag]:
                 ion = fineline.split('_')[0]
                 if ion[-1] in levels or ion[-1].isupper():
                     self.add_line(fineline, velspan)
+                    self.fine_lines[line_tag].append(fineline)
 
         # Set label:
         regions_of_line = self.find_line(line_tag)
@@ -1355,8 +1363,8 @@ class DataSet(object):
             if full_label:
                 reg.label = line_complexes.full_labels[line_tag]
             else:
-                raw_label = line_tag.replace('_', r'\ \\lambda')
-                reg.set_label("${\\rm %s}$" % raw_label)
+                raw_label = line_tag.replace('_', r'\ \lambda')
+                reg.set_label(r"${\rm %s}$" % raw_label)
 
     def remove_fine_lines(self, line_tag, levels=None):
         """
@@ -1380,12 +1388,14 @@ class DataSet(object):
                 if levels is None:
                     pass
                 elif line.ion[-1] in levels:
-                    pass
+                    self.fine_lines[line_tag].remove(fineline)
                 else:
                     continue
                 self.remove_line(fineline)
                 if self.verbose:
                     print "Removing line: %s" % fineline
+        if levels is None:
+            self.fine_lines.pop(line_tag)
 
     def deactivate_fine_lines(self, line_tag, levels=None, verbose=True):
         """
@@ -1415,7 +1425,6 @@ class DataSet(object):
                     pass
                 else:
                     continue
-
                 self.deactivate_line(fineline)
                 if self.verbose and verbose:
                     print("Deactivated line: %s" % fineline)
@@ -1789,7 +1798,7 @@ class DataSet(object):
             if len(lines_not_defined) > 0 and self.verbose:
                 print("")
                 print(term.red)
-                print(" [WARNING]")
+                print(" [WARNING]  -  Check-lines is activated")
                 print(" The following lines of included ions are also covered by the data:")
                 print(term.reset)
                 for entry in lines_not_defined:
@@ -1802,7 +1811,7 @@ class DataSet(object):
                 print ""
             return True
 
-    def fit(self, verbose=True, plot=False, **kwargs):
+    def fit(self, verbose=True, **kwargs):
         """
         Fit the absorption lines using chi-square minimization.
 
@@ -1936,7 +1945,7 @@ class DataSet(object):
                 region.err /= cont_model
                 region.normalized = True
 
-        if self.verbose:
+        if self.verbose and verbose:
             print "\n The fit has finished with the following exit message:"
             print "  " + popt.message
             print ""
@@ -1945,9 +1954,6 @@ class DataSet(object):
                 output.print_results(self, self.best_fit, velocity=True)
                 if self.cheb_order >= 0:
                     output.print_cont_parameters(self)
-
-        if plot:
-            self.plot_fit(rebin=rebin, subsample_profile=rebin)
 
         chi2 = popt.chisqr
         return popt, chi2
@@ -2163,6 +2169,11 @@ class DataSet(object):
                 print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
                 print "           or give filename [dataset.save(filename='filename')]"
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
+
+    def get_NHI(self):
+        if 'HI' in self.components.keys() and hasattr(self.best_fit, 'keys'):
+            best_fit_NHI = self.best_fit['logN0_HI']
+            return (best_fit_NHI.value, best_fit_NHI.stderr)
 
     def show_lines(self):
         """

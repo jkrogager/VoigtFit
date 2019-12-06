@@ -150,9 +150,12 @@ def main():
                         help="VoigtFit input parameter file.")
     parser.add_argument("-f", action="store_true",
                         help="Force new dataset to be created. This will overwrite existing data.")
+    parser.add_argument("-v", action="store_true",
+                        help="Verbose")
 
     args = parser.parse_args()
     parfile = args.input
+    verbose = args.v
     if parfile is None:
         print("")
         print("  No input file was given.")
@@ -175,6 +178,9 @@ def main():
         # Setup data:
 
         for fname, res, norm, airORvac, nsub in parameters['data']:
+            if verbose:
+                print(" Loading data: " + fname)
+
             if fname[-5:] == '.fits':
                 hdu = pf.open(fname)
                 spec = pf.getdata(fname, 0)
@@ -209,18 +215,36 @@ def main():
                     wl, spec, err, mask = data.T
 
             if airORvac == 'air':
+                if verbose:
+                    print(" Converting wavelength from air to vacuum.")
                 wl = air2vac(wl)
 
             dataset.add_data(wl, spec, res,
                              err=err, normalized=norm, mask=mask, nsub=nsub)
+            if verbose:
+                print(" Successfully added spectrum to dataset.\n")
 
         # -- Handle `lines`:
         # Add new lines that were not defined before:
         new_lines = list()
+        if verbose:
+            print("\n - Lines in dataset:")
+            print(dataset.lines.keys())
+            print(" - Lines in parameter file:")
+            print(parameters['lines'])
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
+                if verbose:
+                    print(" %s  -  new line! Adding to dataset..." % tag)
             else:
+                # Check if line is active:
+                this_line = dataset.lines[tag]
+                if not this_line.active:
+                    if verbose:
+                        print(" %s  -  line was inactive! Activating line..." % tag)
+                    dataset.activate_line(tag)
+
                 # Check if velocity span has changed:
                 regions_of_line = dataset.find_line(tag)
                 for reg in regions_of_line:
@@ -230,11 +254,8 @@ def main():
                     if reg.velspan != velspan:
                         dataset.remove_line(tag)
                         new_lines.append([tag, velspan])
-
-                # Check if line is active:
-                this_line = dataset.lines[tag]
-                if not this_line.active:
-                    dataset.activate_line(tag)
+                        if verbose:
+                            print(" %s  -  velspan has changed! Updating dataset..." % tag)
 
         for tag, velspan in new_lines:
             dataset.add_line(tag, velspan=velspan)
@@ -242,8 +263,11 @@ def main():
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
         for tag, line in dataset.lines.items():
-            if line.ion[-1].islower():
-                # skip this line, cause it's a fine-structure line:
+            if tag in dataset.fine_lines.keys():
+                # skip this line, cause it's a fine-structure complex of CI:
+                continue
+
+            elif line.ion[-1].islower() and line.ion[:-1] == 'CI':
                 continue
 
             elif any([m in tag for m in dataset.molecules.keys()]):
@@ -251,39 +275,57 @@ def main():
                 continue
 
             elif tag not in defined_tags:
+                if verbose:
+                    print(" %s - line was defined in dataset but not in parameter file" % tag)
                 dataset.deactivate_line(tag)
         # --------------------------------------------------------------------
 
         # -- Handle `fine-structure lines`:
         # Add new fine-structure lines that were not defined before:
         new_fine_lines = list()
+        if verbose:
+            print("\n - Fine-structure lines in dataset:")
+            print(dataset.fine_lines)
+            print(dataset.lines.keys())
+            print("\n - Fine-structure lines in parameter file:")
+            print(parameters['fine-lines'])
         if len(parameters['fine-lines']) > 0:
             for ground_state, levels, velspan in parameters['fine-lines']:
-                if ground_state not in dataset.all_lines:
+                if ground_state not in dataset.fine_lines.keys():
+                    if verbose:
+                        print(" %s  -  new fine-structure complex" % ground_state)
                     new_fine_lines.append([ground_state, levels, velspan])
                 else:
-                    # Check if velocity span has changed:
-                    regions_of_line = dataset.find_line(ground_state)
-                    for reg in regions_of_line:
-                        if reg.velspan != velspan:
-                            dataset.remove_fine_lines(ground_state)
-                            new_fine_lines.append([ground_state, levels, velspan])
-
                     # Check if this line is active:
                     this_line = dataset.lines[ground_state]
                     if not this_line.active:
                         dataset.activate_fine_lines(ground_state, levels)
+
+                    # Check if velocity span has changed:
+                    if verbose:
+                        print(" Checking if Velocity Span is unchaged...")
+                    regions_of_line = dataset.find_line(ground_state)
+                    if velspan is None:
+                        velspan = dataset.velspan
+                    for reg in regions_of_line:
+                        if np.abs(reg.velspan - velspan) < 0.1:
+                            if verbose:
+                                print(" Detected difference in velocity span: %s" % ground_state)
+                            dataset.remove_fine_lines(ground_state)
+                            new_fine_lines.append([ground_state, levels, velspan])
 
         for ground_state, levels, velspan in new_fine_lines:
             dataset.add_fine_lines(ground_state, levels=levels, velspan=velspan)
 
         # Remove old fine-structure lines which should not be fitted:
         input_tags = [item[0] for item in parameters['fine-lines']]
-        for tag, line in dataset.lines.items():
-            # Only consider fine-structure lines:
-            fine_line_states = fine_structure_complexes.keys()
-            if tag in fine_line_states and tag not in input_tags:
-                dataset.deactivate_fine_lines(tag, verbose=False)
+        if verbose:
+            print(" Any fine-structure lines in dataset that should not be fitted?")
+        for ground_state, line in dataset.fine_lines.items():
+            if ground_state not in input_tags:
+                if verbose:
+                    print(" %s  -  deactivating fine-lines" % ground_state)
+                dataset.deactivate_fine_lines(ground_state, verbose=verbose)
 
         # --------------------------------------------------------------------
 
@@ -383,6 +425,7 @@ def main():
     # Back to Common Work Flow for all datasets:
 
     # HERE masking is correct!
+    dataset.verbose = verbose
 
     # Load components from file:
     if 'load' in parameters.keys():
@@ -407,21 +450,24 @@ def main():
         thermal_model = dict()
 
     # Define Components:
+    component_dict = dict()
     for component in parameters['components']:
         (ion, z, b, logN,
          var_z, var_b, var_N,
          tie_z, tie_b, tie_N,
          vel, thermal) = component
 
+        comp_options = dict(var_z=var_z, tie_z=tie_z,
+                            var_b=var_b, tie_b=tie_b,
+                            var_N=var_N, tie_N=tie_N)
+        if ion not in component_dict.keys():
+            component_dict[ion] = list()
+        component_dict[ion].append([z, b, logN, comp_options, vel])
+
         if vel:
-            dataset.add_component_velocity(ion, z, b, logN,
-                                           var_z=var_z, var_b=var_b,
-                                           var_N=var_N, tie_z=tie_z,
-                                           tie_b=tie_b, tie_N=tie_N)
+            dataset.add_component_velocity(ion, z, b, logN, **comp_options)
         else:
-            dataset.add_component(ion, z, b, logN,
-                                  var_z=var_z, var_b=var_b, var_N=var_N,
-                                  tie_z=tie_z, tie_b=tie_b, tie_N=tie_N)
+            dataset.add_component(ion, z, b, logN, **comp_options)
 
         if ion in thermal_model.keys():
             thermal_model[ion].append(thermal)
@@ -443,22 +489,40 @@ def main():
 
     for component in parameters['components_to_copy']:
         ion, anchor, logN, ref_comp, tie_z, tie_b = component
+        dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
+                                tie_z=tie_z, tie_b=tie_b)
         if anchor in thermal_model.keys():
-            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                    tie_z=tie_z, tie_b=False)
             thermal_model[ion] = thermal_model[anchor]
-        else:
-            dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
-                                    tie_z=tie_z, tie_b=tie_b)
 
+        # Check if separate components are defined for the ion:
+        if ion in component_dict.keys():
+            for component in component_dict[ion]:
+                z, b, logN, comp_options, vel = component
+                if vel:
+                    dataset.add_component_velocity(ion, z, b, logN, **comp_options)
+                else:
+                    dataset.add_component(ion, z, b, logN, **comp_options)
+
+    # Format component list to dictionary:
+    components_to_delete = dict()
     for component in parameters['components_to_delete']:
-        dataset.delete_component(*component)
+        ion, comp_id = component
+        if ion not in components_to_delete.keys():
+            components_to_delete[ion] = list()
+        components_to_delete[ion].append(comp_id)
 
-        # Also remove component from therma_model
-        ion, num = component
-        if ion in thermal_model.keys():
-            if num in thermal_model[ion]:
-                thermal_model[ion].remove(num)
+    # Sort the component IDs high to low:
+    components_to_delete = {ion: sorted(ctd, reverse=True) for ion, ctd in components_to_delete.items()}
+
+    # Delete components from dataset:
+    for ion, comps_to_del in components_to_delete.items():
+        for num in comps_to_del:
+            dataset.delete_component(ion, num)
+
+            # Also remove component from therma_model
+            if ion in thermal_model.keys():
+                if num in thermal_model[ion]:
+                    thermal_model[ion].remove(num)
 
     # Set default value of norm:
     norm = False
@@ -466,6 +530,7 @@ def main():
         dataset.cheb_order = parameters['cheb_order']
         if parameters['cheb_order'] >= 0:
             norm = False
+            dataset.reset_all_regions()
         else:
             norm = True
 
@@ -502,6 +567,7 @@ def main():
         show_vel_norm = False
 
     # Reset data in regions:
+    # This keyword is deprecated and will be removed shortly!!
     if 'reset' in parameters.keys():
         if len(parameters['reset']) > 0:
             for line_tag in parameters['reset']:
@@ -512,6 +578,8 @@ def main():
             dataset.reset_all_regions()
 
     # prepare_dataset
+    if verbose:
+        print(" - Preparing dataset:")
     dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
                             **parameters['check_lines'])
 
@@ -559,10 +627,12 @@ def main():
         show_vel_mask = False
 
     # Mask invidiual lines
+    if verbose:
+        print(" Masking parameters:", parameters['mask'])
     if 'mask' in parameters.keys():
         if len(parameters['mask']) > 0:
-            for line_tag in parameters['mask']:
-                dataset.mask_line(line_tag, reset=False,
+            for line_tag, reset in zip(parameters['mask'], parameters['forced_mask']):
+                dataset.mask_line(line_tag, reset=reset,
                                   velocity=show_vel_mask)
         else:
             if show_vel_mask:
@@ -581,19 +651,18 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # Run the fit:
-    popt, chi2 = dataset.fit(verbose=False, plot=False,
-                             **parameters['fit_options'])
+    popt, chi2 = dataset.fit(verbose=False, **parameters['fit_options'])
 
-    print ""
-    print popt.message
-    print ""
+    print(" The fit has finished with the following exit message:")
+    print("  " + popt.message)
+    print("")
 
     # Fix for when the code cannot estimate uncertainties:
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
         if err is None:
             dataset.best_fit[parname].stderr = 0.
-    SaveDataSet(name + '.hdf5', dataset)
+    dataset.save(name + '.hdf5', verbose=verbose)
 
     # Update systemic redshift
     if parameters['systemic'][1] == 'none':
@@ -641,6 +710,18 @@ def main():
     if dataset.cheb_order >= 0:
         dataset.print_cont_parameters()
 
+    # print metallicity
+    logNHI = parameters['logNHI']
+    if 'HI' in dataset.components.keys():
+        dataset.print_metallicity(*dataset.get_NHI())
+    elif logNHI:
+        dataset.print_metallicity(*logNHI)
+
+    # print abundance
+    if parameters['show_total']:
+        dataset.print_total()
+
+    # Output:
     if 'individual-regions' in parameters['output_pars']:
         individual_regions = True
     else:
@@ -651,50 +732,20 @@ def main():
     else:
         individual_components = False
 
-    # print metallicity
-    logNHI = parameters['logNHI']
-    if logNHI:
-        dataset.print_metallicity(*logNHI)
-
-    # print abundance
-    if parameters['show_total']:
-        dataset.print_total()
-
-    # save
-    if parameters['save']:
-        filename = parameters['filename']
-        if not filename:
-            filename = name
-        if filename.split('.')[-1] in ['pdf']:
-            filename = filename[:-4]
-        # plot and save
-        if 'rebin' in parameters['fit_options'].keys():
-            rebin = parameters['fit_options']['rebin']
-        else:
-            rebin = 1
-        dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
-        output.save_parameters_to_file(dataset, filename+'.fit')
-        output.save_cont_parameters_to_file(dataset, filename+'.cont')
-        output.save_fit_regions(dataset, filename+'.reg',
-                                individual=individual_regions)
-        if individual_components:
-            output.save_individual_components(dataset, filename+'.components')
-        plt.show(block=True)
-
+    filename = name
+    # plot and save
+    if 'rebin' in parameters['fit_options'].keys():
+        rebin = parameters['fit_options']['rebin']
     else:
-        print(" --- Plotting output without saving!!!")
-        if 'rebin' in parameters['fit_options'].keys():
-            rebin = parameters['fit_options']['rebin']
-        else:
-            rebin = 1
-
-        if 'sampling' in parameters['fit_options'].keys():
-            sampling = parameters['fit_options']['sampling']
-        else:
-            sampling = 3
-
-        dataset.plot_fit(rebin=rebin, subsample_profile=sampling)
-        plt.show(block=True)
+        rebin = 1
+    dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
+    output.save_parameters_to_file(dataset, filename+'.fit')
+    output.save_cont_parameters_to_file(dataset, filename+'.cont')
+    output.save_fit_regions(dataset, filename+'.reg',
+                            individual=individual_regions)
+    if individual_components:
+        output.save_individual_components(dataset, filename+'.components')
+    plt.show(block=True)
 
 
 if __name__ == '__main__':

@@ -35,6 +35,32 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.3:
+
+  The user can now reset the masking of specific lines in a dataset by using the *force* option in the
+  `mask` statement. For more details, see the `Mask` section of the :ref:`documentation`.
+  The user can also include separate components for ions where the component structure is otherwise
+  copied from another ion. Before, these component definitions were overwritten by the copy statement.
+  The `reset` statement is now obsolete. The data are automatically reset when using the Chebyshev continuum model.
+  A new verbose option can be used to print more details about the dataset, mostly useful for debugging.
+  Include `-v` in the call to VoigtFit from the terminal.
+  Bugfixes: The indexing of components to delete is automatically sorted so that the component structure
+  is kept intact during the removal of components.
+  Small bugs in the handling of fine-structure lines has been fixed by including a new `fine_lines` data
+  structure in the dataset to indicate whether lines have been defined in a line complex or individually.
+
+
+New in version 0.11.2:
+
+  Technical update: Implementing tests.
+
+
+New in version 0.11.1:
+
+  Bugfixes: The Chebyshev parameters were not saved in the HDF5 dataset and they were sorted incorrectly
+  as strings instead of numbers.
+
+
 New in version 0.11:
 
   The code now checks that all lines for the defined ions have been added to the fit

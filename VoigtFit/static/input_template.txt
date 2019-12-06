@@ -7,7 +7,6 @@
 name :  __
 z_sys:  __
 norm_method:  linear   # or spline
-save :  __
 interactive_view : wave   # or velocity
 mask_view : wave   # or velocity
 norm_view : wave   # or velocity
@@ -32,19 +31,17 @@ data  ____         ___
 C_order = -1
 
 
-# Uncomment to reset data for all lines:
-#reset
-# or for some lines only:
-#reset __line__  __line__
-# This is useful when using a Chebyshev continuum model, since the fit region data
-# is updated with the newly adjusted continuum after the fit converges.
-# In order to use the raw data in a new fit iteration, the reset keyword should be set.
-
-
 # Uncomment to enable interactive masking for all lines:
 #mask
 # Or enable interactive masking for specific lines only:
 #mask __line__
+
+# If you want to regenerate the mask of a specific line or lines
+# you can include the option *force* in the statement, ex:
+#mask __line1__  force
+#mask __line2__
+# This will only reset the mask of line1 everytime the dataset is fitted.
+# The mask of line2 will be loaded from the saved dataset.
 
 
 # Define the lines that should be included in the fit:
@@ -53,6 +50,9 @@ C_order = -1
 lines __line__  velspan=300
 lines __line__
 
+
+
+# --- Components:
 
 # Define components in redshift space:
 #          ion   z    b   logN
@@ -76,8 +76,11 @@ interactive  __
 
 
 # Copy components to other ions.
-# The parameter language is flexible, so all of the following are acceptable:
+# The parameter language is flexible, so both statements are acceptable:
 copy components to __ion__ from __ion__
+copy components from __ion__ to __ion__
+# -- Note: Components defined above using the component statement are kept
+#          and included together with the components copied from another ion!
 
 # By default when copying components, the column densities are scaled
 # using Solar relative abundances. Otherwise use the 'scale' statement:
@@ -87,8 +90,6 @@ copy components from __ion__ to __ion__ and scale logN=__ of component __
 #delete component 3 from __ion__
 #delete component 2 from __ion__
 # -- Note:  Component numbers start from 0.
-#           Components should be removed 'last-to-first', i.e., higher component numbers
-#           should be removed first in order to keep the component structure intact.
 
 
 # --- Output Commands:
