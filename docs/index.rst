@@ -42,6 +42,8 @@ New in version 0.11.3:
   The user can also include separate components for ions where the component structure is otherwise
   copied from another ion. Before, these component definitions were overwritten by the copy statement.
   The `reset` statement is now obsolete. The data are automatically reset when using the Chebyshev continuum model.
+  A new verbose option can be used to print more details about the dataset, mostly useful for debugging.
+  Include `-v` in the call to VoigtFit from the terminal.
   Bugfixes: The indexing of components to delete is automatically sorted so that the component structure
   is kept intact during the removal of components.
   Small bugs in the handling of fine-structure lines has been fixed by including a new `fine_lines` data
