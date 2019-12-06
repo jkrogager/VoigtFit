@@ -1386,13 +1386,12 @@ class DataSet(object):
             if fineline in self.all_lines:
                 line = self.lines[fineline]
                 if levels is None:
-                    pass
+                    self.fine_lines.pop(line_tag)
                 elif line.ion[-1] in levels:
-                    pass
+                    self.fine_lines[line_tag].remove(fineline)
                 else:
                     continue
                 self.remove_line(fineline)
-                self.fine_lines.pop(line_tag)
                 if self.verbose:
                     print "Removing line: %s" % fineline
 
@@ -1424,9 +1423,7 @@ class DataSet(object):
                     pass
                 else:
                     continue
-
                 self.deactivate_line(fineline)
-                self.fine_lines[line_tag].remove(fineline)
                 if self.verbose and verbose:
                     print("Deactivated line: %s" % fineline)
 
@@ -1460,8 +1457,6 @@ class DataSet(object):
                     continue
 
                 self.activate_line(fineline)
-                if fineline not in self.fine_lines[line_tag]:
-                    self.fine_lines[line_tag].append(fineline)
                 if self.verbose:
                     print "Activated line: %s" % fineline
     # =========================================================================
