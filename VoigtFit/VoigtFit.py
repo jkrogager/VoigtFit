@@ -487,6 +487,7 @@ def main():
         dataset.cheb_order = parameters['cheb_order']
         if parameters['cheb_order'] >= 0:
             norm = False
+            dataset.reset_all_regions()
         else:
             norm = True
 
