@@ -39,6 +39,9 @@ New in version 0.11.3:
 
   The user can now reset the masking of specific lines in a dataset by using the *force* option in the
   `mask` statement. For more details, see the `Mask` section of the :ref:`documentation`.
+  The user can also include separate components for ions where the component structure is otherwise
+  copied from another ion. Before, these component definitions were overwritten by the copy statement.
+  The `reset` statement is now obsolete. The data are automatically reset when using the Chebyshev continuum model.
   Bugfixes: The indexing of components to delete is automatically sorted so that the component structure
   is kept intact during the removal of components.
   Small bugs in the handling of fine-structure lines has been fixed.

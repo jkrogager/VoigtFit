@@ -32,15 +32,6 @@ data  ____         ___
 C_order = -1
 
 
-# Uncomment to reset data for all lines:
-#reset
-# or for some lines only:
-#reset __line__  __line__
-# This is useful when using a Chebyshev continuum model, since the fit region data
-# is updated with the newly adjusted continuum after the fit converges.
-# In order to use the raw data in a new fit iteration, the reset keyword should be set.
-
-
 # Uncomment to enable interactive masking for all lines:
 #mask
 # Or enable interactive masking for specific lines only:
@@ -60,6 +51,9 @@ C_order = -1
 lines __line__  velspan=300
 lines __line__
 
+
+
+# --- Components:
 
 # Define components in redshift space:
 #          ion   z    b   logN
@@ -94,8 +88,6 @@ copy components from __ion__ to __ion__ and scale logN=__ of component __
 #delete component 3 from __ion__
 #delete component 2 from __ion__
 # -- Note:  Component numbers start from 0.
-#           Components should be removed 'last-to-first', i.e., higher component numbers
-#           should be removed first in order to keep the component structure intact.
 
 
 # --- Output Commands:
