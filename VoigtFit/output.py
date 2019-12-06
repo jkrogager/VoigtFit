@@ -308,13 +308,12 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             continue
 
         if ref_line.tag in included_lines:
-            pass
+            continue
 
         elif 'H2' in ref_line.tag:
             show_molecule_warning = True
-            pass
 
-        elif ref_line.ion[-1].islower():
+        elif ref_line.ion[-1].islower() and ref_line.ion[:-1] == 'CI':
             # Check if the gorund state is defined in same region.
             regions_of_line = dataset.find_line(ref_line.tag)
             ground_state = ref_line.ion[:-1]
@@ -334,12 +333,14 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             else:
                 l_ref = ref_line.l0*(dataset.redshift + 1)
                 for line in region.lines:
+                    if line.tag in included_lines:
+                        continue
                     l0 = line.l0
                     delta_lam = (l0*(dataset.redshift + 1) - l_ref)
                     delta_v = delta_lam / l_ref * 299792.458
-                    if line.tag in included_lines:
-                        pass
-                    elif np.abs(delta_v) <= 150 or line.ion[-1].islower():
+
+                    include_velspan = region.velspan * 0.8
+                    if np.abs(delta_v) <= include_velspan:
                         included_lines.append(line.tag)
 
     # --- Pack keyword arguments for plot_single_line:
