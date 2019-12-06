@@ -44,7 +44,8 @@ New in version 0.11.3:
   The `reset` statement is now obsolete. The data are automatically reset when using the Chebyshev continuum model.
   Bugfixes: The indexing of components to delete is automatically sorted so that the component structure
   is kept intact during the removal of components.
-  Small bugs in the handling of fine-structure lines has been fixed.
+  Small bugs in the handling of fine-structure lines has been fixed by including a new `fine_lines` data
+  structure in the dataset to indicate whether lines have been defined in a line complex or individually.
 
 
 New in version 0.11.2:
