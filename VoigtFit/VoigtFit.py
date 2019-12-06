@@ -451,14 +451,26 @@ def main():
             dataset.copy_components(ion, anchor, logN=logN, ref_comp=ref_comp,
                                     tie_z=tie_z, tie_b=tie_b)
 
+    # Format component list to dictionary:
+    components_to_delete = dict()
     for component in parameters['components_to_delete']:
-        dataset.delete_component(*component)
+        ion, comp_id = component
+        if ion not in components_to_delete.keys():
+            components_to_delete[ion] = list()
+        components_to_delete[ion].append(comp_id)
 
-        # Also remove component from therma_model
-        ion, num = component
-        if ion in thermal_model.keys():
-            if num in thermal_model[ion]:
-                thermal_model[ion].remove(num)
+    # Sort the component IDs high to low:
+    components_to_delete = {ion: sorted(ctd, reverse=True) for ion, ctd in components_to_delete.items()}
+
+    # Delete components from dataset:
+    for ion, comps_to_del in components_to_delete.items():
+        for num in comps_to_del:
+            dataset.delete_component(ion, num)
+
+            # Also remove component from therma_model
+            if ion in thermal_model.keys():
+                if num in thermal_model[ion]:
+                    thermal_model[ion].remove(num)
 
     # Set default value of norm:
     norm = False
