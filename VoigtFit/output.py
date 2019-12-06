@@ -339,7 +339,24 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                     delta_lam = (l0*(dataset.redshift + 1) - l_ref)
                     delta_v = delta_lam / l_ref * 299792.458
 
-                    include_velspan = region.velspan * 0.8
+
+                    if xmin:
+                        if xunit == 'wl':
+                            vmin = np.abs(xmin*(dataset.redshift + 1) - l_ref)/l_ref * 299792.458
+                        else:
+                            vmin = np.abs(xmin)
+                    else:
+                        vmin = region.velspan
+
+                    if xmax:
+                        if xunit == 'wl':
+                            vmax = np.abs(xmax*(dataset.redshift + 1) - l_ref)/l_ref * 299792.458
+                        else:
+                            vmax = np.abs(xmax)
+                    else:
+                        vmax = region.velspan
+                    plot_span = (vmax + vmin) / 2.
+                    include_velspan = plot_span * 0.8
                     if np.abs(delta_v) <= include_velspan:
                         included_lines.append(line.tag)
 

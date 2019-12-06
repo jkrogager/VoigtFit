@@ -1363,8 +1363,8 @@ class DataSet(object):
             if full_label:
                 reg.label = line_complexes.full_labels[line_tag]
             else:
-                raw_label = line_tag.replace('_', r'\ \\lambda')
-                reg.set_label("${\\rm %s}$" % raw_label)
+                raw_label = line_tag.replace('_', r'\ \lambda')
+                reg.set_label(r"${\rm %s}$" % raw_label)
 
     def remove_fine_lines(self, line_tag, levels=None):
         """
@@ -1386,7 +1386,7 @@ class DataSet(object):
             if fineline in self.all_lines:
                 line = self.lines[fineline]
                 if levels is None:
-                    self.fine_lines.pop(line_tag)
+                    pass
                 elif line.ion[-1] in levels:
                     self.fine_lines[line_tag].remove(fineline)
                 else:
@@ -1394,6 +1394,8 @@ class DataSet(object):
                 self.remove_line(fineline)
                 if self.verbose:
                     print "Removing line: %s" % fineline
+        if levels is None:
+            self.fine_lines.pop(line_tag)
 
     def deactivate_fine_lines(self, line_tag, levels=None, verbose=True):
         """
@@ -1796,7 +1798,7 @@ class DataSet(object):
             if len(lines_not_defined) > 0 and self.verbose:
                 print("")
                 print(term.red)
-                print(" [WARNING]")
+                print(" [WARNING]  -  Check-lines is activated")
                 print(" The following lines of included ions are also covered by the data:")
                 print(term.reset)
                 for entry in lines_not_defined:

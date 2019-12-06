@@ -228,13 +228,23 @@ def main():
         # Add new lines that were not defined before:
         new_lines = list()
         if verbose:
+            print("\n - Lines in dataset:")
+            print(dataset.lines.keys())
             print(" - Lines in parameter file:")
+            print(parameters['lines'])
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])
                 if verbose:
                     print(" %s  -  new line! Adding to dataset..." % tag)
             else:
+                # Check if line is active:
+                this_line = dataset.lines[tag]
+                if not this_line.active:
+                    if verbose:
+                        print(" %s  -  line was inactive! Activating line..." % tag)
+                    dataset.activate_line(tag)
+
                 # Check if velocity span has changed:
                 regions_of_line = dataset.find_line(tag)
                 for reg in regions_of_line:
@@ -247,21 +257,17 @@ def main():
                         if verbose:
                             print(" %s  -  velspan has changed! Updating dataset..." % tag)
 
-                # Check if line is active:
-                this_line = dataset.lines[tag]
-                if not this_line.active:
-                    if verbose:
-                        print(" %s  -  line was inactive! Activating line..." % tag)
-                    dataset.activate_line(tag)
-
         for tag, velspan in new_lines:
             dataset.add_line(tag, velspan=velspan)
 
         # Remove old lines which should not be fitted:
         defined_tags = [tag for (tag, velspan) in parameters['lines']]
         for tag, line in dataset.lines.items():
-            if line.ion[-1].islower() and line.ion[:-1] == 'CI':
+            if tag in dataset.fine_lines.keys():
                 # skip this line, cause it's a fine-structure complex of CI:
+                continue
+
+            elif line.ion[-1].islower() and line.ion[:-1] == 'CI':
                 continue
 
             elif any([m in tag for m in dataset.molecules.keys()]):
@@ -278,31 +284,43 @@ def main():
         # Add new fine-structure lines that were not defined before:
         new_fine_lines = list()
         if verbose:
-            print("\n - Fine-structure lines:")
+            print("\n - Fine-structure lines in dataset:")
+            print(dataset.fine_lines)
+            print(dataset.lines.keys())
+            print("\n - Fine-structure lines in parameter file:")
+            print(parameters['fine-lines'])
         if len(parameters['fine-lines']) > 0:
             for ground_state, levels, velspan in parameters['fine-lines']:
-                if ground_state not in dataset.all_lines:
+                if ground_state not in dataset.fine_lines.keys():
                     if verbose:
                         print(" %s  -  new fine-structure complex" % ground_state)
                     new_fine_lines.append([ground_state, levels, velspan])
                 else:
-                    # Check if velocity span has changed:
-                    regions_of_line = dataset.find_line(ground_state)
-                    for reg in regions_of_line:
-                        if reg.velspan != velspan:
-                            dataset.remove_fine_lines(ground_state)
-                            new_fine_lines.append([ground_state, levels, velspan])
-
                     # Check if this line is active:
                     this_line = dataset.lines[ground_state]
                     if not this_line.active:
                         dataset.activate_fine_lines(ground_state, levels)
+
+                    # Check if velocity span has changed:
+                    if verbose:
+                        print(" Checking if Velocity Span is unchaged...")
+                    regions_of_line = dataset.find_line(ground_state)
+                    if velspan is None:
+                        velspan = dataset.velspan
+                    for reg in regions_of_line:
+                        if np.abs(reg.velspan - velspan) < 0.1:
+                            if verbose:
+                                print(" Detected difference in velocity span: %s" % ground_state)
+                            dataset.remove_fine_lines(ground_state)
+                            new_fine_lines.append([ground_state, levels, velspan])
 
         for ground_state, levels, velspan in new_fine_lines:
             dataset.add_fine_lines(ground_state, levels=levels, velspan=velspan)
 
         # Remove old fine-structure lines which should not be fitted:
         input_tags = [item[0] for item in parameters['fine-lines']]
+        if verbose:
+            print(" Any fine-structure lines in dataset that should not be fitted?")
         for ground_state, line in dataset.fine_lines.items():
             if ground_state not in input_tags:
                 if verbose:
@@ -559,6 +577,8 @@ def main():
             dataset.reset_all_regions()
 
     # prepare_dataset
+    if verbose:
+        print(" - Preparing dataset:")
     dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
                             **parameters['check_lines'])
 
