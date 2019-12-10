@@ -64,8 +64,11 @@ def save_hdf_dataset(dataset, fname, verbose=True):
             spec = data.create_group('spec%i' % (num+1))
             spec.attrs.create('res', chunk['res'])
             spec.attrs.create('norm', chunk['norm'])
+            spec.attrs.create('nsub', chunk['nsub'])
+            spec.attrs.create('specID', chunk['specID'])
             spec.create_dataset('wl', data=chunk['wl'])
             spec.create_dataset('flux', data=chunk['flux'])
+            spec.create_dataset('mask', data=chunk['mask'])
             spec.create_dataset('error', data=chunk['error'])
 
         # .regions:
@@ -173,8 +176,17 @@ def load_dataset_from_hdf(fname):
         for chunk in data.values():
             res = chunk.attrs['res']
             norm = chunk.attrs['norm']
+            if 'nsub' in chunk.attrs.keys():
+                nsub = chunk.attrs['nsub']
+            else:
+                nsub = 1
+            if 'mask' in chunk.keys():
+                mask = chunk['mask'].value
+            else:
+                mask = np.ones_like(chunk['wl'].value, dtype=bool)
             ds.add_data(chunk['wl'].value, chunk['flux'].value, res,
-                        err=chunk['error'].value, normalized=norm)
+                        err=chunk['error'].value, normalized=norm, nsub=nsub,
+                        mask=mask)
 
         # Load .regions:
         # --- this will be deprecated in later versions
@@ -198,7 +210,10 @@ def load_dataset_from_hdf(fname):
             # Instantiate the Region Class with the first Line:
             line_init = region_lines[0]
             v = reg.attrs['velspan']
-            specID = reg.attrs['specID']
+            if 'specID' in reg.attrs.keys():
+                specID = reg.attrs['specID']
+            else:
+                specID = 'sid_tmp'
             Region = regions.Region(v, specID, line_init)
             if len(region_lines) == 1:
                 # The first and only line has already been loaded
@@ -217,17 +232,25 @@ def load_dataset_from_hdf(fname):
             Region.normalized = reg.attrs['normalized']
             Region.cont_err = reg.attrs['cont_err']
             Region.new_mask = reg.attrs['new_mask']
-            Region.kernel_fwhm = reg.attrs['kernel_fwhm']
+            if 'kernel_fwhm' in reg.attrs.keys():
+                Region.kernel_fwhm = reg.attrs['kernel_fwhm']
+            else:
+                Region.kernel_fwhm = reg.attrs['res']
+
             try:
                 Region.label = reg.attrs['label']
             except KeyError:
                 Region.label = ''
+
             try:
                 Region.kernel_nsub = reg.attrs['kernel_nsub']
             except KeyError:
                 Region.kernel_nsub = 1
 
-            Region.kernel = reg['kernel'].value
+            if 'kernel' in reg.keys():
+                Region.kernel = reg['kernel'].value
+            else:
+                Region.kernel = reg.attrs['res']
             Region.wl = reg['wl'].value
             Region.flux = reg['flux'].value
             Region.mask = reg['mask'].value
