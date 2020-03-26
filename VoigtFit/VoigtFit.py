@@ -125,22 +125,22 @@ def load_dataset(filename):
 
 def main():
 
-    print "\n"
-    print "       VoigtFit                        "
-    print ""
-    print "    by Jens-Kristian Krogager          "
-    print ""
-    print "    Institut d'Astrophysique de Paris  "
-    print "    November 2017                      "
-    print ""
-    print "  ____  _           ___________________"
-    print "      \/ \  _/\    /                   "
-    print "          \/   \  / oigtFit            "
-    print "                \/                     "
-    print ""
-    print ""
-    print " Loaded Solar abundances from Asplund et al. 2009  (photospheric)"
-    print ""
+    print("\n")
+    print("       VoigtFit                        ")
+    print("")
+    print("    by Jens-Kristian Krogager          ")
+    print("")
+    print("    Institut d'Astrophysique de Paris  ")
+    print("    November 2017                      ")
+    print("")
+    print("  ____  _           ___________________")
+    print("      \/ \  _/\    /                   ")
+    print("          \/   \  / oigtFit            ")
+    print("                \/                     ")
+    print("")
+    print("")
+    print(" Loaded Solar abundances from Asplund et al. 2009  (photospheric)")
+    print("")
 
     descr = """VoigtFit Absorption Line Fitting.
     Please give an input parameter file.
@@ -166,7 +166,7 @@ def main():
         return
 
     parameters = parse_parameters(parfile)
-    print " Reading Parameters from file: " + parfile
+    print(" Reading Parameters from file: " + parfile)
 
     name = parameters['name']
     # -- Load DataSet if the file already exists
@@ -431,7 +431,7 @@ def main():
     if 'load' in parameters.keys():
         dataset.reset_components()
         for fname in parameters['load']:
-            print "\n Loading parameters from file: %s \n" % fname
+            print("\n Loading parameters from file: %s \n" % fname)
             dataset.load_components_from_file(fname)
     else:
         dataset.reset_components()
@@ -444,8 +444,8 @@ def main():
     if len(parameters['thermal_model']) > 0:
         thermal_model = {ion: [] for ion in parameters['thermal_model'][0]}
         ions_in_model = ', '.join(parameters['thermal_model'][0])
-        print ""
-        print "  Fitting Thermal Model for ions: " + ions_in_model
+        print("")
+        print("  Fitting Thermal Model for ions: " + ions_in_model)
     else:
         thermal_model = dict()
 
@@ -539,9 +539,9 @@ def main():
             dataset.norm_method = parameters['norm_method'].lower()
         else:
             warn_msg = "\n [WARNING] - Unexpected value for norm_method: %r"
-            print warn_msg % parameters['norm_method']
-            print "             Using default normalization method : linear\n"
-        print "\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method)
+            print(warn_msg % parameters['norm_method'])
+            print("             Using default normalization method : linear\n")
+        print("\n Continuum Fitting : manual  [%s]\n" % (dataset.norm_method))
 
     else:
         if dataset.cheb_order == 1:
@@ -553,9 +553,9 @@ def main():
         else:
             order_str = "%ith" % (dataset.cheb_order)
         stat_msg = " Continuum Fitting : Chebyshev Polynomial up to %s order"
-        print ""
-        print stat_msg % (order_str)
-        print ""
+        print("")
+        print(stat_msg % (order_str))
+        print("")
 
     # Parse show_vel_norm from parameter file:
     # Ketyword 'norm_view' either vel or wave.

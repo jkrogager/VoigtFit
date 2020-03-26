@@ -420,7 +420,7 @@ class DataSet(object):
                         output_msg = "Spectral resolution in the region around %s is defined in file: %s"
                     else:
                         output_msg = " Spectral resolution in the region around %s is %.1f km/s."
-                    print output_msg % (line_tag, region.res)
+                    print(output_msg % (line_tag, region.res))
                 resolutions.append(region.res)
             return resolutions
 
@@ -455,7 +455,7 @@ class DataSet(object):
                     warn_msg = "             LSF-file: %s"
                 else:
                     warn_msg = "             R = %.1f km/s!"
-                print warn_msg % res
+                print(warn_msg % res)
 
             for region in self.regions:
                 if isinstance(res, str):
@@ -501,7 +501,7 @@ class DataSet(object):
         self.ready2fit = False
         if line_tag in self.all_lines:
             if self.verbose:
-                print " [WARNING] - %s is already defined." % line_tag
+                print(" [WARNING] - %s is already defined." % line_tag)
             return False
 
         if line_tag in lineList['trans']:
@@ -601,7 +601,7 @@ class DataSet(object):
                 if self.verbose:
                     err_msg = ("\n [ERROR] - The given line is not covered "
                                "by the spectral data: %s \n")
-                    print err_msg % line_tag
+                    print(err_msg % line_tag)
                 return False
 
         else:
@@ -657,13 +657,13 @@ class DataSet(object):
         else:
             in_all_lines = "" if line_tag in self.all_lines else "not "
             in_lines = "" if line_tag in self.lines.keys() else "not "
-            print ""
-            print " [ERROR] - Problem detected in database."
+            print("")
+            print(" [ERROR] - Problem detected in database.")
             print(" The line %s is %sdefined in `self.all_lines`." %
                   (line_tag, in_all_lines))
             print(" The line %s is %sdefined in `self.lines`." %
                   (line_tag, in_lines))
-            print ""
+            print("")
 
         # --- Check if the ion has transitions defined in other regions
         ion = line_tag.split('_')[0]
@@ -853,7 +853,7 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print "\n The line (%s) is not defined." % line_tag
+                print("\n The line (%s) is not defined." % line_tag)
 
         return None
 
@@ -976,7 +976,7 @@ class DataSet(object):
                 self.components.pop(ion)
             else:
                 if self.verbose:
-                    print " [ERROR] - No components defined for ion: %s" % ion
+                    print(" [ERROR] - No components defined for ion: %s" % ion)
 
         else:
             self.components = dict()
@@ -1133,7 +1133,7 @@ class DataSet(object):
                 # Calculate logN from peak depth:
                 y0 = max(y0/c_level, 0.01)
                 logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
-                print "Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN)
+                print("Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN))
                 ax.axvline(x0, color='darkblue', alpha=0.8)
                 comp_list.append([z0, b, logN])
                 num += 1
@@ -1152,7 +1152,7 @@ class DataSet(object):
 
         else:
             if self.verbose:
-                print " [ERROR] - No components defined for ion: "+ion
+                print(" [ERROR] - No components defined for ion: "+ion)
 
     def copy_components(self, to_ion='', from_ion='', logN=0, ref_comp=None, tie_z=True, tie_b=True):
         """
@@ -1393,7 +1393,7 @@ class DataSet(object):
                     continue
                 self.remove_line(fineline)
                 if self.verbose:
-                    print "Removing line: %s" % fineline
+                    print("Removing line: %s" % fineline)
         if levels is None:
             self.fine_lines.pop(line_tag)
 
@@ -1460,7 +1460,7 @@ class DataSet(object):
 
                 self.activate_line(fineline)
                 if self.verbose:
-                    print "Activated line: %s" % fineline
+                    print("Activated line: %s" % fineline)
     # =========================================================================
 
     # Molecules:
@@ -1540,7 +1540,7 @@ class DataSet(object):
         if remove_idx >= 0:
             self.molecules[molecule].pop(remove_idx)
         else:
-            print " [ERROR] - %s was not found in self.molecules['%s']" % (band, molecule)
+            print(" [ERROR] - %s was not found in self.molecules['%s']" % (band, molecule))
 
         if len(self.molecules[molecule]) == 0:
             self.molecules.pop(molecule)
@@ -1674,9 +1674,9 @@ class DataSet(object):
                         # region.normalize returns 1 when continuum is fitted
 
             if verbose and self.verbose:
-                print ""
-                print " [DONE] - Continuum fitting successfully finished."
-                print ""
+                print("")
+                print(" [DONE] - Continuum fitting successfully finished.")
+                print("")
 
         # --- Check that no components for inactive elements are defined:
         for this_ion in self.components.keys():
@@ -1687,14 +1687,14 @@ class DataSet(object):
             else:
                 if self.verbose:
                     warn_msg = "\n [WARNING] - Components defined for inactive element: %s"
-                    print warn_msg % this_ion
+                    print(warn_msg % this_ion)
 
                 if force_clean:
                     # Remove components for inactive elements
                     self.components.pop(this_ion)
                     if verbose:
-                        print "             The components have been removed."
-                print ""
+                        print("             The components have been removed.")
+                print("")
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
@@ -1757,9 +1757,9 @@ class DataSet(object):
                                            z_sys=z_sys)
 
             if verbose and self.verbose:
-                print ""
-                print " [DONE] - Spectral masks successfully created."
-                print ""
+                print("")
+                print(" [DONE] - Spectral masks successfully created.")
+                print("")
 
         self.ready2fit = True
 
@@ -1769,9 +1769,9 @@ class DataSet(object):
             line = self.lines[line_tag]
             if ion not in self.components.keys() and line.active:
                 if self.verbose:
-                    print ""
-                    print " [ERROR] - Components are not defined for element: "+ion
-                    print ""
+                    print("")
+                    print(" [ERROR] - Components are not defined for element: "+ion)
+                    print("")
                 self.ready2fit = False
                 # TODO:
                 # automatically open interactive window if components are not defined.
@@ -1807,8 +1807,8 @@ class DataSet(object):
 
         if self.ready2fit:
             if verbose and self.verbose:
-                print "\n  Dataset is ready to be fitted."
-                print ""
+                print("\n  Dataset is ready to be fitted.")
+                print("")
             return True
 
     def fit(self, verbose=True, **kwargs):
@@ -1860,8 +1860,8 @@ class DataSet(object):
 
         if not self.ready2fit:
             if self.verbose:
-                print " [Error]  - Dataset is not ready to be fitted."
-                print "            Run `.prepare_dataset()` before fitting."
+                print(" [Error]  - Dataset is not ready to be fitted.")
+                print("            Run `.prepare_dataset()` before fitting.")
             return None, None
 
         if 'rebin' in kwargs:
@@ -1879,7 +1879,7 @@ class DataSet(object):
             print(" [WARNING] - rebinning for LSF file kernel is not supported!")
 
         if self.verbose:
-            print "\n  Fit is running... Please, be patient.\n"
+            print("\n  Fit is running... Please, be patient.\n")
 
         def chi(pars):
             model = list()
@@ -1946,9 +1946,9 @@ class DataSet(object):
                 region.normalized = True
 
         if self.verbose and verbose:
-            print "\n The fit has finished with the following exit message:"
-            print "  " + popt.message
-            print ""
+            print("\n The fit has finished with the following exit message:")
+            print("  " + popt.message)
+            print("")
 
             if verbose:
                 output.print_results(self, self.best_fit, velocity=True)
@@ -2071,8 +2071,8 @@ class DataSet(object):
         if hasattr(self.best_fit, 'keys'):
             pass
         else:
-            print " [ERROR] - Best fit parameters are not found."
-            print "           Make sure the fit has converged..."
+            print(" [ERROR] - Best fit parameters are not found.")
+            print("           Make sure the fit has converged...")
             return {}, {}
 
         if hasattr(ions, '__iter__'):
@@ -2114,7 +2114,7 @@ class DataSet(object):
         if self.best_fit:
             output.save_parameters_to_file(self, filename)
         else:
-            print "\n [ERROR] - No fit parameters are defined."
+            print("\n [ERROR] - No fit parameters are defined.")
 
     def save_cont_parameters_to_file(self, filename):
         """
@@ -2156,8 +2156,8 @@ class DataSet(object):
             if self.name:
                 filename = self.name + '.reg'
             else:
-                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
-                print "           or give filename [dataset.save(filename='filename')]"
+                print(" [ERROR] - Must specify dataset.name [dataset.set_name('name')]")
+                print("           or give filename [dataset.save(filename='filename')]")
         output.save_fit_regions(self, filename, individual=individual, path=path)
 
     def save(self, filename=None, verbose=False):
@@ -2166,8 +2166,8 @@ class DataSet(object):
             if self.name:
                 filename = self.name
             else:
-                print " [ERROR] - Must specify dataset.name [dataset.set_name('name')]"
-                print "           or give filename [dataset.save(filename='filename')]"
+                print(" [ERROR] - Must specify dataset.name [dataset.set_name('name')]")
+                print("           or give filename [dataset.save(filename='filename')]")
         hdf5_save.save_hdf_dataset(self, filename, verbose=verbose)
 
     def get_NHI(self):
@@ -2182,12 +2182,12 @@ class DataSet(object):
         and the number of components for the given ion.
         """
         header = "%15s   State     " % 'Line ID'
-        print term.underline + header + term.reset
+        print(term.underline + header + term.reset)
         for line_tag, line in self.lines.items():
             active = 'active' if line.active else 'not active'
             fmt = '' if line.active else term.red
             output = "%15s : %s" % (line_tag, active)
-            print fmt + output + term.reset
+            print(fmt + output + term.reset)
 
     def show_components(self, ion=None):
         """
@@ -2196,9 +2196,9 @@ class DataSet(object):
         """
         z_sys = self.redshift
         for ion, comps in self.components.items():
-            print "\n - %6s:" % ion
+            print("\n - %6s:" % ion)
             for num, comp in enumerate(comps):
                 z = comp[0]
                 vel = (z - z_sys) / (z_sys + 1) * 299792.458
-                print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                                comp[1], comp[2])
+                print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                                comp[1], comp[2]))

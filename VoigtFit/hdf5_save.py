@@ -47,25 +47,25 @@ def save_hdf_dataset(dataset, fname, verbose=True):
     with h5py.File(fname, 'w') as hdf:
 
         # set main attributes:
-        hdf.attrs.create('redshift', dataset.redshift)
-        hdf.attrs.create('velspan', dataset.velspan)
+        hdf.attrs['redshift'] = dataset.redshift
+        hdf.attrs['velspan'] = dataset.velspan
         if hasattr(dataset, 'name'):
-            hdf.attrs.create('name', dataset.name)
+            hdf.attrs['name'] = dataset.name
         else:
-            hdf.attrs.create('name', '')
+            hdf.attrs['name'] = ''
         if hasattr(dataset, 'verbose'):
-            hdf.attrs.create('verbose', dataset.verbose)
+            hdf.attrs['verbose'] = dataset.verbose
         else:
-            hdf.attrs.create('verbose', True)
+            hdf.attrs['verbose'] = True
 
         # .data:
         data = hdf.create_group('data')
         for num, chunk in enumerate(dataset.data):
             spec = data.create_group('spec%i' % (num+1))
-            spec.attrs.create('res', chunk['res'])
-            spec.attrs.create('norm', chunk['norm'])
-            spec.attrs.create('nsub', chunk['nsub'])
-            spec.attrs.create('specID', chunk['specID'])
+            spec.attrs['res'] = chunk['res']
+            spec.attrs['norm'] = chunk['norm']
+            spec.attrs['nsub'] = chunk['nsub']
+            spec.attrs['specID'] = chunk['specID']
             spec.create_dataset('wl', data=chunk['wl'])
             spec.create_dataset('flux', data=chunk['flux'])
             spec.create_dataset('mask', data=chunk['mask'])
@@ -75,15 +75,15 @@ def save_hdf_dataset(dataset, fname, verbose=True):
         hdf_regions = hdf.create_group('regions')
         for num, reg in enumerate(dataset.regions):
             reg_group = hdf_regions.create_group('region%i' % (num+1))
-            reg_group.attrs.create('velspan', reg.velspan)
-            reg_group.attrs.create('res', reg.res)
-            reg_group.attrs.create('normalized', reg.normalized)
-            reg_group.attrs.create('cont_err', reg.cont_err)
-            reg_group.attrs.create('new_mask', reg.new_mask)
-            reg_group.attrs.create('specID', reg.specID)
-            reg_group.attrs.create('kernel_fwhm', reg.kernel_fwhm)
-            reg_group.attrs.create('kernel_nsub', reg.kernel_nsub)
-            reg_group.attrs.create('label', reg.label)
+            reg_group.attrs['velspan'] = reg.velspan
+            reg_group.attrs['res'] = reg.res
+            reg_group.attrs['normalized'] = reg.normalized
+            reg_group.attrs['cont_err'] = reg.cont_err
+            reg_group.attrs['new_mask'] = reg.new_mask
+            reg_group.attrs['specID'] = reg.specID
+            reg_group.attrs['kernel_fwhm'] = reg.kernel_fwhm
+            reg_group.attrs['kernel_nsub'] = reg.kernel_nsub
+            reg_group.attrs['label'] = reg.label
             reg_group.create_dataset('kernel', data=reg.kernel)
             reg_group.create_dataset('wl', data=reg.wl)
             reg_group.create_dataset('flux', data=reg.flux)
@@ -92,7 +92,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
             lines = reg_group.create_group('lines')
             for line in reg.lines:
                 lines.create_group(line.tag)
-                lines[line.tag].attrs.create('active', line.active)
+                lines[line.tag].attrs['active'] = line.active
 
         # .molecules:
         molecules = hdf.create_group('molecules')
@@ -123,13 +123,13 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                         if varname == 'N':
                             tie_constraint = comp[3]['tie_%s' % varname]
                             tie_constraint = 'None' if tie_constraint is None else tie_constraint
-                            comp_group['logN'].attrs.create('tie_%s' % varname, tie_constraint)
-                            comp_group['logN'].attrs.create('var_%s' % varname, comp[3]['var_%s' % varname])
+                            comp_group['logN'].attrs['tie_%s' % varname] = tie_constraint
+                            comp_group['logN'].attrs['var_%s' % varname] = comp[3]['var_%s' % varname]
                         else:
                             tie_constraint = comp[3]['tie_%s' % varname]
                             tie_constraint = 'None' if tie_constraint is None else tie_constraint
-                            comp_group[varname].attrs.create('tie_%s' % varname, tie_constraint)
-                            comp_group[varname].attrs.create('var_%s' % varname, comp[3]['var_%s' % varname])
+                            comp_group[varname].attrs['tie_%s' % varname] = tie_constraint
+                            comp_group[varname].attrs['var_%s' % varname] = comp[3]['var_%s' % varname]
 
         # .best_fit:
         if dataset.best_fit is not None:
@@ -143,9 +143,9 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                     param_group.create_dataset('b', data=p_opt['b%i_%s' % (n, ion)].value)
                     param_group.create_dataset('logN', data=p_opt['logN%i_%s' % (n, ion)].value)
 
-                    param_group['z'].attrs.create('error', p_opt['z%i_%s' % (n, ion)].stderr)
-                    param_group['b'].attrs.create('error', p_opt['b%i_%s' % (n, ion)].stderr)
-                    param_group['logN'].attrs.create('error', p_opt['logN%i_%s' % (n, ion)].stderr)
+                    param_group['z'].attrs['error'] = p_opt['z%i_%s' % (n, ion)].stderr
+                    param_group['b'].attrs['error'] = p_opt['b%i_%s' % (n, ion)].stderr
+                    param_group['logN'].attrs['error'] = p_opt['logN%i_%s' % (n, ion)].stderr
 
             # Save Chebyshev parameters:
             cheb_group = best_fit.create_group('cheb_params')
@@ -153,10 +153,10 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                 if '_cheb_p' in parname:
                     coeff = dataset.best_fit[parname]
                     cheb_group.create_dataset(parname, data=coeff.value)
-                    cheb_group[parname].attrs.create('error', coeff.stderr)
+                    cheb_group[parname].attrs['error'] = coeff.stderr
 
     if verbose:
-        print "Successfully saved the dataset to file: " + fname
+        print("Successfully saved the dataset to file: " + fname)
 
 
 def load_dataset_from_hdf(fname):

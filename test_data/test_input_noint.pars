@@ -22,7 +22,7 @@ data  'Q1313+1441/1313_UVB_1d.spec' 37.0
 # Continuum Fitting using Chebyshev Polynomials:
 # If not given, the default is 1 (straight line)
 # Use negative order to turn off the Chebyshev fitting
-C_order = 2
+C_order = 1
 
 
 # Uncomment to reset data for all lines in order to make a new fit iteration:

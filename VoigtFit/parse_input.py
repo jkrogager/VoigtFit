@@ -174,7 +174,7 @@ def parse_parameters(fname):
                         molecules['H2'] += [band, Jmax, velspan]
 
             else:
-                print "\n [ERROR] - Could not detect any molecular species to add!\n"
+                print("\n [ERROR] - Could not detect any molecular species to add!\n")
 
         elif 'component' in line and 'copy' not in line and 'delete' not in line and 'output' not in line:
             # strip comments:
@@ -392,7 +392,7 @@ def parse_parameters(fname):
             elif len(numbers) == 1:
                 logNHI = [float(numbers[0]), 0.1]
             else:
-                print " Error - In order to print metallicities you must give log(NHI)."
+                print(" Error - In order to print metallicities you must give log(NHI).")
             parameters['logNHI'] = logNHI
 
         elif 'fit-options' in line and 'name' not in line and 'save' not in line:

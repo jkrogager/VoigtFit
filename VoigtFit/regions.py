@@ -309,7 +309,7 @@ class Region():
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
-            print "\n\n  Mark left continuum region, left and right boundary."
+            print("\n\n  Mark left continuum region, left and right boundary.")
             plt.title("Mark left continuum region, left and right boundary.")
 
             bounds = plt.ginput(2, -1)
@@ -321,7 +321,7 @@ class Region():
 
             lines_title_string = ", ".join([line.tag for line in self.lines])
             plt.title(lines_title_string)
-            print "\n  Mark right continuum region, left and right boundary."
+            print("\n  Mark right continuum region, left and right boundary.")
             plt.title("Mark right continuum region, left and right boundary.")
             bounds = plt.ginput(2)
             left_bound = min(bounds[0][0], bounds[1][0])
@@ -339,7 +339,7 @@ class Region():
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print "\n\n Select a range of continuum spline points over the whole range"
+            print("\n\n Select a range of continuum spline points over the whole range")
             plt.title(" Select a range of continuum spline points over the whole range")
             points = plt.ginput(n=-1, timeout=-1)
             points = np.array(points)
@@ -467,7 +467,7 @@ class Region():
                         plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
         plt.title("Mark regions to mask, left and right boundary.")
-        print "\n\n  Mark regions to mask, left and right boundary."
+        print("\n\n  Mark regions to mask, left and right boundary.")
         plt.draw()
 
         ok = 0
@@ -511,7 +511,7 @@ class Region():
                     ok += 1
 
             elif len(sel) == 0:
-                print "\nNo masks were defined."
+                print("\nNo masks were defined.")
                 prompt = raw_input("Continue? (yes/no)")
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1

@@ -1,23 +1,24 @@
 # -*- coding: UTF-8 -*-
 
 import numpy as np
-from os.path import exists
+from os.path import exists, abspath, dirname, join
 from os import remove
 
 import VoigtFit as vfit
 
+code_dir = dirname(abspath(__file__))
 
 def test_column_densities():
 
     input_data = dict()
-    dat_in = np.loadtxt('test_2comp.input', dtype=str)
+    dat_in = np.loadtxt(join(code_dir, 'test_2comp.input'), dtype=str)
     for line in dat_in:
         ion = line[0]
         input_data[ion] = float(line[3])
 
     ### Load the test data and check output
     z_sys = 2.3538
-    test_fname = 'test_2comp.dat'
+    test_fname = join(code_dir, 'test_2comp.dat')
     ds = vfit.DataSet(z_sys)
     ds.verbose = False
     ds.cheb_order = -1
@@ -47,7 +48,7 @@ def test_column_densities():
 
 def test_dataset():
     z_sys = 2.3538
-    test_fname = 'test_2comp.dat'
+    test_fname = join(code_dir, 'test_2comp.dat')
     res = 299792. / 10000.
     ds = vfit.DataSet(z_sys)
     ds.add_spectrum(test_fname, res, normalized=True)
@@ -90,7 +91,7 @@ def test_output():
 
     ### Load the test data and save output
     z_sys = 2.3538
-    test_fname = 'test_2comp.dat'
+    test_fname = join(code_dir, 'test_2comp.dat')
     ds = vfit.DataSet(z_sys)
     ds.verbose = False
     ds.cheb_order = 0
@@ -104,7 +105,7 @@ def test_output():
     ds.prepare_dataset(mask=False, f_lower=10.)
 
     popt, chi2 = ds.fit(verbose=False)
-    dataset_fname = 'test_dataset.hdf5'
+    dataset_fname = join(code_dir, 'test_dataset.hdf5')
     ds.save(dataset_fname)
     assert exists(dataset_fname)
 
@@ -122,7 +123,7 @@ def test_output():
 
 def test_masking():
     z_sys = 2.3538
-    test_fname = 'test_2comp.dat'
+    test_fname = join(code_dir, 'test_2comp.dat')
     ds = vfit.DataSet(z_sys)
     ds.verbose = False
     ds.cheb_order = -1
@@ -135,7 +136,7 @@ def test_masking():
     N_mask_old = np.sum(mask)
     region.set_mask(mask)
 
-    dataset_fname = 'test_dataset.hdf5'
+    dataset_fname = join(code_dir, 'test_dataset.hdf5')
     ds.save(dataset_fname)
     assert exists(dataset_fname)
 

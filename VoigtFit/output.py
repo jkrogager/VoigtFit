@@ -23,7 +23,7 @@ import terminal_attributes as term
 plt.rcParams['lines.linewidth'] = 1.0
 
 
-valid_kwargs = Line2D.properties(Line2D([0], [0])).keys()
+valid_kwargs = list(Line2D.properties(Line2D([0], [0])).keys())
 valid_kwargs += ['ymin', 'ymax', 'ls', 'lw']
 
 default_comp = {'color': 'b', 'ls': '-',
@@ -135,7 +135,7 @@ class CompProp(object):
     def get_line_props(self, ion):
         """Return only properties appropriate for matplotlib.axvline"""
         vline_props = self.properties[ion].copy()
-        for key in vline_props.keys():
+        for key in list(vline_props.keys()):
             if key not in valid_kwargs:
                 vline_props.pop(key)
         return vline_props
@@ -163,7 +163,7 @@ def mad(x):
 
 def chunks(l, n):
     """Yield successive `n`-sized chunks from `l`."""
-    for i in xrange(0, len(l), n):
+    for i in range(0, len(l), n):
         yield l[i:i+n]
 
 
@@ -443,7 +443,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents) - (1-add_on):
                     # xtl = ax.get_xticklabels()
-                    # print [ticklabel.get_text() for ticklabel in xtl]
+                    # print([ticklabel.get_text() for ticklabel in xtl])
                     # ax.set_xticklabels([''])
                     pass
                 else:
@@ -725,8 +725,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         else:
             xmax = x.max()
     ax.set_xlim(xmin, xmax)
-    if np.abs(xmin) > 900 or np.abs(xmax) > 900:
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+    # if np.abs(xmin) > 900 or np.abs(xmax) > 900:
+    #     ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
 
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
@@ -816,9 +816,6 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             LSF = LSF/LSF.sum()
             profile = fftconvolve(profile_int, LSF, 'same')
             profile_hl = fftconvolve(profile_int_hl, LSF, 'same')
-            # profile = profile_broad[50:-50]
-            # profile_hl = profile_broad_hl[50:-50]
-            # wl_line = wl_line[50:-50]
         else:
             profile = voigt.convolve_numba(profile_int, kernel)
         vel_line = (wl_line - l_ref)/l_ref*299792.458
@@ -910,9 +907,10 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
                 res_min = np.nanmax(4*err)
                 res_max = np.nanmin(-4*err)
+
+            print(ax.xaxis.get_major_formatter())
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
-            # cax.set_xticklabels([''])
-            cax.tick_params(labelbottom='off')
+            cax.tick_params(labelbottom=False)
             cax.set_yticklabels([''])
             cax.set_ylim(res_min, res_max)
 
@@ -923,10 +921,10 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             fig.subplots_adjust(bottom=0.07, right=0.98, left=0.08, top=0.98)
     else:
         if xunit == 'wl':
-            ax.set_xlabel("${\\rm Wavelength}\ \ [{\\rm \\AA}]$")
+            ax.set_xlabel(r"${\rm Wavelength}\ \ [{\rm \AA}]$")
         else:
-            ax.set_xlabel("${\\rm Rel. velocity}\ \ [{\\rm km\,s^{-1}}]$")
-        ax.set_ylabel("${\\rm Normalized\ flux}$")
+            ax.set_xlabel(r"${\rm Rel. velocity}\ \ [{\rm km\,s^{-1}}]$")
+        ax.set_ylabel(r"${\rm Normalized\ flux}$")
 
     ax.minorticks_on()
     ax.xaxis.get_major_formatter().set_scientific(False)
@@ -937,14 +935,14 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     # Check if the region has a predefined label or not:
     if hasattr(region, 'label'):
         if region.label == '':
-            all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$"
+            all_trans_str = [r"${\rm "+trans.replace('_', r'\ ')+"}$"
                              for trans in lines_in_view]
             line_string = "\n".join(all_trans_str)
         else:
             line_string = region.label
 
     else:
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ ')+"}$"
+        all_trans_str = [r"${\rm "+trans.replace('_', r'\ ')+"}$"
                          for trans in lines_in_view]
         line_string = "\n".join(all_trans_str)
 
@@ -1483,9 +1481,8 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     else:
         z_sys = dataset.redshift
 
-    print "\n  Best fit parameters\n"
-    # print "\t\t\t\tlog(N)\t\t\tb"
-    print "\t\t\t\tb\t\t\tlog(N)"
+    print("\n  Best fit parameters\n")
+    print("\t\t\t\tb\t\t\tlog(N)")
     if elements == 'all':
         for ion in sorted(dataset.components.keys()):
             lines_for_this_ion = []
@@ -1503,7 +1500,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             indent = '\n'+(len(ion)+2)*' '
             trans_string = indent.join(trans_chunks)
 
-            print ion + "  "+trans_string
+            print(ion + "  "+trans_string)
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
                 ion = ion.replace('*', 'x')
@@ -1533,9 +1530,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
                 output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
-                print output_string
+                print(output_string)
 
-            print ""
+            print("")
 
     else:
         for ion in elements:
@@ -1547,7 +1544,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             all_transitions = [trans.split('_')[1]
                                for trans in sorted(lines_for_this_ion)]
             all_transitions = ", ".join(all_transitions)
-            print ion + "  "+all_transitions
+            print(ion + "  "+all_transitions)
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
                 ion = ion.replace('*', 'x')
@@ -1568,21 +1565,21 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
                 output_string += "%.3f +/- %.3f" % (logN, logN_err)
 
-                print output_string
+                print(output_string)
 
-            print ""
+            print("")
 
 
 def print_cont_parameters(dataset):
     """ Print the Chebyshev coefficients of the continuum normalization."""
     if dataset.cheb_order >= 0:
-        print ""
-        print "  Chebyshev coefficients for fitting regions:"
+        print("")
+        print("  Chebyshev coefficients for fitting regions:")
         for reg_num, region in enumerate(dataset.regions):
             if not region.has_active_lines():
                 continue
             lines_in_region = ", ".join([line.tag for line in region.lines])
-            print "   Region no. %i : %s" % (reg_num, lines_in_region)
+            print("   Region no. %i : %s" % (reg_num, lines_in_region))
             cheb_parnames = list()
             # Find Chebyshev parameters for this region:
             # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
@@ -1597,11 +1594,11 @@ def print_cont_parameters(dataset):
                 coeff = dataset.best_fit[parname]
                 line = " p%-2i  =  %.3e    %.3e" % (i,
                                                     coeff.value, coeff.stderr)
-                print line
-            print ""
+                print(line)
+            print("")
     else:
-        print "\n  No Chebyshev polynomials have been defined."
-        print "  cheb_order = %i " % dataset.cheb_order
+        print("\n  No Chebyshev polynomials have been defined.")
+        print("  cheb_order = %i " % dataset.cheb_order)
 
 
 def print_metallicity(dataset, params, logNHI, err=0.1):
@@ -1630,8 +1627,8 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     """
 
-    print "\n  Metallicities\n"
-    print "  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err)
+    print("\n  Metallicities\n")
+    print("  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err))
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
@@ -1657,7 +1654,8 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print "  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err)
+        print("  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err))
+    print("")
 
 
 def print_total(dataset):
@@ -1669,7 +1667,7 @@ def print_total(dataset):
 
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        print "\n  Total Column Densities\n"
+        print("\n  Total Column Densities\n")
         for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
@@ -1691,7 +1689,7 @@ def print_total(dataset):
             l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
             std_err = np.std(logsum)
 
-            print "  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err)
+            print("  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err))
 
     else:
         error_msg = """
@@ -1753,8 +1751,8 @@ def sum_components(dataset, ion, components):
     if hasattr(dataset.best_fit, 'keys'):
         pass
     else:
-        print " [ERROR] - Best fit parameters are not found."
-        print "           Make sure the fit has converged..."
+        print(" [ERROR] - Best fit parameters are not found.")
+        print("           Make sure the fit has converged...")
         return None
 
     logN = list()
@@ -2062,9 +2060,9 @@ def show_components(self, ion=None):
     """
     z_sys = self.redshift
     for ion, comps in self.components.items():
-        print term.underline + "  %s:" % ion + term.reset
+        print(term.underline + "  %s:" % ion + term.reset)
         for num, comp in enumerate(comps):
             z = comp[0]
             vel = (z - z_sys) / (z_sys + 1) * 299792.458
-            print "   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                            comp[1], comp[2])
+            print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
+                                                            comp[1], comp[2]))

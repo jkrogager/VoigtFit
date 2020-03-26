@@ -8,7 +8,7 @@ import os
 root_path = os.path.dirname(os.path.abspath(__file__))
 datafile = root_path + '/static/Asplund2009.dat'
 
-dt = [('element', 'S2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
+dt = [('element', 'U2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
 data = np.loadtxt(datafile, dtype=dt)
 
 photosphere = dict()
