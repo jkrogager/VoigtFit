@@ -27,6 +27,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 plt.interactive(True)
 
+code_dir = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(code_dir, 'VERSION')) as version_file:
+    __version__ = version_file.read().strip()
 
 def show_transitions(ion=None, lower=0., upper=1.e4, fine_lines=False, flim=0.):
     """
@@ -126,7 +129,7 @@ def load_dataset(filename):
 def main():
 
     print("\n")
-    print("       VoigtFit                        ")
+    print("       VoigtFit %s                     " % __version__)
     print("")
     print("    by Jens-Kristian Krogager          ")
     print("")
