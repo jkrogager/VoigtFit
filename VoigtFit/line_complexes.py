@@ -18,7 +18,6 @@ the Institute of Astronomy RAS in Moscow, and the University of Vienna."
         A&AS 112, 525 (1995) (VALD-1)
 """
 __author__ = 'Jens-Kristian Krogager'
-import pickle
 from os.path import dirname, abspath
 
 
@@ -29,23 +28,40 @@ def merge_two_dicts(default, x):
     return z
 
 
+def load_linecomplex(fname):
+    """
+    Read a line complex file. The line-complex file should be a plain text file
+    with the following format:
+
+        complex_ID : transition1 transition2
+    """
+    with open(fname) as c_file:
+        all_lines = c_file.readlines()
+    line_complex = dict()
+    for line in all_lines:
+        key, trans = line.split(':')
+        trans_list = trans.split()
+        line_complex[key.strip()] = trans_list
+    return line_complex
+
+
 root_path = dirname(abspath(__file__))
-CI_label_file = root_path + '/static/C_full_labels.txt'
-CI_file = root_path + '/static/C_complexes.dict.pickle'
+C_label_file = root_path + '/static/C_full_labels.txt'
+C_file = root_path + '/static/C_complexes.dat'
 
 fine_structure_complexes = dict()
-CI_complex = pickle.load(open(CI_file, 'rb'))
+C_complex = load_linecomplex(C_file)
 # Load more complexes here and merge them with the existing dictionary:
 fine_structure_complexes = merge_two_dicts(fine_structure_complexes,
-                                           CI_complex)
+                                           C_complex)
 # Or define the complexes by hand, e.g.:
 # fine_structure_complexes[main_tag] = [dependent_tags]
 
 full_labels = dict()
-with open(CI_label_file) as labels:
-    all_lines = labels.readlines()
+with open(C_label_file) as labels:
+    _all_lines = labels.readlines()
 
-for line in all_lines:
+for line in _all_lines:
     if line.strip()[0] == '#':
         continue
     else:

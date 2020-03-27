@@ -108,11 +108,13 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         'VoigtFit/static': ['Asplund2009.dat',
-                            'linelist.dat',
-                            'C_complexes.dict.pickle',
+                            'C_complexes.dat',
                             'C_full_labels.txt',
+                            'input_template.txt',
+                            'linelist.dat',
+                            'Lodders2009.dat',
                             'telluric_em_abs.npz',
-                            'input_template.txt'],
+                            ],
         'VoigtFit': ['VERSION'],
     },
 
@@ -129,7 +131,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'VoigtFit=VoigtFit:main',
+            'VoigtFit=VoigtFit.main:main',
         ],
     },
 )

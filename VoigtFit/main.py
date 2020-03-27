@@ -6,19 +6,16 @@ import numpy as np
 import matplotlib
 import warnings
 import os
-# The native MacOSX backend doesn't work for all:
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    matplotlib.use('TkAgg')
+from sys import version_info
 from matplotlib import pyplot as plt
 
 from astropy.io import fits as pf
 from argparse import ArgumentParser
 
-from dataset import DataSet
-from hdf5_save import load_dataset
-import output
-from parse_input import parse_parameters
+from .dataset import DataSet
+from .hdf5_save import load_dataset
+from . import output
+from .parse_input import parse_parameters
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -28,7 +25,12 @@ plt.interactive(True)
 
 code_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(code_dir, 'VERSION')) as version_file:
-    __version__ = version_file.read().strip()
+    version = version_file.read().strip()
+    if version_info[0] >= 3:
+        v_items = version.split('.')
+        v_items[0] = '3'
+        version = '.'.join(v_items)
+    __version__ = version
 
 
 def air2vac(air):
@@ -51,7 +53,7 @@ def air2vac(air):
 
 def main():
 
-    print(r"\n")
+    print(r"")
     print(r"       VoigtFit %s                     " % __version__)
     print(r"")
     print(r"    by Jens-Kristian Krogager          ")
