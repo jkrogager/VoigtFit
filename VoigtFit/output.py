@@ -16,7 +16,7 @@ import numpy as np
 import voigt
 import Asplund
 import molecules
-from dataset import Line
+from lines import Line
 from voigt import evaluate_profile
 import terminal_attributes as term
 
@@ -908,7 +908,6 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                 res_min = np.nanmax(4*err)
                 res_max = np.nanmin(-4*err)
 
-            print(ax.xaxis.get_major_formatter())
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.tick_params(labelbottom=False)
             cax.set_yticklabels([''])

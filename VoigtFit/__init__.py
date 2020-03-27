@@ -10,11 +10,11 @@ Written by Jens-Kristian Krogager.
 __author__ = 'Jens-Kristian Krogager'
 
 from os import path
-from .VoigtFit import *
-from .dataset import DataSet
-from .dataset import Line
 from . import dataset
-from . import hdf5_save as hdf5
+from .dataset import DataSet
+from . import lines
+from .lines import show_transitions
+from . import hdf5_save
 from . import line_complexes
 from . import molecules
 from . import output

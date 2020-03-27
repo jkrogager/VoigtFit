@@ -15,11 +15,10 @@ from matplotlib import pyplot as plt
 from astropy.io import fits as pf
 from argparse import ArgumentParser
 
+from dataset import DataSet
+from hdf5_save import load_dataset
 import output
 from parse_input import parse_parameters
-from dataset import DataSet, lineList
-import hdf5_save
-from line_complexes import fine_structure_complexes
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -30,58 +29,6 @@ plt.interactive(True)
 code_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(code_dir, 'VERSION')) as version_file:
     __version__ = version_file.read().strip()
-
-def show_transitions(ion=None, lower=0., upper=1.e4, fine_lines=False, flim=0.):
-    """
-    Show the transitions defined in the atomic database.
-
-    Parameters
-    ----------
-    ion : str   [default = '']
-        Which ion to search for in the atomic database.
-
-    lower : float   [default = 0.]
-        The lower limit on the rest-frame wavelength of the transition.
-
-    upper : float   [default = 0.]
-        The upper limit on the rest-frame wavelength of the transition.
-
-    fine_lines : bool   [default = False]
-        If `True`, then fine-structure transistions for the given ion is included.
-
-    flim : float  [default = 0.]
-        Only return transitions whose oscillator strength is larger than flim.
-
-    Returns
-    -------
-    all_lines : list(trans)
-        A list of transitions. Each `transition` is taken from the atomic database,
-        and contains the following indices: `l0`, `trans`, `ion`, `f`, `gam`, `mass`.
-    """
-    all_lines = list()
-    if ion:
-        # only return given ion
-        for trans in lineList:
-            if trans['ion'] == ion:
-                if trans['l0'] > lower and trans['l0'] < upper:
-                    if trans['f'] > flim:
-                        all_lines.append(trans)
-
-            elif trans['ion'][:-1] == ion and trans['ion'][-1].islower() and fine_lines is True:
-                if trans['l0'] > lower and trans['l0'] < upper:
-                    if trans['f'] > flim:
-                        all_lines.append(trans)
-
-    else:
-        for trans in lineList:
-            if trans['l0'] > lower and trans['l0'] < upper and trans['f'] > flim:
-                if trans['ion'][-1].islower():
-                    if fine_lines is True:
-                        all_lines.append(trans)
-                else:
-                    all_lines.append(trans)
-
-    return all_lines
 
 
 def air2vac(air):
@@ -102,48 +49,24 @@ def air2vac(air):
     return out
 
 
-def SaveDataSet(filename, dataset):
-    """Save dataset to HDF5 file."""
-    print(" [WARNING] - this function is deprecated. Use save_dataset()")
-    hdf5_save.save_hdf_dataset(dataset, filename)
-
-
-def LoadDataSet(filename):
-    """Load a dataset from a HDF5 file."""
-    print(" [WARNING] - this function is deprecated. Use load_dataset()")
-    dataset = hdf5_save.load_dataset_from_hdf(filename)
-    return dataset
-
-
-def save_dataset(filename, dataset):
-    """Save dataset to HDF5 file."""
-    hdf5_save.save_hdf_dataset(dataset, filename)
-
-
-def load_dataset(filename):
-    """Load a dataset from a HDF5 file."""
-    dataset = hdf5_save.load_dataset_from_hdf(filename)
-    return dataset
-
-
 def main():
 
-    print("\n")
-    print("       VoigtFit %s                     " % __version__)
-    print("")
-    print("    by Jens-Kristian Krogager          ")
-    print("")
-    print("    Institut d'Astrophysique de Paris  ")
-    print("    November 2017                      ")
-    print("")
-    print("  ____  _           ___________________")
-    print("      \/ \  _/\    /                   ")
-    print("          \/   \  / oigtFit            ")
-    print("                \/                     ")
-    print("")
-    print("")
-    print(" Loaded Solar abundances from Asplund et al. 2009  (photospheric)")
-    print("")
+    print(r"\n")
+    print(r"       VoigtFit %s                     " % __version__)
+    print(r"")
+    print(r"    by Jens-Kristian Krogager          ")
+    print(r"")
+    print(r"    Institut d'Astrophysique de Paris  ")
+    print(r"    November 2017                      ")
+    print(r"")
+    print(r"  ____  _           ___________________")
+    print(r"      \/ \  _/\    /                   ")
+    print(r"          \/   \  / oigtFit            ")
+    print(r"                \/                     ")
+    print(r"")
+    print(r"")
+    print(r" Loaded Solar abundances from Asplund et al. 2009  (photospheric)")
+    print(r"")
 
     descr = """VoigtFit Absorption Line Fitting.
     Please give an input parameter file.

@@ -18,7 +18,6 @@ with warnings.catch_warnings():
 from lmfit import Parameters
 
 import regions
-import dataset
 
 
 def dataset_to_hdf(fname):
@@ -33,7 +32,7 @@ def dataset_to_hdf(fname):
     return hdf_fname
 
 
-def save_hdf_dataset(dataset, fname, verbose=True):
+def save_hdf_dataset(ds, fname, verbose=True):
     """
     Save VoigtFit.dataset to a HDF5 file.
     The function maps the internal data to a HDF5 data model.
@@ -47,20 +46,20 @@ def save_hdf_dataset(dataset, fname, verbose=True):
     with h5py.File(fname, 'w') as hdf:
 
         # set main attributes:
-        hdf.attrs['redshift'] = dataset.redshift
-        hdf.attrs['velspan'] = dataset.velspan
-        if hasattr(dataset, 'name'):
-            hdf.attrs['name'] = dataset.name
+        hdf.attrs['redshift'] = ds.redshift
+        hdf.attrs['velspan'] = ds.velspan
+        if hasattr(ds, 'name'):
+            hdf.attrs['name'] = ds.name
         else:
             hdf.attrs['name'] = ''
-        if hasattr(dataset, 'verbose'):
-            hdf.attrs['verbose'] = dataset.verbose
+        if hasattr(ds, 'verbose'):
+            hdf.attrs['verbose'] = ds.verbose
         else:
             hdf.attrs['verbose'] = True
 
         # .data:
         data = hdf.create_group('data')
-        for num, chunk in enumerate(dataset.data):
+        for num, chunk in enumerate(ds.data):
             spec = data.create_group('spec%i' % (num+1))
             spec.attrs['res'] = chunk['res']
             spec.attrs['norm'] = chunk['norm']
@@ -73,7 +72,7 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
         # .regions:
         hdf_regions = hdf.create_group('regions')
-        for num, reg in enumerate(dataset.regions):
+        for num, reg in enumerate(ds.regions):
             reg_group = hdf_regions.create_group('region%i' % (num+1))
             reg_group.attrs['velspan'] = reg.velspan
             reg_group.attrs['res'] = reg.res
@@ -96,22 +95,22 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
         # .molecules:
         molecules = hdf.create_group('molecules')
-        if hasattr(dataset, 'molecules'):
-            for molecule, items in dataset.molecules.items():
+        if hasattr(ds, 'molecules'):
+            for molecule, items in ds.molecules.items():
                 pre_array = [tuple(item) for item in items]
                 band_data = np.array(pre_array,
                                      dtype=[('band', 'S8'), ('Jmax', 'i4')])
                 molecules.create_dataset(molecule, data=band_data)
 
         fine_lines = hdf.create_group('fine_lines')
-        if hasattr(dataset, 'fine_lines'):
-            for ground_state, lines in dataset.fine_lines.items():
+        if hasattr(ds, 'fine_lines'):
+            for ground_state, lines in ds.fine_lines.items():
                 line_array = np.array(lines, dtype='str')
                 fine_lines.create_dataset(ground_state, data=line_array)
 
         # .components:
         components = hdf.create_group('components')
-        for ion, comps in dataset.components.items():
+        for ion, comps in ds.components.items():
             ion_group = components.create_group(ion)
             if len(comps) > 0:
                 for cnum, comp in enumerate(comps):
@@ -132,10 +131,10 @@ def save_hdf_dataset(dataset, fname, verbose=True):
                             comp_group[varname].attrs['var_%s' % varname] = comp[3]['var_%s' % varname]
 
         # .best_fit:
-        if dataset.best_fit is not None:
-            p_opt = dataset.best_fit
+        if ds.best_fit is not None:
+            p_opt = ds.best_fit
             best_fit = hdf.create_group('best_fit')
-            for ion, comps in dataset.components.items():
+            for ion, comps in ds.components.items():
                 params = best_fit.create_group(ion)
                 for n in range(len(comps)):
                     param_group = params.create_group("comp%i" % (n+1))
@@ -149,9 +148,9 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
             # Save Chebyshev parameters:
             cheb_group = best_fit.create_group('cheb_params')
-            for parname in list(dataset.best_fit.keys()):
+            for parname in list(ds.best_fit.keys()):
                 if '_cheb_p' in parname:
-                    coeff = dataset.best_fit[parname]
+                    coeff = ds.best_fit[parname]
                     cheb_group.create_dataset(parname, data=coeff.value)
                     cheb_group[parname].attrs['error'] = coeff.stderr
 
@@ -160,10 +159,12 @@ def save_hdf_dataset(dataset, fname, verbose=True):
 
 
 def load_dataset_from_hdf(fname):
+    from lines import Line, lineList
+    from dataset import DataSet
     """Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class."""
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']
-        ds = dataset.DataSet(z_sys)
+        ds = DataSet(z_sys)
         ds.velspan = hdf.attrs['velspan']
         ds.verbose = hdf.attrs['verbose']
         if 'name' in hdf.attrs.keys():
@@ -196,8 +197,8 @@ def load_dataset_from_hdf(fname):
             for line_tag, line_group in reg['lines'].items():
                 act = line_group.attrs['active']
                 # Add check for backward compatibility:
-                if line_tag in dataset.lineList['trans']:
-                    line_instance = dataset.Line(line_tag, active=act)
+                if line_tag in lineList['trans']:
+                    line_instance = Line(line_tag, active=act)
                     region_lines.append(line_instance)
                     ds.all_lines.append(line_tag)
                     ds.lines[line_tag] = line_instance
@@ -362,3 +363,27 @@ def load_dataset_from_hdf(fname):
                 ds.best_fit[parname].stderr = cheb_par.attrs['error']
 
         return ds
+
+
+def SaveDataSet(filename, ds):
+    """Save dataset to HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use save_dataset()")
+    save_hdf_dataset(ds, filename)
+
+
+def LoadDataSet(filename):
+    """Load a dataset from a HDF5 file."""
+    print(" [WARNING] - this function is deprecated. Use load_dataset()")
+    ds = load_dataset_from_hdf(filename)
+    return ds
+
+
+def save_dataset(filename, ds):
+    """Save dataset to HDF5 file."""
+    save_hdf_dataset(ds, filename)
+
+
+def load_dataset(filename):
+    """Load a dataset from a HDF5 file."""
+    ds = load_dataset_from_hdf(filename)
+    return ds
