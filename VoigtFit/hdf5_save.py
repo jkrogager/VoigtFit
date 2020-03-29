@@ -110,25 +110,16 @@ def save_hdf_dataset(ds, fname, verbose=True):
 
         # .components:
         components = hdf.create_group('components')
-        for ion, comps in ds.components.items():
+        for ion, ds_comps in ds.components.items():
             ion_group = components.create_group(ion)
-            if len(comps) > 0:
-                for cnum, comp in enumerate(comps):
-                    comp_group = ion_group.create_group("comp%i" % (cnum+1))
-                    comp_group.create_dataset('z', data=comp[0])
-                    comp_group.create_dataset('b', data=comp[1])
-                    comp_group.create_dataset('logN', data=comp[2])
-                    for varname in ['z', 'b', 'N']:
-                        if varname == 'N':
-                            tie_constraint = comp[3]['tie_%s' % varname]
-                            tie_constraint = 'None' if tie_constraint is None else tie_constraint
-                            comp_group['logN'].attrs['tie_%s' % varname] = tie_constraint
-                            comp_group['logN'].attrs['var_%s' % varname] = comp[3]['var_%s' % varname]
-                        else:
-                            tie_constraint = comp[3]['tie_%s' % varname]
-                            tie_constraint = 'None' if tie_constraint is None else tie_constraint
-                            comp_group[varname].attrs['tie_%s' % varname] = tie_constraint
-                            comp_group[varname].attrs['var_%s' % varname] = comp[3]['var_%s' % varname]
+            for cnum, comp in enumerate(ds_comps):
+                comp_group = ion_group.create_group("comp%i" % (cnum+1))
+                comp_group.attrs['z'] = comp.z
+                comp_group.attrs['b'] = comp.b
+                comp_group.attrs['logN'] = comp.logN
+                for key, val in comp.options.items():
+                    val = 'None' if val is None else val
+                    comp_group.attrs[key] = val
 
         # .best_fit:
         if ds.best_fit is not None:
@@ -138,21 +129,23 @@ def save_hdf_dataset(ds, fname, verbose=True):
                 params = best_fit.create_group(ion)
                 for n in range(len(comps)):
                     param_group = params.create_group("comp%i" % (n+1))
-                    param_group.create_dataset('z', data=p_opt['z%i_%s' % (n, ion)].value)
-                    param_group.create_dataset('b', data=p_opt['b%i_%s' % (n, ion)].value)
-                    param_group.create_dataset('logN', data=p_opt['logN%i_%s' % (n, ion)].value)
-
-                    param_group['z'].attrs['error'] = p_opt['z%i_%s' % (n, ion)].stderr
-                    param_group['b'].attrs['error'] = p_opt['b%i_%s' % (n, ion)].stderr
-                    param_group['logN'].attrs['error'] = p_opt['logN%i_%s' % (n, ion)].stderr
+                    # Save best-fit values:
+                    param_group.attrs['z'] = p_opt['z%i_%s' % (n, ion)].value
+                    param_group.attrs['b'] = p_opt['b%i_%s' % (n, ion)].value
+                    param_group.attrs['logN'] = p_opt['logN%i_%s' % (n, ion)].value
+                    # and uncertainties:
+                    param_group.attrs['z_err'] = p_opt['z%i_%s' % (n, ion)].stderr
+                    param_group.attrs['b_err'] = p_opt['b%i_%s' % (n, ion)].stderr
+                    param_group.attrs['logN_err'] = p_opt['logN%i_%s' % (n, ion)].stderr
 
             # Save Chebyshev parameters:
             cheb_group = best_fit.create_group('cheb_params')
             for parname in list(ds.best_fit.keys()):
-                if '_cheb_p' in parname:
+                if 'cheb_p' in parname:
                     coeff = ds.best_fit[parname]
-                    cheb_group.create_dataset(parname, data=coeff.value)
-                    cheb_group[parname].attrs['error'] = coeff.stderr
+                    cheb_par = cheb_group.create_group(parname)
+                    cheb_par.attrs['value'] = coeff.value
+                    cheb_par.attrs['error'] = coeff.stderr
 
     if verbose:
         print("Successfully saved the dataset to file: " + fname)
@@ -297,32 +290,27 @@ def load_dataset_from_hdf(fname):
                         # in the best_fit data group by replacing the path:
                         pointer = comp.name
                         fit_pointer = pointer.replace('components', 'best_fit')
-                        z = hdf[fit_pointer+'/z'].value
-                        z_err = hdf[fit_pointer+'/z'].attrs['error']
-                        b = hdf[fit_pointer+'/b'].value
-                        b_err = hdf[fit_pointer+'/b'].attrs['error']
-                        logN = hdf[fit_pointer+'/logN'].value
-                        logN_err = hdf[fit_pointer+'/logN'].attrs['error']
+                        z = hdf[fit_pointer].attrs['z']
+                        z_err = hdf[fit_pointer].attrs['z_err']
+                        b = hdf[fit_pointer].attrs['b']
+                        b_err = hdf[fit_pointer].attrs['b_err']
+                        logN = hdf[fit_pointer].attrs['logN']
+                        logN_err = hdf[fit_pointer].attrs['logN_err']
 
                     else:
-                        z = comp['z'].value
+                        z = comp.attrs['z']
                         z_err = None
-                        b = comp['b'].value
+                        b = comp.attrs['b']
                         b_err = None
-                        logN = comp['logN'].value
+                        logN = comp.attrs['logN']
                         logN_err = None
 
                     # Extract component options:
                     opts = dict()
                     for varname in ['z', 'b', 'N']:
-                        if varname == 'N':
-                            hdf_name = 'logN'
-                        else:
-                            hdf_name = varname
-
-                        tie = comp[hdf_name].attrs['tie_%s' % varname]
+                        tie = comp.attrs['tie_%s' % varname]
                         tie = None if tie == 'None' else tie
-                        vary = comp[hdf_name].attrs['var_%s' % varname]
+                        vary = comp.attrs['var_%s' % varname]
                         opts['tie_%s' % varname] = tie
                         opts['var_%s' % varname] = vary
 
@@ -337,10 +325,9 @@ def load_dataset_from_hdf(fname):
                         ds.best_fit.add(z_name, value=z, vary=opts['var_z'])
                         ds.best_fit[z_name].stderr = z_err
                         ds.best_fit.add(b_name, value=b, vary=opts['var_b'],
-                                        min=0., max=500.)
+                                        min=0.)
                         ds.best_fit[b_name].stderr = b_err
-                        ds.best_fit.add(N_name, value=logN, vary=opts['var_N'],
-                                        min=0., max=40.)
+                        ds.best_fit.add(N_name, value=logN, vary=opts['var_N'])
                         ds.best_fit[N_name].stderr = logN_err
 
         if 'best_fit' in hdf:
@@ -348,22 +335,22 @@ def load_dataset_from_hdf(fname):
             # to set the parameter ties:
             for ion, comps in ds.components.items():
                 for n, comp in enumerate(comps):
-                    z, b, logN, opts = comp
+                    z, b, logN = comp.get_pars()
                     z_name = 'z%i_%s' % (n, ion)
                     b_name = 'b%i_%s' % (n, ion)
                     N_name = 'logN%i_%s' % (n, ion)
 
-                    if opts['tie_z']:
-                        ds.best_fit[z_name].expr = opts['tie_z']
-                    if opts['tie_b']:
-                        ds.best_fit[b_name].expr = opts['tie_b']
-                    if opts['tie_N']:
-                        ds.best_fit[N_name].expr = opts['tie_N']
+                    if comp.tie_z:
+                        ds.best_fit[z_name].expr = comp.tie_z
+                    if comp.tie_b:
+                        ds.best_fit[b_name].expr = comp.tie_b
+                    if comp.tie_N:
+                        ds.best_fit[N_name].expr = comp.tie_N
 
             # Load Chebyshev parameters:
             cheb_group = hdf['best_fit/cheb_params']
             for parname, cheb_par in cheb_group.items():
-                ds.best_fit.add(parname, value=cheb_par.value)
+                ds.best_fit.add(parname, value=cheb_par.attrs['value'])
                 ds.best_fit[parname].stderr = cheb_par.attrs['error']
 
         return ds

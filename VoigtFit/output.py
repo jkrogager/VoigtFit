@@ -1647,7 +1647,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         std_err = np.std(np.log10(np.sum(10**np.array(ION), 0)))
 
         logN_tot = np.random.normal(abundance, std_err, 10000)
-        N_solar, N_solar_err = Asplund.photosphere[element]
+        N_solar, N_solar_err = Asplund.solar[element]
         solar_abundance = np.random.normal(N_solar, N_solar_err, 10000)
 
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
@@ -1677,10 +1677,7 @@ def print_total(dataset):
                     N_tot.append(params[par].value)
                     if params[par].stderr < 0.5:
                         logN.append(params[par].value)
-                        if params[par].stderr < 0.01:
-                            logN_err.append(0.01)
-                        else:
-                            logN_err.append(params[par].stderr)
+                        logN_err.append(params[par].stderr)
 
             ION = [np.random.normal(n, e, 10000)
                    for n, e in zip(logN, logN_err)]
@@ -2052,16 +2049,16 @@ def save_individual_components(dataset, filename, path=''):
         return
 
 
-def show_components(self, ion=None):
+def show_components(dataset, ion=None):
     """
     Show the defined components for a given `ion`.
     By default, all ions are shown.
     """
-    z_sys = self.redshift
-    for ion, comps in self.components.items():
+    z_sys = dataset.redshift
+    for ion, comps in dataset.components.items():
         print(term.underline + "  %s:" % ion + term.reset)
         for num, comp in enumerate(comps):
-            z = comp[0]
+            z = comp.z
             vel = (z - z_sys) / (z_sys + 1) * 299792.458
             print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                            comp[1], comp[2]))
+                                                            comp.b, comp.logN))

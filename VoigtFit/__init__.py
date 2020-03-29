@@ -18,10 +18,11 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     matplotlib.use('TkAgg')
 
+from .components import Component
 from . import dataset
 from .dataset import DataSet
 from . import lines
-from .lines import show_transitions
+from .lines import Line, show_transitions
 from . import hdf5_save
 from .hdf5_save import load_dataset, save_dataset
 from . import line_complexes
