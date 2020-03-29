@@ -68,4 +68,3 @@ class Component(object):
 
     def get_pars(self):
         return [self.z, self.b, self.logN]
-
