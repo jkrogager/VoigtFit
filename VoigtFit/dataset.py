@@ -9,6 +9,7 @@ import copy
 from lmfit import Parameters, Minimizer
 
 from . import Asplund
+from .components import Component
 from . import hdf5_save
 from . import line_complexes
 from .line_complexes import fine_structure_complexes
@@ -951,12 +952,11 @@ class DataSet(object):
         For more information about parameter ties, see the documentation for lmfit_.
 
         """
-        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
-                   'tie_N': tie_N}
+        this_comp = Component(z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N)
         if ion in self.components.keys():
-            self.components[ion].append([z, b, logN, options])
+            self.components[ion].append(this_comp)
         else:
-            self.components[ion] = [[z, b, logN, options]]
+            self.components[ion] = [this_comp]
 
     def add_component_velocity(self, ion, v, b, logN,
                                var_z=True, var_b=True, var_N=True, tie_z=None, tie_b=None, tie_N=None):
@@ -964,13 +964,12 @@ class DataSet(object):
         Same as for :meth:`add_component <VoigtFit.DataSet.add_component>`
         but input is given as relative velocity instead of redshift.
         """
-        options = {'var_z': var_z, 'var_b': var_b, 'var_N': var_N, 'tie_z': tie_z, 'tie_b': tie_b,
-                   'tie_N': tie_N}
         z = self.redshift + v/299792.458*(self.redshift + 1.)
+        this_comp = Component(z, b, logN, var_z, var_b, var_N, tie_z, tie_b, tie_N)
         if ion in self.components.keys():
-            self.components[ion].append([z, b, logN, options])
+            self.components[ion].append(this_comp)
         else:
-            self.components[ion] = [[z, b, logN, options]]
+            self.components[ion] = [this_comp]
 
     def interactive_components(self, line_tag, velocity=False):
         """
@@ -1117,30 +1116,29 @@ class DataSet(object):
 
         reference = self.components[from_ion]
         # overwrite the components already defined for ion if they exist
-        self.components[to_ion] = []
+        self.components[to_ion] = list()
 
         if ref_comp is not None:
-            offset_N = logN - reference[ref_comp][2]
+            offset_N = logN - reference[ref_comp].logN
         else:
             # Strip ionization state to get element:
-            ion_tmp = to_ion[:1] + to_ion[1:].replace('I', '')
-            element = ion_tmp[:1] + ion_tmp[1:].replace('V', '')
-            anchor_tmp = from_ion[:1] + from_ion[1:].replace('I', '')
-            element_anchor = anchor_tmp[:1] + anchor_tmp[1:].replace('V', '')
-            solar_elements = Asplund.photosphere.keys()
+            element = to_ion[:2] if to_ion[1].islower() else to_ion[0]
+            element_anchor = from_ion[:2] if from_ion[1].islower() else from_ion[0]
+            solar_elements = Asplund.solar.keys()
             if element in solar_elements and element_anchor in solar_elements:
                 # Use Solar abundance ratios:
-                offset_N = Asplund.photosphere[element][0] - Asplund.photosphere[element_anchor][0]
+                offset_N = Asplund.solar[element][0] - Asplund.solar[element_anchor][0]
             else:
                 offset_N = 0.
+
         for num, comp in enumerate(reference):
             new_comp = copy.deepcopy(comp)
             if logN:
-                new_comp[2] += offset_N
+                new_comp.logN += offset_N
             if tie_z:
-                new_comp[3]['tie_z'] = 'z%i_%s' % (num, from_ion)
+                new_comp.tie_z = 'z%i_%s' % (num, from_ion)
             if tie_b:
-                new_comp[3]['tie_b'] = 'b%i_%s' % (num, from_ion)
+                new_comp.tie_b = 'b%i_%s' % (num, from_ion)
 
             self.components[to_ion].append(new_comp)
 
@@ -1209,13 +1207,13 @@ class DataSet(object):
         """
         if ion:
             for comp in self.components[ion]:
-                comp[3]['var_b'] = False
-                comp[3]['var_z'] = False
+                comp.var_b = False
+                comp.var_z = False
         else:
             for ion in self.components.keys():
                 for comp in self.components[ion]:
-                    comp[3]['var_b'] = False
-                    comp[3]['var_z'] = False
+                    comp.var_b = False
+                    comp.var_z = False
 
     def free_structure(self, ion=None):
         """Free the velocity structure, that is, the redshifts and the b-parameters.
@@ -1228,13 +1226,13 @@ class DataSet(object):
         """
         if ion:
             for comp in self.components[ion]:
-                comp[3]['var_b'] = True
-                comp[3]['var_z'] = True
+                comp.var_b = True
+                comp.var_z = True
         else:
             for ion in self.components.keys():
                 for comp in self.components[ion]:
-                    comp[3]['var_b'] = True
-                    comp[3]['var_z'] = True
+                    comp.var_b = True
+                    comp.var_z = True
 
     # Fine-structure Lines:
     def add_fine_lines(self, line_tag, levels=None, full_label=False, velspan=None):
@@ -1630,32 +1628,30 @@ class DataSet(object):
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
-                z, b, logN, opts = comp
+                z, b, logN = comp.get_pars()
                 z_name = 'z%i_%s' % (n, ion)
                 b_name = 'b%i_%s' % (n, ion)
                 N_name = 'logN%i_%s' % (n, ion)
 
-                self.pars.add(z_name, value=myfloat(z), vary=opts['var_z'])
-                self.pars.add(b_name, value=myfloat(b), vary=opts['var_b'],
-                              min=0., max=800.)
-                self.pars.add(N_name, value=myfloat(logN), vary=opts['var_N'],
-                              min=0., max=40.)
+                self.pars.add(z_name, value=myfloat(z), vary=comp.var_z)
+                self.pars.add(b_name, value=myfloat(b), vary=comp.var_b,
+                              min=0.)
+                self.pars.add(N_name, value=myfloat(logN), vary=comp.var_N)
 
         # - Then setup parameter links:
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):
                 ion = ion.replace('*', 'x')
-                z, b, logN, opts = comp
                 z_name = 'z%i_%s' % (n, ion)
                 b_name = 'b%i_%s' % (n, ion)
                 N_name = 'logN%i_%s' % (n, ion)
 
-                if opts['tie_z']:
-                    self.pars[z_name].expr = opts['tie_z']
-                if opts['tie_b']:
-                    self.pars[b_name].expr = opts['tie_b']
-                if opts['tie_N']:
-                    self.pars[N_name].expr = opts['tie_N']
+                if comp.tie_z:
+                    self.pars[z_name].expr = comp.tie_z
+                if comp.tie_b:
+                    self.pars[b_name].expr = comp.tie_b
+                if comp.tie_N:
+                    self.pars[N_name].expr = comp.tie_N
 
         # Setup Chebyshev parameters:
         if self.cheb_order >= 0:
@@ -2126,7 +2122,7 @@ class DataSet(object):
         for ion, comps in self.components.items():
             print("\n - %6s:" % ion)
             for num, comp in enumerate(comps):
-                z = comp[0]
+                z = comp.z
                 vel = (z - z_sys) / (z_sys + 1) * 299792.458
                 print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
-                                                                comp[1], comp[2]))
+                                                                comp.b, comp.logN))
