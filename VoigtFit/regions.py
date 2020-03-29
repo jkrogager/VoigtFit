@@ -232,7 +232,7 @@ class Region():
             # Calculate FWHM in km/s:
             self.kernel_fwhm = 299792.458 / lambda0 * (fwhm * dx0)
         else:
-            # `str` is a float, already given as FWHM in km/s
+            # `res` is a float, already given as FWHM in km/s
             self.kernel = float(self.res)
             self.kernel_fwhm = float(self.res)
 
