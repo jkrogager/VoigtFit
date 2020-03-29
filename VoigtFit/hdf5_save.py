@@ -17,7 +17,7 @@ with warnings.catch_warnings():
     import h5py
 from lmfit import Parameters
 
-import regions
+from . import regions
 
 
 def dataset_to_hdf(fname):
@@ -181,12 +181,16 @@ def load_dataset_from_hdf(fname):
                 nsub = chunk.attrs['nsub']
             else:
                 nsub = 1
+            wl = np.array(chunk['wl'])
+            flux = np.array(chunk['flux'])
+            error = np.array(chunk['error'])
             if 'mask' in chunk.keys():
-                mask = chunk['mask'].value
+                mask = np.array(chunk['mask'])
             else:
-                mask = np.ones_like(chunk['wl'].value, dtype=bool)
-            ds.add_data(chunk['wl'].value, chunk['flux'].value, res,
-                        err=chunk['error'].value, normalized=norm, nsub=nsub,
+                mask = np.ones_like(wl, dtype=bool)
+
+            ds.add_data(wl, flux, res,
+                        err=error, normalized=norm, nsub=nsub,
                         mask=mask)
 
         # Load .regions:
@@ -249,13 +253,13 @@ def load_dataset_from_hdf(fname):
                 Region.kernel_nsub = 1
 
             if 'kernel' in reg.keys():
-                Region.kernel = reg['kernel'].value
+                Region.kernel = np.array(reg['kernel'])
             else:
                 Region.kernel = reg.attrs['res']
-            Region.wl = reg['wl'].value
-            Region.flux = reg['flux'].value
-            Region.mask = reg['mask'].value
-            Region.err = reg['error'].value
+            Region.wl = np.array(reg['wl'])
+            Region.flux = np.array(reg['flux'])
+            Region.mask = np.array(reg['mask'])
+            Region.err = np.array(reg['error'])
 
             ds.regions.append(Region)
 

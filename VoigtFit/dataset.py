@@ -8,16 +8,16 @@ import copy
 
 from lmfit import Parameters, Minimizer
 
-import Asplund
-import hdf5_save
-import line_complexes
-from line_complexes import fine_structure_complexes
-from lines import Line, lineList
-import molecules
-import output
-from regions import Region, load_lsf
-import terminal_attributes as term
-from voigt import evaluate_profile, evaluate_continuum
+from . import Asplund
+from . import hdf5_save
+from . import line_complexes
+from .line_complexes import fine_structure_complexes
+from .lines import Line, lineList
+from . import molecules
+from . import output
+from .regions import Region, load_lsf
+from . import terminal_attributes as term
+from .voigt import evaluate_profile, evaluate_continuum
 
 
 myfloat = np.float64

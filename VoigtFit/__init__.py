@@ -23,6 +23,7 @@ from .dataset import DataSet
 from . import lines
 from .lines import show_transitions
 from . import hdf5_save
+from .hdf5_save import load_dataset, save_dataset
 from . import line_complexes
 from . import molecules
 from . import output

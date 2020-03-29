@@ -13,12 +13,12 @@ from scipy.ndimage import gaussian_filter1d
 from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
 
-import voigt
-import Asplund
-import molecules
-from lines import Line
-from voigt import evaluate_profile
-import terminal_attributes as term
+from . import Asplund
+from . import molecules
+from .lines import Line
+from .voigt import evaluate_profile
+from . import terminal_attributes as term
+from . import voigt
 
 plt.rcParams['lines.linewidth'] = 1.0
 
