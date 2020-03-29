@@ -563,7 +563,7 @@ class Region():
             for line in self.lines:
                 transition_lines.append(line.tag)
 
-        all_trans_str = ["${\\rm "+trans.replace('_', '\ \\lambda')+"}$"
+        all_trans_str = [r"${\rm "+trans.replace('_', r'\ \lambda')+"}$"
                          for trans in transition_lines]
         line_string = "\n".join(all_trans_str)
 
