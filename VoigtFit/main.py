@@ -157,7 +157,7 @@ def main():
         new_lines = list()
         if verbose:
             print("\n - Lines in dataset:")
-            print(dataset.lines.keys())
+            print(list(dataset.lines.keys()))
             print(" - Lines in parameter file:")
             print(parameters['lines'])
         for tag, velspan in parameters['lines']:
@@ -214,7 +214,7 @@ def main():
         if verbose:
             print("\n - Fine-structure lines in dataset:")
             print(dataset.fine_lines)
-            print(dataset.lines.keys())
+            print(list(dataset.lines.keys()))
             print("\n - Fine-structure lines in parameter file:")
             print(parameters['fine-lines'])
         if len(parameters['fine-lines']) > 0:
@@ -611,7 +611,7 @@ def main():
         elif 'SiII' in dataset.components.keys():
             ion = 'SiII'
         else:
-            ion = dataset.components.keys()[0]
+            ion = list(dataset.components.keys())[0]
 
         # find strongest component:
         n_comp = len(dataset.components[ion])

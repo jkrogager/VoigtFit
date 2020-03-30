@@ -364,7 +364,7 @@ class Region():
             plt.draw()
 
             plt.title("Go back to terminal...")
-            prompt = raw_input(" Is normalization correct?  (YES/no) ")
+            prompt = str(input(" Is normalization correct?  (YES/no) "))
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err
@@ -489,7 +489,7 @@ class Region():
                 mask_line = plt.plot(x, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
-                prompt = raw_input("Are the masked regions correct? (YES/no/clear)")
+                prompt = str(input("Are the masked regions correct? (YES/no/clear)"))
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.mask = mask
@@ -512,7 +512,7 @@ class Region():
 
             elif len(sel) == 0:
                 print("\nNo masks were defined.")
-                prompt = raw_input("Continue? (yes/no)")
+                prompt = str(input("Continue? (yes/no)"))
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.new_mask = False
