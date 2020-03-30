@@ -12,10 +12,17 @@ class **DataSet**
    :members:
 
 
+class **Component**
+--------------
+
+.. autoclass:: components.Component
+ :members:
+
+
 class **Line**
 --------------
 
-.. autoclass:: dataset.Line
+.. autoclass:: lines.Line
    :members:
 
 

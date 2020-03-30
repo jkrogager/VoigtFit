@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.10.2 documentation</title>
+    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.11.4.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -393,7 +393,11 @@ and return to the terminal to save the components.</p>
 Components must manually be defined for this ion.</p>
 <p><em>ion2</em> denotes the <em>ion</em> to which the components will be copied.
 Lines must be defined for this <em>ion</em> using a <code class="docutils literal notranslate"><span class="pre">lines</span></code> statement.</p>
-<p>Note – The order is not important. This is inferred from the position of the words <em>to</em> and <em>from</em>.</p>
+<dl class="docutils">
+<dt>Note – The order is not important. This is inferred from the position of the words <em>to</em> and <em>from</em>.</dt>
+<dd>If components are also defined using the regular <cite>component</cite> statement
+then both the copied components and the individual components are included in the fit!</dd>
+</dl>
 </div></blockquote>
 <p>Optinal arguments:</p>
 <blockquote>
@@ -440,7 +444,7 @@ a component can simply be commented out (using ‘#’) to delete it from the fi
 <div class="topic">
 <p class="topic-title first">Example</p>
 <p>Suppose that FeII has 5 components defined and the same component structure has been copied to
-ZnII; However, the zinc lines are much weaker and therefore only 4 components can be
+ZnII; However, the zinc lines are much weaker and therefore only the 4 strongest components can be
 constrained for ZnII. This would be defined as follows:</p>
 <blockquote>
 <div><div class="line-block">
@@ -452,7 +456,7 @@ constrained for ZnII. This would be defined as follows:</p>
 </div>
 <div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">from</span> <span class="pre">FeII</span> <span class="pre">to</span> <span class="pre">ZnII</span>&#160; <span class="pre">scale</span> <span class="pre">13.2</span>&#160; <span class="pre">0</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">delete</span> <span class="pre">component</span> <span class="pre">1</span> <span class="pre">from</span> <span class="pre">ZnII</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">delete</span> <span class="pre">component</span> <span class="pre">2</span> <span class="pre">from</span> <span class="pre">ZnII</span></code></div>
 </div>
 </div></blockquote>
 </div>
@@ -513,12 +517,17 @@ type <em>no</em> or <em>n</em> in the terminal and press <em>enter</em>. This wi
 </div>
 <div class="section" id="mask">
 <h2>Mask<a class="headerlink" href="#mask" title="Permalink to this headline">¶</a></h2>
-<p><strong>mask  [ line_tags ]</strong></p>
+<p><strong>mask  [ line_tags ]  [ force ]</strong></p>
 <p>Optional arguments:</p>
 <blockquote>
-<div><em>line_tags</em> : either a single line identifier (e.g., ‘FeII_2374’) or a space separated list
+<div><p><em>line_tags</em> : either a single line identifier (e.g., ‘FeII_2374’) or a space separated list
 of identifiers for which to run the interactive masking procedure.
-Default is to define masks for all lines.</div></blockquote>
+Default is to define masks for all lines.</p>
+<p><em>force</em> : if present, the masking for the given line_tags will be reset everytime the user
+runs the fit. Otherwise the mask will only be defined the first time the dataset is fitted
+and the subsequent runs will load the mask from the previous generation unless the dataset
+file (.hdf5) is deleted or reset using the <cite>-f</cite> option of <cite>VoigtFit</cite>.</p>
+</div></blockquote>
 <p>This statement allows the user to define mask interactively for all lines or individual lines.</p>
 <p>Note – The mask is an exclusion mask, so pixels that are defined in the mask, are <em>not</em> fitted.</p>
 <div class="topic">
@@ -702,7 +711,7 @@ are set: <code class="docutils literal notranslate"><span class="pre">ftol=0.01<
 </div>
 <div class="section" id="output">
 <h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
-<p><strong>output  individual-regions  velocity</strong></p>
+<p><strong>output  individual-regions  velocity  individual-components</strong></p>
 <p>The output statement takes two optional keywords:</p>
 <blockquote>
 <div><p><em>individual-regions</em> : which saves the best-fit profile and data into individual files for
@@ -710,6 +719,11 @@ all the fitting regions.</p>
 <p><em>velocity</em> : which prints the best-fit parameters in terms of relative velocity
 instead of redshift. For the detailed behavior of this features, see the section on how to
 <a class="reference internal" href="#change-systemic-redshift">change systemic redshift</a>.</p>
+<p><em>individual-components</em> : which saves the profiles of individual components of all lines
+that are defined. The profiles are calculated over the full wavelength range of the dataset.
+These are all saved as columns in a file with extension <cite>.components</cite>. Each component is
+identified by its ion and the component number, e.g., <cite>FeII_0</cite> for the first component
+of singly ionized iron (FeII).</p>
 </div></blockquote>
 </div>
 <div class="section" id="load">
@@ -726,9 +740,32 @@ can be added by using the <a class="reference internal" href="#add-components">c
 <div class="section" id="fix-velocity-structure">
 <h2>Fix Velocity Structure<a class="headerlink" href="#fix-velocity-structure" title="Permalink to this headline">¶</a></h2>
 <p><strong>fix-velocity</strong></p>
-<p>If this keyword is present in the parameter file, then the velocity structure
+<blockquote>
+<div>If this keyword is present in the parameter file, then the velocity structure
 (i.e., the relative velocities and broadening parameters) of all elements
-is kept fixed.</p>
+is kept fixed.</div></blockquote>
+</div>
+<div class="section" id="check-lines">
+<h2>Check-Lines<a class="headerlink" href="#check-lines" title="Permalink to this headline">¶</a></h2>
+<p><strong>check-lines  [f_lower=0  f_upper=100  l_lower=0  l_upper=1.e4]  [ignore]</strong></p>
+<blockquote>
+<div>If the keyword <cite>ignore</cite> appears in the command this will turn off the <cite>check lines</cite> functionality
+which prompts the user if other transitions for defined ions are available in the spectral coverage
+of the data.
+The user can filter the lines that will be prompted by setting the upper and lower limits on
+oscillator strength (f) or rest-frame wavelength (l) in Angstrom.</div></blockquote>
+<div class="topic">
+<p class="topic-title first">Example</p>
+<p><code class="docutils literal notranslate"><span class="pre">check-lines</span>&#160; <span class="pre">ignore</span></code></p>
+<blockquote>
+<div>this turns off the check lines function. The user will not be warned if other lines of already
+defined ions are available within the spectral data. Use this with caution unless you are very
+familiar with the atomic line list.</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">check-lines</span>&#160; <span class="pre">f_lower=0.001</span>&#160; <span class="pre">l_lower=1200</span></code></p>
+<blockquote>
+<div>this will only prompt the user if the missing lines have an oscillator strength larger than 0.001
+and a rest-frame wavelength larger than 1200 Angstrom.</div></blockquote>
+</div>
 </div>
 </div>
 
@@ -769,6 +806,7 @@ is kept fixed.</p>
 <li class="toctree-l2"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#load">Load</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fix-velocity-structure">Fix Velocity Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-lines">Check-Lines</a></li>
 </ul>
 </li>
 </ul>

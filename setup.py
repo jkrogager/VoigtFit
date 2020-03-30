@@ -32,7 +32,7 @@ else:
     v_items[0] = '3'
     version = '.'.join(v_items)
     programming_language = 'Programming Language :: Python :: 3'
-    use_2to3 = True
+    use_2to3 = False
 
 setup(
     name='VoigtFit',

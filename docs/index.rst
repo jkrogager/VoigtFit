@@ -35,6 +35,12 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.4:
+
+  Python 3 is now supported! Solar values have been updated following the recommendations by
+  Lodders et al. (2009) as to whether photospheric, meteoritic or their average value is used.
+
+
 New in version 0.11.3:
 
   The user can now reset the masking of specific lines in a dataset by using the *force* option in the

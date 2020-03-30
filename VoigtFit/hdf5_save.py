@@ -152,8 +152,8 @@ def save_hdf_dataset(ds, fname, verbose=True):
 
 
 def load_dataset_from_hdf(fname):
-    from lines import Line, lineList
-    from dataset import DataSet
+    from .lines import Line, lineList
+    from .dataset import DataSet
     """Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class."""
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']
@@ -246,7 +246,10 @@ def load_dataset_from_hdf(fname):
                 Region.kernel_nsub = 1
 
             if 'kernel' in reg.keys():
-                Region.kernel = np.array(reg['kernel'])
+                if len(reg['kernel'].shape) == 2:
+                    Region.kernel = np.array(reg['kernel'])
+                else:
+                    Region.kernel = float(reg['kernel'][()])
             else:
                 Region.kernel = reg.attrs['res']
             Region.wl = np.array(reg['wl'])

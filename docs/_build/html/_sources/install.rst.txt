@@ -6,13 +6,15 @@
 Installation
 ============
 
-VoigtFit is currently only written and tested for Python 2.7;
-However, the code is currently being ported to Python 3.6 -- Stay tuned!
+VoigtFit is now available for Python 3! The code has been tested on 3.6 and 3.7.
+Support for Python 2.7 will be continued for a while but will eventually be dropped
+since Python 2.7 is no longer supported by the Python developers.
+
 
 Dependencies
 ------------
 
-VoigtFit depends on matplotlib_, numpy_, scipy_, h5py_, astropy_, and lmfit_. You
+VoigtFit depends on matplotlib_, numpy_, scipy_, h5py_ (>2.1), astropy_, and lmfit_. You
 can install these using your favorite Python package manager such as
 `pip <https://pip.pypa.io/en/stable/installing/>`_ or
 `conda <http://conda.pydata.org/docs/>`_.
