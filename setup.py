@@ -34,6 +34,11 @@ else:
     programming_language = 'Programming Language :: Python :: 3'
     use_2to3 = False
 
+def _post_install():
+    print("\n Please let me know that you're using VoigtFit by filling in the following short form:")
+    print(" https://forms.gle/exPEsrPoyfB4Us7w9")
+    print(" Thanks for installing VoigtFit!")
+
 setup(
     name='VoigtFit',
 
@@ -135,3 +140,5 @@ setup(
         ],
     },
 )
+
+_post_install()

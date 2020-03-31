@@ -10,6 +10,10 @@ VoigtFit is now available for Python 3! The code has been tested on 3.6 and 3.7.
 Support for Python 2.7 will be continued for a while but will eventually be dropped
 since Python 2.7 is no longer supported by the Python developers.
 
+Please let me know that you're using VoigtFit by filling in this
+`short form <https://forms.gle/exPEsrPoyfB4Us7w9>`_.
+This way I can keep you updated with critical updates and I get an idea of how many users
+are still depending on Python 2.7 compatibility.
 
 Dependencies
 ------------
