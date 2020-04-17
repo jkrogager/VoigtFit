@@ -99,7 +99,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['matplotlib', 'numpy', 'scipy',
+    install_requires=['matplotlib', 'numpy', 'scipy', 'future',
                       'lmfit', 'h5py>=2.1', 'astropy', 'numba<=0.47'],
 
     # List additional groups of dependencies here (e.g. development
