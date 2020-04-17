@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 __author__ = 'Jens-Kristian Krogager'
+from builtins import input
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
