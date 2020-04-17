@@ -1027,7 +1027,7 @@ class DataSet(object):
                 l0, f, gam = line.get_properties()
                 ion = line.ion
                 for comp in self.components[ion]:
-                    z = comp[0]
+                    z = comp.z
                     if velocity:
                         ax.axvline((l0*(z+1) - l_ref)/l_ref * 299792.458, ls=':', color='r', lw=0.4)
                     else:
