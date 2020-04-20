@@ -35,6 +35,13 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.5:
+
+  New atomic data for lines of hydrogen Lyman series. New damping constants for missing levels (n > 6)
+  have been calculated using data from Oliverio & Bunge (2004).
+  Small bugs related to the Python 3 migration have been fixed.
+
+
 New in version 0.11.4:
 
   Python 3 is now supported! Solar values have been updated following the recommendations by
