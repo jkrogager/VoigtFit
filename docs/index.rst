@@ -38,7 +38,7 @@ Recent updates
 New in version 0.11.5:
 
   New atomic data for lines of hydrogen Lyman series. New damping constants for missing levels (n > 6)
-  have been calculated using data from Oliverio & Bunge (2004).
+  have been calculated using data from Jitrik & Bunge (2004).
   Small bugs related to the Python 3 migration have been fixed.
 
 

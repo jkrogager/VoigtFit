@@ -1,6 +1,6 @@
-# Atomic data from Oliverio & Bunge (2004)
+# Atomic data from Jitrik & Bunge (2004)
 # Damping constants calculated by J.-K. Krogager
-# Generated:  2020-04-19 21:08:30.275409 
+# Generated:  2020-04-19 21:08:30.275409
 # --------------------------------------------------------------------
 # line-ID        ion         wl_cen     f_ij        gamma      mass
 #                            Angstrom               s^-1       m_u
@@ -72,7 +72,7 @@ DI_15            DI          915.0800  3.86e-04  1.319e+06  2.014
 
 # Atomic data file compiled from VALD3
 # http://vald.astro.uu.se
-# Generated:  2020-04-19 21:08:30.276897 
+# Generated:  2020-04-19 21:08:30.276897
 # --------------------------------------------------------------------
 # line-ID        ion         wl_cen     f_ij        gamma      mass
 #                            Angstrom               s^-1       m_u
