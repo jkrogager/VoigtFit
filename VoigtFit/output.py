@@ -398,7 +398,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             width = 8.5
             columns = 2
 
-        heigth = (len(contents) + 2) / 2 * 7.5/(max_rows)
+        heigth = (len(contents) + 2) / 2 * 7.5 / (max_rows)
         rows = (len(contents) + 1) / 2
         if len(contents) == 1:
             heigth = 6
@@ -1263,7 +1263,7 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
         for j in range(this_Jmax+1):
             for tag in transitions[j]:
                 line = Line(tag)
-                l0 = line.l0*(z+1)
+                l0 = line.l0 * (z+1)
                 band_l0.append(l0)
                 label_x = (l0 - xmin)/(xmax - xmin)
                 ax.axvline(l0, y1+(y2-y1)/1.5, y2, color=color)
@@ -1288,7 +1288,7 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
         bar_min = (min(band_l0) - xmin)/(xmax - xmin)
         bar_max = (max(band_l0) - xmin)/(xmax - xmin)
         ax.axhline(y2*(ymax-ymin) + ymin, bar_min, bar_max, color=color)
-        band_x = (min(band_l0) + max(band_l0))/2.
+        band_x = (min(band_l0) + max(band_l0)) / 2.
         if short_labels:
             band_str = 'L%i' if 'B' in band else 'W%i'
             band_str = band_str % nu
@@ -1415,7 +1415,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     width = 10.
     height = 2*(n_rows+0.1) + 0.1
     fig = plt.figure(figsize=(width, height))
-    wl_range = (xmax-xmin)/n_rows
+    wl_range = (xmax-xmin) / n_rows
     n_rows = int(n_rows)
     z = dataset.best_fit['z0_H2J0'].value
     for num in range(n_rows):
@@ -1496,10 +1496,10 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             # and join each chunk with 'newline'
             trans_chunks = [", ".join(sublist)
                             for sublist in list(chunks(all_transitions, 4))]
-            indent = '\n'+(len(ion)+2)*' '
+            indent = '\n' + (len(ion) + 2) * ' '
             trans_string = indent.join(trans_chunks)
 
-            print(ion + "  "+trans_string)
+            print(ion + "  " + trans_string)
             n_comp = len(dataset.components[ion])
             for n in range(n_comp):
                 ion = ion.replace('*', 'x')
@@ -1554,7 +1554,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
 
                 if velocity:
-                    z_val = (z-z_sys)/(z_sys+1)*299792.458
+                    z_val = (z-z_sys) / (z_sys+1) * 299792.458
                     z_format = "v = %5.1f\t"
                 else:
                     z_val = z
@@ -1794,7 +1794,7 @@ def save_parameters_to_file(dataset, filename):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
                 b = dataset.best_fit['b%i_%s' % (i, ion)]
-                vel_value = (z.value - z_sys)/(z_sys + 1)*299792.458
+                vel_value = (z.value - z_sys) / (z_sys + 1) * 299792.458
                 par_tuple = (ion, vel_value, b.value, logN.value)
                 line_fmt = "# dataset.add_component_velocity('%s', %.1f, %.1f, %.1f)"
                 output.write(line_fmt % par_tuple + "\n")

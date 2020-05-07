@@ -225,7 +225,7 @@ class Region():
 
         if isinstance(self.res, str):
             self.kernel = load_lsf(self.res, self.wl, nsub=self.kernel_nsub)
-            i0 = self.kernel.shape[0]/self.kernel_nsub/2
+            i0 = self.kernel.shape[0] // self.kernel_nsub // 2
             kernel_0 = self.kernel[i0]
             # Get FWHM in pixel units:
             fwhm = get_FWHM(kernel_0)
@@ -298,7 +298,7 @@ class Region():
             # Calculate velocity:
             l0 = self.lines[0].l0 * (z_sys + 1.)
             x = (x - l0)/l0 * 299792.458
-            x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
+            x_label = "Rel. Velocity  [km s$^{-1}$]"
 
         dx = 0.1*(x.max() - x.min())
         lines_title_string = ", ".join([line.tag for line in self.lines])
@@ -370,7 +370,7 @@ class Region():
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err
-                self.cont_err = e_continuum/np.median(continuum)
+                self.cont_err = e_continuum / np.median(continuum)
                 self.normalized = True
                 return 1
 
@@ -378,9 +378,9 @@ class Region():
                 return 0
 
         else:
-            self.flux = self.flux/continuum
-            self.err = self.err/continuum
-            self.cont_err = e_continuum/np.mean(continuum)
+            self.flux = self.flux / continuum
+            self.err = self.err / continuum
+            self.cont_err = e_continuum / np.mean(continuum)
             self.normalized = True
             return 1
 
@@ -412,7 +412,7 @@ class Region():
         if z_sys is not None:
             # Calculate velocity:
             l_ref = self.lines[0].l0 * (z_sys + 1.)
-            x = (x - l_ref)/l_ref * 299792.458
+            x = (x - l_ref) / l_ref * 299792.458
             x_label = u"Rel. Velocity  [${\\rm km\\ s^{-1}}$]"
 
         plt.xlim(x.min(), x.max())
@@ -438,12 +438,12 @@ class Region():
                 cont = np.median(self.flux)
 
             if z_sys is not None:
-                x_T = (x_T - l_ref)/l_ref * 299792.458
+                x_T = (x_T - l_ref) / l_ref * 299792.458
 
             plt.plot(x_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
             # -- Test if telluric template is defined in this region:
             if len(flux_T) > 0:
-                plt.plot(x_T, (flux_T/flux_T.max() + 1.2)*cont,
+                plt.plot(x_T, (flux_T / flux_T.max() + 1.2)*cont,
                          color='orange', alpha=0.7, lw=0.5)
 
         if z is not None:
@@ -457,7 +457,7 @@ class Region():
                     for n in range(n_comp):
                         z = dataset.pars['z%i_%s' % (n, ion)].value
                         if z_sys is not None:
-                            plt.axvline((l0*(z+1) - l_ref)/l_ref * 299792.458,
+                            plt.axvline((l0*(z+1) - l_ref) / l_ref * 299792.458,
                                         ls=':', color='r', lw=0.4)
                         else:
                             plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
