@@ -282,10 +282,6 @@ class Region():
         instead of wavelength space.
         """
 
-        if self.normalized is True:
-            # Region is already normalized...
-            return 1
-
         if norm_method in ['linear', 'spline']:
             pass
         else:
