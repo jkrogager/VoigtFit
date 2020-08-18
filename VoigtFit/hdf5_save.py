@@ -105,8 +105,9 @@ def save_hdf_dataset(ds, fname, verbose=True):
         fine_lines = hdf.create_group('fine_lines')
         if hasattr(ds, 'fine_lines'):
             for ground_state, lines in ds.fine_lines.items():
-                line_array = np.array(lines, dtype='str')
-                fine_lines.create_dataset(ground_state, data=line_array)
+                # line_array = np.array(lines, dtype='str')
+                line_array = [s.encode("ascii", "ignore") for s in fine_lines]
+                fine_lines.create_dataset(str(ground_state), data=line_array)
 
         # .components:
         components = hdf.create_group('components')
@@ -274,7 +275,8 @@ def load_dataset_from_hdf(fname):
             fine_lines = hdf['fine_lines']
             if len(fine_lines) > 0:
                 for ground_state, line_tags in fine_lines.items():
-                    ds.fine_lines[ground_state] = list(line_tags)
+                    unicode_list = [s.decode('utf-8') for s in line_tags]
+                    ds.fine_lines[ground_state] = unicode_list
 
         # Load .components:
         components = hdf['components']
