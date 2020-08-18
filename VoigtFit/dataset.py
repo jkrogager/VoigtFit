@@ -1605,7 +1605,7 @@ class DataSet(object):
                 print("")
 
         # --- Check that no components for inactive elements are defined:
-        for this_ion in self.components.keys():
+        for this_ion in list(self.components.keys()):
             lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
 
             if np.any(lines_for_this_ion):

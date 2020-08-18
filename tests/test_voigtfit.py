@@ -25,9 +25,9 @@ def test_column_densities():
     ds.velspan = 200.
     res = 299792. / 10000.
     ds.add_spectrum(test_fname, res, normalized=True)
-    ds.add_lines(['SiII_1808', 'FeII_1611', 'FeII_2249', 'FeII_2260', 'FeII_2374'])
+    ds.add_lines(['SiII_1808', 'SiII_1020', 'SiII_1304', 'FeII_1611', 'FeII_2249', 'FeII_2260', 'FeII_2374'])
     ds.add_lines(['SII_1253', 'SII_1250'])
-    ds.add_component('SiII', 2.3532, 10., 15.4)
+    ds.add_component('SiII', 2.3532, 15., 15.4)
     ds.add_component('SiII', 2.3539, 10., 15.8)
     ds.copy_components(from_ion='SiII', to_ion='SII')
     ds.copy_components(from_ion='SiII', to_ion='FeII')
@@ -41,7 +41,8 @@ def test_column_densities():
         logN2 = popt.params['logN1_%s' % ion].value
         logN_tot = np.log10(10**logN1 + 10**logN2)
         delta = logN_tot - input_data[ion]
-        logN_criteria.append(delta <= 0.01)
+        print("%s : %.2f  [input: %.2f]" % (ion, logN_tot, input_data[ion]))
+        logN_criteria.append(delta < 0.02)
 
     assert all(logN_criteria), "Not all column densities were recovered correctly."
 
