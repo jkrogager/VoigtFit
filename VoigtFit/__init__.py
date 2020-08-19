@@ -13,10 +13,10 @@ from os import path
 from sys import version_info
 import warnings
 import matplotlib
-# The native MacOSX backend doesn't work for all:
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    matplotlib.use('TkAgg')
+# # The native MacOSX backend doesn't work for all:
+# with warnings.catch_warnings():
+#     warnings.simplefilter("ignore")
+#     matplotlib.use('TkAgg')
 
 from .components import Component
 from . import dataset
