@@ -21,6 +21,7 @@ backup
 .input.pars.swp
 
 docs/_build
+docs/_static
 
 build
 
