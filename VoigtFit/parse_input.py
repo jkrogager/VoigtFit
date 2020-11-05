@@ -498,15 +498,24 @@ def parse_parameters(fname):
             line = line.replace('[', '').replace(']', '')
             line = line.replace('(', '').replace(')', '')
             mode = line.split('=')[1]
-            if ',' in mode:
+            # Remove any single or double quotes:
+            mode = mode.replace('""', '').replace("''", '')
+            subparts = mode.split()
+            if len(subparts) == 1:
+                # either none or auto:
+                if mode.lower() in ['auto', 'none']:
+                    parameters['systemic'] = [None, mode.lower()]
+            elif len(subparts) == 2:
                 # num, ion mode:
-                num, ion = mode.split(',')
+                if isinstance(subparts[0], int):
+                    num, ion = subparts
+                elif isinstance(subparts[1], int):
+                    ion, num = subparts
+                else:
+                    print(" Error: Couldn't parse the command: {}".format(line))
                 parameters['systemic'] = [int(num), ion]
             else:
-                # either none or auto:
-                if "'" in mode:
-                    mode = mode.replace("'", '')
-                    parameters['systemic'] = [None, mode]
+                print(" Error: Couldn't parse the command: {}".format(line))
 
         elif 'reset' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')

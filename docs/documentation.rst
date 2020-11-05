@@ -696,33 +696,38 @@ Change Systemic Redshift
 
 This statement defines how to update the systemic redshift after fitting.
 Possible input for *value*:
-  { ‘*auto*’, ‘*none*’ or  [ *num*, ‘*ion*’ ] }
+  { *auto*, *none* or  [ *num* *ion* ] }
 
-Default behavior is ‘*none*’: The systemic redshift will not be updated after fitting
+Default behavior is *none*: The systemic redshift will not be updated after fitting
 and the redshift given through the `z_sys`_ statement will be used.
 
-If systemic is set to ‘*auto*’ the systemic redshift will be set to the redshift
+If systemic is set to *auto* the systemic redshift will be set to the redshift
 of the strongest component. The element used to identify the strongest component
-will be selected automatically, priority will be given to ions: ’FeII’ or ‘SiII’.
+will be selected automatically, priority will be given to ions: ’SiII’ or ‘FeII’.
 If none of these is present, the first line in the dataset will be used.
 
   :red:`Warning -- This may result in unexpected behavior.`
 
-By giving an integer number (*num*) and an '*ion*' (must be separated by a comma),
-the user can force the systemic redshift to be set to the given component number
-of the given *ion* after the fit has converged.
+By giving an integer number (*num*) and an *ion*, the user can force the systemic redshift
+to be set to the given component number of the given *ion* after the fit has converged.
+The order of the arguments *num* and *ion* is not important.
 Note that the components are 0-indexed, i.e., the first component is *num=0*.
 If *num* is set to -1 then the last component of the given *ion* is used.
 
 .. topic:: Example
 
-  ``systemic  2   FeII``
+  ``systemic = 2 FeII``
 
     this defines the systemic redshift as the 3rd component of FeII
 
-  ``systemic  -1  CI``
+  ``systemic = CI -1``
 
     this defines the systemic redshift as the last component of CI
+
+  ``systemic = auto``
+
+    If SiII is fitted, use strongest component of SiII, else if FeII is fitted use strongest FeII component.
+    Lastly, if neither SiII nor FeII is used in the fit, use the first element defined in the dataset.
 
 
 Thermal Model

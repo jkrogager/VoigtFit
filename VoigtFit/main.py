@@ -606,10 +606,10 @@ def main():
 
     elif parameters['systemic'][1] == 'auto':
         # find ion to search for strongest component:
-        if 'FeII' in dataset.components.keys():
-            ion = 'FeII'
-        elif 'SiII' in dataset.components.keys():
+        if 'SiII' in dataset.components.keys():
             ion = 'SiII'
+        elif 'FeII' in dataset.components.keys():
+            ion = 'FeII'
         else:
             ion = list(dataset.components.keys())[0]
 
