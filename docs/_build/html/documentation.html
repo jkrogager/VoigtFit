@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.11.4.3 documentation</title>
+    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.11.5.4 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -621,28 +621,32 @@ resolution in the fit, unless the dataset is deleted or overwritten (run <code c
 <p>This statement defines how to update the systemic redshift after fitting.
 Possible input for <em>value</em>:</p>
 <blockquote>
-<div>{ ‘<em>auto</em>’, ‘<em>none</em>’ or  [ <em>num</em>, ‘<em>ion</em>’ ] }</div></blockquote>
-<p>Default behavior is ‘<em>none</em>’: The systemic redshift will not be updated after fitting
+<div>{ <em>auto</em>, <em>none</em> or  [ <em>num</em> <em>ion</em> ] }</div></blockquote>
+<p>Default behavior is <em>none</em>: The systemic redshift will not be updated after fitting
 and the redshift given through the <a class="reference internal" href="#z-sys">z_sys</a> statement will be used.</p>
-<p>If systemic is set to ‘<em>auto</em>’ the systemic redshift will be set to the redshift
+<p>If systemic is set to <em>auto</em> the systemic redshift will be set to the redshift
 of the strongest component. The element used to identify the strongest component
-will be selected automatically, priority will be given to ions: ’FeII’ or ‘SiII’.
+will be selected automatically, priority will be given to ions: ’SiII’ or ‘FeII’.
 If none of these is present, the first line in the dataset will be used.</p>
 <blockquote>
 <div><span class="red">Warning – This may result in unexpected behavior.</span></div></blockquote>
-<p>By giving an integer number (<em>num</em>) and an ‘<em>ion</em>’ (must be separated by a comma),
-the user can force the systemic redshift to be set to the given component number
-of the given <em>ion</em> after the fit has converged.
+<p>By giving an integer number (<em>num</em>) and an <em>ion</em>, the user can force the systemic redshift
+to be set to the given component number of the given <em>ion</em> after the fit has converged.
+The order of the arguments <em>num</em> and <em>ion</em> is not important.
 Note that the components are 0-indexed, i.e., the first component is <em>num=0</em>.
 If <em>num</em> is set to -1 then the last component of the given <em>ion</em> is used.</p>
 <div class="topic">
 <p class="topic-title first">Example</p>
-<p><code class="docutils literal notranslate"><span class="pre">systemic</span>&#160; <span class="pre">2</span>&#160;&#160; <span class="pre">FeII</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">2</span> <span class="pre">FeII</span></code></p>
 <blockquote>
 <div>this defines the systemic redshift as the 3rd component of FeII</div></blockquote>
-<p><code class="docutils literal notranslate"><span class="pre">systemic</span>&#160; <span class="pre">-1</span>&#160; <span class="pre">CI</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">CI</span> <span class="pre">-1</span></code></p>
 <blockquote>
 <div>this defines the systemic redshift as the last component of CI</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">auto</span></code></p>
+<blockquote>
+<div>If SiII is fitted, use strongest component of SiII, else if FeII is fitted use strongest FeII component.
+Lastly, if neither SiII nor FeII is used in the fit, use the first element defined in the dataset.</div></blockquote>
 </div>
 </div>
 <div class="section" id="thermal-model">
