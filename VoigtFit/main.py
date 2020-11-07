@@ -53,12 +53,12 @@ def air2vac(air):
     return out
 
 
-def load_spectral_data(fname, airORvac, verbose=False):
+def load_spectral_data(fname, airORvac, verbose=False, ext=None):
     file_type = fname.split('.')[-1]
     if file_type.lower() in ['fits', 'fit']:
         with warnings.catch_warnings(record=True) as warning_list:
             try:
-                wl, spec, err, mask = load_fits_spectrum(fname)
+                wl, spec, err, mask = load_fits_spectrum(fname, ext=ext)
                 has_multiSpecWarning = any([w.category is MultipleSpectraWarning for w in warning_list])
                 if has_multiSpecWarning:
                     # Show warning that there are multiple spectra
@@ -164,11 +164,11 @@ def main():
             pass
         else:
             dataset.data = list()
-            for fname, res, norm, airORvac, nsub in parameters['data']:
+            for fname, res, norm, airORvac, nsub, ext in parameters['data']:
                 if verbose:
                     print(" Loading data: " + fname)
 
-                spectral_data = load_spectral_data(fname, airORvac, verbose)
+                spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
                 if spectral_data is None:
                     return
                 else:
@@ -325,11 +325,11 @@ def main():
             dataset.velspan = parameters['velspan']
 
         # Load data:
-        for fname, res, norm, airORvac, nsub in parameters['data']:
+        for fname, res, norm, airORvac, nsub, ext in parameters['data']:
             if verbose:
                 print(" Loading data: " + fname)
 
-            spectral_data = load_spectral_data(fname, airORvac, verbose)
+            spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
             if spectral_data is None:
                 return
             else:

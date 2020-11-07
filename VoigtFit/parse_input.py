@@ -86,11 +86,22 @@ def parse_parameters(fname):
             else:
                 nsub = 1
 
+            if 'ext=' in line:
+                # find value of nsub:
+                for item in pars[2:]:
+                    if 'ext=' in item:
+                        try:
+                            ext = int(item.split('=')[1])
+                        except ValueError:
+                            ext = item.split('=')[1]
+            else:
+                ext = None
+
             # search for 'norm' and 'air':
             norm = line.lower().find('norm') > 0
             air = line.lower().find('air') > 0
             airORvac = 'air' if air else 'vac'
-            data.append([filename, resolution, norm, airORvac, nsub])
+            data.append([filename, resolution, norm, airORvac, nsub, ext])
 
         elif 'lines' in line and 'save' not in line and 'fine' not in line and 'check' not in line:
             velspan = None
