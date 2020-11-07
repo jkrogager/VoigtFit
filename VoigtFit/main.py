@@ -554,9 +554,9 @@ def main():
         show_vel_mask = False
 
     # Mask invidiual lines
-    if verbose:
-        print(" Masking parameters:", parameters['mask'])
     if 'mask' in parameters.keys():
+        if verbose:
+            print(" Masking parameters:", parameters['mask'])
         if len(parameters['mask']) > 0:
             for line_tag, reset in zip(parameters['mask'], parameters['forced_mask']):
                 dataset.mask_line(line_tag, reset=reset,
