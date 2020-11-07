@@ -3,6 +3,20 @@ import warnings
 from astropy.io import fits
 import numpy as np
 
+
+class MultipleSpectraWarning(Warning):
+    """Throw warning when several FITS Table extensions or multiple IRAF objects are present"""
+    pass
+
+class WavelengthError(Exception):
+    """Raised if the header doesn't contain the proper wavelength solution: CRVAL, CD etc."""
+    pass
+
+class FormatError(Exception):
+    """Raised when the FITS format is not understood"""
+    pass
+
+
 def get_wavelength_from_header(hdr):
     if ('CRVAL1' and 'CRPIX1' in hdr.keys()) and ('CDELT1' in hdr.keys() or 'CD1_1' in hdr.keys()):
         if 'CD1_1' in hdr.keys():
@@ -22,13 +36,6 @@ def get_wavelength_from_header(hdr):
     else:
         raise WavelengthError("Not enough information in header to create wavelength array")
 
-class WavelengthError(Exception):
-    """Raised if the header doesn't contain the proper wavelength solution: CRVAL, CD etc."""
-    pass
-
-class FormatError(Exception):
-    """Raised when the FITS format is not understood"""
-    pass
 
 def get_spectrum_fits_table(tbdata):
     wl_in_table = False
@@ -143,7 +150,7 @@ def load_fits_spectrum(fname):
                 #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
                 data_array = HDU[0].data
                 if data_array.shape[1] > 1:
-                    warnings.warn("More than one object detected in the file")
+                    warnings.warn("More than one object detected in the file", MultipleSpectraWarning)
                 data = data_array[0][0]
                 error = data_array[3][0]
                 mask = np.ones_like(data, dtype=bool)
@@ -158,7 +165,7 @@ def load_fits_spectrum(fname):
             tbdata = HDU[1].data
             has_multi_extensions = len(HDU) > 2
             if has_multi_extensions:
-                warnings.warn("More than one data extension detected in the file...")
+                warnings.warn("More than one data extension detected in the file", MultipleSpectraWarning)
             wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
             return wavelength, data, error, mask
 
