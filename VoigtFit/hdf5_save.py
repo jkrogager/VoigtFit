@@ -61,6 +61,7 @@ def save_hdf_dataset(ds, fname, verbose=True):
         data = hdf.create_group('data')
         for num, chunk in enumerate(ds.data):
             spec = data.create_group('spec%i' % (num+1))
+            spec.attrs['filename'] = ds.data_filenames[num]
             spec.attrs['res'] = chunk['res']
             spec.attrs['norm'] = chunk['norm']
             spec.attrs['nsub'] = chunk['nsub']
@@ -169,6 +170,9 @@ def load_dataset_from_hdf(fname):
         # Load .data:
         data = hdf['data']
         for chunk in data.values():
+            # For backward compatibility:
+            if 'filename' in chunk.attrs.keys():
+                ds.data_filenames.append(chunk.attrs['filename'])
             res = chunk.attrs['res']
             norm = chunk.attrs['norm']
             if 'nsub' in chunk.attrs.keys():

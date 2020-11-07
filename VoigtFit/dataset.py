@@ -143,6 +143,7 @@ class DataSet(object):
         # container for data chunks to be fitted
         # data should be added by calling method 'add_data'
         self.data = list()
+        self.data_filenames = list()
 
         self.verbose = True
 
@@ -269,6 +270,7 @@ class DataSet(object):
             Kernel subsampling factor relative to the data.
             This is only used if the resolution is given as a LSF file.
         """
+
         mask_warning = """
         All pixels in the spectrum have been masked out.
         Pixels to *include* in the fit should have value = 1.

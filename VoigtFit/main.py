@@ -9,13 +9,15 @@ import os
 from sys import version_info
 from matplotlib import pyplot as plt
 
-from astropy.io import fits as pf
+from astropy.io import fits
 from argparse import ArgumentParser
 
 from .dataset import DataSet
+from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from .hdf5_save import load_dataset
 from . import output
 from .parse_input import parse_parameters
+from . import terminal_attributes as term
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -49,6 +51,59 @@ def air2vac(air):
     # fact = 1 + 8.336624e-5 + 0.02408927 / (130.106592 - s2) + 1.599740895e-4 / (38.925688 - s2),
     out[ij] = air[ij]*fact[ij]
     return out
+
+
+def load_spectral_data(fname, airORvac, verbose=False, ext=None):
+    file_type = fname.split('.')[-1]
+    if file_type.lower() in ['fits', 'fit']:
+        with warnings.catch_warnings(record=True) as warning_list:
+            try:
+                wl, spec, err, mask = load_fits_spectrum(fname, ext=ext)
+                has_multiSpecWarning = any([w.category is MultipleSpectraWarning for w in warning_list])
+                if has_multiSpecWarning:
+                    # Show warning that there are multiple spectra
+                    print(term.red)
+                    print("\n [WARNING] - Several data tables were detected. The first extension was used.")
+                    print("")
+                    print(term.reset)
+                    fits.info(fname)
+
+            except FormatError as error_msg:
+                print(error_msg)
+                print("")
+                fits.info(fname)
+                print("")
+                fits_data = fits.getdata(fname)
+                if isinstance(fits_data, fits.FITS_rec):
+                    # Show the Table Column definitions:
+                    print(fits_data.columns)
+                    return
+
+    else:
+        data = np.loadtxt(fname)
+        if data.shape[1] == 3:
+            wl, spec, err = data.T
+            mask = np.ones_like(wl, dtype=bool)
+        elif data.shape[1] == 4:
+            wl, spec, err, mask = data.T
+            mask = mask.astype(bool)
+        elif data.shape[1] > 4:
+            wl = data[:, 0]
+            spec = data[:, 1]
+            err = data[:, 2]
+            mask = data[:, 3]
+        else:
+            print(" [ERROR] - Not enough columns to load wavelength, flux and error")
+            print("           Check file format, must be three or more columns separated by blank space")
+            print("")
+            return
+
+    if airORvac == 'air':
+        if verbose:
+            print(" Converting wavelength from air to vacuum.")
+        wl = air2vac(wl)
+
+    return wl, spec, err, mask
 
 
 def main():
@@ -101,56 +156,31 @@ def main():
     if os.path.exists(name+'.hdf5') and not args.f:
         dataset = load_dataset(name+'.hdf5')
 
-        # if len(dataset.data) != len(parameters['data']):
-        dataset.data = list()
-        # Setup data:
-
-        for fname, res, norm, airORvac, nsub in parameters['data']:
-            if verbose:
-                print(" Loading data: " + fname)
-
-            if fname[-5:] == '.fits':
-                hdu = pf.open(fname)
-                spec = pf.getdata(fname, 0)
-                hdr = pf.getheader(fname)
-                wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
-
-                if len(hdu) > 1:
-                    err = pf.getdata(fname, 1)
-                elif parameters['snr'] is not None:
-                    # err = spec/parameters['snr']
-                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
-                else:
-                    err = spec/10.
-                err[err <= 0.] = np.abs(np.mean(err))
-                mask = np.ones_like(wl, dtype=bool)
-
-            else:
-                data = np.loadtxt(fname)
-                if data.shape[1] == 2:
-                    wl, spec = data.T
-                    if parameters['snr'] is not None:
-                        # err = spec/parameters['snr']
-                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
-                    else:
-                        err = spec/10.
-                    err[err <= 0.] = np.abs(np.mean(err))
-                    mask = np.ones_like(wl, dtype=bool)
-                elif data.shape[1] == 3:
-                    wl, spec, err = data.T
-                    mask = np.ones_like(wl, dtype=bool)
-                elif data.shape[1] == 4:
-                    wl, spec, err, mask = data.T
-
-            if airORvac == 'air':
+        all_spectra_defined = all([data_item[0] in dataset.data_filenames for data_item in parameters['data']])
+        match_number_of_spectra = len(dataset.data) == len(parameters['data'])
+        if match_number_of_spectra and all_spectra_defined:
+            # all data is already defined in the dataset
+            # do nothing and just move on to setting up lines and components
+            pass
+        else:
+            dataset.data = list()
+            for fname, res, norm, airORvac, nsub, ext in parameters['data']:
                 if verbose:
-                    print(" Converting wavelength from air to vacuum.")
-                wl = air2vac(wl)
+                    print(" Loading data: " + fname)
 
-            dataset.add_data(wl, spec, res,
-                             err=err, normalized=norm, mask=mask, nsub=nsub)
-            if verbose:
-                print(" Successfully added spectrum to dataset.\n")
+                spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
+                if spectral_data is None:
+                    return
+                else:
+                    wl, spec, err, mask = spectral_data
+
+                dataset.add_data(wl, spec, res,
+                                 err=err, normalized=norm, mask=mask, nsub=nsub)
+                dataset.data_filenames.append(fname)
+                if verbose:
+                    print(" Successfully added spectrum to dataset.\n")
+            # Reset all the regions in the dataset to force-reload the data:
+            dataset.reset_all_regions()
 
         # -- Handle `lines`:
         # Add new lines that were not defined before:
@@ -286,54 +316,27 @@ def main():
                 if band not in defined_molecular_bands:
                     dataset.deactivate_molecule(molecule, band)
 
-    # -- Otherwise create a new DataSet
+
     else:
-        # ================================================================================
-        # Generate New Dataset:
-        #
+        # --- Create a new DataSet
         dataset = DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
             dataset.velspan = parameters['velspan']
 
-        # Setup data:
-        for fname, res, norm, airORvac, nsub in parameters['data']:
-            if fname[-5:] == '.fits':
-                hdu = pf.open(fname)
-                spec = pf.getdata(fname)
-                hdr = pf.getheader(fname)
-                wl = hdr['CRVAL1'] + np.arange(len(spec))*hdr['CD1_1']
-                if len(hdu) > 1:
-                    err = hdu[1].data
-                elif parameters['snr'] is not None:
-                    # err = spec/parameters['snr']
-                    err = np.ones_like(spec)*np.median(spec)/parameters['snr']
-                else:
-                    err = spec/10.
-                err[err <= 0.] = np.abs(np.mean(err))
-                mask = np.ones_like(wl, dtype=bool)
+        # Load data:
+        for fname, res, norm, airORvac, nsub, ext in parameters['data']:
+            if verbose:
+                print(" Loading data: " + fname)
 
+            spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
+            if spectral_data is None:
+                return
             else:
-                data = np.loadtxt(fname)
-                if data.shape[1] == 2:
-                    wl, spec = data.T
-                    if parameters['snr'] is not None:
-                        # err = spec/parameters['snr']
-                        err = np.ones_like(spec)*np.median(spec)/parameters['snr']
-                    else:
-                        err = spec/10.
-                    err[err <= 0.] = np.abs(np.mean(err))
-                    mask = np.ones_like(wl, dtype=bool)
-                elif data.shape[1] == 3:
-                    wl, spec, err = data.T
-                    mask = np.ones_like(wl, dtype=bool)
-                elif data.shape[1] == 4:
-                    wl, spec, err, mask = data.T
-
-            if airORvac == 'air':
-                wl = air2vac(wl)
+                wl, spec, err, mask = spectral_data
 
             dataset.add_data(wl, spec, res, err=err, normalized=norm, mask=mask, nsub=nsub)
+            dataset.data_filenames.append(fname)
 
         # Define lines:
         for tag, velspan in parameters['lines']:
@@ -352,7 +355,6 @@ def main():
     # =========================================================================
     # Back to Common Work Flow for all datasets:
 
-    # HERE masking is correct!
     dataset.verbose = verbose
 
     # Load components from file:
@@ -496,14 +498,14 @@ def main():
 
     # Reset data in regions:
     # This keyword is deprecated and will be removed shortly!!
-    if 'reset' in parameters.keys():
-        if len(parameters['reset']) > 0:
-            for line_tag in parameters['reset']:
-                regions_of_line = dataset.find_line(line_tag)
-                for reg in regions_of_line:
-                    dataset.reset_region(reg)
-        else:
-            dataset.reset_all_regions()
+    # if 'reset' in parameters.keys():
+    #     if len(parameters['reset']) > 0:
+    #         for line_tag in parameters['reset']:
+    #             regions_of_line = dataset.find_line(line_tag)
+    #             for reg in regions_of_line:
+    #                 dataset.reset_region(reg)
+    #     else:
+    #         dataset.reset_all_regions()
 
     # prepare_dataset
     if verbose:
@@ -555,9 +557,9 @@ def main():
         show_vel_mask = False
 
     # Mask invidiual lines
-    if verbose:
-        print(" Masking parameters:", parameters['mask'])
     if 'mask' in parameters.keys():
+        if verbose:
+            print(" Masking parameters:", parameters['mask'])
         if len(parameters['mask']) > 0:
             for line_tag, reset in zip(parameters['mask'], parameters['forced_mask']):
                 dataset.mask_line(line_tag, reset=reset,
