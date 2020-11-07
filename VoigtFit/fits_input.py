@@ -1,3 +1,5 @@
+# jkrogager/fitsutil/src/fits_input.py
+__author__ = "Jens-Kristian Krogager"
 
 import warnings
 from astropy.io import fits
