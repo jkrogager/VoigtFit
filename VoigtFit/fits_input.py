@@ -29,6 +29,45 @@ class FormatError(Exception):
     """Raised when the FITS format is not understood"""
     pass
 
+def get_spectrum_fits_table(tbdata):
+    wl_in_table = False
+    for colname in ['wl', 'lam', 'lambda', 'loglam', 'wave', 'wavelength']:
+        table_names = [name.lower() for name in tbdata.names]
+        if colname in table_names:
+            wl_in_table = True
+            if colname == 'loglam':
+                wavelength = 10**tbdata[colname]
+            else:
+                wavelength = tbdata[colname]
+
+    data_in_table = False
+    for colname in ['data', 'spec', 'flux', 'flam', 'fnu', 'flux_density']:
+        if colname in table_names:
+            data_in_table = True
+            data = tbdata[colname]
+
+    error_in_table = False
+    for colname in ['err', 'sig', 'error', 'ivar', 'sigma', 'var']:
+        if colname in table_names:
+            error_in_table = True
+            if colname == 'ivar':
+                error = 1./np.sqrt(tbdata[colname])
+            elif colname == 'var':
+                error = np.sqrt(tbdata[colname])
+            else:
+                error = tbdata[colname]
+
+    all_arrays_found = wl_in_table and data_in_table and error_in_table
+    if not all_arrays_found:
+        raise FormatError("Could not find all data columns in the table")
+
+    mask = np.ones_like(data)
+    if 'mask' in tbdata.names:
+        mask = tbdata[colname]
+    mask = mask.astype('bool')
+
+    return wavelength.flatten(), data.flatten(), error.flatten(), mask
+
 
 def load_fits_spectrum(fname):
     HDU = fits.open(fname)
@@ -54,7 +93,7 @@ def load_fits_spectrum(fname):
                 raise FormatError("Could not find Flux Array")
 
             error_in_hdu = False
-            for extname in ['ERR', 'SIG', 'SIGMA', 'ERROR', 'IVAR', 'VAR']:
+            for extname in ['ERR', 'ERRS', 'SIG', 'SIGMA', 'ERROR', 'ERRORS', 'IVAR', 'VAR']:
                 if extname in HDU:
                     if extname == 'IVAR':
                         error = 1./np.sqrt(HDU[extname].data)
