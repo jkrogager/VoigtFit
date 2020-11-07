@@ -14,8 +14,8 @@ def get_wavelength_from_header(hdr):
 
         wavelength = (np.arange(hdr['NAXIS1']) - (crpix-1))*cdelt + crval
 
-        if 'CUNIT1' in hdr.keys() and hdr['CUNIT1'] == 'nm':
-            wavelength *= 10.
+        # if 'CUNIT1' in hdr.keys() and hdr['CUNIT1'] == 'nm':
+        #     wavelength *= 10.
 
         return wavelength
 
