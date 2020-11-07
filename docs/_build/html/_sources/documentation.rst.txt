@@ -8,6 +8,7 @@ VoigtFit Parameter Language
 ===========================
 
 .. role:: red
+.. role:: gray
 
 .. include:: <isonum.txt>
 
@@ -117,10 +118,12 @@ z_sys
 Data
 ----
 
-**data  filename  resolution  [ norm   air  nsub=1]**
+**data  filename  resolution  [ norm   air  nsub=1  ext=None]**
 
   *filename* specifies the path to the spectrum
-  (should be an ASCII table with up to four columns: wavelength, flux, error, mask).
+  The file should be an ASCII table with up to four columns: wavelength, flux, error, mask
+  separated by blank spaces or a FITS file. See documentation of `fitsutil <https://github.com/jkrogager/fitsutil>`_
+  for details about allowed FITS extensions and formats.
 
   *resolution*	is the spectral resolution of the given spectrum in units of km/s.
   Alternatively, the resolution can be given as a string pointing to a file
@@ -156,6 +159,9 @@ Optional arguments:
   *nsub=1* : use this keyword to set the subsampling factor of the kernel given in the LSF file.
   The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
   If no LSF file is given as *res* then the keyword will be ignored.
+
+  *ext=None* : use this keyword to define which extension to use if there are several data extensions
+  in the input FITS file. This is only relevant for FITS Table data.
 
 .. topic:: Example
 
@@ -656,15 +662,20 @@ are calculated.
 Reset Fit Regions
 -----------------
 
-**reset  [ line_tags ]**
+This statement is deprecated and is no longer parsed by VoigtFit!
 
-When this statement is present in the parameter file, the data for each fitting region
-will be reset to the raw input data. This is used to update the continuum fitting, when
-using the Chebyshev model, so the code fits the raw data instead of the already
-normalized data in the fitting regions.
+.. note::
+  :class: gray
 
-  Note -- This does not clear the spectral masks. In order to clear the spectral masks,
-  use the `clear mask`_ statement.
+  **reset  [ line_tags ]**
+
+  When this statement is present in the parameter file, the data for each fitting region
+  will be reset to the raw input data. This is used to update the continuum fitting, when
+  using the Chebyshev model, so the code fits the raw data instead of the already
+  normalized data in the fitting regions.
+
+    Note -- This does not clear the spectral masks. In order to clear the spectral masks,
+    use the `clear mask`_ statement.
 
 
 Resolution

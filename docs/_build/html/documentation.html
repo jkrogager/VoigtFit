@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.11.5.4 documentation</title>
+    <title>VoigtFit Parameter Language &#8212; VoigtFit 0.11.6 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -117,10 +117,12 @@ Relative velocities are calculated with respect to this redshift.</div></blockqu
 </div>
 <div class="section" id="data">
 <h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
-<p><strong>data  filename  resolution  [ norm   air  nsub=1]</strong></p>
+<p><strong>data  filename  resolution  [ norm   air  nsub=1  ext=None]</strong></p>
 <blockquote>
 <div><p><em>filename</em> specifies the path to the spectrum
-(should be an ASCII table with up to four columns: wavelength, flux, error, mask).</p>
+The file should be an ASCII table with up to four columns: wavelength, flux, error, mask
+separated by blank spaces or a FITS file. See documentation of <a class="reference external" href="https://github.com/jkrogager/fitsutil">fitsutil</a>
+for details about allowed FITS extensions and formats.</p>
 <p><em>resolution</em>  is the spectral resolution of the given spectrum in units of km/s.
 Alternatively, the resolution can be given as a string pointing to a file
 containing the line-spread function (LSF) for the given spectrum. The file
@@ -177,6 +179,8 @@ each given wavelength defines the kernel in pixel space:</p>
 <p><em>nsub=1</em> : use this keyword to set the subsampling factor of the kernel given in the LSF file.
 The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
 If no LSF file is given as <em>res</em> then the keyword will be ignored.</p>
+<p><em>ext=None</em> : use this keyword to define which extension to use if there are several data extensions
+in the input FITS file. This is only relevant for FITS Table data.</p>
 </div></blockquote>
 <div class="topic">
 <p class="topic-title first">Example</p>
@@ -589,14 +593,18 @@ are calculated.</p>
 </div>
 <div class="section" id="reset-fit-regions">
 <h2>Reset Fit Regions<a class="headerlink" href="#reset-fit-regions" title="Permalink to this headline">¶</a></h2>
+<p>This statement is deprecated and is no longer parsed by VoigtFit!</p>
+<div class="gray admonition note">
+<p class="first admonition-title">Note</p>
 <p><strong>reset  [ line_tags ]</strong></p>
 <p>When this statement is present in the parameter file, the data for each fitting region
 will be reset to the raw input data. This is used to update the continuum fitting, when
 using the Chebyshev model, so the code fits the raw data instead of the already
 normalized data in the fitting regions.</p>
-<blockquote>
+<blockquote class="last">
 <div>Note – This does not clear the spectral masks. In order to clear the spectral masks,
 use the <a class="reference internal" href="#clear-mask">clear mask</a> statement.</div></blockquote>
+</div>
 </div>
 <div class="section" id="resolution">
 <h2>Resolution<a class="headerlink" href="#resolution" title="Permalink to this headline">¶</a></h2>
