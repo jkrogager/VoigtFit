@@ -34,7 +34,6 @@ def parse_parameters(fname):
     parameters['systemic'] = [None, 'none']
     parameters['clear_mask'] = False
     parameters['velspan'] = 500.
-    parameters['snr'] = None
     parameters['output_pars'] = list()
     parameters['options'] = list()
     parameters['fit_options'] = fit_options_defaults
@@ -88,8 +87,8 @@ def parse_parameters(fname):
                 nsub = 1
 
             # search for 'norm' and 'air':
-            norm = line.find('norm') > 0
-            air = line.find('air') > 0
+            norm = line.lower().find('norm') > 0
+            air = line.lower().find('air') > 0
             airORvac = 'air' if air else 'vac'
             data.append([filename, resolution, norm, airORvac, nsub])
 
@@ -449,15 +448,8 @@ def parse_parameters(fname):
             parameters['show_total'] = True
 
         elif 'signal-to-noise' in line and 'name' not in line and 'save' not in line:
-            comment_begin = line.find('#')
-            line = line[:comment_begin].strip()
-            if '=' in line:
-                snr = line.split('=')[1]
-            elif ' ' in line:
-                snr = line.split()[1]
-            elif ':' in line:
-                snr = line.split(':')[1]
-            parameters['snr'] = float(snr)
+            print(" [WARNING] - The signal-to-noise command is deprecated.")
+            print("             The user must provide an error array.")
 
         elif (('velspan' in line) and ('lines' not in line) and ('molecules' not in line) and ('save' not in line)):
             # strip comments:
