@@ -69,6 +69,51 @@ def get_spectrum_fits_table(tbdata):
     return wavelength.flatten(), data.flatten(), error.flatten(), mask
 
 
+def get_spectrum_hdulist(HDU):
+    data_in_hdu = False
+    for extname in ['FLUX', 'SCI', 'FLAM', 'FNU']:
+        if extname in HDU:
+            data = HDU[extname].data
+            data_hdr = HDU[extname].header
+            data_in_hdu = True
+    if not data_in_hdu:
+        raise FormatError("Could not find Flux Array")
+
+    error_in_hdu = False
+    for extname in ['ERR', 'ERRS', 'SIG', 'SIGMA', 'ERROR', 'ERRORS', 'IVAR', 'VAR']:
+        if extname in HDU:
+            if extname == 'IVAR':
+                error = 1./np.sqrt(HDU[extname].data)
+            elif extname == 'VAR':
+                error = np.sqrt(HDU[extname].data)
+            else:
+                error = HDU[extname].data
+            error_in_hdu = True
+    if not error_in_hdu:
+        raise FormatError("Could not find Error Array")
+
+    # Does the spectrum contain a pixel mask?
+    extname = 'MASK'
+    if extname in HDU:
+        mask = HDU[extname].data
+    else:
+        mask = np.ones_like(data, dtype=bool)
+
+    return data, error, mask, data_hdr
+
+"""
+if ext:
+    only use this ext to get data, only works with tables!
+
+if primary HDU has data:
+    if 1-dimensional:
+        get flux
+        - no: 2D image or data cube
+        - yes: most likely flux density array
+
+"""
+
+
 def load_fits_spectrum(fname):
     HDU = fits.open(fname)
     primhdr = HDU[0].header
