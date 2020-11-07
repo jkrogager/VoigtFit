@@ -118,50 +118,52 @@ if primary HDU has data:
 def load_fits_spectrum(fname):
     HDU = fits.open(fname)
     primhdr = HDU[0].header
-    if primhdr['NAXIS'] == 1:
-        if len(HDU) == 1:
-            raise FormatError("Only one extension: Could not find both Flux and Error Arrays")
+    primary_has_data = HDU[0].data is not None
+    if primary_has_data:
+        if primhdr['NAXIS'] == 1:
+            if len(HDU) == 1:
+                raise FormatError("Only one extension: Could not find both Flux and Error Arrays")
 
-        elif len(HDU) == 2:
-            data = HDU[0].data
-            data_hdr = HDU[0].header
-            error = HDU[1].data
-            mask = np.ones_like(data, dtype=bool)
+            elif len(HDU) == 2:
+                data = HDU[0].data
+                data_hdr = HDU[0].header
+                error = HDU[1].data
+                mask = np.ones_like(data, dtype=bool)
 
-        elif len(HDU) > 2:
-            data, error, mask, data_hdr = get_spectrum_hdulist(HDU)
+            elif len(HDU) > 2:
+                data, error, mask, data_hdr = get_spectrum_hdulist(HDU)
 
-        try:
-            wavelength = get_wavelength_from_header(primhdr)
-            return wavelength, data, error, mask
-        except WavelengthError:
-            wavelength = get_wavelength_from_header(data_hdr)
-            return wavelength, data, error, mask
-        else:
-            raise FormatError("Could not find Wavelength Array")
+            try:
+                wavelength = get_wavelength_from_header(primhdr)
+                return wavelength, data, error, mask
+            except WavelengthError:
+                wavelength = get_wavelength_from_header(data_hdr)
+                return wavelength, data, error, mask
+            else:
+                raise FormatError("Could not find Wavelength Array")
 
-    elif primhdr['NAXIS'] == 2:
-        raise FormatError("The data seems to be a 2D image of shape: {}".format(HDU[0].data.shape))
+        elif primhdr['NAXIS'] == 2:
+            raise FormatError("The data seems to be a 2D image of shape: {}".format(HDU[0].data.shape))
 
-    elif primhdr['NAXIS'] == 3:
-        # This could either be a data cube (such as SINFONI / MUSE)
-        # or IRAF format:
-        IRAF_in_hdr = 'IRAF' in primhdr.__repr__()
-        has_CRVAL3 = 'CRVAL3' in primhdr.keys()
-        if IRAF_in_hdr and not has_CRVAL3:
-            # This is most probably an IRAF spectrum file:
-            #  (N_pixels, N_objs, 4)
-            #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
-            data_array = HDU[0].data
-            if data_array.shape[1] > 1:
-                warnings.warn("More than one object detected in the file")
-            data = data_array[0][0]
-            error = data_array[3][0]
-            mask = np.ones_like(data, dtype=bool)
-            wavelength = get_wavelength_from_header(primhdr)
-            return wavelength, data, error, mask
-        else:
-            raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDU[0].data.shape))
+        elif primhdr['NAXIS'] == 3:
+            # This could either be a data cube (such as SINFONI / MUSE)
+            # or IRAF format:
+            IRAF_in_hdr = 'IRAF' in primhdr.__repr__()
+            has_CRVAL3 = 'CRVAL3' in primhdr.keys()
+            if IRAF_in_hdr and not has_CRVAL3:
+                # This is most probably an IRAF spectrum file:
+                #  (N_pixels, N_objs, 4)
+                #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
+                data_array = HDU[0].data
+                if data_array.shape[1] > 1:
+                    warnings.warn("More than one object detected in the file")
+                data = data_array[0][0]
+                error = data_array[3][0]
+                mask = np.ones_like(data, dtype=bool)
+                wavelength = get_wavelength_from_header(primhdr)
+                return wavelength, data, error, mask
+            else:
+                raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDU[0].data.shape))
 
     else:
         is_fits_table = isinstance(HDU[1], fits.BinTableHDU) or isinstance(HDU[1], fits.TableHDU)
