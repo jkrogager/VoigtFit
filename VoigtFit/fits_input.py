@@ -167,35 +167,19 @@ def load_fits_spectrum(fname):
         is_fits_table = isinstance(HDU[1], fits.BinTableHDU) or isinstance(HDU[1], fits.TableHDU)
         if is_fits_table:
             tbdata = HDU[1].data
+            has_multi_extensions = len(HDU) > 2
+            if has_multi_extensions:
+                # warnings.warn()
+                # UserWarning("More than one object in the file")
+                pass
             wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
             return wavelength, data, error, mask
 
         elif len(HDU) == 2:
-            raise FormatError("Could not find Error Array")
+            raise FormatError("Only one data extension: Could not find both Flux and Error Arrays")
 
         elif len(HDU) > 2:
-            data_in_hdu = False
-            for extname in ['FLUX', 'SCI', 'FLAM', 'FNU']:
-                if extname in HDU:
-                    data = HDU[extname].data
-                    data_hdr = HDU[extname].header
-                    data_in_hdu = True
-            if not data_in_hdu:
-                raise FormatError("Could not find Flux Array")
-
-            err_in_hdu = False
-            for extname in ['ERR', 'SIG']:
-                if extname in HDU:
-                    error = HDU[extname].data
-                    err_in_hdu = True
-            if not err_in_hdu:
-                raise FormatError("Could not find Error Array")
-
-            if 'MASK' in HDU:
-                mask = HDU['MASK'].data
-            else:
-                mask = np.ones_like(data, dtype=bool)
-
+            data, error, mask, data_hdr = get_spectrum_hdulist(HDU)
             try:
                 wavelength = get_wavelength_from_header(data_hdr)
             except WavelengthError:
