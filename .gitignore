@@ -20,7 +20,10 @@ backup
 
 .input.pars.swp
 
+docs/_build
 docs/_build/*
+docs/_build/html
+docs/_build/doctrees
 docs/_static/*
 
 build
