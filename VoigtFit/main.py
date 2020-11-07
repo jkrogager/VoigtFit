@@ -13,10 +13,11 @@ from astropy.io import fits
 from argparse import ArgumentParser
 
 from .dataset import DataSet
+from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from .hdf5_save import load_dataset
 from . import output
 from .parse_input import parse_parameters
-from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
+from . import terminal_attributes as term
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -61,8 +62,10 @@ def load_spectral_data(fname, airORvac, verbose=False):
                 has_multiSpecWarning = any([w.category is MultipleSpectraWarning for w in warning_list])
                 if has_multiSpecWarning:
                     # Show warning that there are multiple spectra
+                    print(term.red)
                     print("\n [WARNING] - Several data tables were detected. The first extension was used.")
                     print("")
+                    print(term.reset)
                     fits.info(fname)
 
             except FormatError as error_msg:
