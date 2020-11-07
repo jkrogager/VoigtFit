@@ -143,16 +143,29 @@ def load_fits_spectrum(fname):
         raise FormatError("The data seems to be a 2D image of shape: {}".format(HDU[0].data.shape))
 
     elif primhdr['NAXIS'] == 3:
-        # IRAF Format:
-        data_array = HDU[0].data
-        data = data_array[0][0]
-        error = data_array[3][0]
-        mask = np.ones_like(data, dtype=bool)
-        wavelength = get_wavelength_from_header(primhdr)
-        return wavelength, data, error, mask
+        # This could either be a data cube (such as SINFONI / MUSE)
+        # or IRAF format:
+        IRAF_in_hdr = 'IRAF' in primhdr.__repr__()
+        has_CRVAL3 = 'CRVAL3' in primhdr.keys()
+        if IRAF_in_hdr and not has_CRVAL3:
+            # This is most probably an IRAF spectrum file:
+            #  (N_pixels, N_objs, 4)
+            #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
+            data_array = HDU[0].data
+            if data_array.shape[1] > 1:
+                # UserWarning("More than one object in the file")
+                pass
+            data = data_array[0][0]
+            error = data_array[3][0]
+            mask = np.ones_like(data, dtype=bool)
+            wavelength = get_wavelength_from_header(primhdr)
+            return wavelength, data, error, mask
+        else:
+            raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDU[0].data.shape))
 
     else:
-        if isinstance(HDU[1], fits.BinTableHDU) or isinstance(HDU[1], fits.TableHDU):
+        is_fits_table = isinstance(HDU[1], fits.BinTableHDU) or isinstance(HDU[1], fits.TableHDU)
+        if is_fits_table:
             tbdata = HDU[1].data
             wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
             return wavelength, data, error, mask
