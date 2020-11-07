@@ -119,7 +119,7 @@ def load_fits_spectrum(fname):
             wavelength = get_wavelength_from_header(data_hdr)
             return wavelength, data, error, mask
         else:
-            raise FormatError
+            raise FormatError("Could not find Wavelength Array")
 
     elif primhdr['NAXIS'] == 2:
         print(" Not a 1-dimensional spectrum!!")
@@ -137,43 +137,8 @@ def load_fits_spectrum(fname):
     else:
         if isinstance(HDU[1], fits.BinTableHDU) or isinstance(HDU[1], fits.TableHDU):
             tbdata = HDU[1].data
-            wl_in_table = False
-            for colname in ['wl', 'lam', 'lambda', 'loglam', 'wave', 'wavelength']:
-                table_names = [name.lower() for name in tbdata.names]
-                if colname in table_names:
-                    wl_in_table = True
-                    if colname == 'loglam':
-                        wavelength = 10**tbdata[colname]
-                    else:
-                        wavelength = tbdata[colname]
-
-            data_in_table = False
-            for colname in ['data', 'spec', 'flux', 'flam', 'fnu', 'flux_density']:
-                if colname in table_names:
-                    data_in_table = True
-                    data = tbdata[colname]
-
-            error_in_table = False
-            for colname in ['err', 'sig', 'error', 'ivar', 'sigma', 'var']:
-                if colname in table_names:
-                    error_in_table = True
-                    if colname == 'ivar':
-                        error = 1./np.sqrt(tbdata[colname])
-                    elif colname == 'var':
-                        error = np.sqrt(tbdata[colname])
-                    else:
-                        error = tbdata[colname]
-
-            all_arrays_found = wl_in_table and data_in_table and error_in_table
-            if not all_arrays_found:
-                raise FormatError("Could not find all data columns in the table")
-
-            mask = np.ones_like(data)
-            if 'mask' in tbdata.names:
-                mask = tbdata[colname]
-            mask = mask.astype('bool')
-
-            return wavelength.flatten(), data.flatten(), error.flatten(), mask
+            wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
+            return wavelength, data, error, mask
 
         elif len(HDU) == 2:
             raise FormatError("Could not find Error Array")
@@ -206,5 +171,5 @@ def load_fits_spectrum(fname):
             except WavelengthError:
                 wavelength = get_wavelength_from_header(primhdr)
             else:
-                raise WavelengthError
+                raise FormatError("Could not find Wavelength Array")
             return wavelength, data, error, mask
