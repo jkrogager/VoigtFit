@@ -119,7 +119,7 @@ def load_fits_spectrum(fname):
     primhdr = HDU[0].header
     if primhdr['NAXIS'] == 1:
         if len(HDU) == 1:
-            raise FormatError("Could not find Error Array")
+            raise FormatError("Only one extension: Could not find both Flux and Error Arrays")
 
         elif len(HDU) == 2:
             data = HDU[0].data
@@ -128,34 +128,7 @@ def load_fits_spectrum(fname):
             mask = np.ones_like(data, dtype=bool)
 
         elif len(HDU) > 2:
-            data_in_hdu = False
-            for extname in ['FLUX', 'SCI', 'FLAM', 'FNU']:
-                if extname in HDU:
-                    data = HDU[extname].data
-                    data_hdr = HDU[extname].header
-                    data_in_hdu = True
-            if not data_in_hdu:
-                raise FormatError("Could not find Flux Array")
-
-            error_in_hdu = False
-            for extname in ['ERR', 'ERRS', 'SIG', 'SIGMA', 'ERROR', 'ERRORS', 'IVAR', 'VAR']:
-                if extname in HDU:
-                    if extname == 'IVAR':
-                        error = 1./np.sqrt(HDU[extname].data)
-                    elif extname == 'VAR':
-                        error = np.sqrt(HDU[extname].data)
-                    else:
-                        error = HDU[extname].data
-                    error_in_hdu = True
-            if not error_in_hdu:
-                raise FormatError("Could not find Error Array")
-
-            # Does the spectrum contain a pixel mask?
-            extname = 'MASK'
-            if extname in HDU:
-                mask = HDU[extname].data
-            else:
-                mask = np.ones_like(data, dtype=bool)
+            data, error, mask, data_hdr = get_spectrum_hdulist(HDU)
 
         try:
             wavelength = get_wavelength_from_header(primhdr)
@@ -167,7 +140,6 @@ def load_fits_spectrum(fname):
             raise FormatError("Could not find Wavelength Array")
 
     elif primhdr['NAXIS'] == 2:
-        print(" Not a 1-dimensional spectrum!!")
         raise FormatError("The data seems to be a 2D image of shape: {}".format(HDU[0].data.shape))
 
     elif primhdr['NAXIS'] == 3:
