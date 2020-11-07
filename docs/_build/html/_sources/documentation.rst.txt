@@ -161,7 +161,8 @@ Optional arguments:
   If no LSF file is given as *res* then the keyword will be ignored.
 
   *ext=None* : use this keyword to define which extension to use if there are several data extensions
-  in the input FITS file. This is only relevant for FITS Table data.
+  in the input FITS file. This is only relevant for FITS Table data. The extension can be given as the integer
+  index or the extension name.
 
 .. topic:: Example
 
@@ -181,6 +182,19 @@ Optional arguments:
     The keyword `nsub` is set to 3, stating that the kernels provided in the LSF file
     are subsampled by a factor of three relative to the data.
 
+  ``data  'sdss_spectrum.fits'  150.  ext=4``
+
+    This will load the data from the extension no. 4 of the file named 'sdss_spectrum.fits':
+
+    .. code-block:: text
+
+        No.    Name      Ver    Type      Cards   Dimensions   Format
+          0  PRIMARY       1 PrimaryHDU     114   ()
+          1  COADD         1 BinTableHDU     26   4601R x 8C   [E, E, E, J, J, E, E, E]
+          2  SPALL         1 BinTableHDU    476   1R x 231C    [13A, 14A, 4A, E, ..., E]
+          3  SPZLINE       1 BinTableHDU     48   31R x 19C    [J, J, J, 13A, D, ..., E]
+          4  B1-001145...  1 BinTableHDU    166   2528R x 8C   [E, E, E, J, E, E, E, E]
+          5  B1-001145...  1 BinTableHDU    166   2530R x 8C   [E, E, E, J, E, E, E, E]
 
 Lines
 -----
@@ -662,20 +676,9 @@ are calculated.
 Reset Fit Regions
 -----------------
 
-This statement is deprecated and is no longer parsed by VoigtFit!
+**reset  [ line_tags ]**
 
-.. note::
-  :class: gray
-
-  **reset  [ line_tags ]**
-
-  When this statement is present in the parameter file, the data for each fitting region
-  will be reset to the raw input data. This is used to update the continuum fitting, when
-  using the Chebyshev model, so the code fits the raw data instead of the already
-  normalized data in the fitting regions.
-
-    Note -- This does not clear the spectral masks. In order to clear the spectral masks,
-    use the `clear mask`_ statement.
+  This statement is deprecated and is no longer parsed by VoigtFit!
 
 
 Resolution

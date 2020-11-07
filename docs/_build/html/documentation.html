@@ -180,7 +180,8 @@ each given wavelength defines the kernel in pixel space:</p>
 The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
 If no LSF file is given as <em>res</em> then the keyword will be ignored.</p>
 <p><em>ext=None</em> : use this keyword to define which extension to use if there are several data extensions
-in the input FITS file. This is only relevant for FITS Table data.</p>
+in the input FITS file. This is only relevant for FITS Table data. The extension can be given as the integer
+index or the extension name.</p>
 </div></blockquote>
 <div class="topic">
 <p class="topic-title first">Example</p>
@@ -198,6 +199,19 @@ The keyword <cite>norm</cite> is present, so the data will be marked as normaliz
 and no interactive normalization will therefore pop up during data preparation.
 The keyword <cite>nsub</cite> is set to 3, stating that the kernels provided in the LSF file
 are subsampled by a factor of three relative to the data.</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">'sdss_spectrum.fits'</span>&#160; <span class="pre">150.</span>&#160; <span class="pre">ext=4</span></code></p>
+<blockquote>
+<div><p>This will load the data from the extension no. 4 of the file named ‘sdss_spectrum.fits’:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>No.    Name      Ver    Type      Cards   Dimensions   Format
+  0  PRIMARY       1 PrimaryHDU     114   ()
+  1  COADD         1 BinTableHDU     26   4601R x 8C   [E, E, E, J, J, E, E, E]
+  2  SPALL         1 BinTableHDU    476   1R x 231C    [13A, 14A, 4A, E, ..., E]
+  3  SPZLINE       1 BinTableHDU     48   31R x 19C    [J, J, J, 13A, D, ..., E]
+  4  B1-001145...  1 BinTableHDU    166   2528R x 8C   [E, E, E, J, E, E, E, E]
+  5  B1-001145...  1 BinTableHDU    166   2530R x 8C   [E, E, E, J, E, E, E, E]
+</pre></div>
+</div>
+</div></blockquote>
 </div>
 </div>
 <div class="section" id="lines">
@@ -593,18 +607,9 @@ are calculated.</p>
 </div>
 <div class="section" id="reset-fit-regions">
 <h2>Reset Fit Regions<a class="headerlink" href="#reset-fit-regions" title="Permalink to this headline">¶</a></h2>
-<p>This statement is deprecated and is no longer parsed by VoigtFit!</p>
-<div class="gray admonition note">
-<p class="first admonition-title">Note</p>
 <p><strong>reset  [ line_tags ]</strong></p>
-<p>When this statement is present in the parameter file, the data for each fitting region
-will be reset to the raw input data. This is used to update the continuum fitting, when
-using the Chebyshev model, so the code fits the raw data instead of the already
-normalized data in the fitting regions.</p>
-<blockquote class="last">
-<div>Note – This does not clear the spectral masks. In order to clear the spectral masks,
-use the <a class="reference internal" href="#clear-mask">clear mask</a> statement.</div></blockquote>
-</div>
+<blockquote>
+<div>This statement is deprecated and is no longer parsed by VoigtFit!</div></blockquote>
 </div>
 <div class="section" id="resolution">
 <h2>Resolution<a class="headerlink" href="#resolution" title="Permalink to this headline">¶</a></h2>

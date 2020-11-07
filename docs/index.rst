@@ -35,6 +35,13 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.6:
+
+  Improved FITS data import of a large variety of file formats, FITS Tables, Multi Extension FITS files,
+  and IRAF format.
+  Updated the `systemic` and `data` statements of the parameter file definitions (see :ref:`documentation`).
+
+
 New in version 0.11.5:
 
   New atomic data for lines of hydrogen Lyman series. New damping constants for missing levels (n > 6)
