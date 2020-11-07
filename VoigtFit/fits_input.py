@@ -1,4 +1,5 @@
 
+import warnings
 from astropy.io import fits
 import numpy as np
 
@@ -153,8 +154,7 @@ def load_fits_spectrum(fname):
             #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
             data_array = HDU[0].data
             if data_array.shape[1] > 1:
-                # UserWarning("More than one object in the file")
-                pass
+                warnings.warn("More than one object detected in the file")
             data = data_array[0][0]
             error = data_array[3][0]
             mask = np.ones_like(data, dtype=bool)
@@ -169,9 +169,7 @@ def load_fits_spectrum(fname):
             tbdata = HDU[1].data
             has_multi_extensions = len(HDU) > 2
             if has_multi_extensions:
-                # warnings.warn()
-                # UserWarning("More than one object in the file")
-                pass
+                warnings.warn("More than one data extension detected in the file...")
             wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
             return wavelength, data, error, mask
 
