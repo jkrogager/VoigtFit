@@ -62,10 +62,9 @@ def get_spectrum_fits_table(tbdata):
     if not all_arrays_found:
         raise FormatError("Could not find all data columns in the table")
 
-    mask = np.ones_like(data)
+    mask = np.ones_like(data, dtype=bool)
     if 'mask' in tbdata.names:
         mask = tbdata[colname]
-    mask = mask.astype('bool')
 
     return wavelength.flatten(), data.flatten(), error.flatten(), mask
 
@@ -101,18 +100,6 @@ def get_spectrum_hdulist(HDU):
         mask = np.ones_like(data, dtype=bool)
 
     return data, error, mask, data_hdr
-
-"""
-if ext:
-    only use this ext to get data, only works with tables!
-
-if primary HDU has data:
-    if 1-dimensional:
-        get flux
-        - no: 2D image or data cube
-        - yes: most likely flux density array
-
-"""
 
 
 def load_fits_spectrum(fname):
