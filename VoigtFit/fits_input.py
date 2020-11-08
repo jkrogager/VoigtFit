@@ -214,10 +214,12 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
     data : np.array (float)
         Numpy array of flux density.
     error : np.array (float)
-        Numpy array of uncertainties on the flux density
+        Numpy array of uncertainties on the flux density.
     mask : np.array (bool)
         Numpy boolean array of pixel mask. `True` if the pixel is 'good',
         `False` if the pixel is bad and should not be used.
+    header : fits.Header
+        FITS Header of the data extension.
     """
     HDUlist = fits.open(fname)
     primhdr = HDUlist[0].header
@@ -238,10 +240,10 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
 
             try:
                 wavelength = get_wavelength_from_header(primhdr)
-                return wavelength, data, error, mask
+                return wavelength, data, error, mask, primhdr
             except WavelengthError:
                 wavelength = get_wavelength_from_header(data_hdr)
-                return wavelength, data, error, mask
+                return wavelength, data, error, mask, data_hdr
             else:
                 raise FormatError("Could not find Wavelength Array")
 
@@ -269,7 +271,7 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
                 error = data_array[3][iraf_obj]
                 mask = np.ones_like(data, dtype=bool)
                 wavelength = get_wavelength_from_header(primhdr)
-                return wavelength, data, error, mask
+                return wavelength, data, error, mask, primhdr
             else:
                 raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDUlist[0].data.shape))
 
@@ -278,14 +280,16 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
         if is_fits_table:
             if ext:
                 tbdata = HDUlist[ext].data
+                data_hdr = HDUlist[ext].header
             else:
                 tbdata = HDUlist[1].data
+                data_hdr = HDUlist[1].header
 
             has_multi_extensions = len(HDUlist) > 2
             if has_multi_extensions and (ext is None):
                 warnings.warn("More than one data extension detected in the file", MultipleSpectraWarning)
             wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
-            return wavelength, data, error, mask
+            return wavelength, data, error, mask, data_hdr
 
         elif len(HDUlist) == 2:
             raise FormatError("Only one data extension: Could not find both Flux and Error Arrays")
@@ -296,6 +300,7 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
                 wavelength = get_wavelength_from_header(data_hdr)
             except WavelengthError:
                 wavelength = get_wavelength_from_header(primhdr)
+                data_hdr = primhdr
             else:
                 raise FormatError("Could not find Wavelength Array")
-            return wavelength, data, error, mask
+            return wavelength, data, error, mask, data_hdr
