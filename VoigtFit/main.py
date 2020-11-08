@@ -172,7 +172,7 @@ def main():
                 if spectral_data is None:
                     return
                 else:
-                    wl, spec, err, mask = spectral_data
+                    wl, spec, err, mask, hdr = spectral_data
 
                 dataset.add_data(wl, spec, res,
                                  err=err, normalized=norm, mask=mask, nsub=nsub)
@@ -333,7 +333,7 @@ def main():
             if spectral_data is None:
                 return
             else:
-                wl, spec, err, mask = spectral_data
+                wl, spec, err, mask, hdr = spectral_data
 
             dataset.add_data(wl, spec, res, err=err, normalized=norm, mask=mask, nsub=nsub)
             dataset.data_filenames.append(fname)
