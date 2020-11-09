@@ -118,7 +118,7 @@ z_sys
 Data
 ----
 
-**data  filename  resolution  [ norm   air  nsub=1  ext=None]**
+**data  filename  resolution  [ norm   air  no-mask  nsub=1  ext=None]**
 
   *filename* specifies the path to the spectrum
   The file should be an ASCII table with up to four columns: wavelength, flux, error, mask
@@ -155,6 +155,8 @@ Optional arguments:
   *norm* : if present in the line, this indicates that the spectrum in filename are normalized.
 
   *air* : if present, the wavelengths in the spectrum will be converted from air to vacuum.
+
+  *no-mask* : if present, ignore any pixel mask present in the input data.
 
   *nsub=1* : use this keyword to set the subsampling factor of the kernel given in the LSF file.
   The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
