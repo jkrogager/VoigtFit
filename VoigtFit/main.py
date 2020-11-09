@@ -9,15 +9,12 @@ import os
 from sys import version_info
 from matplotlib import pyplot as plt
 
-from astropy.io import fits
 from argparse import ArgumentParser
 
 from .dataset import DataSet
-from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from .hdf5_save import load_dataset
 from . import output
 from .parse_input import parse_parameters
-from . import terminal_attributes as term
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -34,76 +31,6 @@ with open(os.path.join(code_dir, 'VERSION')) as version_file:
         version = '.'.join(v_items)
     __version__ = version
 
-
-def air2vac(air):
-    """
-    Air to vacuum conversion from Bengt Edlén 1953,
-    Journal of the Optical Society of America, Vol. 43, Issue 5, pp. 339-344.
-    """
-    if np.min(air) < 2000.:
-        raise ValueError("Input wavelength below valid range!")
-    air = np.array(air)
-    ij = (np.array(air) >= 2000)
-    out = np.array(air).copy()
-    s2 = (1.e4/air)**2
-    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - s2) + 2.5540e-4/(41.0 - s2)
-    # Alternative solution from VALD:
-    # fact = 1 + 8.336624e-5 + 0.02408927 / (130.106592 - s2) + 1.599740895e-4 / (38.925688 - s2),
-    out[ij] = air[ij]*fact[ij]
-    return out
-
-
-def load_spectral_data(fname, airORvac, verbose=False, ext=None):
-    file_type = fname.split('.')[-1]
-    if file_type.lower() in ['fits', 'fit']:
-        with warnings.catch_warnings(record=True) as warning_list:
-            try:
-                wl, spec, err, mask = load_fits_spectrum(fname, ext=ext)
-                has_multiSpecWarning = any([w.category is MultipleSpectraWarning for w in warning_list])
-                if has_multiSpecWarning:
-                    # Show warning that there are multiple spectra
-                    print(term.red)
-                    print("\n [WARNING] - Several data tables were detected. The first extension was used.")
-                    print("")
-                    print(term.reset)
-                    fits.info(fname)
-
-            except FormatError as error_msg:
-                print(error_msg)
-                print("")
-                fits.info(fname)
-                print("")
-                fits_data = fits.getdata(fname)
-                if isinstance(fits_data, fits.FITS_rec):
-                    # Show the Table Column definitions:
-                    print(fits_data.columns)
-                    return
-
-    else:
-        data = np.loadtxt(fname)
-        if data.shape[1] == 3:
-            wl, spec, err = data.T
-            mask = np.ones_like(wl, dtype=bool)
-        elif data.shape[1] == 4:
-            wl, spec, err, mask = data.T
-            mask = mask.astype(bool)
-        elif data.shape[1] > 4:
-            wl = data[:, 0]
-            spec = data[:, 1]
-            err = data[:, 2]
-            mask = data[:, 3]
-        else:
-            print(" [ERROR] - Not enough columns to load wavelength, flux and error")
-            print("           Check file format, must be three or more columns separated by blank space")
-            print("")
-            return
-
-    if airORvac == 'air':
-        if verbose:
-            print(" Converting wavelength from air to vacuum.")
-        wl = air2vac(wl)
-
-    return wl, spec, err, mask
 
 
 def main():
@@ -164,19 +91,11 @@ def main():
             pass
         else:
             dataset.data = list()
-            for fname, res, norm, airORvac, nsub, ext in parameters['data']:
+            for fname, res, norm, airORvac, nsub, ext, use_mask in parameters['data']:
                 if verbose:
                     print(" Loading data: " + fname)
 
-                spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
-                if spectral_data is None:
-                    return
-                else:
-                    wl, spec, err, mask, hdr = spectral_data
-
-                dataset.add_data(wl, spec, res,
-                                 err=err, normalized=norm, mask=mask, nsub=nsub)
-                dataset.data_filenames.append(fname)
+                dataset.add_spectrum(fname, res, airORvac, verbose=verbose, ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask)
                 if verbose:
                     print(" Successfully added spectrum to dataset.\n")
             # Reset all the regions in the dataset to force-reload the data:
@@ -325,18 +244,11 @@ def main():
             dataset.velspan = parameters['velspan']
 
         # Load data:
-        for fname, res, norm, airORvac, nsub, ext in parameters['data']:
+        for fname, res, norm, airORvac, nsub, ext, use_mask in parameters['data']:
             if verbose:
                 print(" Loading data: " + fname)
 
-            spectral_data = load_spectral_data(fname, airORvac, verbose, ext)
-            if spectral_data is None:
-                return
-            else:
-                wl, spec, err, mask, hdr = spectral_data
-
-            dataset.add_data(wl, spec, res, err=err, normalized=norm, mask=mask, nsub=nsub)
-            dataset.data_filenames.append(fname)
+            dataset.add_spectrum(fname, res, airORvac, verbose=verbose, ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask)
 
         # Define lines:
         for tag, velspan in parameters['lines']:

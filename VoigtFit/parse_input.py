@@ -97,11 +97,16 @@ def parse_parameters(fname):
             else:
                 ext = None
 
+            if 'no-mask' in line:
+                use_mask = False
+            else:
+                use_mask = True
+
             # search for 'norm' and 'air':
             norm = line.lower().find('norm') > 0
             air = line.lower().find('air') > 0
             airORvac = 'air' if air else 'vac'
-            data.append([filename, resolution, norm, airORvac, nsub, ext])
+            data.append([filename, resolution, norm, airORvac, nsub, ext, use_mask])
 
         elif 'lines' in line and 'save' not in line and 'fine' not in line and 'check' not in line:
             velspan = None

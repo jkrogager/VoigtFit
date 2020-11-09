@@ -5,11 +5,14 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import warnings
 
+from astropy.io import fits
 from lmfit import Parameters, Minimizer
 
 from . import Asplund
 from .components import Component
+from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from . import hdf5_save
 from . import line_complexes
 from .line_complexes import fine_structure_complexes
@@ -22,6 +25,23 @@ from .voigt import evaluate_profile, evaluate_continuum
 
 
 myfloat = np.float64
+
+def air2vac(air):
+    """
+    Air to vacuum conversion from Bengt Edlén 1953,
+    Journal of the Optical Society of America, Vol. 43, Issue 5, pp. 339-344.
+    """
+    if np.min(air) < 2000.:
+        raise ValueError("Input wavelength below valid range!")
+    air = np.array(air)
+    ij = (np.array(air) >= 2000)
+    out = np.array(air).copy()
+    s2 = (1.e4/air)**2
+    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - s2) + 2.5540e-4/(41.0 - s2)
+    # Alternative solution from VALD:
+    # fact = 1 + 8.336624e-5 + 0.02408927 / (130.106592 - s2) + 1.599740895e-4 / (38.925688 - s2),
+    out[ij] = air[ij]*fact[ij]
+    return out
 
 
 def mask_vel(dataset, line_tag, v1, v2):
@@ -185,7 +205,7 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
-    def add_spectrum(self, filename, res, normalized=False, mask=None, continuum=None, nsub=1):
+    def add_spectrum(self, filename, res, airORvac='vac', normalized=False, mask_array=None, mask=None, use_mask=True, continuum=None, nsub=1, verbose=False, ext=None):
         """
         Add spectral data from ASCII file (three or four columns accepted).
         This is a wrapper of the method `add_data`.
@@ -204,38 +224,111 @@ class DataSet(object):
             line-spread function for the given spectrum.
             See details in the documentation.
 
+        airORvac : string  {'vac' or 'air'}
+            Defines whether the input wavelengths are in 'air' or 'vacuum' units. If given as 'air'
+            the wavelengths will be converted to 'vacuum'.
+
         normalized : bool   [default = False]
             If the input spectrum is normalized this should be given as True
             in order to skip normalization steps.
 
-        mask : array, shape (n)
+        mask_array : array, shape (n)
             Boolean/int array defining the fitting regions.
             Only pixels with mask=True/1 will be included in the fit.
+
+        mask : Deprecated, use `mask_array`
+
+        use_mask : bool   [default = True]
+            If False, do not pass the mask array to the dataset. This may be useful if the mask defined in the spectrum
+            is not appropriate for the fitting purposes.
 
         continuum : array, shape (n)
             Continuum spectrum. The input spectrum will be normalized using
             this continuum spectrum.
 
-        nsub : integer
+        nsub : integer   [default = 1]
             Kernel subsampling factor relative to the data.
             This is only used if the resolution is given as a LSF file.
+
+        verbose : bool   [default = False]
+            Print status messages.
+
+        ext : int or string
+            Index or name of the extension in the HDU List. Only used if the input is a FITS file.
         """
+        if mask is not None:
+            warnings.warn("The keyword mask is deprecated. Use 'mask_array' instead", DeprecationWarning)
+            mask_array = mask
 
-        spectrum = np.loadtxt(filename)
-        wl = spectrum[:, 0]
-        flux = spectrum[:, 1]
-        err = spectrum[:, 2]
-        if spectrum.shape[1] == 4 and mask is None:
-            mask = spectrum[:, 3]
+        file_type = filename.split('.')[-1]
+        if file_type.lower() in ['fits', 'fit']:
+            with warnings.catch_warnings(record=True) as warning_list:
+                try:
+                    wl, spec, err, mask, _ = load_fits_spectrum(filename, ext=ext)
+                    has_multiSpecWarning = any([w.category is MultipleSpectraWarning for w in warning_list])
+                    if has_multiSpecWarning:
+                        # Show warning that there are multiple spectra
+                        print(term.red)
+                        print("\n [WARNING] - Several data tables were detected. The first extension was used.")
+                        print("")
+                        fits.info(filename)
+                        print(term.reset)
+                        print("")
 
-        if continuum is not None:
-            flux = flux/continuum
+                except FormatError as error_msg:
+                    print(error_msg)
+                    print("")
+                    fits.info(filename)
+                    print("")
+                    fits_data = fits.getdata(filename)
+                    if isinstance(fits_data, fits.FITS_rec):
+                        # Show the Table Column definitions:
+                        print(fits_data.columns)
+                        raise
+
+        else:
+            data = np.loadtxt(filename)
+            if data.shape[1] == 3:
+                wl, spec, err = data.T
+                mask = np.ones_like(wl, dtype=bool)
+            elif data.shape[1] == 4:
+                wl, spec, err, mask = data.T
+                mask = mask.astype(bool)
+            elif data.shape[1] > 4:
+                wl = data[:, 0]
+                spec = data[:, 1]
+                err = data[:, 2]
+                mask = data[:, 3]
+                mask = mask.astype(bool)
+            else:
+                print(" [ERROR] - Not enough columns to load wavelength, flux and error")
+                print("           Check file format, must be three or more columns separated by blank space")
+                print("")
+                raise FormatError
+
+        if airORvac == 'air':
+            if verbose:
+                print(" Converting wavelength from air to vacuum.")
+            wl = air2vac(wl)
+
+        if continuum is not None and len(continuum) == len(spec):
+            spec = spec/continuum
             err = err/continuum
             normalized = True
 
-        self.add_data(wl, flux, res, err=err, normalized=normalized, mask=mask, nsub=nsub)
+        if mask_array is not None:
+            if len(mask_array) == len(spec):
+                mask = mask_array
+            else:
+                print("Wrong dimensions of the Input Mask: got %i pixels, spectrum has %i pixels" % (len(mask_array), len(spec)))
 
-    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1):
+        if use_mask:
+            self.add_data(wl, spec, res, err=err, normalized=normalized, mask=mask, nsub=nsub)
+        else:
+            self.add_data(wl, spec, res, err=err, normalized=normalized, nsub=nsub)
+        self.data_filenames.append(filename)
+
+    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1, filename=''):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
 
@@ -269,6 +362,11 @@ class DataSet(object):
         nsub : integer
             Kernel subsampling factor relative to the data.
             This is only used if the resolution is given as a LSF file.
+
+        filename : string
+            The filename from which the data originated. Optional but highly recommended.
+            Alternatively, use the method :meth:`DataSet.add_spectrum
+            <VoigtFit.DataSet.add_spectrum>`.
         """
 
         mask_warning = """
@@ -302,6 +400,7 @@ class DataSet(object):
                           'error': err, 'res': res,
                           'norm': normalized, 'specID': specid,
                           'mask': mask, 'nsub': nsub})
+        self.data_filenames.append(filename)
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
