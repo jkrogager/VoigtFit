@@ -35,6 +35,13 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.6.1:
+
+  New data keyword `no-mask` allows the user to ignore any pixel mask present in the input data.
+  VoigtFit will automatically try to identify pixel masks in the ASCII or FITS data, so if such
+  automatically retrieved masks are not appropriate for the fitting, they can be ignored by setting
+  this keyword in the `data` statement (see :ref:`documentation`).
+
 New in version 0.11.6:
 
   Improved FITS data import of a large variety of file formats, FITS Tables, Multi Extension FITS files,

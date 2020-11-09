@@ -156,7 +156,9 @@ Optional arguments:
 
   *air* : if present, the wavelengths in the spectrum will be converted from air to vacuum.
 
-  *no-mask* : if present, ignore any pixel mask present in the input data.
+  *no-mask* : if present, ignore any pixel mask present in the input data. VoigtFit will automatically
+  try to identify pixel masks in the ASCII or FITS data, so if such automatically retrieved masks
+  are not appropriate for the fitting, they can be ignored by setting including keyword. 
 
   *nsub=1* : use this keyword to set the subsampling factor of the kernel given in the LSF file.
   The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
