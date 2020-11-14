@@ -87,9 +87,9 @@ def get_spectrum_fits_table(tbdata):
         Numpy boolean array of pixel mask. `True` if the pixel is 'good',
         `False` if the pixel is bad and should not be used.
     """
+    table_names = [name.lower() for name in tbdata.names]
     wl_in_table = False
     for colname in wavelength_column_names:
-        table_names = [name.lower() for name in tbdata.names]
         if colname in table_names:
             wl_in_table = True
             if colname == 'loglam':
@@ -221,86 +221,218 @@ def load_fits_spectrum(fname, ext=None, iraf_obj=None):
     header : fits.Header
         FITS Header of the data extension.
     """
-    HDUlist = fits.open(fname)
-    primhdr = HDUlist[0].header
-    primary_has_data = HDUlist[0].data is not None
-    if primary_has_data:
-        if primhdr['NAXIS'] == 1:
-            if len(HDUlist) == 1:
-                raise FormatError("Only one extension: Could not find both Flux and Error Arrays")
+    with fits.open(fname) as HDUlist:
+        primhdr = HDUlist[0].header
+        primary_has_data = HDUlist[0].data is not None
+        if primary_has_data:
+            if primhdr['NAXIS'] == 1:
+                if len(HDUlist) == 1:
+                    raise FormatError("Only one extension: Could not find both Flux and Error Arrays")
+
+                elif len(HDUlist) == 2:
+                    data = HDUlist[0].data
+                    data_hdr = HDUlist[0].header
+                    error = HDUlist[1].data
+                    mask = np.ones_like(data, dtype=bool)
+
+                elif len(HDUlist) > 2:
+                    data, error, mask, data_hdr = get_spectrum_hdulist(HDUlist)
+
+                try:
+                    wavelength = get_wavelength_from_header(primhdr)
+                    return wavelength, data, error, mask, primhdr
+                except WavelengthError:
+                    wavelength = get_wavelength_from_header(data_hdr)
+                    return wavelength, data, error, mask, data_hdr
+                else:
+                    raise FormatError("Could not find Wavelength Array")
+
+            elif primhdr['NAXIS'] == 2:
+                raise FormatError("The data seems to be a 2D image of shape: {}".format(HDUlist[0].data.shape))
+
+            elif primhdr['NAXIS'] == 3:
+                # This could either be a data cube (such as SINFONI / MUSE)
+                # or IRAF format:
+                IRAF_in_hdr = 'IRAF' in primhdr.__repr__()
+                has_CRVAL3 = 'CRVAL3' in primhdr.keys()
+                if IRAF_in_hdr and not has_CRVAL3:
+                    # This is most probably an IRAF spectrum file:
+                    #  (N_pixels, N_objs, 4)
+                    #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
+                    data_array = HDUlist[0].data
+                    if iraf_obj is None:
+                        # Use the first object by default
+                        iraf_obj = 0
+                        # If other objects are present, throw a warning:
+                        if data_array.shape[1] > 1:
+                            warnings.warn("More than one object detected in the file", MultipleSpectraWarning)
+
+                    data = data_array[0][iraf_obj]
+                    error = data_array[3][iraf_obj]
+                    mask = np.ones_like(data, dtype=bool)
+                    wavelength = get_wavelength_from_header(primhdr)
+                    return wavelength, data, error, mask, primhdr
+                else:
+                    raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDUlist[0].data.shape))
+
+        else:
+            is_fits_table = isinstance(HDUlist[1], fits.BinTableHDU) or isinstance(HDUlist[1], fits.TableHDU)
+            if is_fits_table:
+                if ext:
+                    tbdata = HDUlist[ext].data
+                    data_hdr = HDUlist[ext].header
+                else:
+                    tbdata = HDUlist[1].data
+                    data_hdr = HDUlist[1].header
+
+                has_multi_extensions = len(HDUlist) > 2
+                if has_multi_extensions and (ext is None):
+                    warnings.warn("More than one data extension detected in the file", MultipleSpectraWarning)
+                wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
+                return wavelength, data, error, mask, data_hdr
 
             elif len(HDUlist) == 2:
-                data = HDUlist[0].data
-                data_hdr = HDUlist[0].header
-                error = HDUlist[1].data
-                mask = np.ones_like(data, dtype=bool)
+                raise FormatError("Only one data extension: Could not find both Flux and Error Arrays")
 
             elif len(HDUlist) > 2:
                 data, error, mask, data_hdr = get_spectrum_hdulist(HDUlist)
-
-            try:
-                wavelength = get_wavelength_from_header(primhdr)
-                return wavelength, data, error, mask, primhdr
-            except WavelengthError:
-                wavelength = get_wavelength_from_header(data_hdr)
+                try:
+                    wavelength = get_wavelength_from_header(data_hdr)
+                except WavelengthError:
+                    wavelength = get_wavelength_from_header(primhdr)
+                    data_hdr = primhdr
+                else:
+                    raise FormatError("Could not find Wavelength Array")
                 return wavelength, data, error, mask, data_hdr
+
+
+def format_fits_info(fits_info):
+    """Print FITS info from tuple generated by `fits.info(filename, output=False)`"""
+    header_items = ['No.', 'Name', 'Ver', 'Type', 'Cards', 'Dimensions', 'Format', '']
+    fits_info_str = list()
+    fits_info_str.append(header_items)
+    for line in fits_info:
+        new_line = list()
+        for item in line:
+            new_line.append("{}".format(item))
+        fits_info_str.append(new_line)
+
+    items_length = np.vectorize(lambda x: len(x))(fits_info_str)
+    max_lengths = np.max(items_length, axis=0)
+
+    formatter = "   ".join(["%%-%is" % max_len for max_len in max_lengths])
+    info_str = ""
+    for line in fits_info_str:
+        info_str += formatter % tuple(line)
+        info_str += '\n'
+    return info_str
+
+
+def identify_column_names(tbdata):
+    table_names = [name.lower() for name in tbdata.names]
+    column_name_guess = {}
+    for colname in wavelength_column_names:
+        if colname in table_names:
+            column_name_guess['WAVE'] = colname
+
+    for colname in flux_column_names:
+        if colname in table_names:
+            column_name_guess['FLUX'] = colname
+
+    for colname in error_column_names:
+        if colname in table_names:
+            column_name_guess['ERROR'] = colname
+
+    return column_name_guess
+
+def load_fits_explicit(filename, specs, mask_type='inclusion'):
+    """
+    Load data from a FITS file with an explicitly given extension/column specification.
+    This function does not support IRAF format. Instead, use `load_fits_spectrum()`
+    with the `iraf_obj` keyword to specify which object to read.
+
+    Parameters
+    ----------
+    filename : string
+        Filename of the FITS file to read from.
+
+    specs : dict
+        Dictionary containing the column and extension specifications for the data arrays.
+        Must contain the following keywords: ['WAVE', 'FLUX', 'ERR', 'EXT_NUM']
+            Ex: {'EXT_NUM': 2, 'WAVE': 'wave_vac', 'FLUX': 'flux', 'ERR': 'error_cal', 'MASK': 'pix_mask'}
+        This will load the FITS Table from extension 2 with the given column names.
+
+    mask_type : string {'inclusion', 'exclusion'}  [default='inclusion']
+        Type of boolean mask: 'inclusion' means that pixels with a value of `True` will be included
+        and `False` will be excluded. If mask='exclusion', the opposite is assumed: `True` denotes
+        pixels that should be excluded.
+        The default is to parse an `inclusion` mask.
+
+    Returns
+    -------
+    wavelength, flux, err : np.array(float)
+        Data arrays of wavelength, flux and uncertainty.
+    mask : np.array(bool)
+        Data array of boolean `inclusion` mask.
+    header : fits.Header
+        The header of the associated data header.
+    """
+    for key in ['WAVE', 'FLUX', 'ERR', 'EXT_NUM']:
+        if key not in specs.keys():
+            raise FormatError("Mandatory Column or Extension missing: %s" % key)
+
+    with fits.open(filename) as HDUList:
+        data_ext = HDUList[specs['EXT_NUM']].data
+        if isinstance(data_ext, fits.FITS_rec):
+            wavelength = data_ext[specs['WAVE']]
+            flux = data_ext[specs['FLUX']]
+            err = data_ext[specs['ERR']]
+            header = HDUList[specs['EXT_NUM']].header
+            if 'MASK' in specs.keys():
+                mask = data_ext[specs['MASK']]
+                mask = mask.astype(bool)
+                if mask_type.lower() in 'exclusion':
+                    # Convert exclusion mask to an inclusion mask:
+                    mask = ~mask
             else:
-                raise FormatError("Could not find Wavelength Array")
+                mask = np.ones(len(flux), dtype=bool)
 
-        elif primhdr['NAXIS'] == 2:
-            raise FormatError("The data seems to be a 2D image of shape: {}".format(HDUlist[0].data.shape))
-
-        elif primhdr['NAXIS'] == 3:
-            # This could either be a data cube (such as SINFONI / MUSE)
-            # or IRAF format:
-            IRAF_in_hdr = 'IRAF' in primhdr.__repr__()
-            has_CRVAL3 = 'CRVAL3' in primhdr.keys()
-            if IRAF_in_hdr and not has_CRVAL3:
-                # This is most probably an IRAF spectrum file:
-                #  (N_pixels, N_objs, 4)
-                #  The 4 axes are [flux, flux_noskysub, sky_flux, error]
-                data_array = HDUlist[0].data
-                if iraf_obj is None:
-                    # Use the first object by default
-                    iraf_obj = 0
-                    # If other objects are present, throw a warning:
-                    if data_array.shape[1] > 1:
-                        warnings.warn("More than one object detected in the file", MultipleSpectraWarning)
-
-                data = data_array[0][iraf_obj]
-                error = data_array[3][iraf_obj]
-                mask = np.ones_like(data, dtype=bool)
-                wavelength = get_wavelength_from_header(primhdr)
-                return wavelength, data, error, mask, primhdr
-            else:
-                raise FormatError("The data seems to be a 3D cube of shape: {}".format(HDUlist[0].data.shape))
-
-    else:
-        is_fits_table = isinstance(HDUlist[1], fits.BinTableHDU) or isinstance(HDUlist[1], fits.TableHDU)
-        if is_fits_table:
-            if ext:
-                tbdata = HDUlist[ext].data
-                data_hdr = HDUlist[ext].header
-            else:
-                tbdata = HDUlist[1].data
-                data_hdr = HDUlist[1].header
-
-            has_multi_extensions = len(HDUlist) > 2
-            if has_multi_extensions and (ext is None):
-                warnings.warn("More than one data extension detected in the file", MultipleSpectraWarning)
-            wavelength, data, error, mask = get_spectrum_fits_table(tbdata)
-            return wavelength, data, error, mask, data_hdr
-
-        elif len(HDUlist) == 2:
-            raise FormatError("Only one data extension: Could not find both Flux and Error Arrays")
-
-        elif len(HDUlist) > 2:
-            data, error, mask, data_hdr = get_spectrum_hdulist(HDUlist)
+        else:
             try:
-                wavelength = get_wavelength_from_header(data_hdr)
-            except WavelengthError:
-                wavelength = get_wavelength_from_header(primhdr)
-                data_hdr = primhdr
+                flux_ext = int(specs['FLUX'])
+            except ValueError:
+                flux_ext = specs['FLUX']
+            flux = HDUList[flux_ext].data
+            header = HDUList[flux_ext].header
+            wavelength = get_wavelength_from_header(header)
+
+            try:
+                err_ext = int(specs['ERR'])
+            except ValueError:
+                err_ext = specs['ERR']
+            err = HDUList[err_ext].data
+
+            if 'MASK' in specs.keys():
+                try:
+                    mask_ext = int(specs['MASK'])
+                except ValueError:
+                    mask_ext = specs['MASK']
+                mask = HDUList[mask_ext].data
+                if mask_type.lower() in 'exclusion':
+                    # Convert exclusion mask to an inclusion mask:
+                    mask = ~mask
             else:
-                raise FormatError("Could not find Wavelength Array")
-            return wavelength, data, error, mask, data_hdr
+                mask = np.ones(len(flux), dtype=bool)
+
+        if len(flux.shape) > 1:
+            is_collumn_array = (len(flux.shape) == 2) and (flux.shape[0] == 1)
+            if is_collumn_array:
+                # Data has shape (1, N). Flatten the array to create shape (N,)
+                wavelength = wavelength.flatten()
+                flux = flux.flatten()
+                err = err.flatten()
+                mask = mask.flatten()
+            else:
+                raise FormatError("Incorrect Data Shape: {}".format(flux.shape))
+
+        return wavelength, flux, err, mask, header
