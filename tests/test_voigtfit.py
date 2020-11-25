@@ -27,6 +27,8 @@ def test_column_densities():
     ds.add_spectrum(test_fname, res, normalized=True)
     ds.add_lines(['SiII_1808', 'SiII_1020', 'SiII_1304', 'FeII_1611', 'FeII_2249', 'FeII_2260', 'FeII_2374'])
     ds.add_lines(['SII_1253', 'SII_1250'])
+    ds.add_line('HI_1215', velspan=2000.)
+    ds.add_component('HI', 2.3535, 50., 20.3, var_b=False)
     ds.add_component('SiII', 2.3532, 15., 15.4)
     ds.add_component('SiII', 2.3539, 10., 15.8)
     ds.copy_components(from_ion='SiII', to_ion='SII')
@@ -37,9 +39,12 @@ def test_column_densities():
 
     logN_criteria = list()
     for ion in list(ds.components.keys()):
-        logN1 = popt.params['logN0_%s' % ion].value
-        logN2 = popt.params['logN1_%s' % ion].value
-        logN_tot = np.log10(10**logN1 + 10**logN2)
+        if ion == 'HI':
+            logN_tot = popt.params['logN0_%s' % ion].value
+        else:
+            logN1 = popt.params['logN0_%s' % ion].value
+            logN2 = popt.params['logN1_%s' % ion].value
+            logN_tot = np.log10(10**logN1 + 10**logN2)
         delta = logN_tot - input_data[ion]
         print("%s : %.2f  [input: %.2f]" % (ion, logN_tot, input_data[ion]))
         logN_criteria.append(delta < 0.02)
