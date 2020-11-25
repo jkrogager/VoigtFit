@@ -35,6 +35,11 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 0.11.7:
+
+  Critical update of the atomic data for the hydrogen Lyman series.
+  Oscillator strengths for the Lyman series were incorrectly compiled into the master linelist.
+
 New in version 0.11.6.1:
 
   New data keyword `no-mask` allows the user to ignore any pixel mask present in the input data.
