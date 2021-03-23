@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import VoigtFit
-import pickle
 
 ### Fit DLA towards quasar Q1313+1441
 ### Observed in X-shooter P089.A-0068
@@ -40,12 +38,12 @@ dataset.add_line('MgI_2852')
 # Then regions which should not be fitted are masked interactively too
 dataset.prepare_dataset()
 
-# Save the dataset so you don't have to normalize and mask every time:
-VoigtFit.SaveDataSet('test.dataset', dataset)
+# Save the dataset after first run so you don't have to normalize and mask every time:
+# For the following runs, comment this line and uncomment below
+dataset.save('test.dataset')
 
 ### The dataset which was defined above can be loaded like this:
-# In this case, comment out lines 18-41
-#dataset = VoigtFit.LoadDataSet('test.dataset')
+# dataset = VoigtFit.load_dataset('test.dataset')
 
 
 ### If a line has been defined, and you don't want to fit it
@@ -54,6 +52,9 @@ VoigtFit.SaveDataSet('test.dataset', dataset)
 
 ### or deactivated:
 #dataset.deactivate_line('FeII_2374')
+
+### A deactivated line is still present in the dataset,
+### but not included in the fit. The line may still show up in the final figure.
 
 dataset.reset_components()
 
@@ -78,7 +79,7 @@ dataset.add_component('FeII', 1.795121, 15, 14.5, var_z=1, var_b=1)
 #
 # The entire velocity structure can be copied from one ion to another:
 dataset.copy_components('ZnII', 'FeII', logN=12.9, ref_comp=1)
-# This copies the five components defined for FeII to ZnII and keeps 
+# This copies the five components defined for FeII to ZnII and keeps
 # the same pattern of initial guesses for column density.
 # By giving ref_comp and logN, this intial guess pattern is scaled such
 # that the second component has logN=12.9
@@ -95,23 +96,17 @@ dataset.copy_components('ZnII', 'FeII', logN=12.9, ref_comp=1)
 dataset.copy_components('CrII', 'FeII', logN=13.6, ref_comp=1)
 dataset.copy_components('MgI', 'FeII', logN=12.4, ref_comp=1)
 
+# Crucial step:
 dataset.prepare_dataset()
 
-popt, chi2 = dataset.fit(verbose=True)
+# Run the fit:
+popt, chi2 = dataset.fit()
 
+# Output best-fit parameters, total column densities and make plot:
 dataset.plot_fit()
 if logNHI:
-	dataset.print_metallicity(*logNHI)
-dataset.print_abundance()
+    dataset.print_metallicity(*logNHI)
+dataset.print_total()
 
 
-#### Remove parameter links
-#### The links may result in error when loadning the parameters later.
-
-for par in popt.params.values():
-	par.expr = None
-for par in dataset.pars.values():
-	par.expr = None
-
-pickle.dump(popt.params, open('example_best_fit.pars','w'))
-VoigtFit.SaveDataSet('example_fit.dataset', dataset)
+dataset.save('example_fit.dataset')
