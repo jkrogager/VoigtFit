@@ -399,7 +399,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
             columns = 2
 
         heigth = (len(contents) + 2) / 2 * 7.5 / (max_rows)
-        rows = (len(contents) + 1) / 2
+        rows = (len(contents) + 1) // 2
         if len(contents) == 1:
             heigth = 6
             columns = 1
@@ -910,7 +910,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
 
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.tick_params(labelbottom=False)
-            cax.set_yticklabels([''])
+            cax.set_yticklabels('')
             cax.set_ylim(res_min, res_max)
 
     if nolabels:
