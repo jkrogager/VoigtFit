@@ -290,14 +290,16 @@ def load_dataset_from_hdf(fname):
 
         for ion, comps in components.items():
             ds.components[ion] = list()
-            if len(comps) > 0:
-                for n, comp in enumerate(comps.values()):
+            N_comps = len(comps)
+            if N_comps > 0:
+                for n in range(N_comps):
+                    pointer = '/components/%s/comp%i' % (ion, n+1)
+                    comp = hdf[pointer]
                     if 'best_fit' in hdf:
                         # If 'best_fit' exists, use the best-fit values.
                         # The naming for 'best_fit' and 'components' is parallel
                         # so one variable in components can easily be identified
                         # in the best_fit data group by replacing the path:
-                        pointer = comp.name
                         fit_pointer = pointer.replace('components', 'best_fit')
                         z = hdf[fit_pointer].attrs['z']
                         z_err = hdf[fit_pointer].attrs['z_err']
@@ -340,7 +342,7 @@ def load_dataset_from_hdf(fname):
                         ds.best_fit[N_name].stderr = logN_err
 
         if 'best_fit' in hdf:
-            # Now the components have been defined in ds, so I can use them for the loop
+            # Now the components have been defined in `ds`, so I can use them for the loop
             # to set the parameter ties:
             for ion, comps in ds.components.items():
                 for n, comp in enumerate(comps):
