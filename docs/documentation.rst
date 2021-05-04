@@ -158,7 +158,7 @@ Optional arguments:
 
   *no-mask* : if present, ignore any pixel mask present in the input data. VoigtFit will automatically
   try to identify pixel masks in the ASCII or FITS data, so if such automatically retrieved masks
-  are not appropriate for the fitting, they can be ignored by setting including keyword. 
+  are not appropriate for the fitting, they can be ignored by setting including keyword.
 
   *nsub=1* : use this keyword to set the subsampling factor of the kernel given in the LSF file.
   The default value is 1, i.e., assuming that the sampling of the kernel matches the sampling of the data.
@@ -398,8 +398,15 @@ Interactive Components
   The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526.
   The line tag must be defined in the dataset (using the ``lines`` statement).
 
-This command will activate the interactive window for defining components for the given lines.
-Notice that this will overwrite any other components defined previously for this element.
+This command will show an interactive window for defining components for the given lines.
+If the data are not normalized, the first step is to indicate the continuum level,
+in order to obtain representative initial guesses for the column densities.
+A single click will set the continuum level to the y-value of the clicked position.
+Next step is to mark the peak absorption of each component. The depth of the given components
+will be converted to an initial guess for the column density assuming a resolution limited
+line-width. When you have marked all components, hit the `enter` key and the terminal will prompt
+you to acknowledge the defined components. In the terminal, type either 'y', 'yes', or simply hit 'enter'
+to accept (case insensitive). Any other key will erase the defined components and start over.
 
 
 **interactive_view : velocity  [ or wavelength ]**

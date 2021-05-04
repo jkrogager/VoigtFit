@@ -1099,6 +1099,9 @@ class DataSet(object):
         is assumed to be unresolved, i.e., taken from the resolution.
         """
         regions_of_line = self.find_line(line_tag)
+        if len(regions_of_line) > 1:
+            print("\n Note -- The given line (%s) is defined in more than one spectral region")
+            print("        All regions will be shown one by one for interactive definition...\n")
         for region in regions_of_line:
             wl, flux, err, mask = region.unpack()
             plt.close('all')
@@ -1137,41 +1140,64 @@ class DataSet(object):
             if region.normalized:
                 c_level = 1.
             else:
-                ax.set_title("Click to Mark Continuum Level...")
+                ax.set_title("Click to Mark Average Continuum Level...\n(1 click)")
                 cont_level_point = plt.ginput(1, 30.)
                 c_level = cont_level_point[0][1]
                 ax.axhline(c_level, color='0.3', ls=':')
 
-            ax.set_title("Mark central components for %s, finish with [enter]" % line.element)
+            ax.set_title("Mark peak absorption for components of %s\nFinish with 'enter'" % line.tag)
             ax.set_xlabel(x_label)
             if region.normalized:
                 ax.set_ylabel(u"Normalized Flux")
             else:
                 ax.set_ylabel(u"Flux")
-            comps = plt.ginput(-1, 60)
-            num = 0
+            plt.draw()
+            plt.tight_layout()
+
             # Assume that components are unresolved:
             b = region.kernel_fwhm / 2.35482
+            comp_lines = list()
             comp_list = list()
-            for x0, y0 in comps:
-                if velocity:
-                    z0 = self.redshift + x0/299792.458 * (self.redshift + 1.)
+            success = False
+            while success is False:
+                comps = plt.ginput(-1, 60)
+                for x0, y0 in comps:
+                    if velocity:
+                        z0 = self.redshift + x0/299792.458 * (self.redshift + 1.)
+                    else:
+                        z0 = x0/line.l0 - 1.
+                    # Calculate logN from peak depth:
+                    y0 = max(y0/c_level, 0.01)
+                    logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
+
+                    vline = ax.axvline(x0, color='darkblue', alpha=0.8)
+                    comp_lines.append(vline)
+                    comp_list.append([z0, b, logN])
+                plt.draw()
+
+                print("Are the shown components correct?")
+                ax.set_title("Are the shown components correct?")
+                plt.draw()
+                answer = input("[YES/no]  ")
+                if answer.lower() in ['', 'yes', 'y']:
+                    success = True
                 else:
-                    z0 = x0/line.l0 - 1.
-                # Calculate logN from peak depth:
-                y0 = max(y0/c_level, 0.01)
-                logN = np.log10(-b * np.log(y0) / (1.4983e-15 * line.l0 * line.f))
-                print("Component %i:  z = %.6f   log(N) = %.2f" % (num, z0, logN))
-                ax.axvline(x0, color='darkblue', alpha=0.8)
-                comp_list.append([z0, b, logN])
-                num += 1
-            plt.draw()
+                    comp_list = list()
+                    for vline in comp_lines:
+                        vline.remove()
+                    comp_lines = list()
+                    ax.set_title("Mark peak absorption for components of %s\nFinish with 'enter'" % line.tag)
+                    plt.draw()
 
             if len(comp_list) > 0:
+                print("Defining following components:")
+                print("(the lines below can be copied directly to the input file)\n")
                 for z, b, logN in comp_list:
-                    self.add_component(line.element, z, b, logN)
+                    print("component %s  z=%.6f  b=%.1f  logN=%.2f" % (line.ion, z, b, logN))
+                    self.add_component(line.ion, z, b, logN)
             else:
-                pass
+                print("No components were defined. Are you sure you want to continue?")
+
 
     def delete_component(self, ion, index):
         """Remove component of the given `ion` with the given `index`."""
