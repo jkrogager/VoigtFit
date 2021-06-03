@@ -73,7 +73,7 @@ def Voigt(wl, l0, f, N, b, gam, z=0):
     return tau
 
 
-@jit
+@jit(nopython=True)
 def convolve_numba(P, kernel):
     """
     Define convolution function for a wavelength dependent kernel.
@@ -100,7 +100,7 @@ def convolve_numba(P, kernel):
     """
     N = kernel.shape[1]//2
     pad = np.ones(N)
-    P_pad = np.concatenate([pad, P, pad])
+    P_pad = np.concatenate((pad, P, pad))
     P_con = np.zeros_like(P)
     for i, lsf_i in enumerate(kernel):
         P_con[i] = np.sum(P_pad[i:i+2*N+1] * lsf_i)
