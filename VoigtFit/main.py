@@ -49,7 +49,9 @@ def main():
     print(r"                \/                     ")
     print(r"")
     print(r"")
-    print(r" Loaded Solar abundances from Asplund et al. 2009  (photospheric)")
+    print(r" Loaded Solar abundances from Asplund et al. (2009)")
+    print(r" Using recommendations from Lodders et al. (2009)")
+    print(r" regarding the source: photospheric, meteoritic or their average.")
     print(r"")
 
     descr = """VoigtFit Absorption Line Fitting.
