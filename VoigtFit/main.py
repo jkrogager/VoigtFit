@@ -551,8 +551,8 @@ def main():
         # print Thermal Model Parameters
         output.print_T_model_pars(dataset, thermal_model)
 
-    if dataset.cheb_order >= 0:
-        dataset.print_cont_parameters()
+    # if dataset.cheb_order >= 0:
+    #     dataset.print_cont_parameters()
 
     # print metallicity
     logNHI = parameters['logNHI']
