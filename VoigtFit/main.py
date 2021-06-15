@@ -582,7 +582,7 @@ def main():
         rebin = parameters['fit_options']['rebin']
     else:
         rebin = 1
-    dataset.plot_fit(filename=filename, rebin=rebin, subsample_profile=3)
+    dataset.plot_fit(filename=filename, rebin=rebin)
     output.save_parameters_to_file(dataset, filename+'.fit')
     output.save_cont_parameters_to_file(dataset, filename+'.cont')
     output.save_fit_regions(dataset, filename+'.reg',

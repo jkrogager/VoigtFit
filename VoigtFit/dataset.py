@@ -2003,15 +2003,15 @@ class DataSet(object):
 
             if verbose:
                 output.print_results(self, self.best_fit, velocity=True)
-                if self.cheb_order >= 0:
-                    output.print_cont_parameters(self)
+                # if self.cheb_order >= 0:
+                #     output.print_cont_parameters(self)
 
         chi2 = popt.chisqr
         return popt, chi2
 
     def plot_fit(self, rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  ymin=None, ymax=None, filename=None,
-                 subsample_profile=1, npad=50, loc='left',
+                 subsample_profile=10, npad=50, loc='left',
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, legend=True,
                  label_all_ions=False, xunit='vel',
