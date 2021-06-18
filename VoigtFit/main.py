@@ -495,6 +495,7 @@ def main():
             dataset.set_resolution(item[0], item[1])
 
     # Run the fit:
+    print("\n  Fit is running... Please be patient.\n")
     popt, chi2 = dataset.fit(verbose=False, **parameters['fit_options'])
 
     print(" The fit has finished with the following exit message:")

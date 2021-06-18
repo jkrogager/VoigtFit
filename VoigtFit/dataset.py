@@ -1813,6 +1813,7 @@ class DataSet(object):
                 print("")
 
         self.ready2fit = True
+        plt.close('all')
 
         # --- Check that all active elements have components defined:
         for line_tag in self.all_lines:
@@ -1930,7 +1931,7 @@ class DataSet(object):
             print(" [WARNING] - rebinning for LSF file kernel is not supported!")
 
         if self.verbose:
-            print("\n  Fit is running... Please, be patient.\n")
+            print("\n  Fit is running... Please be patient.\n")
 
         def chi(pars):
             model = list()

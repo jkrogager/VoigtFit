@@ -894,8 +894,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             if norm_resid:
                 cax.axhline(3, ls=':', color='crimson', lw=0.5)
                 cax.axhline(-3, ls=':', color='crimson', lw=0.5)
-                res_min = 4
-                res_max = -4
+                res_min = -5
+                res_max = 5
             else:
                 if xunit == 'wl':
                     cax.errorbar(x, resid, err, ls='', color='gray', lw=1.)
@@ -905,8 +905,8 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
                     cax.errorbar(vel, resid, err, ls='', color='gray', lw=1.)
                     cax.plot(vel, 3*err, ls=':', color='crimson', lw=1.)
                     cax.plot(vel, -3*err, ls=':', color='crimson', lw=1.)
-                res_min = np.nanmax(4*err)
-                res_max = np.nanmin(-4*err)
+                res_min = -np.nanmean(5*err)
+                res_max = np.nanmean(5*err)
 
             cax.axhline(0., ls='--', color='0.7', lw=0.7)
             cax.tick_params(labelbottom=False)
@@ -1519,15 +1519,15 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 if velocity:
                     z_std = z_err/(z_sys+1)*299792.458
                     z_val = (z-z_sys)/(z_sys+1)*299792.458
-                    z_format = "v = %5.1f +/- %.1f\t"
+                    z_format = "v = %+5.1f ± %.1f"
                 else:
                     z_std = z_err
                     z_val = z
-                    z_format = "z = %.6f +/- %.6f"
+                    z_format = "z = %+.6f ± %.6f"
 
-                output_string = z_format % (z_val, z_std) + "\t"
-                output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
-                output_string += "%.3f +/- %.3f" % (logN, logN_err)
+                output_string = z_format % (z_val, z_std) + "      "
+                output_string += "%6.2f ± %6.2f      " % (b, b_err)
+                output_string += "%7.3f ± %7.3f" % (logN, logN_err)
 
                 print(output_string)
 
@@ -1554,15 +1554,17 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 logN_err = params['logN%i_%s' % (n, ion)].stderr
 
                 if velocity:
-                    z_val = (z-z_sys) / (z_sys+1) * 299792.458
-                    z_format = "v = %5.1f\t"
+                    z_std = z_err/(z_sys+1)*299792.458
+                    z_val = (z-z_sys)/(z_sys+1)*299792.458
+                    z_format = "v = %+5.1f ± %.1f"
                 else:
+                    z_std = z_err
                     z_val = z
-                    z_format = "z = %.6f"
+                    z_format = "z = %+.6f ± %.6f"
 
-                output_string = z_format % (z_val, z_std) + "\t"
-                output_string += "%6.2f +/- %6.2f\t" % (b, b_err)
-                output_string += "%.3f +/- %.3f" % (logN, logN_err)
+                output_string = z_format % (z_val, z_std) + "      "
+                output_string += "%6.2f ± %6.2f      " % (b, b_err)
+                output_string += "%.3f ± %.3f" % (logN, logN_err)
 
                 print(output_string)
 
@@ -1627,7 +1629,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     """
 
     print("\n  Metallicities\n")
-    print("  log(NHI) = %.3f +/- %.3f\n" % (logNHI, err))
+    print("  log(NHI) = %.3f ± %.3f\n" % (logNHI, err))
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
@@ -1653,20 +1655,20 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
         metal = np.mean(metal_array)
         metal_err = np.std(metal_array)
-        print("  [%s/H] = %.3f +/- %.3f" % (ion, metal, metal_err))
+        print("  [%s/H] = %.3f ± %.3f" % (ion, metal, metal_err))
     print("")
 
 
-def print_total(dataset):
+def print_total(dataset, verbose=True):
     """
     Print the total column densities of all species. This will sum *all*
     the components of each ion. The uncertainty on the total column density
     is calculated using random resampling within the errors of each component.
     """
-
+    output = list()
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        print("\n  Total Column Densities\n")
+        output.append("  Total Column Densities\n")
         for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
@@ -1679,18 +1681,23 @@ def print_total(dataset):
                         logN.append(params[par].value)
                         logN_err.append(params[par].stderr)
 
-            ION = [np.random.normal(n, e, 10000)
-                   for n, e in zip(logN, logN_err)]
-            logsum = np.log10(np.sum(10**np.array(ION), 0))
-            l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
-            std_err = np.std(logsum)
+            if len(logN) > 0:
+                ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
+                logsum = np.log10(np.sum(10**np.array(ION), 0))
+                l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
+                std_err = np.std(logsum)
+                output.append("  logN(%s) = %.2f ± %.2f" % (ion, abundance, std_err))
+            else:
+                output.append("  logN(%s) = ---" % ion)
 
-            print("  logN(%s) = %.2f +/- %.2f" % (ion, abundance, std_err))
+        if verbose:
+            print("")
+            print("\n".join(output))
+
+        return output
 
     else:
-        error_msg = """
-        [ERROR] - The dataset has not yet been fitted. No parameters found!
-        """
+        error_msg = """[ERROR] - The dataset has not yet been fitted. No parameters found!"""
         print(error_msg)
 
 
@@ -1780,13 +1787,17 @@ def save_parameters_to_file(dataset, filename):
                 par_tuple = (i, ion, z.value, z.stderr,
                              b.value, b.stderr,
                              logN.value, logN.stderr)
-                line_fmt = "%3i  %7s  %.6f %.6f    %6.2f %6.2f    %.3f %.3f"
+                line_fmt = "%3i  %7s  %+.6f %.6f    %6.2f %6.2f    %.3f %.3f"
                 output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
+        # Write total column densities:
+        logN_tot_str = print_total(dataset, verbose=False)
+        total_string = "\n".join(['#'+tmp for tmp in logN_tot_str])
+        output.write("\n\n" + total_string + "\n\n")
+
         # Write a python script friendly version to copy into script:
-        output.write("\n\n# Python script version:\n")
-        output.write("# The commands below can be copied directly to a script.\n")
+        output.write("# The commands below can be copied directly to the input file:\n")
         z_sys = dataset.redshift
         output.write("# z_sys : %.6f\n" % z_sys)
         for ion in dataset.components.keys():
@@ -1800,21 +1811,23 @@ def save_parameters_to_file(dataset, filename):
                 output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
-        # # Write a python script friendly version to copy into script:
-        # output.write("\n\n# Python script version:\n")
-        # output.write("# The commands below can be copied directly to a script.\n")
-        # z_sys = dataset.redshift
-        # output.write("# dataset.redshift = %.6f.\n" % z_sys)
-        # for ion in dataset.components.keys():
-        #     for i in range(len(dataset.components[ion])):
-        #         z = dataset.best_fit['z%i_%s' % (i, ion)]
-        #         logN = dataset.best_fit['logN%i_%s' % (i, ion)]
-        #         b = dataset.best_fit['b%i_%s' % (i, ion)]
-        #         vel_value = (z.value - z_sys) / (z_sys + 1) * 299792.458
-        #         par_tuple = (ion, vel_value, b.value, logN.value)
-        #         line_fmt = "# dataset.add_component_velocity('%s', %.1f, %.1f, %.1f)"
-        #         output.write(line_fmt % par_tuple + "\n")
-        #     output.write("\n")
+        # Write a python script friendly version to copy into script:
+        output.write("\n\n# Python script version:\n")
+        output.write("# The commands below can be copied directly to a script.\n")
+        z_sys = dataset.redshift
+        output.write("# dataset.redshift = %.6f.\n" % z_sys)
+        for ion in dataset.components.keys():
+            for i in range(len(dataset.components[ion])):
+                z = dataset.best_fit['z%i_%s' % (i, ion)]
+                logN = dataset.best_fit['logN%i_%s' % (i, ion)]
+                b = dataset.best_fit['b%i_%s' % (i, ion)]
+                vel_value = (z.value - z_sys) / (z_sys + 1) * 299792.458
+                par_tuple = (ion, vel_value, b.value, logN.value)
+                line_fmt = "# dataset.add_component_velocity('%s', %.1f, %.1f, %.1f)"
+                output.write(line_fmt % par_tuple + "\n")
+            output.write("\n")
+
+    print("  Best-fit parameters saved to file: %s" % filename)
 
 
 def save_cont_parameters_to_file(dataset, filename):
