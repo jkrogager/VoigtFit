@@ -1519,7 +1519,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 if velocity:
                     z_std = z_err/(z_sys+1)*299792.458
                     z_val = (z-z_sys)/(z_sys+1)*299792.458
-                    z_format = "v = %+5.1f ± %.1f"
+                    z_format = "v = %+5.1f ± %.1f      "
                 else:
                     z_std = z_err
                     z_val = z
@@ -1556,7 +1556,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
                 if velocity:
                     z_std = z_err/(z_sys+1)*299792.458
                     z_val = (z-z_sys)/(z_sys+1)*299792.458
-                    z_format = "v = %+5.1f ± %.1f"
+                    z_format = "v = %+5.1f ± %.1f      "
                 else:
                     z_std = z_err
                     z_val = z

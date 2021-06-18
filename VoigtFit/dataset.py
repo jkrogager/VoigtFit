@@ -1260,11 +1260,12 @@ class DataSet(object):
 
         for num, comp in enumerate(reference):
             new_comp = copy.deepcopy(comp)
+            has_active_ion = self.has_ion(from_ion, active_only=True)
             if logN:
                 new_comp.logN += offset_N
-            if tie_z:
+            if tie_z and has_active_ion:
                 new_comp.tie_z = 'z%i_%s' % (num, from_ion)
-            if tie_b:
+            if tie_b and has_active_ion:
                 new_comp.tie_b = 'b%i_%s' % (num, from_ion)
 
             self.components[to_ion].append(new_comp)
@@ -1272,28 +1273,28 @@ class DataSet(object):
     def load_components_from_file(self, fname, fit_pars=True):
         """Load best-fit parameters from an output file `fname`.
         If `fit_pars` is True, then update the best_fit parameters."""
-        parameters = open(fname)
         components_to_add = list()
         all_ions_in_file = list()
-        for line in parameters.readlines():
-            line = line.strip()
-            pars = line.split()
-            if len(line) == 0:
-                pass
-            elif line[0] == '#':
-                pass
-            elif len(pars) == 8:
-                ion = pars[1]
-                z = float(pars[2])
-                z_err = float(pars[3])
-                b = float(pars[4])
-                b_err = float(pars[5])
-                logN = float(pars[6])
-                logN_err = float(pars[7])
-                components_to_add.append([ion, z, b, logN,
-                                          z_err, b_err, logN_err])
-                if ion not in all_ions_in_file:
-                    all_ions_in_file.append(ion)
+        with open(fname) as parameters:
+            for line in parameters.readlines():
+                line = line.strip()
+                pars = line.split()
+                if len(line) == 0:
+                    pass
+                elif line[0] == '#':
+                    pass
+                elif len(pars) == 8:
+                    ion = pars[1]
+                    z = float(pars[2])
+                    z_err = float(pars[3])
+                    b = float(pars[4])
+                    b_err = float(pars[5])
+                    logN = float(pars[6])
+                    logN_err = float(pars[7])
+                    components_to_add.append([ion, z, b, logN,
+                                              z_err, b_err, logN_err])
+                    if ion not in all_ions_in_file:
+                        all_ions_in_file.append(ion)
 
         for ion in all_ions_in_file:
             if ion in self.components.keys():
@@ -1308,8 +1309,7 @@ class DataSet(object):
                         self.best_fit.pop(parname)
 
         for num, comp_pars in enumerate(components_to_add):
-            (ion, z, b, logN,
-             z_err, b_err, logN_err) = comp_pars
+            (ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
             if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
@@ -1321,7 +1321,10 @@ class DataSet(object):
                     self.best_fit.add(parname, value=val)
                     self.best_fit[parname].stderr = err
 
-        parameters.close()
+        if self.verbose:
+            print("\n  Added components for the given ions:")
+            print("  " + ", ".join(all_ions_in_file))
+
 
     def fix_structure(self, ion=None):
         """Fix the velocity structure, that is, the redshifts and the b-parameters.

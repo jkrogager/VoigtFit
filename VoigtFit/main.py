@@ -272,17 +272,11 @@ def main():
     dataset.verbose = verbose
 
     # Load components from file:
+    dataset.reset_components()
     if 'load' in parameters.keys():
-        dataset.reset_components()
         for fname in parameters['load']:
-            print("\n Loading parameters from file: %s \n" % fname)
+            print("\n Loading components from file: %s \n" % fname)
             dataset.load_components_from_file(fname)
-    else:
-        dataset.reset_components()
-
-    # Fix the velocity structure of the loaded lines:
-    if parameters['fix_velocity']:
-        dataset.fix_structure()
 
     # Prepare thermal model infrastructure:
     if len(parameters['thermal_model']) > 0:
@@ -368,6 +362,10 @@ def main():
                 if num in thermal_model[ion]:
                     thermal_model[ion].remove(num)
 
+    # Fix the velocity structure of the loaded lines:
+    if parameters['fix_velocity']:
+        dataset.fix_structure()
+
     # Set default value of norm:
     norm = False
     if 'cheb_order' in parameters.keys():
@@ -410,16 +408,6 @@ def main():
     else:
         show_vel_norm = False
 
-    # Reset data in regions:
-    # This keyword is deprecated and will be removed shortly!!
-    # if 'reset' in parameters.keys():
-    #     if len(parameters['reset']) > 0:
-    #         for line_tag in parameters['reset']:
-    #             regions_of_line = dataset.find_line(line_tag)
-    #             for reg in regions_of_line:
-    #                 dataset.reset_region(reg)
-    #     else:
-    #         dataset.reset_all_regions()
 
     # prepare_dataset
     if verbose:
