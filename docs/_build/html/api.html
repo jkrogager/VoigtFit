@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>VoigtFit Interface &#8212; VoigtFit 0.11.6 documentation</title>
+    <title>VoigtFit Interface &#8212; VoigtFit 0.11.14 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -147,7 +147,7 @@ The parameters will be defined during the call to <a class="reference internal" 
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.add_molecule" title="VoigtFit.DataSet.add_molecule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_molecule</span></code></a>(molecule,&nbsp;band[,&nbsp;Jmax,&nbsp;…])</td>
 <td>Add molecular lines for a given band, e.g., “AX(0-0)” of CO.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.add_spectrum" title="VoigtFit.DataSet.add_spectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_spectrum</span></code></a>(filename,&nbsp;res[,&nbsp;normalized,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#VoigtFit.DataSet.add_spectrum" title="VoigtFit.DataSet.add_spectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_spectrum</span></code></a>(filename,&nbsp;res[,&nbsp;airORvac,&nbsp;…])</td>
 <td>Add spectral data from ASCII file (three or four columns accepted).</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#VoigtFit.DataSet.all_active_lines" title="VoigtFit.DataSet.all_active_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_active_lines</span></code></a>()</td>
@@ -414,7 +414,7 @@ but input is given as relative velocity instead of redshift.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.add_data">
-<code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>wl</em>, <em>flux</em>, <em>res</em>, <em>err=None</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>nsub=1</em>, <em>filename=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add spectral data to the DataSet. This will be used to define fitting regions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -449,6 +449,10 @@ Only pixels with mask=True/1 will be included in the fit.</p>
 <dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
 <dd><p class="first last">Kernel subsampling factor relative to the data.
 This is only used if the resolution is given as a LSF file.</p>
+</dd>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The filename from which the data originated. Optional but highly recommended.
+Alternatively, use the method <a class="reference internal" href="#VoigtFit.DataSet.add_spectrum" title="VoigtFit.DataSet.add_spectrum"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataSet.add_spectrum</span></code></a>.</p>
 </dd>
 </dl>
 </td>
@@ -591,7 +595,7 @@ mechanical description of the state.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.add_spectrum">
-<code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>res</em>, <em>normalized=False</em>, <em>mask=None</em>, <em>continuum=None</em>, <em>nsub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>res</em>, <em>airORvac='vac'</em>, <em>normalized=False</em>, <em>mask_array=None</em>, <em>mask=None</em>, <em>use_mask=True</em>, <em>continuum=None</em>, <em>nsub=1</em>, <em>verbose=False</em>, <em>ext=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.add_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.add_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add spectral data from ASCII file (three or four columns accepted).
 This is a wrapper of the method <cite>add_data</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -611,21 +615,37 @@ or as a string referring to a file containing the detailed
 line-spread function for the given spectrum.
 See details in the documentation.</p>
 </dd>
+<dt><strong>airORvac</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string  {‘vac’ or ‘air’}</span></dt>
+<dd><p class="first last">Defines whether the input wavelengths are in ‘air’ or ‘vacuum’ units. If given as ‘air’
+the wavelengths will be converted to ‘vacuum’.</p>
+</dd>
 <dt><strong>normalized</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
 <dd><p class="first last">If the input spectrum is normalized this should be given as True
 in order to skip normalization steps.</p>
 </dd>
-<dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
+<dt><strong>mask_array</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
 <dd><p class="first last">Boolean/int array defining the fitting regions.
 Only pixels with mask=True/1 will be included in the fit.</p>
+</dd>
+<dt><strong>mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Deprecated, use <cite>mask_array</cite></span></dt>
+<dd></dd>
+<dt><strong>use_mask</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = True]</span></dt>
+<dd><p class="first last">If False, do not pass the mask array to the dataset. This may be useful if the mask defined in the spectrum
+is not appropriate for the fitting purposes.</p>
 </dd>
 <dt><strong>continuum</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n)</span></dt>
 <dd><p class="first last">Continuum spectrum. The input spectrum will be normalized using
 this continuum spectrum.</p>
 </dd>
-<dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dt><strong>nsub</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer   [default = 1]</span></dt>
 <dd><p class="first last">Kernel subsampling factor relative to the data.
 This is only used if the resolution is given as a LSF file.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool   [default = False]</span></dt>
+<dd><p class="first last">Print status messages.</p>
+</dd>
+<dt><strong>ext</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or string</span></dt>
+<dd><p class="first last">Index or name of the extension in the HDU List. Only used if the input is a FITS file.</p>
 </dd>
 </dl>
 </td>
@@ -1062,7 +1082,7 @@ when masking and defining continuum normalization interactively.</p>
 
 <dl class="method">
 <dt id="VoigtFit.DataSet.plot_fit">
-<code class="descname">plot_fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>max_rows=4</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>filename=None</em>, <em>subsample_profile=1</em>, <em>npad=50</em>, <em>loc='left'</em>, <em>highlight_props=None</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>legend=True</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.plot_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_fit</code><span class="sig-paren">(</span><em>rebin=1</em>, <em>fontsize=12</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>max_rows=4</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>filename=None</em>, <em>subsample_profile=10</em>, <em>npad=50</em>, <em>loc='left'</em>, <em>highlight_props=None</em>, <em>residuals=True</em>, <em>norm_resid=False</em>, <em>default_props={}</em>, <em>element_props={}</em>, <em>legend=True</em>, <em>label_all_ions=False</em>, <em>xunit='vel'</em>, <em>line_props=None</em>, <em>hl_line_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/dataset.html#DataSet.plot_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VoigtFit.DataSet.plot_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot <em>all</em> the absorption lines and the best-fit profiles.
 For details, see <code class="xref py py-func docutils literal notranslate"><span class="pre">VoigtFit.output.plot_all_lines()</span></code>.</p>
 </dd></dl>

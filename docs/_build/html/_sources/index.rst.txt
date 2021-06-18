@@ -34,6 +34,22 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 0.11.14:
+  Small bugfixes (numba deprecation warning, output formatting, etc) and it is now possible to load components
+  from a fit with one set of ions and copy those to other ions even if the imported ions are not defined in the dataset.
+  This is helpful when constraining different ions in different spectra and you don't want to fit them simultaneously.
+
+New in version 0.11.7:
+
+  Critical update of the atomic data for the hydrogen Lyman series.
+  Oscillator strengths for the Lyman series were incorrectly compiled into the master linelist.
+
+New in version 0.11.6.1:
+
+  New data keyword `no-mask` allows the user to ignore any pixel mask present in the input data.
+  VoigtFit will automatically try to identify pixel masks in the ASCII or FITS data, so if such
+  automatically retrieved masks are not appropriate for the fitting, they can be ignored by setting
+  this keyword in the `data` statement (see :ref:`documentation`).
 
 New in version 0.11.6:
 
