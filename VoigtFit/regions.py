@@ -452,7 +452,10 @@ class Region():
                 l0, f, gam = line.get_properties()
                 if dataset is not None:
                     ion = line.ion
-                    n_comp = len(dataset.components[ion])
+                    if ion in dataset.components:
+                        n_comp = len(dataset.components[ion])
+                    else:
+                        n_comp = 0
                     ion = ion.replace('*', 'x')
                     for n in range(n_comp):
                         z = dataset.pars['z%i_%s' % (n, ion)].value

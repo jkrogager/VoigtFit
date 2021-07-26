@@ -1674,6 +1674,9 @@ class DataSet(object):
         verbose : bool   [default = True]
             If this is set, the code will print small info statements during the run.
 
+        active_only : bool   [default = False]
+            If True, only define masks for active lines.
+
         force_clean : bool   [default = False]
             If this is True, components for inactive elements will be removed.
 
