@@ -34,6 +34,9 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 0.11.15:
+  Updated oscillator strengths for NiII following Boissé & Bergeron (2019).
+
 New in version 0.11.14:
   Small bugfixes (numba deprecation warning, output formatting, etc) and it is now possible to load components
   from a fit with one set of ions and copy those to other ions even if the imported ions are not defined in the dataset.
