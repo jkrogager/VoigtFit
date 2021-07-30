@@ -10,6 +10,8 @@ from scipy.interpolate import UnivariateSpline as spline
 from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
+from .voigt import evaluate_profile
+
 root_path = os.path.dirname(os.path.abspath(__file__))
 datafile = root_path + '/static/telluric_em_abs.npz'
 
@@ -573,3 +575,7 @@ class Region():
         line_string = "\n".join(all_trans_str)
 
         self.label = line_string
+
+    def evaluate_region(self, pars, z_sys, sampling=3):
+        profile = evaluate_profile(self.wl, pars, z_sys, self.lines, self.kernel, sampling=sampling, kernel_nsub=self.kernel_nsub)
+        return profile

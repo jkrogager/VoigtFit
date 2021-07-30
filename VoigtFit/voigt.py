@@ -152,7 +152,7 @@ def evaluate_continuum(x, pars, reg_num):
     return cont_model(x)
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kernel_nsub=1):
+def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
     """
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
     is converted to observed transmission, `f`:
@@ -174,10 +174,6 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
     lines : list(:class:`Line <dataset.Line>`)
         List of lines to evaluate. Should be a list of
         :class:`Line <dataset.Line>` objects.
-
-    components : dict
-        Dictionary containing component data for the defined ions.
-        See :attr:`VoigtFit.DataSet.components`.
 
     kernel : np.array, shape (N, M)  or float
         The convolution kernel for each wavelength pixel.
@@ -231,37 +227,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         err_msg = "Invalid type of `kernel`: %r" % type(kernel)
         raise TypeError(err_msg)
 
-    tau = np.zeros_like(profile_wl)
-
-    # Determine range in which to evaluate the profile:
-    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
-    if max_logN > 19.0:
-        velspan = 20000.*(1. + 1.0*(max_logN-19.))
-    else:
-        velspan = 20000.
-
-    for line in lines:
-        if line.active:
-            l0, f, gam = line.get_properties()
-            ion = line.ion
-            n_comp = len(components[ion])
-            l_center = l0*(z_sys + 1.)
-            vel = (profile_wl - l_center)/l_center*299792.
-            span = (vel >= -velspan)*(vel <= velspan)
-            ion = ion.replace('*', 'x')
-            for n in range(n_comp):
-                z = pars['z%i_%s' % (n, ion)].value
-                if x.min() < l0*(z+1) < x.max():
-                    b = pars['b%i_%s' % (n, ion)].value
-                    logN = pars['logN%i_%s' % (n, ion)].value
-                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                elif ion == 'HI':
-                    b = pars['b%i_%s' % (n, ion)].value
-                    logN = pars['logN%i_%s' % (n, ion)].value
-                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                else:
-                    continue
-
+    tau = evaluate_optical_depth(profile_wl, pars, lines, z_sys)
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
@@ -280,3 +246,38 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
             profile_obs = profile_broad
 
     return profile_obs
+
+
+def evaluate_optical_depth(profile_wl, pars, lines, z_sys):
+    tau = np.zeros_like(profile_wl)
+
+    # Determine range in which to evaluate the profile:
+    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
+    if max_logN > 19.0:
+        velspan = 20000.*(1. + 1.0*(max_logN-19.))
+    else:
+        velspan = 20000.
+
+    for line in lines:
+        if line.active:
+            l0, f, gam = line.get_properties()
+            ion = line.ion
+            line_pars = [parname for parname in pars.keys() if parname.split('_')[1] == ion]
+            n_comp = len(line_pars) // 3
+            l_center = l0*(z_sys + 1.)
+            vel = (profile_wl - l_center)/l_center*299792.
+            span = (vel >= -velspan)*(vel <= velspan)
+            ion = ion.replace('*', 'x')
+            for n in range(n_comp):
+                z = pars['z%i_%s' % (n, ion)].value
+                if profile_wl.min() < l0*(z+1) < profile_wl.max():
+                    b = pars['b%i_%s' % (n, ion)].value
+                    logN = pars['logN%i_%s' % (n, ion)].value
+                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                elif ion == 'HI':
+                    b = pars['b%i_%s' % (n, ion)].value
+                    logN = pars['logN%i_%s' % (n, ion)].value
+                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                else:
+                    continue
+    return tau

@@ -1403,7 +1403,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     molecular_lines = [line for line in dataset.lines.values()
                        if molecule in line.tag]
     profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
-                               molecular_lines, dataset.components, kernel,
+                               molecular_lines, kernel,
                                sampling=3)
     if not xmin:
         xmin = min(min_wl)
@@ -1901,7 +1901,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             nsub = region.kernel_nsub
             if dataset.best_fit and region.has_active_lines():
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
+                                               dataset.lines.values(),
                                                region.kernel, kernel_nsub=nsub)
             else:
                 p_obs = np.ones_like(wl)
@@ -1932,7 +1932,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             nsub = region.kernel_nsub
             if dataset.best_fit and region.has_active_lines():
                 p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
+                                               dataset.lines.values(),
                                                region.kernel, kernel_nsub=nsub)
             else:
                 p_obs = np.ones_like(wl)
