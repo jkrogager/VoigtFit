@@ -158,7 +158,7 @@ def evaluate_continuum(x, pars, reg_num):
     return cont_model(x)
 
 
-def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
+def evaluate_profile(x, pars, lines, kernel, z_sys=None, sampling=3, kernel_nsub=1):
     """
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
     is converted to observed transmission, `f`:
@@ -190,13 +190,17 @@ def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
         In this case the spectral resolution is assumed
         to be constant in velocity space.
 
+    z_sys : float or None
+        The systemic redshift, used to determine an effective wavelength range
+        within which to evaluate the profile. This is handy when fitting very large
+        regions, such as HI and metal lines together.
+
     sampling : integer  [default = 3]
         The subsampling factor used for defining the input logarithmically
         space wavelength grid. The number of pixels in the evaluation will
         be sampling * N, where N is the number of input pixels.
         The final profile will be interpolated back onto the original
         wavelength grid defined by `x`.
-
 
     kernel_nsub : integer
         Kernel subsampling factor relative to the data.
@@ -233,7 +237,7 @@ def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
         err_msg = "Invalid type of `kernel`: %r" % type(kernel)
         raise TypeError(err_msg)
 
-    tau = evaluate_optical_depth(profile_wl, pars, z_sys, lines)
+    tau = evaluate_optical_depth(profile_wl, pars, lines, z_sys=z_sys)
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
@@ -254,15 +258,16 @@ def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
     return profile_obs
 
 
-def evaluate_optical_depth(profile_wl, pars, z_sys, lines):
+def evaluate_optical_depth(profile_wl, pars, lines, z_sys=None):
     tau = np.zeros_like(profile_wl)
 
-    # Determine range in which to evaluate the profile:
-    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
-    if max_logN > 19.0:
-        velspan = 20000.*(1. + 1.0*(max_logN-19.))
-    else:
-        velspan = 20000.
+    if z_sys is not None:
+        # Determine range in which to evaluate the profile:
+        max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
+        if max_logN > 19.0:
+            velspan = 20000.*(1. + 1.0*(max_logN-19.))
+        else:
+            velspan = 20000.
 
     # Determine number of components for each ion:
     components_per_ion = {}
@@ -281,9 +286,12 @@ def evaluate_optical_depth(profile_wl, pars, z_sys, lines):
             l0, f, gam = line.get_properties()
             ion = line.ion
             n_comp = components_per_ion[ion]
-            l_center = l0*(z_sys + 1.)
-            vel = (profile_wl - l_center)/l_center*299792.
-            span = (vel >= -velspan)*(vel <= velspan)
+            if z_sys is not None:
+                l_center = l0*(z_sys + 1.)
+                vel = (profile_wl - l_center)/l_center*299792.458
+                span = (vel >= -velspan)*(vel <= velspan)
+            else:
+                span = np.ones_like(profile_wl, dtype=bool)
             ion = ion.replace('*', 'x')
             for n in range(n_comp):
                 z = pars['z%i_%s' % (n, ion)].value

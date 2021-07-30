@@ -576,6 +576,21 @@ class Region():
 
         self.label = line_string
 
-    def evaluate_region(self, pars, z_sys, sampling=3):
-        profile = evaluate_profile(self.wl, pars, z_sys, self.lines, self.kernel, sampling=sampling, kernel_nsub=self.kernel_nsub)
+    def get_velocity(self, z_sys, line=None):
+        """
+        Return the relative velocities of the region,
+        with respect to systemtic redshift of the given `line`.
+        """
+        if line is None:
+            line = self.lines[0]
+        assert line in self.lines, "The line is not defined in the region!"
+
+        lcen = line.l0 * (z_sys + 1)
+        vel = (self.wl - lcen) / lcen * 299792.458
+        return vel
+
+
+    def evaluate_region(self, pars, z_sys=None, sampling=3):
+        profile = evaluate_profile(self.wl, pars, self.lines, self.kernel,
+                                   z_sys=z_sys, sampling=sampling, kernel_nsub=self.kernel_nsub)
         return profile

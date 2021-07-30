@@ -1960,10 +1960,9 @@ class DataSet(object):
                         nsub = region.kernel_nsub
 
                     # Generate line profile
-                    profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   self.lines.values(),
-                                                   region.kernel, sampling=sampling,
-                                                   kernel_nsub=nsub)
+                    profile_obs = evaluate_profile(x, pars, self.lines.values(),
+                                                   region.kernel, z_sys=self.redshift,
+                                                   sampling=sampling, kernel_nsub=nsub)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)
