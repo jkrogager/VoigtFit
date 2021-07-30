@@ -14,6 +14,7 @@ from . import Asplund
 from .components import Component
 from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from . import hdf5_save
+from .limits import match_ion_state, match_ion_state_all, tau_percentile, tau_noise_range, equivalent_width
 from . import line_complexes
 from .line_complexes import fine_structure_complexes
 from .lines import Line, lineList
@@ -23,6 +24,9 @@ from .regions import Region, load_lsf
 from . import terminal_attributes as term
 from .voigt import evaluate_profile, evaluate_continuum
 
+from collections import namedtuple
+
+Limit = namedtuple('Limit', ['W_rest', 'W_err', 'logN_limit', 'line', 'sigma'])
 
 myfloat = np.float64
 
@@ -2258,3 +2262,52 @@ class DataSet(object):
                 vel = (z - z_sys) / (z_sys + 1) * 299792.458
                 print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
                                                                 comp.b, comp.logN))
+
+    def measure_limit(self, line_tag, sigma=3.):
+        line = self.lines[line_tag]
+
+        # Find a line that matches the ionization state
+        # and determine the velocity extent of the line
+        if self.best_fit is not None:
+            line_match, msg = match_ion_state(line, self.lines.values())
+            reg_match, = self.find_line(line_match.tag)
+            vel = reg_match.get_velocity(self.redshift, line_match.tag)
+            profile = reg_match.evaluate_region(self.best_fit)
+            tau = -np.log(profile)
+            vmin, vmax = tau_percentile(vel, tau)
+            print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
+            print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+        else:
+            matches = match_ion_state_all(line, self.lines.values())
+            line_strength = [l.l0 * l.f for l in matches]
+            # Loop through the lines sorted by line-strength (strongest to weakest):
+            for _, this_line in sorted(zip(line_strength, matches), reverse=True):
+                this_reg, = self.find_line(this_line.tag)
+                flux = this_reg.flux
+                mask = this_reg.mask
+                if np.min(flux[mask]) > 0:
+                    line_match = this_line
+                    reg_match = this_reg
+                    break
+            else:
+                print("           Could not find a matching line to determine velocity range.")
+                print(" [ERROR] - Aborting the measurement of equivalent width!\n")
+                return None
+            vel = reg_match.get_velocity(self.redshift, line_match.tag)
+            _, flux, err, mask = reg_match.unpack()
+            tau = -np.log(flux[mask])
+            tau_err = err[mask] / flux[mask]
+            noise = np.median(tau_err) * 10.
+            vmin, vmax = tau_noise_range(vel[mask], tau, noise)
+            print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
+            print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+
+        reg, = self.find_line(line_tag)
+        vel = reg.get_velocity(self.redshift, line_tag)
+        aper = (vel > vmin) & (vel < vmax)
+        W_rest, W_err = equivalent_width(reg.wl, reg.flux, reg.err, aper=aper, z_sys=self.redshift)
+        W_limit = sigma * W_err
+        logN_limit = np.log10(1.13e20*W_limit / (line.l0**2 * line.f))
+
+        result = Limit(W_rest=W_rest, W_err=W_err, logN_limit=logN_limit, line=line_tag, sigma=sigma)
+        return result

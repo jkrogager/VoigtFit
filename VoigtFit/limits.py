@@ -1,8 +1,6 @@
 
 import numpy as np
 
-from .voigt import evaluate_profile
-
 
 def get_ion_state(line):
     """
@@ -36,30 +34,7 @@ def match_ion_state(line, all_lines):
     Find a line that matches the ionization state of the input `line`.
     If more lines match, then choose the strongest line.
     """
-    if isinstance(line, str):
-        line_tag = line
-        ion = line.split('_')[0]
-    else:
-        line_tag = line.tag
-        ion = line.ion
-    if 'H2' in ion:
-        print(" [WARNING] - Cannot determine limit for %s\n" % ion)
-    elif 'CO' in ion:
-        print(" [WARNING] - Cannot determine limit for %s\n" % ion)
-    elif 'CI' in ion:
-        print(" [WARNING] - Cannot determine limit for %s\n" % ion)
-    else:
-        pass
-
-    ion_state = get_ion_state(line)
-    matches = list()
-    for this_line in all_lines:
-        if this_line.tag == line_tag:
-            continue
-
-        this_state = get_ion_state(this_line)
-        if this_state == ion_state:
-            matches.append(this_line)
+    matches = match_ion_state_all(line, all_lines)
 
     N_matches = len(matches)
     if N_matches == 0:
@@ -77,6 +52,28 @@ def match_ion_state(line, all_lines):
         msg = "Found %i matches. Strongest line: %s" % (N_matches, line_match.tag)
 
     return line_match, msg
+
+
+def match_ion_state_all(line, all_lines):
+    """
+    Find all lines that match the ionization state of the input `line`.
+    """
+    if isinstance(line, str):
+        line_tag = line
+    else:
+        line_tag = line.tag
+
+    ion_state = get_ion_state(line)
+    matches = list()
+    for this_line in all_lines:
+        if this_line.tag == line_tag:
+            continue
+
+        this_state = get_ion_state(this_line)
+        if this_state == ion_state:
+            matches.append(this_line)
+
+    return matches
 
 
 def tau_percentile(x, tau, a=0.997):
@@ -99,6 +96,32 @@ def tau_percentile(x, tau, a=0.997):
         x_range.append(x_int)
 
     return x_range
+
+
+def tau_noise_range(x, tau, noise):
+    """
+    Determine the range of x for which the cumulative `tau` is significantly
+    above the noise-level, i.e., where the cdf crosses the values:
+        +noise  and  max(cdf)-noise
+    """
+    y = np.cumsum(tau)
+
+    y_low = noise
+    y_high = max(y) - noise
+
+    # For the upper range:
+    i1 = min((y > y_high).nonzero()[0])
+    i2 = i1 + 1
+    slope = (y[i2] - y[i1]) / (x[i2] - x[i1])
+    xmax = x[i2] + (y_high - y[i2])/slope
+
+    # For the lower range:
+    i1 = max((y < y_low).nonzero()[0])
+    i2 = i1 - 1
+    slope = (y[i2] - y[i1]) / (x[i2] - x[i1])
+    xmin = x[i2] + (y_low - y[i2])/slope
+
+    return (xmin, xmax)
 
 
 def equivalent_width(wl, flux, err, *, aper, z_sys=0.):

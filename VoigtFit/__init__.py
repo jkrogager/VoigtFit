@@ -26,6 +26,7 @@ from .lines import Line, show_transitions
 from . import hdf5_save
 from .hdf5_save import load_dataset, save_dataset
 from . import line_complexes
+from . import limits
 from . import molecules
 from . import output
 from . import regions

@@ -583,7 +583,13 @@ class Region():
         """
         if line is None:
             line = self.lines[0]
-        assert line in self.lines, "The line is not defined in the region!"
+        elif isinstance(line, str):
+            line_tags = [this_line.tag for this_line in self.lines]
+            if line in line_tags:
+                idx = line_tags.index(line)
+                line = self.lines[idx]
+        else:
+            assert line in self.lines, "The line is not defined in the region!"
 
         lcen = line.l0 * (z_sys + 1)
         vel = (self.wl - lcen) / lcen * 299792.458
