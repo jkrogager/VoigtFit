@@ -1740,13 +1740,13 @@ class DataSet(object):
 
         # --- Check that no components for inactive elements are defined:
         for this_ion in list(self.components.keys()):
-            lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
+            lines_for_this_ion = [this_line.active for this_line in self.lines.values() if this_line.ion == this_ion]
 
             if np.any(lines_for_this_ion):
                 pass
             else:
-                if self.verbose:
-                    warn_msg = "\n [WARNING] - Components defined for inactive element: %s"
+                if verbose:
+                    warn_msg = "\n [WARNING] - Components defined for inactive or missing element: %s"
                     print(warn_msg % this_ion)
 
                 if force_clean:
@@ -1768,8 +1768,7 @@ class DataSet(object):
                 N_name = 'logN%i_%s' % (n, ion)
 
                 self.pars.add(z_name, value=myfloat(z), vary=comp.var_z)
-                self.pars.add(b_name, value=myfloat(b), vary=comp.var_b,
-                              min=0.)
+                self.pars.add(b_name, value=myfloat(b), vary=comp.var_b, min=0.)
                 self.pars.add(N_name, value=myfloat(logN), vary=comp.var_N)
 
         # - Then setup parameter links:
@@ -1834,7 +1833,8 @@ class DataSet(object):
                 self.ready2fit = False
                 # TODO:
                 # automatically open interactive window if components are not defined.
-                return False
+                error_msg = " [ERROR] - Components are not defined for element: %s \n" % ion
+                return error_msg
 
         # -- Check all transitions of the given ions that are covered by the data:
         if check_lines:
@@ -1868,7 +1868,7 @@ class DataSet(object):
             if verbose and self.verbose:
                 print("\n  Dataset is ready to be fitted.")
                 print("")
-            return True
+            return ""
 
     def fit(self, verbose=True, **kwargs):
         """

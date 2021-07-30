@@ -165,7 +165,6 @@ def main():
         if verbose:
             print("\n - Fine-structure lines in dataset:")
             print(dataset.fine_lines)
-            print(list(dataset.lines.keys()))
             print("\n - Fine-structure lines in parameter file:")
             print(parameters['fine-lines'])
         if len(parameters['fine-lines']) > 0:
@@ -412,8 +411,11 @@ def main():
     # prepare_dataset
     if verbose:
         print(" - Preparing dataset:")
-    dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
-                            **parameters['check_lines'])
+    prep_msg = dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
+                                       **parameters['check_lines'])
+    if prep_msg and not dataset.ready2fit:
+        print(prep_msg)
+        return False
 
     # Define thermal model
     if len(thermal_model.keys()) > 0:
