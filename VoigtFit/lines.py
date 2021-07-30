@@ -107,7 +107,7 @@ class Line(object):
 
         self.tag = tag
         self.ion = ion
-        self.element = ion
+        self.element = ion      # This is for backwards compatibility only! Does not follow the use of `element` otherwise
         self.l0 = l0
         self.f = f
         self.gam = gam
@@ -125,3 +125,8 @@ class Line(object):
     def set_active(self):
         """Set the line active; include the line in the fit."""
         self.active = True
+
+    def __repr__(self):
+        """String representation of the `Line` instance"""
+        line_string = "<Line: %s  %.2fÅ  f=%.2e>" % (self.ion, self.l0, self.f)
+        return line_string
