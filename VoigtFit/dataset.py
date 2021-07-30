@@ -681,7 +681,7 @@ class DataSet(object):
         line_tag : str
             Line tag of the transition that should be removed.
         """
-        if line_tag in self.all_lines and line_tag in self.lines.keys():
+        if line_tag in self.all_lines and line_tag in [self.lines.keys()]:
             self.all_lines.remove(line_tag)
             self.lines.pop(line_tag)
         else:
@@ -731,7 +731,7 @@ class DataSet(object):
                       line_tag)
 
     def remove_all_lines(self):
-        lines_to_remove = self.lines.keys()
+        lines_to_remove = self.all_lines.copy()
         for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
@@ -1284,6 +1284,7 @@ class DataSet(object):
                 elif line[0] == '#':
                     pass
                 elif len(pars) == 8:
+                    num = int(pars[0])
                     ion = pars[1]
                     z = float(pars[2])
                     z_err = float(pars[3])
@@ -1291,7 +1292,7 @@ class DataSet(object):
                     b_err = float(pars[5])
                     logN = float(pars[6])
                     logN_err = float(pars[7])
-                    components_to_add.append([ion, z, b, logN,
+                    components_to_add.append([num, ion, z, b, logN,
                                               z_err, b_err, logN_err])
                     if ion not in all_ions_in_file:
                         all_ions_in_file.append(ion)
@@ -1308,8 +1309,8 @@ class DataSet(object):
                     for parname in pars_to_delete:
                         self.best_fit.pop(parname)
 
-        for num, comp_pars in enumerate(components_to_add):
-            (ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
+        for comp_pars in components_to_add:
+            (num, ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
             if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
@@ -1948,13 +1949,11 @@ class DataSet(object):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     if rebin > 1:
+                        x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                        mask = output.rebin_bool_array(mask, rebin)
                         if isinstance(region.kernel, float):
-                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                            mask = output.rebin_bool_array(mask, rebin)
                             nsub = region.kernel_nsub
                         else:
-                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                            mask = output.rebin_bool_array(mask, rebin)
                             # Multiply the subsampling factor of the kernel by the rebin factor
                             nsub = region.kernel_nsub * rebin
                     else:
@@ -1962,7 +1961,7 @@ class DataSet(object):
 
                     # Generate line profile
                     profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   self.lines.values(), self.components,
+                                                   self.lines.values(),
                                                    region.kernel, sampling=sampling,
                                                    kernel_nsub=nsub)
 
