@@ -142,7 +142,7 @@ def evaluate_continuum(x, pars, reg_num):
     # This should be calculated at the point of generating
     # the parameters, since this is a fixed data structure
     # Sort the names, to arange the coefficients right:
-    cheb_parnames = sorted(cheb_parnames)
+    cheb_parnames = sorted(cheb_parnames, key=lambda x: int(x.split('_')[-1].replace('p', '')))
     for parname in cheb_parnames:
         p_cont.append(pars[parname].value)
 
@@ -227,7 +227,7 @@ def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
         err_msg = "Invalid type of `kernel`: %r" % type(kernel)
         raise TypeError(err_msg)
 
-    tau = evaluate_optical_depth(profile_wl, pars, lines, z_sys)
+    tau = evaluate_optical_depth(profile_wl, pars, z_sys, lines)
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
@@ -248,7 +248,7 @@ def evaluate_profile(x, pars, z_sys, lines, kernel, sampling=3, kernel_nsub=1):
     return profile_obs
 
 
-def evaluate_optical_depth(profile_wl, pars, lines, z_sys):
+def evaluate_optical_depth(profile_wl, pars, z_sys, lines):
     tau = np.zeros_like(profile_wl)
 
     # Determine range in which to evaluate the profile:
@@ -281,3 +281,38 @@ def evaluate_optical_depth(profile_wl, pars, lines, z_sys):
                 else:
                     continue
     return tau
+
+
+def resvel_to_pixels(wl, res):
+    """Convert spectral resolution in km/s to pixels"""
+    dl = np.diff(wl)
+    pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
+    assert pix_size_vel > 0.0001, "Wavelength array seems to be linearly spaced. Must be logarithmic!"
+    w = res / pix_size_vel / 2.35482
+    return w
+
+
+def fwhm_to_pixels(wl, res_wl):
+    """Convert spectral resolution in wavelength to pixels
+    R = lambda / dlambda, where dlambda is the FWHM
+    """
+    dl = np.diff(wl)
+    pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
+    assert pix_size_vel < 0.0001, "Wavelength array seems not to be linearly spaced. Must be linear!"
+    w = res_wl / dl[0] / 2.35482
+    return w
+
+
+def convolve_profile(profile, width):
+    """
+    Convolve with constant kernel width in pixels!
+    """
+    LSF = gaussian(10*int(width)+1, width)
+    LSF = LSF/LSF.sum()
+    # Add padding to avoid edge effects of the convolution:
+    pad = np.ones(5*int(width))
+    P_padded = np.concatenate((pad, profile, pad))
+    profile_broad = fftconvolve(P_padded, LSF, 'same')
+    # Remove padding:
+    profile_obs = profile_broad[5*int(width):-5*int(width)]
+    return profile_obs
