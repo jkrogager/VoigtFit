@@ -11,6 +11,12 @@ import numpy as np
 from scipy.signal import fftconvolve, gaussian
 from numba import jit
 
+import re
+
+# Regular Expression to match redshift parameter names:
+# ex: z0_FeII, z0_H2J0, z3_HI, z15_TiII
+z_matcher = re.compile('z[0-9]+_[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?')
+
 
 # ==== VOIGT PROFILE ===============
 def H(a, x):
@@ -258,12 +264,23 @@ def evaluate_optical_depth(profile_wl, pars, z_sys, lines):
     else:
         velspan = 20000.
 
+    # Determine number of components for each ion:
+    components_per_ion = {}
     for line in lines:
         if line.active:
             l0, f, gam = line.get_properties()
             ion = line.ion
-            line_pars = [parname for parname in pars.keys() if parname.split('_')[1] == ion]
-            n_comp = len(line_pars) // 3
+            z_pars = []
+            for parname in pars.keys():
+                if z_matcher.fullmatch(parname) and ion in parname:
+                    z_pars.append(parname)
+            components_per_ion[ion] = len(z_pars)
+
+    for line in lines:
+        if line.active:
+            l0, f, gam = line.get_properties()
+            ion = line.ion
+            n_comp = components_per_ion[ion]
             l_center = l0*(z_sys + 1.)
             vel = (profile_wl - l_center)/l_center*299792.
             span = (vel >= -velspan)*(vel <= velspan)
