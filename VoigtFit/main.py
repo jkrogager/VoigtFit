@@ -276,6 +276,9 @@ def main():
             for line_tag in limit_lines:
                 dataset.deactivate_line(line_tag)
 
+    for var_name, var_options in parameters['variables'].items():
+        dataset.add_variable(var_name, **var_options)
+
     # Load components from file:
     dataset.reset_components()
     if 'load' in parameters.keys():
@@ -505,12 +508,6 @@ def main():
     print("")
 
 
-    for reg in dataset.regions:
-        print(reg.lines)
-        print("Norm?  %r" % reg.normalized)
-        print("")
-
-
     # Fix for when the code cannot estimate uncertainties:
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
@@ -565,18 +562,21 @@ def main():
     logNHI = parameters['logNHI']
     if 'HI' in dataset.components.keys():
         dataset.print_metallicity(*dataset.get_NHI())
+        print("")
     elif logNHI:
         dataset.print_metallicity(*logNHI)
+        print("")
 
     # print abundance
     if parameters['show_total']:
         dataset.print_total()
+        print("")
 
     filename = name
     # determine limits, if any
     if len(parameters['limits']) > 0:
         print("\n\n---------------------------")
-        print(" Determining Upper Limits:")
+        print("  Determining Upper Limits:")
         print("---------------------------")
         EW_limits = list()
         for limit_lines, limit_options in parameters['limits']:

@@ -54,7 +54,7 @@ def parse_parameters(fname):
     limits = list()
     fine_lines = list()
     molecules = dict()
-    # fine_lines = list()
+    variables = dict()
     thermal_model = list()
 
     for line in par_file.readlines():
@@ -228,6 +228,8 @@ def parse_parameters(fname):
             # remove parentheses:
             line = line.replace('[', '').replace(']', '')
             line = line.replace('(', '').replace(')', '')
+            line = line.replace('"', '')
+            line = line.replace("'", '')
             parlist = line.split()[1:]
             # parlist = ['FeII', 'z=2.2453', 'b=12.4', 'logN=14.3']
             ion = parlist[0]
@@ -646,6 +648,26 @@ def parse_parameters(fname):
                     val = float(val)
                     parameters['check_lines'][key] = val
 
+        elif 'def' in line and 'name' not in line and 'save' not in line:
+            line = clean_line(line)
+            line = line.replace('"', '')
+            line = line.replace("'", '')
+            args = line.split()
+            new_var = {}
+            var_name = args[1]
+            for arg in args[2:]:
+                if '=' not in arg:
+                    continue
+
+                key, val = arg.split('=')
+                if 'vary' in arg:
+                    new_var[key] = True if val.lower() == 'true' else False
+                elif 'expr' in arg:
+                    new_var[key] = val
+                else:
+                    new_var[key] = float(val)
+            variables[var_name] = new_var
+
         else:
             pass
 
@@ -660,5 +682,6 @@ def parse_parameters(fname):
     parameters['components_to_delete'] = components_to_delete
     parameters['thermal_model'] = thermal_model
     parameters['interactive'] = interactive_components
+    parameters['variables'] = variables
 
     return parameters

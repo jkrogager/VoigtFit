@@ -155,6 +155,9 @@ class DataSet(object):
             The parameters will be defined during the call to :meth:`DataSet.prepare_dataset
             <VoigtFit.DataSet.prepare_dataset>` based on the defined components.
 
+        static_variables : `lmfit.Parameters`_
+            Parameter dictionary that holds fit variables other than those related to
+            components of absorption lines and continuum parameters.
 
 
         .. _lmfit.Parameters: https://lmfit.github.io/lmfit-py/parameters.html
@@ -199,6 +202,7 @@ class DataSet(object):
         self.best_fit = None
         self.minimizer = None
         self.pars = None
+        self.static_variables = Parameters()
         self.name = name
 
     def set_name(self, name):
@@ -1000,6 +1004,9 @@ class DataSet(object):
 
         return lines_for_ion
 
+    def reset_static_variables(self):
+        self.static_variables = Parameters()
+
     def reset_components(self, ion=None):
         """
         Reset component structure for a given ion.
@@ -1662,6 +1669,9 @@ class DataSet(object):
 
     # =========================================================================
 
+    def add_variable(self, name, **kwargs):
+        self.static_variables.add(name, **kwargs)
+
     def prepare_dataset(self, norm=True, mask=False, verbose=True,
                         active_only=False,
                         force_clean=True,
@@ -1768,6 +1778,7 @@ class DataSet(object):
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
+        self.pars += self.static_variables
         # - First setup parameters with values only:
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):

@@ -1478,7 +1478,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     else:
         z_sys = dataset.redshift
 
-    print("\n  Best fit parameters\n")
+    print("\n----------------------")
+    print("  Best fit parameters:")
+    print("----------------------\n")
     print("\t\t\t\tb\t\t\tlog(N)")
     if elements == 'all':
         for ion in sorted(dataset.components.keys()):
@@ -1568,12 +1570,23 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
             print("")
 
+    for varname in dataset.static_variables.keys():
+        par = dataset.best_fit[varname]
+        err = par.stderr
+        if err is None:
+            err = 0.
+        output_string = "%s = %.3e ± %.3e" % (varname, par.value, err)
+        print(output_string)
+    print("")
+
 
 def print_cont_parameters(dataset):
     """ Print the Chebyshev coefficients of the continuum normalization."""
     if dataset.cheb_order >= 0:
         print("")
+        print("---------------------------------------------")
         print("  Chebyshev coefficients for fitting regions:")
+        print("---------------------------------------------\n")
         for reg_num, region in enumerate(dataset.regions):
             if not region.has_active_lines():
                 continue
@@ -1626,7 +1639,9 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     """
 
-    print("\n  Metallicities\n")
+    print("\n----------------")
+    print("  Metallicities:")
+    print("----------------\n")
     print("  log(NHI) = %.3f ± %.3f\n" % (logNHI, err))
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
@@ -1666,7 +1681,9 @@ def print_total(dataset, verbose=True):
     output = list()
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        output.append("  Total Column Densities\n")
+        output.append("------------------------")
+        output.append("  Total Column Densities")
+        output.append("------------------------\n")
         for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []
