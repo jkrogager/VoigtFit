@@ -46,7 +46,7 @@ def match_ion_state(line, all_lines):
         msg = "Found 1 match: %s" % line_match.tag
 
     else:
-        line_strength = [l.l0 * l.f for l in matches]
+        line_strength = [ll.l0 * ll.f for ll in matches]
         idx = np.argmax(line_strength)
         line_match = matches[idx]
         msg = "Found %i matches. Strongest line: %s" % (N_matches, line_match.tag)
@@ -110,16 +110,12 @@ def tau_noise_range(x, tau, noise):
     y_high = max(y) - noise
 
     # For the upper range:
-    i1 = min((y > y_high).nonzero()[0])
-    i2 = i1 + 1
-    slope = (y[i2] - y[i1]) / (x[i2] - x[i1])
-    xmax = x[i2] + (y_high - y[i2])/slope
+    imax = min((y > y_high).nonzero()[0])
+    xmax = x[imax]
 
     # For the lower range:
-    i1 = max((y < y_low).nonzero()[0])
-    i2 = i1 - 1
-    slope = (y[i2] - y[i1]) / (x[i2] - x[i1])
-    xmin = x[i2] + (y_low - y[i2])/slope
+    imin = max((y < y_low).nonzero()[0])
+    xmin = x[imin]
 
     return (xmin, xmax)
 
