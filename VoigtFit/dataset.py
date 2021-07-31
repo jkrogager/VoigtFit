@@ -739,7 +739,7 @@ class DataSet(object):
         for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
-    def normalize_line(self, line_tag, norm_method='spline', velocity=False):
+    def normalize_line(self, line_tag, norm_method='spline', velocity=True):
         """
         Normalize or re-normalize a given line
 
@@ -2263,13 +2263,18 @@ class DataSet(object):
                 print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
                                                                 comp.b, comp.logN))
 
-    def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True):
+    def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True, threshold=15):
         line = self.lines[line_tag]
         verbose = self.verbose | verbose
+        regs_of_line = self.find_line(line_tag)
+        reg = regs_of_line[0]
+        if not reg.normalized:
+            reg.normalize(z_sys=self.redshift)
 
         # Find a line that matches the ionization state
         # and determine the velocity extent of the line
-        if (self.best_fit is not None) and (nofit is False):
+        use_data = nofit
+        if (self.best_fit is not None) and not use_data:
             if ref is not None:
                 line_match = self.lines[ref]
             else:
@@ -2279,17 +2284,24 @@ class DataSet(object):
                         print("           Could not find a matching line to determine velocity range.")
                         print(" [ERROR] - Aborting the measurement of equivalent width!\n")
                         return None
-            reg_match_all = self.find_line(line_match.tag)
-            reg_match = reg_match_all[0]
-            vel = reg_match.get_velocity(self.redshift, line_match.tag)
-            profile = reg_match.evaluate_region(self.best_fit)
-            tau = -np.log(profile)
-            vmin, vmax = tau_percentile(vel, tau)
-            if verbose:
-                print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
-                print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+            # Check if best-fit parameters exist for the given line:
+            if 'logN0_%s' % line_match.ion in self.best_fit:
+                reg_match_all = self.find_line(line_match.tag)
+                reg_match = reg_match_all[0]
+                if not reg_match.normalized:
+                    reg_match.normalize(z_sys=self.redshift)
+                vel = reg_match.get_velocity(self.redshift, line_match.tag)
+                profile = reg_match.evaluate_region(self.best_fit)
+                tau = -np.log(profile)
+                vmin, vmax = tau_percentile(vel, tau)
+                use_data = False
+                if verbose:
+                    print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
+                    print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+            else:
+                use_data = True
 
-        else:
+        if use_data:
             if ref is not None:
                 line_match = self.lines[ref]
                 reg_match_all = self.find_line(line_match.tag)
@@ -2312,18 +2324,18 @@ class DataSet(object):
                         print("           Could not find a matching line to determine velocity range.")
                         print(" [ERROR] - Aborting the measurement of equivalent width!\n")
                     return None
+            if not reg_match.normalized:
+                reg_match.normalize(z_sys=self.redshift)
             vel = reg_match.get_velocity(self.redshift, line_match.tag)
             _, flux, err, mask = reg_match.unpack()
             tau = -np.log(flux[mask])
             tau_err = err[mask] / flux[mask]
-            noise = np.median(tau_err) * 15.
+            noise = np.median(tau_err) * threshold
             vmin, vmax = tau_noise_range(vel[mask], tau, noise)
             if verbose:
                 print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
                 print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
 
-        regs_of_line = self.find_line(line_tag)
-        reg = regs_of_line[0]
         vel = reg.get_velocity(self.redshift, line_tag)
         aper = (vel > vmin) & (vel < vmax)
         W_rest, W_err = equivalent_width(reg.wl, reg.flux, reg.err, aper=aper, z_sys=self.redshift)
