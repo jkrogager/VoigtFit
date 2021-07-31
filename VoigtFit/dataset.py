@@ -765,7 +765,13 @@ class DataSet(object):
 
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
-            region.normalize(norm_method=norm_method, z_sys=z_sys)
+            if not region.normalized:
+                go_on = 0
+                while go_on == 0:
+                    go_on = region.normalize(norm_method=norm_method,
+                                             z_sys=z_sys)
+                    # region.normalize returns 1 when continuum is fitted
+            # region.normalize(norm_method=norm_method, z_sys=z_sys)
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True, velocity=False):
         """

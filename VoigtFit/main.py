@@ -404,6 +404,12 @@ def main():
         print(stat_msg % (order_str))
         print("")
 
+        if len(parameters['limits']) > 0:
+            print("\n\n* In order to determine the equivalent width, you must normalize the line(s)")
+            for limit_lines, _ in parameters['limits']:
+                for line_tag in limit_lines:
+                    dataset.normalize_line(line_tag, norm_method=dataset.norm_method)
+
     # Parse show_vel_norm from parameter file:
     # Ketyword 'norm_view' either vel or wave.
     if 'vel' in parameters['norm_view'].lower():
@@ -498,6 +504,13 @@ def main():
     print("  " + popt.message)
     print("")
 
+
+    for reg in dataset.regions:
+        print(reg.lines)
+        print("Norm?  %r" % reg.normalized)
+        print("")
+
+
     # Fix for when the code cannot estimate uncertainties:
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
@@ -562,7 +575,9 @@ def main():
     filename = name
     # determine limits, if any
     if len(parameters['limits']) > 0:
-        print("\n Determining Upper Limits:")
+        print("\n\n---------------------------")
+        print(" Determining Upper Limits:")
+        print("---------------------------")
         EW_limits = list()
         for limit_lines, limit_options in parameters['limits']:
             for line_tag in limit_lines:
@@ -570,6 +585,7 @@ def main():
                 if EW is not None:
                     EW_limits.append(EW)
                     print(output.format_EW(EW))
+        print("")
         # Save to file:
         output.save_EW(EW_limits, filename+'.limits')
 
@@ -596,6 +612,7 @@ def main():
                             individual=individual_regions)
     if individual_components:
         output.save_individual_components(dataset, filename+'.components')
+    print("  Done...\n")
     plt.show(block=True)
 
 

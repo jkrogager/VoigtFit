@@ -314,7 +314,7 @@ class Region():
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
-            print("\n\n  Mark continuum region on the *left* side of the absorption, (left and right boundary)")
+            print("\n  Mark continuum region on the *left* side of the absorption, (left and right boundary)")
             plt.title("Mark continuum region on the *left* side of the absorption")
             plt.tight_layout()
             plt.draw()
@@ -328,7 +328,7 @@ class Region():
             fit_wl = x[region1]
             fit_flux = self.flux[region1]
 
-            print("\n  Mark continuum region on the *right* side of the absorption")
+            print("  Mark continuum region on the *right* side of the absorption")
             plt.title("Mark continuum region on the *right* side of the absorption")
             plt.tight_layout()
             plt.draw()
@@ -350,7 +350,7 @@ class Region():
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print("\n\n Select at least 3 spline points over the whole range to define the continuum")
+            print("\n  Select at least 3 spline points over the whole range to define the continuum")
             plt.title("Select at least 3 spline points over the whole range to define the continuum")
             plt.tight_layout()
             plt.draw()
@@ -382,7 +382,7 @@ class Region():
             plt.title("Go back to terminal...")
             plt.tight_layout()
             plt.draw()
-            prompt = str(input(" Is normalization correct?  (YES/no) "))
+            prompt = str(input("  Is normalization correct?  (YES/no) "))
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err

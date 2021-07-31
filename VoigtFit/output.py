@@ -466,7 +466,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         fig.set_tight_layout(True)
         if filename:
             pdf.close()
-            print("\n  Output saved to PDF file:  " + filename)
+            print(" - Saved the fitted lines to PDF file: %s" % filename)
 
         if show:
             plt.show()
@@ -970,8 +970,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     return (ax, lines_in_view)
 
 
-def plot_residual(dataset, line_tag, index=0, rebin=1,
-                  xmin=None, xmax=None, axis=None):
+def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axis=None):
     """
     Plot residuals for the best-fit to a given absorption line.
 
@@ -1836,7 +1835,10 @@ def save_cont_parameters_to_file(dataset, filename, path=''):
         output.write(header + "\n")
 
         for reg_num, region in enumerate(dataset.regions):
-            output.write("# Region %i: \n" % reg_num)
+            region_header = "# Region %i:  " % reg_num
+            all_lines_string = ", ".join([line.tag for line in region.lines])
+            region_header += all_lines_string + "\n"
+            output.write(region_header)
             cheb_parnames = list()
             # Find Chebyshev parameters for this region:
             # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
@@ -2100,7 +2102,7 @@ def save_EW(EW_list, filename, path=''):
 
             `path/` + `filename`
     """
-    header = "# {sigma:.1f}-sigma upper limits listed as u.limit\n"
+    header = "# {sigma:.1f}-sigma upper limits listed as u.limit\n".format(**EW_list[0]._asdict())
     header += "# logN in units of cm^-2, W_rest in units of Å\n"
     header += "Line           u.limit  logN   logN_err   W_rest    W_err \n"
     fmt = "{line:13}   {logN_limit:.2f}   {logN:.3f}  {logN_err:.3f}    {W_rest:+.2e}  {W_err:.2e}"
