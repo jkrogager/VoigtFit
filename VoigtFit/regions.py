@@ -309,25 +309,32 @@ class Region():
         plt.plot(x, self.flux, color='k', drawstyle='steps-mid',
                  label=lines_title_string)
         plt.xlabel(x_label)
+        plt.legend()
 
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
-            print("\n\n  Mark left continuum region, left and right boundary.")
-            plt.title("Mark left continuum region, left and right boundary.")
+            print("\n\n  Mark continuum region on the *left* side of the absorption, (left and right boundary)")
+            plt.title("Mark continuum region on the *left* side of the absorption")
+            plt.tight_layout()
+            plt.draw()
 
             bounds = plt.ginput(2, -1)
+            if len(bounds) != 2:
+                return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
             region1 = (x >= left_bound)*(x <= right_bound)
             fit_wl = x[region1]
             fit_flux = self.flux[region1]
 
-            lines_title_string = ", ".join([line.tag for line in self.lines])
-            plt.title(lines_title_string)
-            print("\n  Mark right continuum region, left and right boundary.")
-            plt.title("Mark right continuum region, left and right boundary.")
+            print("\n  Mark continuum region on the *right* side of the absorption")
+            plt.title("Mark continuum region on the *right* side of the absorption")
+            plt.tight_layout()
+            plt.draw()
             bounds = plt.ginput(2)
+            if len(bounds) != 2:
+                return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
             region2 = (x >= left_bound)*(x <= right_bound)
@@ -337,37 +344,44 @@ class Region():
             popt, pcov = curve_fit(linfunc, fit_wl, fit_flux)
 
             continuum = linfunc(x, *popt)
-            e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
+            e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt)) / np.sqrt(len(fit_wl)-2)
 
         elif norm_method == 'spline':
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print("\n\n Select a range of continuum spline points over the whole range")
-            plt.title(" Select a range of continuum spline points over the whole range")
+            print("\n\n Select at least 3 spline points over the whole range to define the continuum")
+            plt.title("Select at least 3 spline points over the whole range to define the continuum")
+            plt.tight_layout()
+            plt.draw()
             points = plt.ginput(n=-1, timeout=-1)
+            if len(points) < 3:
+                return 0
             points = np.array(points)
-            xk = points[:, 0]
-            yk = points[:, 1]
-            # region_wl = self.wl.copy()
-            cont_spline = spline(xk, yk, s=0.)
+            x_points = points[:, 0]
+            y_points = points[:, 1]
+            cont_spline = spline(x_points, y_points)
             continuum = cont_spline(x)
-            e_continuum = np.sqrt(np.mean(self.err**2))
+            e_continuum = np.sqrt(np.median(self.err**2)/len(x_points))
+
+        else:
+            return
+
 
         if plot:
             new_flux = self.flux/continuum
             new_err = self.err/continuum
-            plt.cla()
-            plt.plot(x, new_flux, color='k', drawstyle='steps-mid',
-                     label=lines_title_string)
-            plt.xlabel(x_label)
-            plt.title("Normalized")
-            plt.axhline(1., ls='--', color='k')
-            plt.axhline(1. + e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.axhline(1. - e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.draw()
-
+            if norm_method == 'spline':
+                plt.plot(x_points, y_points, ls='', color='b', marker='o', alpha=0.8)
+            else:
+                plt.axvspan(x[region1].min(), x[region1].max(), color='b', alpha=0.3)
+                plt.axvspan(x[region2].min(), x[region2].max(), color='b', alpha=0.3)
+            plt.plot(x, continuum, color='r', ls='--', lw=2., alpha=0.8)
+            plt.plot(x, continuum+e_continuum, color='r', ls=':', lw=1., alpha=0.8)
+            plt.plot(x, continuum-e_continuum, color='r', ls=':', lw=1., alpha=0.8)
             plt.title("Go back to terminal...")
+            plt.tight_layout()
+            plt.draw()
             prompt = str(input(" Is normalization correct?  (YES/no) "))
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
@@ -382,7 +396,7 @@ class Region():
         else:
             self.flux = self.flux / continuum
             self.err = self.err / continuum
-            self.cont_err = e_continuum / np.mean(continuum)
+            self.cont_err = e_continuum / np.median(continuum)
             self.normalized = True
             return 1
 
