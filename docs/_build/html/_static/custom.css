@@ -83,6 +83,8 @@ div.sphinxsidebar {
     width: {{ theme_sidebar_width }};
     font-size: 14px;
     line-height: 1.5;
+    max-height: 100%;
+    overflow-y: auto;
 }
 
 hr {

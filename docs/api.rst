@@ -13,10 +13,10 @@ class **DataSet**
 
 
 class **Component**
---------------
+-------------------
 
 .. autoclass:: components.Component
- :members:
+   :members:
 
 
 class **Line**
