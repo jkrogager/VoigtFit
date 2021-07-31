@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 import warnings
+import re
 
 from astropy.io import fits
 from lmfit import Parameters, Minimizer
@@ -1821,6 +1822,18 @@ class DataSet(object):
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0, vary=var_par)
                     else:
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0, vary=var_par)
+
+        # Check that all static variables are used:
+        all_constraints = "  ".join([p.expr for p in self.pars.values() if p.expr])
+        var_names = list(self.static_variables.keys())
+        for varname in var_names:
+            regex = r'(^|[^a-z^A-Z^0-9_.])[+,-,*,\/]?(%s)[+,-,*,\/]?([^a-z^A-Z^0-9_.]|$)' % varname
+            find_var = re.compile(regex)
+            if find_var.search(all_constraints) is None:
+                self.pars.pop(varname)
+                self.static_variables.pop(varname)
+                if self.verbose and verbose:
+                    print(" [INFO] - unused variable was removed: %s" % varname)
 
         # --- mask spectral regions that should not be fitted
         if mask:
