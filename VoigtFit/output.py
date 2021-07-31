@@ -466,7 +466,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
         fig.set_tight_layout(True)
         if filename:
             pdf.close()
-            print("\n  Output saved to PDF file:  " + filename)
+            print(" - Saved the fitted lines to PDF file: %s" % filename)
 
         if show:
             plt.show()
@@ -970,8 +970,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     return (ax, lines_in_view)
 
 
-def plot_residual(dataset, line_tag, index=0, rebin=1,
-                  xmin=None, xmax=None, axis=None):
+def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axis=None):
     """
     Plot residuals for the best-fit to a given absorption line.
 
@@ -1402,9 +1401,8 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     Jmax = [item[1] for item in dataset.molecules[molecule]]
     molecular_lines = [line for line in dataset.lines.values()
                        if molecule in line.tag]
-    profile = evaluate_profile(wl_profile, dataset.best_fit, dataset.redshift,
-                               molecular_lines, dataset.components, kernel,
-                               sampling=3)
+    profile = evaluate_profile(wl_profile, dataset.best_fit,
+                               molecular_lines, kernel, z_sys=dataset.redshift, sampling=10)
     if not xmin:
         xmin = min(min_wl)
     if not xmax:
@@ -1774,10 +1772,10 @@ def sum_components(dataset, ion, components):
     return total_logN, total_logN_err
 
 
-def save_parameters_to_file(dataset, filename):
+def save_parameters_to_file(dataset, filename, path=''):
     """Save best-fit parameters to file."""
     header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
-    with open(filename, 'w') as output:
+    with open(path + filename, 'w') as output:
         output.write(header + "\n")
         for ion in sorted(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
@@ -1827,17 +1825,20 @@ def save_parameters_to_file(dataset, filename):
                 output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
-    print("  Best-fit parameters saved to file: %s" % filename)
+    print(" - Saved Best-fit Parameters to file: %s" % (path + filename))
 
 
-def save_cont_parameters_to_file(dataset, filename):
+def save_cont_parameters_to_file(dataset, filename, path=''):
     """Save Chebyshev coefficients to file."""
-    with open(filename, 'w') as output:
+    with open(path + filename, 'w') as output:
         header = "# Chebyshev Polynomial Coefficients"
         output.write(header + "\n")
 
         for reg_num, region in enumerate(dataset.regions):
-            output.write("# Region %i: \n" % reg_num)
+            region_header = "# Region %i:  " % reg_num
+            all_lines_string = ", ".join([line.tag for line in region.lines])
+            region_header += all_lines_string + "\n"
+            output.write(region_header)
             cheb_parnames = list()
             # Find Chebyshev parameters for this region:
             # They are named like 'R0_cheb_p0, R0_cheb_p1, R1_cheb_p0, etc...'
@@ -1853,6 +1854,7 @@ def save_cont_parameters_to_file(dataset, filename):
                 line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
                 output.write(line + "\n")
             output.write("\n")
+    print(" - Saved Best-fit Chebyshev Coefficients to file: %s" % (path + filename))
 
 
 def save_fit_regions(dataset, filename, individual=False, path=''):
@@ -1900,9 +1902,9 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             wl, flux, err, mask = region.unpack()
             nsub = region.kernel_nsub
             if dataset.best_fit and region.has_active_lines():
-                p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
-                                               region.kernel, kernel_nsub=nsub)
+                p_obs = voigt.evaluate_profile(wl, dataset.best_fit,
+                                               dataset.lines.values(), region.kernel,
+                                               z_sys=dataset.redshift, kernel_nsub=nsub)
             else:
                 p_obs = np.ones_like(wl)
             data_table = np.column_stack([wl, flux, err, p_obs, mask])
@@ -1931,9 +1933,9 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             wl, flux, err, mask = region.unpack()
             nsub = region.kernel_nsub
             if dataset.best_fit and region.has_active_lines():
-                p_obs = voigt.evaluate_profile(wl, dataset.best_fit, dataset.redshift,
-                                               dataset.lines.values(), dataset.components,
-                                               region.kernel, kernel_nsub=nsub)
+                p_obs = voigt.evaluate_profile(wl, dataset.best_fit,
+                                               dataset.lines.values(), region.kernel,
+                                               z_sys=dataset.redshift, kernel_nsub=nsub)
             else:
                 p_obs = np.ones_like(wl)
             l_tot.append(wl)
@@ -1957,6 +1959,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             out_file.write("# column 4 : Best-fit profile\n")
             out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
             np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
+    print(" - Saved Data for Fit Regions (data + best-fit profile) to file: %s" % (filename))
 
 
 def save_individual_components(dataset, filename, path=''):
@@ -2072,10 +2075,46 @@ def save_individual_components(dataset, filename, path=''):
         with open(filename, 'w') as output:
             output.write(header+'\n')
             np.savetxt(output, data, fmt=data_fmt)
+        print(" - Saved Best-fit Individual Components to file: %s" % (filename))
 
     else:
         print(" [ERROR] - No fit parameters found! \n")
         return
+
+
+def save_EW(EW_list, filename, path=''):
+    """
+    Save the equivalent width data for each line in the input list.
+
+    Parameters
+    ----------
+    EW_list : list[`namedtuple` (EquivalentWidth)]
+        A list of `namedtuple` (EquivalentWidth), see implementation in `VoigtFit.dataset.py`
+
+    filename : str
+        Filename to be used. If the filename already exists, it will be overwritten.
+
+    path : str   [default = '']
+        Specify a path to prepend to the filename in order to save output to a given
+        directory or path. Can be given both as relative or absolute path.
+        If the directory does not exist, it will be created.
+        The final filename will be:
+
+            `path/` + `filename`
+    """
+    header = "# {sigma:.1f}-sigma upper limits listed as u.limit\n".format(**EW_list[0]._asdict())
+    header += "# logN in units of cm^-2, W_rest in units of Å\n"
+    header += "Line           u.limit  logN   logN_err   W_rest    W_err \n"
+    fmt = "{line:13}   {logN_limit:.2f}   {logN:.3f}  {logN_err:.3f}    {W_rest:+.2e}  {W_err:.2e}"
+    with open(path + filename, 'w') as output:
+        output.write(header)
+        for EW in EW_list:
+            output.write(fmt.format(**EW._asdict()) + '\n')
+    print(" - Saved Equivalent Width Data to file: %s" % (path + filename))
+
+def format_EW(EW):
+    fmt = "{line:>13}   logN < {logN_limit:.2f}   ({sigma:.1f} sigma)"
+    return fmt.format(**EW._asdict())
 
 
 def show_components(dataset, ion=None):

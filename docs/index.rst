@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 0.12:
+  Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.
+  For more details about how to use this, see the documentation on :ref:`documentation`.
+
 New in version 0.11.15:
   Updated oscillator strengths for NiII following Boissé & Bergeron (2019).
 

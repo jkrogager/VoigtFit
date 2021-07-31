@@ -165,7 +165,6 @@ def main():
         if verbose:
             print("\n - Fine-structure lines in dataset:")
             print(dataset.fine_lines)
-            print(list(dataset.lines.keys()))
             print("\n - Fine-structure lines in parameter file:")
             print(parameters['fine-lines'])
         if len(parameters['fine-lines']) > 0:
@@ -270,6 +269,12 @@ def main():
     # Back to Common Work Flow for all datasets:
 
     dataset.verbose = verbose
+
+    if len(parameters['limits']) > 0:
+        for limit_lines, limit_options in parameters['limits']:
+            dataset.add_lines(limit_lines, velspan=dataset.velspan)
+            for line_tag in limit_lines:
+                dataset.deactivate_line(line_tag)
 
     # Load components from file:
     dataset.reset_components()
@@ -399,6 +404,12 @@ def main():
         print(stat_msg % (order_str))
         print("")
 
+        if len(parameters['limits']) > 0:
+            print("\n\n* In order to determine the equivalent width, you must normalize the line(s)")
+            for limit_lines, _ in parameters['limits']:
+                for line_tag in limit_lines:
+                    dataset.normalize_line(line_tag, norm_method=dataset.norm_method)
+
     # Parse show_vel_norm from parameter file:
     # Ketyword 'norm_view' either vel or wave.
     if 'vel' in parameters['norm_view'].lower():
@@ -412,8 +423,11 @@ def main():
     # prepare_dataset
     if verbose:
         print(" - Preparing dataset:")
-    dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
-                            **parameters['check_lines'])
+    prep_msg = dataset.prepare_dataset(mask=False, norm=norm, velocity=show_vel_norm,
+                                       **parameters['check_lines'])
+    if prep_msg and not dataset.ready2fit:
+        print(prep_msg)
+        return False
 
     # Define thermal model
     if len(thermal_model.keys()) > 0:
@@ -490,6 +504,13 @@ def main():
     print("  " + popt.message)
     print("")
 
+
+    for reg in dataset.regions:
+        print(reg.lines)
+        print("Norm?  %r" % reg.normalized)
+        print("")
+
+
     # Fix for when the code cannot estimate uncertainties:
     for parname in dataset.best_fit.keys():
         err = dataset.best_fit[parname].stderr
@@ -551,6 +572,23 @@ def main():
     if parameters['show_total']:
         dataset.print_total()
 
+    filename = name
+    # determine limits, if any
+    if len(parameters['limits']) > 0:
+        print("\n\n---------------------------")
+        print(" Determining Upper Limits:")
+        print("---------------------------")
+        EW_limits = list()
+        for limit_lines, limit_options in parameters['limits']:
+            for line_tag in limit_lines:
+                EW = dataset.equivalent_width_limit(line_tag, verbose=True, **limit_options)
+                if EW is not None:
+                    EW_limits.append(EW)
+                    print(output.format_EW(EW))
+        print("")
+        # Save to file:
+        output.save_EW(EW_limits, filename+'.limits')
+
     # Output:
     if 'individual-regions' in parameters['output_pars']:
         individual_regions = True
@@ -562,7 +600,6 @@ def main():
     else:
         individual_components = False
 
-    filename = name
     # plot and save
     if 'rebin' in parameters['fit_options'].keys():
         rebin = parameters['fit_options']['rebin']
@@ -575,6 +612,7 @@ def main():
                             individual=individual_regions)
     if individual_components:
         output.save_individual_components(dataset, filename+'.components')
+    print("  Done...\n")
     plt.show(block=True)
 
 

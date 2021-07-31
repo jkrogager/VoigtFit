@@ -11,6 +11,12 @@ import numpy as np
 from scipy.signal import fftconvolve, gaussian
 from numba import jit
 
+import re
+
+# Regular Expression to match redshift parameter names:
+# ex: z0_FeII, z0_H2J0, z3_HI, z15_TiII
+z_matcher = re.compile('z[0-9]+_[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?')
+
 
 # ==== VOIGT PROFILE ===============
 def H(a, x):
@@ -142,7 +148,7 @@ def evaluate_continuum(x, pars, reg_num):
     # This should be calculated at the point of generating
     # the parameters, since this is a fixed data structure
     # Sort the names, to arange the coefficients right:
-    cheb_parnames = sorted(cheb_parnames)
+    cheb_parnames = sorted(cheb_parnames, key=lambda x: int(x.split('_')[-1].replace('p', '')))
     for parname in cheb_parnames:
         p_cont.append(pars[parname].value)
 
@@ -152,7 +158,7 @@ def evaluate_continuum(x, pars, reg_num):
     return cont_model(x)
 
 
-def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kernel_nsub=1):
+def evaluate_profile(x, pars, lines, kernel, z_sys=None, sampling=3, kernel_nsub=1):
     """
     Evaluate the observed Voigt profile. The calculated optical depth, `tau`,
     is converted to observed transmission, `f`:
@@ -175,10 +181,6 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         List of lines to evaluate. Should be a list of
         :class:`Line <dataset.Line>` objects.
 
-    components : dict
-        Dictionary containing component data for the defined ions.
-        See :attr:`VoigtFit.DataSet.components`.
-
     kernel : np.array, shape (N, M)  or float
         The convolution kernel for each wavelength pixel.
         If an array is given, each row of the array must specify
@@ -188,13 +190,17 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         In this case the spectral resolution is assumed
         to be constant in velocity space.
 
+    z_sys : float or None
+        The systemic redshift, used to determine an effective wavelength range
+        within which to evaluate the profile. This is handy when fitting very large
+        regions, such as HI and metal lines together.
+
     sampling : integer  [default = 3]
         The subsampling factor used for defining the input logarithmically
         space wavelength grid. The number of pixels in the evaluation will
         be sampling * N, where N is the number of input pixels.
         The final profile will be interpolated back onto the original
         wavelength grid defined by `x`.
-
 
     kernel_nsub : integer
         Kernel subsampling factor relative to the data.
@@ -231,37 +237,7 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         err_msg = "Invalid type of `kernel`: %r" % type(kernel)
         raise TypeError(err_msg)
 
-    tau = np.zeros_like(profile_wl)
-
-    # Determine range in which to evaluate the profile:
-    max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
-    if max_logN > 19.0:
-        velspan = 20000.*(1. + 1.0*(max_logN-19.))
-    else:
-        velspan = 20000.
-
-    for line in lines:
-        if line.active:
-            l0, f, gam = line.get_properties()
-            ion = line.ion
-            n_comp = len(components[ion])
-            l_center = l0*(z_sys + 1.)
-            vel = (profile_wl - l_center)/l_center*299792.
-            span = (vel >= -velspan)*(vel <= velspan)
-            ion = ion.replace('*', 'x')
-            for n in range(n_comp):
-                z = pars['z%i_%s' % (n, ion)].value
-                if x.min() < l0*(z+1) < x.max():
-                    b = pars['b%i_%s' % (n, ion)].value
-                    logN = pars['logN%i_%s' % (n, ion)].value
-                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                elif ion == 'HI':
-                    b = pars['b%i_%s' % (n, ion)].value
-                    logN = pars['logN%i_%s' % (n, ion)].value
-                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
-                else:
-                    continue
-
+    tau = evaluate_optical_depth(profile_wl, pars, lines, z_sys=z_sys)
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
@@ -279,4 +255,89 @@ def evaluate_profile(x, pars, z_sys, lines, components, kernel, sampling=3, kern
         else:
             profile_obs = profile_broad
 
+    return profile_obs
+
+
+def evaluate_optical_depth(profile_wl, pars, lines, z_sys=None):
+    tau = np.zeros_like(profile_wl)
+
+    if z_sys is not None:
+        # Determine range in which to evaluate the profile:
+        max_logN = max([val.value for key, val in pars.items() if 'logN' in key])
+        if max_logN > 19.0:
+            velspan = 20000.*(1. + 1.0*(max_logN-19.))
+        else:
+            velspan = 20000.
+
+    # Determine number of components for each ion:
+    components_per_ion = {}
+    for line in lines:
+        if line.active:
+            l0, f, gam = line.get_properties()
+            ion = line.ion
+            z_pars = []
+            for parname in pars.keys():
+                if z_matcher.fullmatch(parname) and ion in parname:
+                    z_pars.append(parname)
+            components_per_ion[ion] = len(z_pars)
+
+    for line in lines:
+        if line.active:
+            l0, f, gam = line.get_properties()
+            ion = line.ion
+            n_comp = components_per_ion[ion]
+            if z_sys is not None:
+                l_center = l0*(z_sys + 1.)
+                vel = (profile_wl - l_center)/l_center*299792.458
+                span = (vel >= -velspan)*(vel <= velspan)
+            else:
+                span = np.ones_like(profile_wl, dtype=bool)
+            ion = ion.replace('*', 'x')
+            for n in range(n_comp):
+                z = pars['z%i_%s' % (n, ion)].value
+                if profile_wl.min() < l0*(z+1) < profile_wl.max():
+                    b = pars['b%i_%s' % (n, ion)].value
+                    logN = pars['logN%i_%s' % (n, ion)].value
+                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                elif ion == 'HI':
+                    b = pars['b%i_%s' % (n, ion)].value
+                    logN = pars['logN%i_%s' % (n, ion)].value
+                    tau[span] += Voigt(profile_wl[span], l0, f, 10**logN, 1.e5*b, gam, z=z)
+                else:
+                    continue
+    return tau
+
+
+def resvel_to_pixels(wl, res):
+    """Convert spectral resolution in km/s to pixels"""
+    dl = np.diff(wl)
+    pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
+    assert pix_size_vel > 0.0001, "Wavelength array seems to be linearly spaced. Must be logarithmic!"
+    w = res / pix_size_vel / 2.35482
+    return w
+
+
+def fwhm_to_pixels(wl, res_wl):
+    """Convert spectral resolution in wavelength to pixels
+    R = lambda / dlambda, where dlambda is the FWHM
+    """
+    dl = np.diff(wl)
+    pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
+    assert pix_size_vel < 0.0001, "Wavelength array seems not to be linearly spaced. Must be linear!"
+    w = res_wl / dl[0] / 2.35482
+    return w
+
+
+def convolve_profile(profile, width):
+    """
+    Convolve with constant kernel width in pixels!
+    """
+    LSF = gaussian(10*int(width)+1, width)
+    LSF = LSF/LSF.sum()
+    # Add padding to avoid edge effects of the convolution:
+    pad = np.ones(5*int(width))
+    P_padded = np.concatenate((pad, profile, pad))
+    profile_broad = fftconvolve(P_padded, LSF, 'same')
+    # Remove padding:
+    profile_obs = profile_broad[5*int(width):-5*int(width)]
     return profile_obs

@@ -200,6 +200,7 @@ Optional arguments:
           4  B1-001145...  1 BinTableHDU    166   2528R x 8C   [E, E, E, J, E, E, E, E]
           5  B1-001145...  1 BinTableHDU    166   2530R x 8C   [E, E, E, J, E, E, E, E]
 
+
 Lines
 -----
 
@@ -209,6 +210,7 @@ Lines
   The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526,
   or HI_1215. For the Lyman series of hydrogen and deuterium, the following
   notation is also accepted: HI_1 for the Ly-alpha, HI_3 for Ly-gamma, and so on.
+  Multiple *lines* statements can be defined in the parameter file.
 
 
 Optinal arguments:
@@ -232,6 +234,56 @@ Optinal arguments:
   ``lines HI_1  HI_2  velspan=5000``
 
     This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.
+
+
+Limit  [**New!**]
+-----------------
+
+**limit  line_tags  [ ref=__  nofit=False  sigma=3 ]**
+
+  *line_tags* can be a single line or multiple lines separated by blank spaces.
+  The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526.
+
+  VoigtFit automatically determines the integration limits for the measurement
+  of the equivalent width from a `reference` line. This `reference` line is chosen
+  automatically by default, from the strongest line defined which has the same ionization
+  state (e.g., FeII could be used for limits of NiII, TiII etc.; CIV for SiIV etc.).
+
+  If no `reference` line is found, the equivalent width will not calculated.
+  The user can instead force a specific `reference` line with the keyword *ref* (see below).
+  The output is printed to the terminal, and is also saved to a text file ('*.limits').
+
+  Multiple *limit* statements can be defined in the parameter file.
+
+
+Optional arguments:
+
+  *ref* : should be a `line_tag` that is already defined in the dataset by the *lines* statement.
+  This will force VoigtFit to determine the integration limits from that given line.
+
+  *nofit* : the integration limits are by default determined from the best-fit profiles, when possible.
+  The user can disable this and force VoigtFit to use the observed profile of the `reference` line
+  to determine the integration limits.
+
+  *sigma* : determines the significance level of the derived limit as `sigma` times the uncertainty
+  on the equivalent width within the integration limits.
+
+
+.. topic:: Example
+
+  ``limit  TiII_1910``
+
+    This will determine a 3-sigma upper limit on the column density of TiII_1910 line using
+    the strongest line defined by the *lines* statement.
+    The upper limit together with the measured equivalent width and uncertainty is written to the
+    output file ('*.limits').
+
+  ``limit  CI_1656  ref=CI_1656  sigma=2  nofit=True``
+
+    The *limit* statement can also be used to measure equivalent widths of lines that are detected but not fitted:
+    The statement above will determine a 2-sigma upper limit of the CI_1656 using itself as a reference to
+    determine the integration limits. The measured equivalent width and uncertainty (as well as column density,
+    assuming an optically thin line) are given in the output file ('*.limits').
 
 
 Fine-structure Lines

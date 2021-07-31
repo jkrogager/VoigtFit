@@ -10,6 +10,8 @@ from scipy.interpolate import UnivariateSpline as spline
 from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
+from .voigt import evaluate_profile
+
 root_path = os.path.dirname(os.path.abspath(__file__))
 datafile = root_path + '/static/telluric_em_abs.npz'
 
@@ -307,25 +309,32 @@ class Region():
         plt.plot(x, self.flux, color='k', drawstyle='steps-mid',
                  label=lines_title_string)
         plt.xlabel(x_label)
+        plt.legend()
 
         if norm_method == 'linear':
             # - Normalize by defining a left and right continuum region
 
-            print("\n\n  Mark left continuum region, left and right boundary.")
-            plt.title("Mark left continuum region, left and right boundary.")
+            print("\n  Mark continuum region on the *left* side of the absorption, (left and right boundary)")
+            plt.title("Mark continuum region on the *left* side of the absorption")
+            plt.tight_layout()
+            plt.draw()
 
             bounds = plt.ginput(2, -1)
+            if len(bounds) != 2:
+                return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
             region1 = (x >= left_bound)*(x <= right_bound)
             fit_wl = x[region1]
             fit_flux = self.flux[region1]
 
-            lines_title_string = ", ".join([line.tag for line in self.lines])
-            plt.title(lines_title_string)
-            print("\n  Mark right continuum region, left and right boundary.")
-            plt.title("Mark right continuum region, left and right boundary.")
+            print("  Mark continuum region on the *right* side of the absorption")
+            plt.title("Mark continuum region on the *right* side of the absorption")
+            plt.tight_layout()
+            plt.draw()
             bounds = plt.ginput(2)
+            if len(bounds) != 2:
+                return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
             region2 = (x >= left_bound)*(x <= right_bound)
@@ -335,38 +344,45 @@ class Region():
             popt, pcov = curve_fit(linfunc, fit_wl, fit_flux)
 
             continuum = linfunc(x, *popt)
-            e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt))
+            e_continuum = np.std(fit_flux - linfunc(fit_wl, *popt)) / np.sqrt(len(fit_wl)-2)
 
         elif norm_method == 'spline':
             # Normalize by drawing the continuum and perform spline
             # interpolation between the points
 
-            print("\n\n Select a range of continuum spline points over the whole range")
-            plt.title(" Select a range of continuum spline points over the whole range")
+            print("\n  Select at least 3 spline points over the whole range to define the continuum")
+            plt.title("Select at least 3 spline points over the whole range to define the continuum")
+            plt.tight_layout()
+            plt.draw()
             points = plt.ginput(n=-1, timeout=-1)
+            if len(points) < 3:
+                return 0
             points = np.array(points)
-            xk = points[:, 0]
-            yk = points[:, 1]
-            # region_wl = self.wl.copy()
-            cont_spline = spline(xk, yk, s=0.)
+            x_points = points[:, 0]
+            y_points = points[:, 1]
+            cont_spline = spline(x_points, y_points)
             continuum = cont_spline(x)
-            e_continuum = np.sqrt(np.mean(self.err**2))
+            e_continuum = np.sqrt(np.median(self.err**2)/len(x_points))
+
+        else:
+            return
+
 
         if plot:
             new_flux = self.flux/continuum
             new_err = self.err/continuum
-            plt.cla()
-            plt.plot(x, new_flux, color='k', drawstyle='steps-mid',
-                     label=lines_title_string)
-            plt.xlabel(x_label)
-            plt.title("Normalized")
-            plt.axhline(1., ls='--', color='k')
-            plt.axhline(1. + e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.axhline(1. - e_continuum/np.mean(continuum), ls=':', color='gray')
-            plt.draw()
-
+            if norm_method == 'spline':
+                plt.plot(x_points, y_points, ls='', color='b', marker='o', alpha=0.8)
+            else:
+                plt.axvspan(x[region1].min(), x[region1].max(), color='b', alpha=0.3)
+                plt.axvspan(x[region2].min(), x[region2].max(), color='b', alpha=0.3)
+            plt.plot(x, continuum, color='r', ls='--', lw=2., alpha=0.8)
+            plt.plot(x, continuum+e_continuum, color='r', ls=':', lw=1., alpha=0.8)
+            plt.plot(x, continuum-e_continuum, color='r', ls=':', lw=1., alpha=0.8)
             plt.title("Go back to terminal...")
-            prompt = str(input(" Is normalization correct?  (YES/no) "))
+            plt.tight_layout()
+            plt.draw()
+            prompt = str(input("  Is normalization correct?  (YES/no) "))
             if prompt.lower() in ['', 'y', 'yes']:
                 self.flux = new_flux
                 self.err = new_err
@@ -380,7 +396,7 @@ class Region():
         else:
             self.flux = self.flux / continuum
             self.err = self.err / continuum
-            self.cont_err = e_continuum / np.mean(continuum)
+            self.cont_err = e_continuum / np.median(continuum)
             self.normalized = True
             return 1
 
@@ -573,3 +589,28 @@ class Region():
         line_string = "\n".join(all_trans_str)
 
         self.label = line_string
+
+    def get_velocity(self, z_sys, line=None):
+        """
+        Return the relative velocities of the region,
+        with respect to systemtic redshift of the given `line`.
+        """
+        if line is None:
+            line = self.lines[0]
+        elif isinstance(line, str):
+            line_tags = [this_line.tag for this_line in self.lines]
+            if line in line_tags:
+                idx = line_tags.index(line)
+                line = self.lines[idx]
+        else:
+            assert line in self.lines, "The line is not defined in the region!"
+
+        lcen = line.l0 * (z_sys + 1)
+        vel = (self.wl - lcen) / lcen * 299792.458
+        return vel
+
+
+    def evaluate_region(self, pars, z_sys=None, sampling=3):
+        profile = evaluate_profile(self.wl, pars, self.lines, self.kernel,
+                                   z_sys=z_sys, sampling=sampling, kernel_nsub=self.kernel_nsub)
+        return profile

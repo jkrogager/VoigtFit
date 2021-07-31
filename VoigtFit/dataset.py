@@ -14,6 +14,7 @@ from . import Asplund
 from .components import Component
 from .fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
 from . import hdf5_save
+from .limits import match_ion_state, match_ion_state_all, tau_percentile, tau_noise_range, equivalent_width
 from . import line_complexes
 from .line_complexes import fine_structure_complexes
 from .lines import Line, lineList
@@ -23,6 +24,9 @@ from .regions import Region, load_lsf
 from . import terminal_attributes as term
 from .voigt import evaluate_profile, evaluate_continuum
 
+from collections import namedtuple
+
+EquivalentWidth = namedtuple('EquivalentWidth', ['W_rest', 'W_err', 'logN', 'logN_err', 'logN_limit', 'line', 'sigma'])
 
 myfloat = np.float64
 
@@ -681,7 +685,7 @@ class DataSet(object):
         line_tag : str
             Line tag of the transition that should be removed.
         """
-        if line_tag in self.all_lines and line_tag in self.lines.keys():
+        if line_tag in self.all_lines and line_tag in [self.lines.keys()]:
             self.all_lines.remove(line_tag)
             self.lines.pop(line_tag)
         else:
@@ -731,11 +735,11 @@ class DataSet(object):
                       line_tag)
 
     def remove_all_lines(self):
-        lines_to_remove = self.lines.keys()
+        lines_to_remove = self.all_lines.copy()
         for line_tag in lines_to_remove:
             self.remove_line(line_tag)
 
-    def normalize_line(self, line_tag, norm_method='spline', velocity=False):
+    def normalize_line(self, line_tag, norm_method='spline', velocity=True):
         """
         Normalize or re-normalize a given line
 
@@ -761,7 +765,13 @@ class DataSet(object):
 
         regions_of_line = self.find_line(line_tag)
         for region in regions_of_line:
-            region.normalize(norm_method=norm_method, z_sys=z_sys)
+            if not region.normalized:
+                go_on = 0
+                while go_on == 0:
+                    go_on = region.normalize(norm_method=norm_method,
+                                             z_sys=z_sys)
+                    # region.normalize returns 1 when continuum is fitted
+            # region.normalize(norm_method=norm_method, z_sys=z_sys)
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True, velocity=False):
         """
@@ -1284,6 +1294,7 @@ class DataSet(object):
                 elif line[0] == '#':
                     pass
                 elif len(pars) == 8:
+                    num = int(pars[0])
                     ion = pars[1]
                     z = float(pars[2])
                     z_err = float(pars[3])
@@ -1291,7 +1302,7 @@ class DataSet(object):
                     b_err = float(pars[5])
                     logN = float(pars[6])
                     logN_err = float(pars[7])
-                    components_to_add.append([ion, z, b, logN,
+                    components_to_add.append([num, ion, z, b, logN,
                                               z_err, b_err, logN_err])
                     if ion not in all_ions_in_file:
                         all_ions_in_file.append(ion)
@@ -1308,8 +1319,8 @@ class DataSet(object):
                     for parname in pars_to_delete:
                         self.best_fit.pop(parname)
 
-        for num, comp_pars in enumerate(components_to_add):
-            (ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
+        for comp_pars in components_to_add:
+            (num, ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
             self.add_component(ion, z, b, logN)
             if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
@@ -1739,13 +1750,13 @@ class DataSet(object):
 
         # --- Check that no components for inactive elements are defined:
         for this_ion in list(self.components.keys()):
-            lines_for_this_ion = [l.active for l in self.lines.values() if l.ion == this_ion]
+            lines_for_this_ion = [this_line.active for this_line in self.lines.values() if this_line.ion == this_ion]
 
             if np.any(lines_for_this_ion):
                 pass
             else:
-                if self.verbose:
-                    warn_msg = "\n [WARNING] - Components defined for inactive element: %s"
+                if verbose:
+                    warn_msg = "\n [WARNING] - Components defined for inactive or missing element: %s"
                     print(warn_msg % this_ion)
 
                 if force_clean:
@@ -1767,8 +1778,7 @@ class DataSet(object):
                 N_name = 'logN%i_%s' % (n, ion)
 
                 self.pars.add(z_name, value=myfloat(z), vary=comp.var_z)
-                self.pars.add(b_name, value=myfloat(b), vary=comp.var_b,
-                              min=0.)
+                self.pars.add(b_name, value=myfloat(b), vary=comp.var_b, min=0.)
                 self.pars.add(N_name, value=myfloat(logN), vary=comp.var_N)
 
         # - Then setup parameter links:
@@ -1833,7 +1843,8 @@ class DataSet(object):
                 self.ready2fit = False
                 # TODO:
                 # automatically open interactive window if components are not defined.
-                return False
+                error_msg = " [ERROR] - Components are not defined for element: %s \n" % ion
+                return error_msg
 
         # -- Check all transitions of the given ions that are covered by the data:
         if check_lines:
@@ -1867,7 +1878,7 @@ class DataSet(object):
             if verbose and self.verbose:
                 print("\n  Dataset is ready to be fitted.")
                 print("")
-            return True
+            return ""
 
     def fit(self, verbose=True, **kwargs):
         """
@@ -1948,23 +1959,20 @@ class DataSet(object):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
                     if rebin > 1:
+                        x, y, err = output.rebin_spectrum(x, y, err, rebin)
+                        mask = output.rebin_bool_array(mask, rebin)
                         if isinstance(region.kernel, float):
-                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                            mask = output.rebin_bool_array(mask, rebin)
                             nsub = region.kernel_nsub
                         else:
-                            x, y, err = output.rebin_spectrum(x, y, err, rebin)
-                            mask = output.rebin_bool_array(mask, rebin)
                             # Multiply the subsampling factor of the kernel by the rebin factor
                             nsub = region.kernel_nsub * rebin
                     else:
                         nsub = region.kernel_nsub
 
                     # Generate line profile
-                    profile_obs = evaluate_profile(x, pars, self.redshift,
-                                                   self.lines.values(), self.components,
-                                                   region.kernel, sampling=sampling,
-                                                   kernel_nsub=nsub)
+                    profile_obs = evaluate_profile(x, pars, self.lines.values(),
+                                                   region.kernel, z_sys=self.redshift,
+                                                   sampling=sampling, kernel_nsub=nsub)
 
                     if self.cheb_order >= 0:
                         cont_model = evaluate_continuum(x, pars, reg_num)
@@ -2260,3 +2268,88 @@ class DataSet(object):
                 vel = (z - z_sys) / (z_sys + 1) * 299792.458
                 print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
                                                                 comp.b, comp.logN))
+
+    def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True, threshold=15):
+        line = self.lines[line_tag]
+        verbose = self.verbose | verbose
+        regs_of_line = self.find_line(line_tag)
+        reg = regs_of_line[0]
+        if not reg.normalized:
+            reg.normalize(z_sys=self.redshift)
+
+        # Find a line that matches the ionization state
+        # and determine the velocity extent of the line
+        use_data = nofit
+        if (self.best_fit is not None) and not use_data:
+            if ref is not None:
+                line_match = self.lines[ref]
+            else:
+                line_match, msg = match_ion_state(line, self.lines.values())
+                if line_match is None:
+                    if verbose:
+                        print("           Could not find a matching line to determine velocity range.")
+                        print(" [ERROR] - Aborting the measurement of equivalent width!\n")
+                        return None
+            # Check if best-fit parameters exist for the given line:
+            if 'logN0_%s' % line_match.ion in self.best_fit:
+                reg_match_all = self.find_line(line_match.tag)
+                reg_match = reg_match_all[0]
+                if not reg_match.normalized:
+                    reg_match.normalize(z_sys=self.redshift)
+                vel = reg_match.get_velocity(self.redshift, line_match.tag)
+                profile = reg_match.evaluate_region(self.best_fit)
+                tau = -np.log(profile)
+                vmin, vmax = tau_percentile(vel, tau)
+                use_data = False
+                if verbose:
+                    print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
+                    print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+            else:
+                use_data = True
+
+        if use_data:
+            if ref is not None:
+                line_match = self.lines[ref]
+                reg_match_all = self.find_line(line_match.tag)
+                reg_match = reg_match_all[0]
+            else:
+                matches = match_ion_state_all(line, self.lines.values())
+                line_strength = [ll.l0 * ll.f for ll in matches]
+                # Loop through the lines sorted by line-strength (strongest to weakest):
+                for _, this_line in sorted(zip(line_strength, matches), reverse=True):
+                    these_regs = self.find_line(this_line.tag)
+                    this_reg = these_regs[0]
+                    flux = this_reg.flux
+                    mask = this_reg.mask
+                    if np.min(flux[mask]) > 0:
+                        line_match = this_line
+                        reg_match = this_reg
+                        break
+                else:
+                    if verbose:
+                        print("           Could not find a matching line to determine velocity range.")
+                        print(" [ERROR] - Aborting the measurement of equivalent width!\n")
+                    return None
+            if not reg_match.normalized:
+                reg_match.normalize(z_sys=self.redshift)
+            vel = reg_match.get_velocity(self.redshift, line_match.tag)
+            _, flux, err, mask = reg_match.unpack()
+            tau = -np.log(flux[mask])
+            tau_err = err[mask] / flux[mask]
+            noise = np.median(tau_err) * threshold
+            vmin, vmax = tau_noise_range(vel[mask], tau, noise)
+            if verbose:
+                print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
+                print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
+
+        vel = reg.get_velocity(self.redshift, line_tag)
+        aper = (vel > vmin) & (vel < vmax)
+        W_rest, W_err = equivalent_width(reg.wl, reg.flux, reg.err, aper=aper, z_sys=self.redshift)
+        W_limit = sigma * W_err
+        logN_limit = np.log10(1.13e20*W_limit / (line.l0**2 * line.f))
+        logN = np.log10(1.13e20*W_rest / (line.l0**2 * line.f))
+        logN_err = W_err / (W_rest * np.log(10))
+
+        result = EquivalentWidth(W_rest=W_rest, W_err=W_err, logN=logN, logN_err=logN_err,
+                                 logN_limit=logN_limit, line=line_tag, sigma=sigma)
+        return result
