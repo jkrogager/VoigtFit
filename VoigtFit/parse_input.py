@@ -3,6 +3,8 @@
 __author__ = 'Jens-Kristian Krogager'
 import re
 
+line_pattern = re.compile('[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?_[0-9]+.?[0-9]*')
+
 
 def clean_line(line):
     """Remove comments and parentheses from the input line."""
@@ -24,24 +26,24 @@ fit_options_defaults = dict(rebin=1, method='leastsq')
 def parse_parameters(fname):
     """Parse parameters from input file."""
     parameters = dict()
+    parameters['cheb_order'] = -1
+    parameters['check_lines'] = check_lines_defaults
+    parameters['clear_mask'] = False
+    parameters['fit_options'] = fit_options_defaults
+    parameters['fix_velocity'] = False
+    parameters['interactive_view'] = 'wave'
     parameters['logNHI'] = None
+    parameters['mask_view'] = 'wave'
     parameters['norm_method'] = 'linear'
-    parameters['show_total'] = False
+    parameters['norm_view'] = 'wave'
+    parameters['options'] = list()
+    parameters['output_pars'] = list()
     parameters['plot'] = False
     parameters['resolution'] = list()
     parameters['save'] = True
-    parameters['cheb_order'] = -1
+    parameters['show_total'] = False
     parameters['systemic'] = [None, 'none']
-    parameters['clear_mask'] = False
     parameters['velspan'] = 500.
-    parameters['output_pars'] = list()
-    parameters['options'] = list()
-    parameters['fit_options'] = fit_options_defaults
-    parameters['fix_velocity'] = False
-    parameters['norm_view'] = 'wave'
-    parameters['mask_view'] = 'wave'
-    parameters['interactive_view'] = 'wave'
-    parameters['check_lines'] = check_lines_defaults
     par_file = open(fname)
     data = list()
     components = list()
@@ -49,6 +51,7 @@ def parse_parameters(fname):
     components_to_delete = list()
     interactive_components = list()
     lines = list()
+    limits = list()
     fine_lines = list()
     molecules = dict()
     # fine_lines = list()
@@ -127,6 +130,33 @@ def parse_parameters(fname):
                 all_lines = [[l, velspan] for l in linelist]
 
             lines += all_lines
+
+        elif 'limit' in line and 'save' not in line:
+            line = clean_line(line)
+            args = line.split()
+            if len(args) <= 1:
+                continue
+            line_tags = list()
+            options = dict()
+            for num, arg in enumerate(args[1:]):
+                if '=' in arg:
+                    key, val = arg.split('=')
+                    if key.lower() == 'ref':
+                        options[key] = val
+                    elif key.lower() == 'nofit':
+                        options[key] = True if val.lower() == 'true' else False
+                    elif key.lower() == 'sigma':
+                        try:
+                            options[key] = float(val)
+                        except ValueError:
+                            print(" [Parse Error] - Could not convert value to float: %s" % arg)
+                            continue
+                    else:
+                        print(" [Parse Error] - Unkown parameter: %s ; skipping the line!" % arg)
+                else:
+                    if line_pattern.fullmatch(arg):
+                        line_tags.append(arg)
+            limits.append((line_tags, options))
 
         elif 'fine-lines' in line:
             velspan = None
@@ -621,6 +651,7 @@ def parse_parameters(fname):
 
     par_file.close()
     parameters['data'] = data
+    parameters['limits'] = limits
     parameters['lines'] = lines
     parameters['fine-lines'] = fine_lines
     parameters['molecules'] = molecules

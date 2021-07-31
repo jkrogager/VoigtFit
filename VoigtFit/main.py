@@ -270,6 +270,10 @@ def main():
 
     dataset.verbose = verbose
 
+    if len(parameters['limits']) > 0:
+        for limit_lines, limit_options in parameters['limits']:
+            dataset.add_lines(limit_lines, velspan=dataset.velspan)
+
     # Load components from file:
     dataset.reset_components()
     if 'load' in parameters.keys():
@@ -553,6 +557,20 @@ def main():
     if parameters['show_total']:
         dataset.print_total()
 
+    filename = name
+    # determine limits, if any
+    if len(parameters['limits']) > 0:
+        print("\n Determining Upper Limits:")
+        EW_limits = list()
+        for limit_lines, limit_options in parameters['limits']:
+            for line_tag in limit_lines:
+                EW = dataset.equivalent_width_limit(line_tag, verbose=True, **limit_options)
+                if EW is not None:
+                    EW_limits.append(EW)
+                    print(output.format_EW(EW))
+        # Save to file:
+        output.save_EW(EW_limits, filename+'.limits')
+
     # Output:
     if 'individual-regions' in parameters['output_pars']:
         individual_regions = True
@@ -564,7 +582,6 @@ def main():
     else:
         individual_components = False
 
-    filename = name
     # plot and save
     if 'rebin' in parameters['fit_options'].keys():
         rebin = parameters['fit_options']['rebin']
