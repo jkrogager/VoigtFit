@@ -1773,10 +1773,10 @@ def sum_components(dataset, ion, components):
     return total_logN, total_logN_err
 
 
-def save_parameters_to_file(dataset, filename):
+def save_parameters_to_file(dataset, filename, path=''):
     """Save best-fit parameters to file."""
     header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
-    with open(filename, 'w') as output:
+    with open(path + filename, 'w') as output:
         output.write(header + "\n")
         for ion in sorted(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
@@ -1826,12 +1826,12 @@ def save_parameters_to_file(dataset, filename):
                 output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
-    print("  Best-fit parameters saved to file: %s" % filename)
+    print(" - Saved Best-fit Parameters to file: %s" % (path + filename))
 
 
-def save_cont_parameters_to_file(dataset, filename):
+def save_cont_parameters_to_file(dataset, filename, path=''):
     """Save Chebyshev coefficients to file."""
-    with open(filename, 'w') as output:
+    with open(path + filename, 'w') as output:
         header = "# Chebyshev Polynomial Coefficients"
         output.write(header + "\n")
 
@@ -1852,6 +1852,7 @@ def save_cont_parameters_to_file(dataset, filename):
                 line = " p%-2i  =  %.3e    %.3e" % (i, coeff.value, coeff.stderr)
                 output.write(line + "\n")
             output.write("\n")
+    print(" - Saved Best-fit Chebyshev Coefficients to file: %s" % (path + filename))
 
 
 def save_fit_regions(dataset, filename, individual=False, path=''):
@@ -1956,6 +1957,7 @@ def save_fit_regions(dataset, filename, individual=False, path=''):
             out_file.write("# column 4 : Best-fit profile\n")
             out_file.write("# column 5 : Pixel mask, 1=included, 0=excluded\n")
             np.savetxt(out_file, data_table, fmt="%.3f   %.4f   %.4f   %.4f   %i")
+    print(" - Saved Data for Fit Regions (data + best-fit profile) to file: %s" % (filename))
 
 
 def save_individual_components(dataset, filename, path=''):
@@ -2071,10 +2073,46 @@ def save_individual_components(dataset, filename, path=''):
         with open(filename, 'w') as output:
             output.write(header+'\n')
             np.savetxt(output, data, fmt=data_fmt)
+        print(" - Saved Best-fit Individual Components to file: %s" % (filename))
 
     else:
         print(" [ERROR] - No fit parameters found! \n")
         return
+
+
+def save_EW(EW_list, filename, path=''):
+    """
+    Save the equivalent width data for each line in the input list.
+
+    Parameters
+    ----------
+    EW_list : list[`namedtuple` (EquivalentWidth)]
+        A list of `namedtuple` (EquivalentWidth), see implementation in `VoigtFit.dataset.py`
+
+    filename : str
+        Filename to be used. If the filename already exists, it will be overwritten.
+
+    path : str   [default = '']
+        Specify a path to prepend to the filename in order to save output to a given
+        directory or path. Can be given both as relative or absolute path.
+        If the directory does not exist, it will be created.
+        The final filename will be:
+
+            `path/` + `filename`
+    """
+    header = "# {sigma:.1f}-sigma upper limits listed as u.limit\n"
+    header += "# logN in units of cm^-2, W_rest in units of Å\n"
+    header += "Line           u.limit  logN   logN_err   W_rest    W_err \n"
+    fmt = "{line:13}   {logN_limit:.2f}   {logN:.3f}  {logN_err:.3f}    {W_rest:+.2e}  {W_err:.2e}"
+    with open(path + filename, 'w') as output:
+        output.write(header)
+        for EW in EW_list:
+            output.write(fmt.format(**EW._asdict()) + '\n')
+    print(" - Saved Equivalent Width Data to file: %s" % (path + filename))
+
+def format_EW(EW):
+    fmt = "{line:>13}   logN < {logN_limit:.2f}   ({sigma:.1f} sigma)"
+    return fmt.format(**EW._asdict())
 
 
 def show_components(dataset, ion=None):
