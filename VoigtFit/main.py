@@ -273,6 +273,8 @@ def main():
     if len(parameters['limits']) > 0:
         for limit_lines, limit_options in parameters['limits']:
             dataset.add_lines(limit_lines, velspan=dataset.velspan)
+            for line_tag in limit_lines:
+                dataset.deactivate_line(line_tag)
 
     # Load components from file:
     dataset.reset_components()
