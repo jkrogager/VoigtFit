@@ -42,7 +42,7 @@ Recent updates
 **New in version 0.12**:
   Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.
   For more details about how to use this, see the documentation on :ref:`documentation`.
-  I want to thanks Annalisa De Cia for the motivation to include this functionality in VoigtFit, for helpful discussions along the way, and for the financial support to keep developing VoigtFit!
+  I want to thank Annalisa De Cia for the motivation to include this functionality in VoigtFit, for helpful discussions along the way, and for the financial support to keep developing VoigtFit!
 
 New in version 0.11.15:
   Updated oscillator strengths for NiII following Boissé & Bergeron (2019).
