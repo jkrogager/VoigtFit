@@ -35,9 +35,9 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
-**New in version 0.13**:
+**New in version 0.13.1**:
   User-defined variables can now be defined in order to define flexible parameter constraints.
-  For details, see the documentation on :ref:`documentation`.
+  For details, see the documentation on :ref:`documentation`. Small updates in measurement of equivalent width: do not use blended lines to determine the integration limits, unless fitted profile is used. Generate plots for limits.
 
 **New in version 0.12**:
   Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.

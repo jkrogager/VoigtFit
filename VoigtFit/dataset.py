@@ -2382,6 +2382,6 @@ class DataSet(object):
         result = EquivalentWidth(W_rest=W_rest, W_err=W_err, logN=logN, logN_err=logN_err,
                                  logN_limit=logN_limit, line=line_tag, sigma=sigma)
 
-        limit_fname = self.name + '_limit.pdf'
+        limit_fname = self.name + '_%s_limit.pdf' % line_tag
         output.plot_limit(self, line, line_match, vel_ref, tau, vmin, vmax, use_data, filename=limit_fname, EW=result)
         return result
