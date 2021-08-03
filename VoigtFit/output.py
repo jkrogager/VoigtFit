@@ -21,6 +21,7 @@ from . import terminal_attributes as term
 from . import voigt
 
 plt.rcParams['lines.linewidth'] = 1.0
+plt.rcParams['font.family'] = 'Arial'
 
 
 valid_kwargs = list(Line2D.properties(Line2D([0], [0])).keys())
@@ -1437,6 +1438,48 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
     plt.show()
 
 
+def plot_limit(dataset, line, ref_line, vel_ref, tau, vmin, vmax, use_data, filename=None, EW=None):
+    fig, axes = plt.subplots(nrows=2, ncols=1)
+    # -- Plot data for the target line:
+    regs_of_line = dataset.find_line(line.tag)
+    reg = regs_of_line[0]
+    vel = reg.get_velocity(dataset.redshift, line.tag)
+    noise = np.nanmedian(reg.err)
+    axes[0].plot(vel, reg.flux, color='k', lw=1.0, drawstyle='steps-mid')
+    axes[0].errorbar(vel, reg.flux, reg.err, ecolor='0.3', ls='', alpha=0.5, elinewidth=0.8)
+    axes[0].set_xlim(vel.min(), vel.max())
+    axes[0].set_ylim(1.-6*noise, 1.+6*noise)
+    axes[0].axhline(1., ls=':', color='k', lw=1., alpha=0.5)
+    axes[0].axvline(vmin, ls='--', color='r', alpha=0.8)
+    axes[0].axvline(vmax, ls='--', color='r', alpha=0.8)
+    if EW is not None:
+        Wlim = EW.W_err * EW.sigma
+        txt = "%.2e" % Wlim
+        num, exp = txt.split('e')
+        Wlim_str = "%s x 10$^{%i}$" % (num, int(exp))
+        Nlim = EW.logN_limit
+        text_label = 'W(%s) < %s Å   log(N/cm$^{-2}$) < %.2f' % (line.tag, Wlim_str, Nlim)
+        axes[0].set_title(text_label)
+    axes[0].set_ylabel("Normalized Flux")
+
+    # -- Plot apparent optical depth for reference line:
+    if use_data:
+        axes[1].plot(vel_ref, tau, color='k', lw=1.0, drawstyle='steps-mid', label='Observed AOD (%s)' % ref_line.tag)
+    else:
+        axes[1].plot(vel_ref, tau, color='RoyalBlue', lw=1.5, label='Model AOD (%s)' % ref_line.tag)
+    axes[1].axvline(vmin, ls='--', color='r', alpha=0.8)
+    axes[1].axvline(vmax, ls='--', color='r', alpha=0.8)
+    axes[1].set_xlim(vel.min(), vel.max())
+    axes[1].set_ylabel("Apparent Optical Depth (AOD)")
+    axes[1].set_xlabel("Rel. Velocity  [km s$^{-1}$]")
+    axes[1].legend()
+    fig.tight_layout()
+    if filename:
+        plt.savefig(filename)
+    else:
+        plt.show()
+
+
 # ===================================================================================
 #
 #   Text output functions:
@@ -1478,7 +1521,9 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
     else:
         z_sys = dataset.redshift
 
-    print("\n  Best fit parameters\n")
+    print("\n----------------------")
+    print("  Best fit parameters:")
+    print("----------------------\n")
     print("\t\t\t\tb\t\t\tlog(N)")
     if elements == 'all':
         for ion in sorted(dataset.components.keys()):
@@ -1568,12 +1613,23 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
             print("")
 
+    for varname in dataset.static_variables.keys():
+        par = dataset.best_fit[varname]
+        err = par.stderr
+        if err is None:
+            err = 0.
+        output_string = "%s = %.3e ± %.3e" % (varname, par.value, err)
+        print(output_string)
+    print("")
+
 
 def print_cont_parameters(dataset):
     """ Print the Chebyshev coefficients of the continuum normalization."""
     if dataset.cheb_order >= 0:
         print("")
+        print("---------------------------------------------")
         print("  Chebyshev coefficients for fitting regions:")
+        print("---------------------------------------------\n")
         for reg_num, region in enumerate(dataset.regions):
             if not region.has_active_lines():
                 continue
@@ -1626,7 +1682,9 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
 
     """
 
-    print("\n  Metallicities\n")
+    print("\n----------------")
+    print("  Metallicities:")
+    print("----------------\n")
     print("  log(NHI) = %.3f ± %.3f\n" % (logNHI, err))
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
@@ -1666,7 +1724,9 @@ def print_total(dataset, verbose=True):
     output = list()
     if isinstance(dataset.best_fit, dict):
         params = dataset.best_fit
-        output.append("  Total Column Densities\n")
+        output.append("-------------------------")
+        output.append("  Total Column Densities:")
+        output.append("-------------------------\n")
         for ion in sorted(dataset.components.keys()):
             # element = ion[:2] if ion[1].islower() else ion[0]
             logN = []

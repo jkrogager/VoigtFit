@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 import warnings
+import re
 
 from astropy.io import fits
 from lmfit import Parameters, Minimizer
@@ -155,6 +156,9 @@ class DataSet(object):
             The parameters will be defined during the call to :meth:`DataSet.prepare_dataset
             <VoigtFit.DataSet.prepare_dataset>` based on the defined components.
 
+        static_variables : `lmfit.Parameters`_
+            Parameter dictionary that holds fit variables other than those related to
+            components of absorption lines and continuum parameters.
 
 
         .. _lmfit.Parameters: https://lmfit.github.io/lmfit-py/parameters.html
@@ -199,6 +203,7 @@ class DataSet(object):
         self.best_fit = None
         self.minimizer = None
         self.pars = None
+        self.static_variables = Parameters()
         self.name = name
 
     def set_name(self, name):
@@ -1000,6 +1005,9 @@ class DataSet(object):
 
         return lines_for_ion
 
+    def reset_static_variables(self):
+        self.static_variables = Parameters()
+
     def reset_components(self, ion=None):
         """
         Reset component structure for a given ion.
@@ -1662,6 +1670,9 @@ class DataSet(object):
 
     # =========================================================================
 
+    def add_variable(self, name, **kwargs):
+        self.static_variables.add(name, **kwargs)
+
     def prepare_dataset(self, norm=True, mask=False, verbose=True,
                         active_only=False,
                         force_clean=True,
@@ -1768,6 +1779,7 @@ class DataSet(object):
 
         # --- Prepare fit parameters  [class: lmfit.Parameters]
         self.pars = Parameters()
+        self.pars += self.static_variables
         # - First setup parameters with values only:
         for ion in self.components.keys():
             for n, comp in enumerate(self.components[ion]):
@@ -1810,6 +1822,18 @@ class DataSet(object):
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=p0, vary=var_par)
                     else:
                         self.pars.add('R%i_cheb_p%i' % (reg_num, cheb_num), value=0.0, vary=var_par)
+
+        # Check that all static variables are used:
+        all_constraints = "  ".join([p.expr for p in self.pars.values() if p.expr])
+        var_names = list(self.static_variables.keys())
+        for varname in var_names:
+            regex = r'(^|[^a-z^A-Z^0-9_.])[+,-,*,\/]?(%s)[+,-,*,\/]?([^a-z^A-Z^0-9_.]|$)' % varname
+            find_var = re.compile(regex)
+            if find_var.search(all_constraints) is None:
+                self.pars.pop(varname)
+                self.static_variables.pop(varname)
+                if self.verbose and verbose:
+                    print(" [INFO] - unused variable was removed: %s" % varname)
 
         # --- mask spectral regions that should not be fitted
         if mask:
@@ -2296,10 +2320,13 @@ class DataSet(object):
                 reg_match = reg_match_all[0]
                 if not reg_match.normalized:
                     reg_match.normalize(z_sys=self.redshift)
-                vel = reg_match.get_velocity(self.redshift, line_match.tag)
-                profile = reg_match.evaluate_region(self.best_fit)
+                wl_ref = np.linspace(reg_match.wl.min(), reg_match.wl.max(), len(reg_match.wl)*10)
+                lcen = line_match.l0 * (self.redshift + 1)
+                vel_ref = (wl_ref - lcen) / lcen * 299792.458
+                # vel_ref = reg_match.get_velocity(self.redshift, line_match.tag)
+                profile = reg_match.evaluate_region(self.best_fit, wl=wl_ref, lines=[line_match])
                 tau = -np.log(profile)
-                vmin, vmax = tau_percentile(vel, tau)
+                vmin, vmax = tau_percentile(vel_ref, tau)
                 use_data = False
                 if verbose:
                     print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
@@ -2319,6 +2346,8 @@ class DataSet(object):
                 for _, this_line in sorted(zip(line_strength, matches), reverse=True):
                     these_regs = self.find_line(this_line.tag)
                     this_reg = these_regs[0]
+                    if len(this_reg.lines) > 1:
+                        continue
                     flux = this_reg.flux
                     mask = this_reg.mask
                     if np.min(flux[mask]) > 0:
@@ -2332,12 +2361,12 @@ class DataSet(object):
                     return None
             if not reg_match.normalized:
                 reg_match.normalize(z_sys=self.redshift)
-            vel = reg_match.get_velocity(self.redshift, line_match.tag)
+            vel_ref = reg_match.get_velocity(self.redshift, line_match.tag)
             _, flux, err, mask = reg_match.unpack()
             tau = -np.log(flux[mask])
             tau_err = err[mask] / flux[mask]
             noise = np.median(tau_err) * threshold
-            vmin, vmax = tau_noise_range(vel[mask], tau, noise)
+            vmin, vmax = tau_noise_range(vel_ref[mask], tau, noise)
             if verbose:
                 print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
                 print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
@@ -2352,4 +2381,7 @@ class DataSet(object):
 
         result = EquivalentWidth(W_rest=W_rest, W_err=W_err, logN=logN, logN_err=logN_err,
                                  logN_limit=logN_limit, line=line_tag, sigma=sigma)
+
+        limit_fname = self.name + '_%s_limit.pdf' % line_tag
+        output.plot_limit(self, line, line_match, vel_ref, tau, vmin, vmax, use_data, filename=limit_fname, EW=result)
         return result

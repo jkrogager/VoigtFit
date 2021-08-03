@@ -440,6 +440,55 @@ Optional arguments:
     The *b*-parameter will be tied to the first component defined for *FeII*.
 
 
+Define Variables [**New!**]
+---------------------------
+
+**def  name  [ value=__  vary=__  min=__  max=__  expr='__' ]**
+
+  *name* is the variable name that will be used to refer to this value in algebraic
+  constraints for component values.
+
+This statement allows the user to define new variables to include in the fit.
+This is a powerful way to define flexible constraints of all the parameters of VoigtFit.
+The variable *name* can be referenced in the constraints for `lmfit.Parameter` expressions,
+and the keywords follow the definition of this class.
+
+
+Optional arguments:
+
+  No spaces are allowed around the '=' sign and the values.
+  Ex: use ``expr='a+b'``, do **not** give ``expr = 'a + b'``
+
+  *value* : sets the initial value of the variable (must be a floating point value!).
+
+  *vary* : either True or False, determines whether the variable is varied or kept fixed
+  during the optimization.
+
+  *min* and *max* : define the lower and upper bounds, respectively, of the allowed values
+  (must be floating point values). By default, all real values are allowed from -infinity to +infinity.
+
+  *expr* : allows the user to define a constraint using other variables in the dataset, see `lmfit`
+  for more details about the limitations of the *expr* keyword.
+
+
+.. topic:: Example
+
+  .. code-block:: text
+
+    component FeII  0.0  5.  14.5  velocity
+    component FeII 10.0  5.  14.2  velocity
+    def dN value=+1
+    component SiII  0.0  5.  15.5  velocity tie_N='logN0_FeII+dN'
+    component SiII  0.0  5.  15.2  velocity tie_N='logN1_FeII+dN'
+    fix-velocity
+
+  This will define two components for FeII at relative velocities 0 and +10 km/s, both with b = 5 km/s
+  and log column densities of 14.5 and 14.2. The components of SiII are fixed to the same relative
+  abundance pattern as FeII but with a freely variable logarithmic offset fitted as the *variable* `dN`.
+  The relative velocities and b-values are here assumed to be well-known (e.g., from a previous fit), and
+  are therefore fixed using the ``fix-velocity`` statement. Alternatively, the *b*- and *z*- values can
+  be tied to those of FeII as well.
+
 
 Interactive Components
 ----------------------
