@@ -2320,10 +2320,13 @@ class DataSet(object):
                 reg_match = reg_match_all[0]
                 if not reg_match.normalized:
                     reg_match.normalize(z_sys=self.redshift)
-                vel = reg_match.get_velocity(self.redshift, line_match.tag)
-                profile = reg_match.evaluate_region(self.best_fit)
+                wl_ref = np.linspace(reg_match.wl.min(), reg_match.wl.max(), len(reg_match.wl)*10)
+                lcen = line_match.l0 * (self.redshift + 1)
+                vel_ref = (wl_ref - lcen) / lcen * 299792.458
+                # vel_ref = reg_match.get_velocity(self.redshift, line_match.tag)
+                profile = reg_match.evaluate_region(self.best_fit, wl=wl_ref, lines=[line_match])
                 tau = -np.log(profile)
-                vmin, vmax = tau_percentile(vel, tau)
+                vmin, vmax = tau_percentile(vel_ref, tau)
                 use_data = False
                 if verbose:
                     print("\n [INFO] - Determining limit for %s, using the fitted profile of %s as reference" % (line_tag, line_match.tag))
@@ -2343,6 +2346,8 @@ class DataSet(object):
                 for _, this_line in sorted(zip(line_strength, matches), reverse=True):
                     these_regs = self.find_line(this_line.tag)
                     this_reg = these_regs[0]
+                    if len(this_reg.lines) > 1:
+                        continue
                     flux = this_reg.flux
                     mask = this_reg.mask
                     if np.min(flux[mask]) > 0:
@@ -2356,12 +2361,12 @@ class DataSet(object):
                     return None
             if not reg_match.normalized:
                 reg_match.normalize(z_sys=self.redshift)
-            vel = reg_match.get_velocity(self.redshift, line_match.tag)
+            vel_ref = reg_match.get_velocity(self.redshift, line_match.tag)
             _, flux, err, mask = reg_match.unpack()
             tau = -np.log(flux[mask])
             tau_err = err[mask] / flux[mask]
             noise = np.median(tau_err) * threshold
-            vmin, vmax = tau_noise_range(vel[mask], tau, noise)
+            vmin, vmax = tau_noise_range(vel_ref[mask], tau, noise)
             if verbose:
                 print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
                 print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))
@@ -2376,4 +2381,7 @@ class DataSet(object):
 
         result = EquivalentWidth(W_rest=W_rest, W_err=W_err, logN=logN, logN_err=logN_err,
                                  logN_limit=logN_limit, line=line_tag, sigma=sigma)
+
+        limit_fname = self.name + '_limit.pdf'
+        output.plot_limit(self, line, line_match, vel_ref, tau, vmin, vmax, use_data, filename=limit_fname, EW=result)
         return result

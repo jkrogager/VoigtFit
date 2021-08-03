@@ -610,7 +610,11 @@ class Region():
         return vel
 
 
-    def evaluate_region(self, pars, z_sys=None, sampling=3):
-        profile = evaluate_profile(self.wl, pars, self.lines, self.kernel,
+    def evaluate_region(self, pars, wl=None, z_sys=None, sampling=3, lines=None):
+        if lines is None:
+            lines = self.lines
+        if wl is None:
+            wl = self.wl
+        profile = evaluate_profile(wl, pars, lines, self.kernel,
                                    z_sys=z_sys, sampling=sampling, kernel_nsub=self.kernel_nsub)
         return profile
