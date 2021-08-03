@@ -27,7 +27,7 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
   I want to thank Jonatan Selsing and Kasper E. Heintz
   who helped putting parts of the documentation together.
   I also thank Svea Hernandez, Johan Fynbo, Christina Thöne, Luca Izzo, Antonio de Ugarte-Postigo,
-  Bo Milvang-Jensen, and Lise Christensen for their help in extensively testing
+  Bo Milvang-Jensen, Lise Christensen, and Annalisa De Cia for their help in extensively testing
   the software and for their constructive feedback and ideas for new features.
 
 
@@ -42,6 +42,7 @@ Recent updates
 **New in version 0.12**:
   Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.
   For more details about how to use this, see the documentation on :ref:`documentation`.
+  I want to thanks Annalisa De Cia for the motivation to include this functionality in VoigtFit, for helpful discussions along the way, and for the financial support to keep developing VoigtFit!
 
 New in version 0.11.15:
   Updated oscillator strengths for NiII following Boissé & Bergeron (2019).
