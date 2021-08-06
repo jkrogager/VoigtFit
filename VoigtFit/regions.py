@@ -487,8 +487,8 @@ class Region():
                     else:
                         plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
-        plt.title("Mark regions to mask, left and right boundary.")
-        print("\n\n  Mark regions to mask, left and right boundary.")
+        plt.title("Mark left and right boundary of regions to mask")
+        print("\n\n  Mark left and right boundary of regions to mask")
         plt.draw()
 
         ok = 0
@@ -510,7 +510,7 @@ class Region():
                 mask_line = plt.plot(x, masked_spectrum, color='r', drawstyle='steps-mid')
 
                 plt.draw()
-                prompt = str(input("Are the masked regions correct? (YES/no/clear)"))
+                prompt = str(input("  Are the masked regions correct? (YES/no/clear)"))
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.mask = mask
@@ -532,13 +532,14 @@ class Region():
                     ok += 1
 
             elif len(sel) == 0:
-                print("\nNo masks were defined.")
-                prompt = str(input("Continue? (yes/no)"))
+                print("\n  No masks were defined.")
+                prompt = str(input("  Continue? (yes/no)"))
                 if prompt.lower() in ['', 'y', 'yes']:
                     ok = -1
                     self.new_mask = False
                 else:
                     ok += 1
+        plt.close()
 
     def set_mask(self, mask):
         err_msg = " Mask must have same size as region!"

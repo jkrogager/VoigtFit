@@ -424,13 +424,14 @@ class DataSet(object):
         reg.wl = raw_data['wl'][cutout]
         reg.normalized = raw_data['norm']
 
-    def reset_all_regions(self):
+    def reset_all_regions(self, active_only=True):
         """
         Reset the data in all :class:`Regions <regions.Region>`
         defined in the DataSet to use the raw input data.
         """
         for reg in self.regions:
-            self.reset_region(reg)
+            if reg.has_active_lines() or not active_only:
+                self.reset_region(reg)
 
     def get_resolution(self, line_tag, verbose=False):
         """Return the spectral resolution for the fitting :class:`Region <regions.Region>`
@@ -822,7 +823,7 @@ class DataSet(object):
                 region.mask = mask
                 region.new_mask = False
             else:
-                if region.new_mask and region.has_active_lines():
+                if region.new_mask:
                     region.define_mask(z=self.redshift, dataset=self,
                                        telluric=telluric, z_sys=z_sys)
 
