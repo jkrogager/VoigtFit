@@ -1353,6 +1353,27 @@ or whether they are tied to another parameter using the <cite>var_</cite> and <c
 <dd><p>Line object containing atomic data for the given transition.
 Only the line_tag is passed, the rest of the information is
 looked up in the atomic database.</p>
+<p class="rubric">Attributes</p>
+<dl class="simple">
+<dt>tag<span class="classifier">str</span></dt><dd><p>The line tag for the line, e.g., ‘FeII_2374’</p>
+</dd>
+<dt>ion<span class="classifier">str</span></dt><dd><p>The ion for the line; The ion for ‘FeII_2374’ is ‘FeII’.</p>
+</dd>
+<dt>element<span class="classifier">str</span></dt><dd><p>Equal to <cite>ion</cite> for backwards compatibility.</p>
+</dd>
+<dt>l0<span class="classifier">float</span></dt><dd><p>Rest-frame resonant wavelength of the transition.
+Unit: Angstrom.</p>
+</dd>
+<dt>f<span class="classifier">float</span></dt><dd><p>The oscillator strength for the transition.</p>
+</dd>
+<dt>gam<span class="classifier">float</span></dt><dd><p>The radiation damping constant or Einstein coefficient.</p>
+</dd>
+<dt>mass<span class="classifier">float</span></dt><dd><p>The atomic mass in atomic mass units.</p>
+</dd>
+<dt>active<span class="classifier">bool   [default = True]</span></dt><dd><p>The state of the line in the dataset. Only active lines will
+be included in the fit.</p>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
