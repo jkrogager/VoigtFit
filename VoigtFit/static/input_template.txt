@@ -91,6 +91,31 @@ copy components from __ion__ to __ion__ and scale logN=__ of component __
 #delete component 2 from __ion__
 # -- Note:  Component numbers start from 0.
 
+# --- Define Fitting Variables:
+#def dlogN  value=-0.5  [vary=True  min=__  max=__  expr='__']
+
+# Use these flexible variables to define parameter constraints for the components
+# of the fit. The variables can also be tied together using algebraic expressions
+# given by the 'expr' keyword. For more information and examples, see the online documentation.
+
+
+# --- Upper Limits for non-detected lines:
+# You can include lines that are not detected in order to obtain upper limits
+# on the equivalent width and corresponding column density:
+#limit __line1__  [ref=__ref-line__  nofit=False  sigma=3.0]
+
+# This will determine the upper limit on the given '__line__', e.g., TiII_1910.
+# This must be a line that exists in the linelist of VoigtFit (same as for 'lines' above)
+# By default, the integration range in velocity space is determined from the best-fit
+# to the other lines in the dataset using the strongest line with the same ionization state
+# as reference. If you want to use a specific line as reference, you can force this by using
+# the option 'ref=__ref-line__', ex: ref=FeII_2374. This reference line must be included
+# in the dataset and fitted using the 'lines' and 'component' statements above.
+# Alternatively, you can use the observed data instead of the fitted profile to determine
+# the integration range, byt specifying 'nofit=True'.
+# -- Note: several 'limit' statements can be given in the input file.
+
+
 
 # --- Output Commands:
 
