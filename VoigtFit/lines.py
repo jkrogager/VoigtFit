@@ -74,31 +74,31 @@ class Line(object):
 
         .. rubric:: Attributes
 
-        tag : str
-            The line tag for the line, e.g., "FeII_2374"
+            tag : str
+                The line tag for the line, e.g., 'FeII_2374'
 
-        ion : str
-            The ion for the line; The ion for "FeII_2374" is "FeII".
+            ion : str
+                The ion for the line; The ion for 'FeII_2374' is 'FeII'.
 
-        element : str
-            Equal to ``ion`` for backwards compatibility.
+            element : str
+                Equal to `ion` for backwards compatibility.
 
-        l0 : float
-            Rest-frame resonant wavelength of the transition.
-            Unit: Angstrom.
+            l0 : float
+                Rest-frame resonant wavelength of the transition.
+                Unit: Angstrom.
 
-        f : float
-            The oscillator strength for the transition.
+            f : float
+                The oscillator strength for the transition.
 
-        gam : float
-            The radiation damping constant or Einstein coefficient.
+            gam : float
+                The radiation damping constant or Einstein coefficient.
 
-        mass : float
-            The atomic mass in atomic mass units.
+            mass : float
+                The atomic mass in atomic mass units.
 
-        active : bool   [default = True]
-            The state of the line in the dataset. Only active lines will
-            be included in the fit.
+            active : bool   [default = True]
+                The state of the line in the dataset. Only active lines will
+                be included in the fit.
 
         """
         self.tag = tag
@@ -127,6 +127,6 @@ class Line(object):
         self.active = True
 
     def __repr__(self):
-        """String representation of the `Line` instance"""
+        """String representation of the :class:`Line <VoigtFit.lines.Line>` instance"""
         line_string = "<Line: %s  %.2fÅ  f=%.2e>" % (self.ion, self.l0, self.f)
         return line_string

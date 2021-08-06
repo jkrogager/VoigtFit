@@ -46,14 +46,14 @@ def load_lsf(lsf_fname, wl, nsub=1):
     """
     Load a Line-Spread Function table following format from HST:
     First line gives wavelength in Angstrom and the column below
-    each given wavelength defines the kernel in pixel space:
+    each given wavelength defines the kernel in pixel space::
 
-    | wl1    wl2    wl3   ...  wlN
-    | lsf11  lsf21  lsf31 ...  lsfN1
-    | lsf12  lsf22  lsf32 ...  lsfN2
-    | :
-    | :
-    | lsf1M  lsf2M  lsf3M ...  lsfNM
+      wl1    wl2    wl3   ...  wlN
+      lsf11  lsf21  lsf31 ...  lsfN1
+      lsf12  lsf22  lsf32 ...  lsfN2
+      :
+      :
+      lsf1M  lsf2M  lsf3M ...  lsfNM
 
     Parameters
     ----------
@@ -63,7 +63,7 @@ def load_lsf(lsf_fname, wl, nsub=1):
     wl : array like, shape (N)
         The wavelength grid onto which the LSF will be evaluated
 
-    nsub : integer  [default = 1]
+    nsub : int  [default = 1]
         Kernel subsampling factor relative to the data.
         This is only used if the resolution is given as a LSF file.
 
@@ -610,20 +610,18 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     line_props : dict   [default = None]
         A dictionary of keywords to change the default line properties
         of the best-fit profile; e.g., 'color', 'lw', 'linestyle'.
-        All keywords will be passed to the `plot function`_ of matplotlib.
+        All keywords will be passed to the `plot <https://matplotlib.org/
+        stable/api/_as_gen/matplotlib.pyplot.plot.html>`_ function of matplotlib.
 
     hl_line_props : dict   [default = None]
         A dictionary of keywords to change the default line properties
         of the best-fit profile for highlighted ions.
-        All keywords will be passed to the `plot function`_ of matplotlib.
+        All keywords will be passed to the `plot`_ function of matplotlib.
 
     sort_f : bool   [default = True]
         If `True`, calculate velocities with respect to the line with the
         largest oscillator strength. Otherwise, use the given `line_tag`
         as reference.
-
-
-    .. _plot function: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html
 
     """
 

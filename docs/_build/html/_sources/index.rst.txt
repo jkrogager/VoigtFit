@@ -34,6 +34,9 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.13.2:
+  Bugfix in saving and loading datasets (.hdf5) and restoring masks and normalization.
+
 
 New in version 3.13.2:
   Bugfix in masking and continuum normalization of lines used with the `limit` statement. Updated the input-parameter template to reflect the usage of `limit` and `def` introduced in versions 3.13 and 3.12.

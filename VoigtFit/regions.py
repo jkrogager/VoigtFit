@@ -72,14 +72,14 @@ def load_lsf(lsf_fname, wl, nsub=1):
     """
     Load a Line-Spread Function table following format from HST:
     First line gives wavelength in Angstrom and the column below
-    each given wavelength defines the kernel in pixel space:
+    each given wavelength defines the kernel in pixel space::
 
-    wl1    wl2    wl3   ...  wlN
-    lsf11  lsf21  lsf31 ...  lsfN1
-    lsf12  lsf22  lsf32 ...  lsfN2
-    :      :      :          :
-    :      :      :          :
-    lsf1M  lsf2M  lsf3M ...  lsfNM
+      wl1    wl2    wl3   ...  wlN
+      lsf11  lsf21  lsf31 ...  lsfN1
+      lsf12  lsf22  lsf32 ...  lsfN2
+      :
+      :
+      lsf1M  lsf2M  lsf3M ...  lsfNM
 
     Parameters
     ----------

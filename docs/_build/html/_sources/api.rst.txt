@@ -28,7 +28,7 @@ class **Line**
 
 class **Region**
 ----------------
-.. autoclass:: regions.Region
+.. autoclass:: VoigtFit.regions.Region
    :members:
 
 
@@ -42,5 +42,5 @@ module **voigt**
 module **output**
 -----------------
 
-.. automodule:: output
+.. automodule:: VoigtFit.output
    :members:

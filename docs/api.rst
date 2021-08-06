@@ -42,5 +42,5 @@ module **voigt**
 module **output**
 -----------------
 
-.. automodule:: output
+.. automodule:: VoigtFit.output
    :members:

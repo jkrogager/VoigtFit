@@ -20,7 +20,7 @@ z_matcher = re.compile('z[0-9]+_[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?')
 
 # ==== VOIGT PROFILE ===============
 def H(a, x):
-    """Voigt Profile Approximation from T. Tepper-Garcia 2006, 2007."""
+    """Voigt Profile Approximation from T. Tepper-Garcia (2006, 2007)."""
     P = x**2
     H0 = np.exp(-x**2)
     Q = 1.5/x**2
@@ -103,6 +103,8 @@ def convolve_numba(P, kernel):
     -----
     This function is decorated by the `jit` decorator from `numba`_ in order
     to speed up the calculation.
+
+    .. _numba: http://numba.pydata.org/
     """
     N = kernel.shape[1]//2
     pad = np.ones(N)
@@ -259,6 +261,31 @@ def evaluate_profile(x, pars, lines, kernel, z_sys=None, sampling=3, kernel_nsub
 
 
 def evaluate_optical_depth(profile_wl, pars, lines, z_sys=None):
+    """
+    Evaluate optical depth based on the component parameters in `pars`.
+
+    Parameters
+    ----------
+    profile_wl : array_like, shape (N)
+        Wavelength array in Ångstrøm on which to evaluate the profile.
+
+    pars : dict(lmfit.Parameters_)
+        An instance of lmfit.Parameters_ containing the line parameters.
+
+    lines : list(:class:`Line <dataset.Line>`)
+        List of lines to evaluate. Should be a list of
+        :class:`Line <dataset.Line>` objects.
+
+    z_sys : float or None
+        The systemic redshift, used to determine an effective wavelength range
+        within which to evaluate the profile. This is handy when fitting very large
+        regions, such as HI and metal lines together.
+
+    Returns
+    -------
+    tau : array_like, shape (N)
+        The resulting optical depth of all `lines` in the wavelength region.
+    """
     tau = np.zeros_like(profile_wl)
 
     if z_sys is not None:
@@ -309,7 +336,23 @@ def evaluate_optical_depth(profile_wl, pars, lines, z_sys=None):
 
 
 def resvel_to_pixels(wl, res):
-    """Convert spectral resolution in km/s to pixels"""
+    """
+    Convert spectral resolution in km/s to pixels
+
+    Parameters
+    ----------
+    wl : array, shape (N)
+        Input array of wavelength to evaluate
+
+    res : float
+        The input spectral velocity resolution in **km/s**.
+
+    Returns
+    -------
+    w : float
+        Kernel width converted to velocity pixels (km/s).
+        (to be used with convolution of logarithmically-spaced data/models).
+    """
     dl = np.diff(wl)
     pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
     assert pix_size_vel > 0.0001, "Wavelength array seems to be linearly spaced. Must be logarithmic!"
@@ -318,8 +361,22 @@ def resvel_to_pixels(wl, res):
 
 
 def fwhm_to_pixels(wl, res_wl):
-    """Convert spectral resolution in wavelength to pixels
+    """
+    Convert spectral resolution in wavelength to pixels
     R = lambda / dlambda, where dlambda is the FWHM
+
+    Parameters
+    ----------
+    wl : array, shape (N)
+        Input array of wavelength to evaluate
+
+    res_wl : float
+        The input spectral resolution element (FWHM) in Ångström.
+
+    Returns
+    -------
+    w : float
+        Kernel width converted to pixels (to be used with :func:`convolve_profile <voigt.convolve_profile>`).
     """
     dl = np.diff(wl)
     pix_size_vel = (dl[-1] - dl[0]) / (wl[-1] - wl[0]) * 299792.458
@@ -330,7 +387,22 @@ def fwhm_to_pixels(wl, res_wl):
 
 def convolve_profile(profile, width):
     """
-    Convolve with constant kernel width in pixels!
+    Convolve with Gaussian kernel using constant width in pixels!
+
+    Parameters
+    ----------
+    profile : array, shape (N)
+        Input profile to convolve with a Gaussian kernel.
+
+    width : float
+        Kernel width (or sigma) of the Gaussian profile in **units of pixels**.
+        Note -- this should *not* be the FWHM, as is usually used to denote
+        the resolution element: `width` = FWHM / 2.35482
+
+    Returns
+    -------
+    profile_obs : array, shape(N)
+        The convolved version of `profile`.
     """
     LSF = gaussian(10*int(width)+1, width)
     LSF = LSF/LSF.sum()
