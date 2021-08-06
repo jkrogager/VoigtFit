@@ -172,7 +172,9 @@ def load_dataset_from_hdf(fname):
         for chunk in data.values():
             # For backward compatibility:
             if 'filename' in chunk.attrs.keys():
-                ds.data_filenames.append(chunk.attrs['filename'])
+                filename = chunk.attrs['filename']
+            else:
+                filename = ''
             res = chunk.attrs['res']
             norm = chunk.attrs['norm']
             if 'nsub' in chunk.attrs.keys():
@@ -189,7 +191,7 @@ def load_dataset_from_hdf(fname):
 
             ds.add_data(wl, flux, res,
                         err=error, normalized=norm, nsub=nsub,
-                        mask=mask)
+                        mask=mask, filename=filename)
 
         # Load .regions:
         # --- this will be deprecated in later versions

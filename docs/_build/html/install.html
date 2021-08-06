@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Installation &#8212; VoigtFit 0.13.2 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="VoigtFit Parameter Language" href="documentation.html" />
@@ -34,13 +33,11 @@
 
           <div class="body" role="main">
             
-  <pre class="logo literal-block">
-____  _           _________________________________________
+  <pre class="logo literal-block">____  _           _________________________________________
     \/ \  _/\    /
         \/   \  / oigtFit
-              \/
-</pre>
-<div class="section" id="installation">
+              \/</pre>
+<section id="installation">
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>VoigtFit is now available for Python 3! The code has been tested on 3.6 and 3.7.
 Support for Python 2.7 will be continued for a while but will eventually be dropped
@@ -49,14 +46,14 @@ since Python 2.7 is no longer supported by the Python developers.</p>
 <a class="reference external" href="https://forms.gle/exPEsrPoyfB4Us7w9">short form</a>.
 This way I can keep you updated with critical updates and I get an idea of how many users
 are still depending on Python 2.7 compatibility.</p>
-<div class="section" id="dependencies">
+<section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>VoigtFit depends on <a class="reference external" href="https://matplotlib.org/">matplotlib</a>, <a class="reference external" href="http://www.numpy.org/">numpy</a>, <a class="reference external" href="https://scipy.org/">scipy</a>, <a class="reference external" href="http://www.h5py.org/">h5py</a> (&gt;2.1), <a class="reference external" href="http://www.astropy.org/">astropy</a>, and <a class="reference external" href="https://lmfit.github.io/lmfit-py/">lmfit</a>. You
 can install these using your favorite Python package manager such as
 <a class="reference external" href="https://pip.pypa.io/en/stable/installing/">pip</a> or
 <a class="reference external" href="http://conda.pydata.org/docs/">conda</a>.</p>
-</div>
-<div class="section" id="using-pip">
+</section>
+<section id="using-pip">
 <h2>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to install the most recent stable version of <code class="docutils literal notranslate"><span class="pre">VoigtFit</span></code> is
 using <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
@@ -68,13 +65,14 @@ using <a class="reference external" href="http://www.pip-installer.org/">pip</a>
 </div>
 <p>If you encounter the following AttributeError when attempting to install via pip:</p>
 <blockquote>
-<div>AttributeError: ‘NoneType’ object has no attribute ‘splitlines’</div></blockquote>
+<div><p>AttributeError: ‘NoneType’ object has no attribute ‘splitlines’</p>
+</div></blockquote>
 <p>Try running pip with the <code class="docutils literal notranslate"><span class="pre">--upgrade</span></code> option:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="p">]</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">VoigtFit</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="from-source">
+</section>
+<section id="from-source">
 <h2>From source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h2>
 <p>Alternatively, you can get the source by downloading a <a class="reference external" href="https://github.com/jkrogager/VoigtFit/tarball/master">tarball</a> or cloning <a class="reference external" href="https://github.com/jkrogager/VoigtFit">the git
 repository</a>:</p>
@@ -86,8 +84,8 @@ directory and run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%<span class="o">]</span> python setup.py install
 </pre></div>
 </div>
-</div>
-<div class="section" id="test-the-installation">
+</section>
+<section id="test-the-installation">
 <h2>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h2>
 <p>If the installation went smoothly, you should be able to run VoigtFit from the terminal
 by executing the following command:</p>
@@ -104,8 +102,8 @@ This way you can stay updated on what is possible within the parameter file lang
 </pre></div>
 </div>
 <p>Where input.pars is the name of your parameter file.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -114,7 +112,7 @@ This way you can stay updated on what is possible within the parameter file lang
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
@@ -135,17 +133,15 @@ This way you can stay updated on what is possible within the parameter file lang
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -154,8 +150,8 @@ This way you can stay updated on what is possible within the parameter file lang
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.8</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/install.rst.txt"

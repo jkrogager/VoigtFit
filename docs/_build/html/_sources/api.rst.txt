@@ -8,7 +8,7 @@ VoigtFit Interface
 class **DataSet**
 -----------------
 
-.. autoclass:: dataset.DataSet
+.. autoclass:: VoigtFit.dataset.DataSet
    :members:
 
 

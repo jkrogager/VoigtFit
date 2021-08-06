@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>VoigtFit Parameter Language &#8212; VoigtFit 0.13.2 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="VoigtFit Interface" href="api.html" />
@@ -34,13 +33,11 @@
 
           <div class="body" role="main">
             
-  <pre class="logo literal-block">
-____  _           _________________________________________
+  <pre class="logo literal-block">____  _           _________________________________________
     \/ \  _/\    /
         \/   \  / oigtFit
-              \/
-</pre>
-<div class="section" id="voigtfit-parameter-language">
+              \/</pre>
+<section id="voigtfit-parameter-language">
 <span id="documentation"></span><h1>VoigtFit Parameter Language<a class="headerlink" href="#voigtfit-parameter-language" title="Permalink to this headline">¶</a></h1>
 <p>The program can be run directly from terminal using a parameter input file to tell VoigtFit
 what to do:</p>
@@ -62,8 +59,8 @@ at runtime, so you can freely arrange the parameter file as you see fit.</p>
 <p>Double underscores below indicate an optional keyword argument to be given by the user.</p>
 </div></blockquote>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">A parameter file template can be created in your working directory
+<p class="admonition-title">Note</p>
+<p>A parameter file template can be created in your working directory
 by running <code class="docutils literal notranslate"><span class="pre">VoigtFit</span></code> with no arguments.</p>
 </div>
 <p>Many of the statements are optional, but there is a subset of statements that
@@ -73,14 +70,12 @@ not understood, the program will cause an error.
 A minimal working example of all the mandatory statements looks something like this:</p>
 <blockquote>
 <div><p>Mandatory Statements:</p>
-<pre class="literal-block">
-<a class="reference internal" href="#name">name</a> : test_dataset
+<pre class="literal-block"><a class="reference internal" href="#name">name</a> : test_dataset
 <a class="reference internal" href="#z-sys">z_sys</a> : 1.985
 <a class="reference internal" href="#data">data</a>  'this_spectrum.tab'  35.
 <a class="reference internal" href="#lines">lines</a>  FeII_2374
 <a class="reference internal" href="#add-components">component</a>  FeII  -10.5   10.0  14.5  velocity
-<a class="reference internal" href="#add-components">component</a>  FeII    0.0   15.0  13.5  velocity
-</pre>
+<a class="reference internal" href="#add-components">component</a>  FeII    0.0   15.0  13.5  velocity</pre>
 </div></blockquote>
 <p>This is all you need to get started. The rest is an interactive and iterative process,
 which VoigtFit makes easy for you.</p>
@@ -88,34 +83,37 @@ which VoigtFit makes easy for you.</p>
 are presented in detail below. For a quick overview of available statements look in the
 table of contents.</p>
 <p>A set of predefined input parameter files are available in the <em>test_data</em> folder on <a class="reference external" href="https://github.com/jkrogager/VoigtFit">github</a>.</p>
-<div class="section" id="name">
+<section id="name">
 <h2>Name<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
 <p><strong>name :  dataset_name</strong></p>
 <blockquote>
-<div><em>dataset_name</em> gives the name of the dataset.
+<div><p><em>dataset_name</em> gives the name of the dataset.
 The dataset is automatically saved (as <code class="docutils literal notranslate"><span class="pre">dataset_name.hdf5</span></code>),
 and if a dataset of the given name is present in the working directory,
 it will be loaded automatically. The current dataset can be overwritten
-by running VoigtFit with the option <code class="docutils literal notranslate"><span class="pre">-f</span></code>.</div></blockquote>
-</div>
-<div class="section" id="save">
+by running VoigtFit with the option <code class="docutils literal notranslate"><span class="pre">-f</span></code>.</p>
+</div></blockquote>
+</section>
+<section id="save">
 <h2>Save<a class="headerlink" href="#save" title="Permalink to this headline">¶</a></h2>
 <p><strong>save : [ filename ]</strong></p>
 <blockquote>
-<div><em>filename</em> is the filename used for the graphic output and for parameter output.
+<div><p><em>filename</em> is the filename used for the graphic output and for parameter output.
 If no filename is given, the dataset <cite>name</cite> attribute will be used.
 The graphic output will be saved in pdf format and the parameter files will be saved as ascii files:
 The best-fit parameters will be saved to <cite>filename.fit</cite> and the best-fit continuum parameters
-will be saved to <cite>filename</cite>.cont.</div></blockquote>
-</div>
-<div class="section" id="z-sys">
+will be saved to <cite>filename</cite>.cont.</p>
+</div></blockquote>
+</section>
+<section id="z-sys">
 <h2>z_sys<a class="headerlink" href="#z-sys" title="Permalink to this headline">¶</a></h2>
 <p><strong>z_sys :  z_sys</strong></p>
 <blockquote>
-<div><em>z_sys</em> gives the systemic redshift of the absorption system.
-Relative velocities are calculated with respect to this redshift.</div></blockquote>
-</div>
-<div class="section" id="data">
+<div><p><em>z_sys</em> gives the systemic redshift of the absorption system.
+Relative velocities are calculated with respect to this redshift.</p>
+</div></blockquote>
+</section>
+<section id="data">
 <h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
 <p><strong>data  filename  resolution  [ norm   air  no-mask  nsub=1  ext=None]</strong></p>
 <blockquote>
@@ -129,45 +127,45 @@ containing the line-spread function (LSF) for the given spectrum. The file
 format should follow that laid out by the <a class="reference external" href="http://www.stsci.edu/hst/cos/performance/spectral_resolution/">HST/COS instrument</a>.
 The first line gives wavelength in Angstrom and the column below
 each given wavelength defines the kernel in pixel space:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="22%" />
-<col width="22%" />
-<col width="22%" />
-<col width="11%" />
-<col width="22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 11%" />
+<col style="width: 22%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>wl<sub>1</sub></td>
-<td>wl<sub>2</sub></td>
-<td>wl<sub>3</sub></td>
-<td>…</td>
-<td>wl<sub>N</sub></td>
+<tbody>
+<tr class="row-odd"><td><p>wl<sub>1</sub></p></td>
+<td><p>wl<sub>2</sub></p></td>
+<td><p>wl<sub>3</sub></p></td>
+<td><p>…</p></td>
+<td><p>wl<sub>N</sub></p></td>
 </tr>
-<tr class="row-even"><td>lsf<sub>11</sub></td>
-<td>lsf<sub>21</sub></td>
-<td>lsf<sub>31</sub></td>
-<td>…</td>
-<td>lsf<sub>N1</sub></td>
+<tr class="row-even"><td><p>lsf<sub>11</sub></p></td>
+<td><p>lsf<sub>21</sub></p></td>
+<td><p>lsf<sub>31</sub></p></td>
+<td><p>…</p></td>
+<td><p>lsf<sub>N1</sub></p></td>
 </tr>
-<tr class="row-odd"><td>lsf<sub>12</sub></td>
-<td>lsf<sub>22</sub></td>
-<td>lsf<sub>32</sub></td>
-<td>…</td>
-<td>lsf<sub>N2</sub></td>
+<tr class="row-odd"><td><p>lsf<sub>12</sub></p></td>
+<td><p>lsf<sub>22</sub></p></td>
+<td><p>lsf<sub>32</sub></p></td>
+<td><p>…</p></td>
+<td><p>lsf<sub>N2</sub></p></td>
 </tr>
-<tr class="row-even"><td rowspan="2">⋮</td>
-<td rowspan="2">⋮</td>
-<td rowspan="2">⋮</td>
-<td rowspan="2">⋱</td>
-<td rowspan="2">⋮</td>
+<tr class="row-even"><td rowspan="2"><p>⋮</p></td>
+<td rowspan="2"><p>⋮</p></td>
+<td rowspan="2"><p>⋮</p></td>
+<td rowspan="2"><p>⋱</p></td>
+<td rowspan="2"><p>⋮</p></td>
 </tr>
 <tr class="row-odd"></tr>
-<tr class="row-even"><td>lsf<sub>1M</sub></td>
-<td>lsf<sub>2M</sub></td>
-<td>lsf<sub>3M</sub></td>
-<td>…</td>
-<td>lsf<sub>NM</sub></td>
+<tr class="row-even"><td><p>lsf<sub>1M</sub></p></td>
+<td><p>lsf<sub>2M</sub></p></td>
+<td><p>lsf<sub>3M</sub></p></td>
+<td><p>…</p></td>
+<td><p>lsf<sub>NM</sub></p></td>
 </tr>
 </tbody>
 </table>
@@ -187,21 +185,23 @@ in the input FITS file. This is only relevant for FITS Table data. The extension
 index or the extension name.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">'J2350-0052_uvb.tab'</span>&#160; <span class="pre">40.</span>&#160; <span class="pre">air</span></code></p>
 <blockquote>
-<div>This will load the data from the file named ‘J2350-0052_uvb.tab’,
+<div><p>This will load the data from the file named ‘J2350-0052_uvb.tab’,
 convert the wavelength column from air to vacuum, and assign
-a spectral resolution of 40 km/s.</div></blockquote>
+a spectral resolution of 40 km/s.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">&quot;norm_data/norm_2350-0052_vis.tab&quot;</span>&#160; <span class="pre">'lsf_file.dat'</span>&#160; <span class="pre">norm</span>&#160; <span class="pre">nsub=3</span></code></p>
 <blockquote>
-<div>This will load the data from the file named ‘norm_2350-0052_vis.tab’
+<div><p>This will load the data from the file named ‘norm_2350-0052_vis.tab’
 in the directory ‘norm_data’ and assign a wavelength dependent line spread function
 as given in the file ‘lsf_file.dat’.
 The keyword <cite>norm</cite> is present, so the data will be marked as normalized,
 and no interactive normalization will therefore pop up during data preparation.
 The keyword <cite>nsub</cite> is set to 3, stating that the kernels provided in the LSF file
-are subsampled by a factor of three relative to the data.</div></blockquote>
+are subsampled by a factor of three relative to the data.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">data</span>&#160; <span class="pre">'sdss_spectrum.fits'</span>&#160; <span class="pre">150.</span>&#160; <span class="pre">ext=4</span></code></p>
 <blockquote>
 <div><p>This will load the data from the extension no. 4 of the file named ‘sdss_spectrum.fits’:</p>
@@ -216,36 +216,41 @@ are subsampled by a factor of three relative to the data.</div></blockquote>
 </div>
 </div></blockquote>
 </div>
-</div>
-<div class="section" id="lines">
+</section>
+<section id="lines">
 <h2>Lines<a class="headerlink" href="#lines" title="Permalink to this headline">¶</a></h2>
 <p><strong>lines  line_tags  [ velspan=__ ]</strong></p>
 <blockquote>
-<div><em>line_tags</em> can be a single line or multiple lines separated by blank spaces.
+<div><p><em>line_tags</em> can be a single line or multiple lines separated by blank spaces.
 The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526,
 or HI_1215. For the Lyman series of hydrogen and deuterium, the following
 notation is also accepted: HI_1 for the Ly-alpha, HI_3 for Ly-gamma, and so on.
-Multiple <em>lines</em> statements can be defined in the parameter file.</div></blockquote>
+Multiple <em>lines</em> statements can be defined in the parameter file.</p>
+</div></blockquote>
 <p>Optinal arguments:</p>
 <blockquote>
-<div><em>velspan</em> : the value after the equal-sign is taken as the velocity
+<div><p><em>velspan</em> : the value after the equal-sign is taken as the velocity
 span in km/s around each line to be defined as a fitting region.
-The default span is 500 km/s.</div></blockquote>
+The default span is 500 km/s.</p>
+</div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">lines</span>&#160; <span class="pre">FeII_2260</span>&#160; <span class="pre">FeII_2374</span>&#160; <span class="pre">SiII_1808</span>&#160; <span class="pre">HI_1215</span></code></p>
 <blockquote>
-<div>This will define the two singly ionized iron transitions at 2260 and 2374Å
-together with the singly ionized silicon transition at 1808Å and the Ly-alpha line.</div></blockquote>
+<div><p>This will define the two singly ionized iron transitions at 2260 and 2374Å
+together with the singly ionized silicon transition at 1808Å and the Ly-alpha line.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">lines</span> <span class="pre">FeII_2374</span>&#160; <span class="pre">SiII_1808</span></code></p>
 <blockquote>
-<div>This will define the iron and silicon lines with default velocity spans.</div></blockquote>
+<div><p>This will define the iron and silicon lines with default velocity spans.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">lines</span> <span class="pre">HI_1</span>&#160; <span class="pre">HI_2</span>&#160; <span class="pre">velspan=5000</span></code></p>
 <blockquote>
-<div>This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.</div></blockquote>
+<div><p>This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="limit-new">
+</section>
+<section id="limit-new">
 <h2>Limit  [<strong>New!</strong>]<a class="headerlink" href="#limit-new" title="Permalink to this headline">¶</a></h2>
 <p><strong>limit  line_tags  [ ref=__  nofit=False  sigma=3 ]</strong></p>
 <blockquote>
@@ -257,7 +262,7 @@ automatically by default, from the strongest line defined which has the same ion
 state (e.g., FeII could be used for limits of NiII, TiII etc.; CIV for SiIV etc.).</p>
 <p>If no <cite>reference</cite> line is found, the equivalent width will not calculated.
 The user can instead force a specific <cite>reference</cite> line with the keyword <em>ref</em> (see below).
-The output is printed to the terminal, and is also saved to a text file (‘<a href="#id1"><span class="problematic" id="id2">*</span></a>.limits’).</p>
+The output is printed to the terminal, and is also saved to a text file (’<a href="#id1"><span class="problematic" id="id2">*</span></a>.limits’).</p>
 <p>Multiple <em>limit</em> statements can be defined in the parameter file.</p>
 </div></blockquote>
 <p>Optional arguments:</p>
@@ -271,22 +276,24 @@ to determine the integration limits.</p>
 on the equivalent width within the integration limits.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">limit</span>&#160; <span class="pre">TiII_1910</span></code></p>
 <blockquote>
-<div>This will determine a 3-sigma upper limit on the column density of TiII_1910 line using
+<div><p>This will determine a 3-sigma upper limit on the column density of TiII_1910 line using
 the strongest line defined by the <em>lines</em> statement.
 The upper limit together with the measured equivalent width and uncertainty is written to the
-output file (‘<a href="#id3"><span class="problematic" id="id4">*</span></a>.limits’).</div></blockquote>
+output file (’<a href="#id3"><span class="problematic" id="id4">*</span></a>.limits’).</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">limit</span>&#160; <span class="pre">CI_1656</span>&#160; <span class="pre">ref=CI_1656</span>&#160; <span class="pre">sigma=2</span>&#160; <span class="pre">nofit=True</span></code></p>
 <blockquote>
-<div>The <em>limit</em> statement can also be used to measure equivalent widths of lines that are detected but not fitted:
+<div><p>The <em>limit</em> statement can also be used to measure equivalent widths of lines that are detected but not fitted:
 The statement above will determine a 2-sigma upper limit of the CI_1656 using itself as a reference to
 determine the integration limits. The measured equivalent width and uncertainty (as well as column density,
-assuming an optically thin line) are given in the output file (‘<a href="#id5"><span class="problematic" id="id6">*</span></a>.limits’).</div></blockquote>
+assuming an optically thin line) are given in the output file (’<a href="#id5"><span class="problematic" id="id6">*</span></a>.limits’).</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="fine-structure-lines">
+</section>
+<section id="fine-structure-lines">
 <h2>Fine-structure Lines<a class="headerlink" href="#fine-structure-lines" title="Permalink to this headline">¶</a></h2>
 <p><strong>fine-lines  ground_state  [ levels  velspan=__ ]</strong></p>
 <blockquote>
@@ -308,42 +315,43 @@ span in km/s around each line to be defined as a fitting region.
 The default span is 500 km/s.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">fine-lines</span>&#160; <span class="pre">CI_1560</span></code></p>
 <blockquote>
-<div>This will define all the transitions of CI, CI<sup>*</sup> and CI<sup>**</sup> related to the
+<div><p>This will define all the transitions of CI, CI<sup>*</sup> and CI<sup>**</sup> related to the
 ground state of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P →
-2s 2p<sup>3</sup>  <sup>3</sup>D line complex at 1560 Å.</div></blockquote>
+2s 2p<sup>3</sup>  <sup>3</sup>D line complex at 1560 Å.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">fine-lines</span>&#160; <span class="pre">CI_1328</span>&#160; <span class="pre">a</span></code></p>
 <blockquote>
-<div>This will only define the transitions of the ground state and the first excited
+<div><p>This will only define the transitions of the ground state and the first excited
 fine-structure level (<em>J=1</em>) of the 2s<sup>2</sup> 2p<sup>2</sup>  <sup>3</sup>P →
-2s 2p<sup>3</sup>  <sup>3</sup>P line complex at 1328 Å.</div></blockquote>
+2s 2p<sup>3</sup>  <sup>3</sup>P line complex at 1328 Å.</p>
+</div></blockquote>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <div class="red admonition important">
-<p class="first admonition-title">Important</p>
+<p class="admonition-title">Important</p>
 <p>Components have to be defined manually for the fine-structure levels.
 For this case, the <em>ion</em> to reference for the excited levels is the ground state ion
 (in the example above ‘CI’) with the lower case letter to designate the level, see the
 optional argument <em>levels</em>. So for the first fine-structure level of ‘CI’ the <em>ion</em>
 would be ‘CIa’.</p>
-<p class="last">For more details, see the section <a class="reference internal" href="#add-components">add components</a> below.</p>
+<p>For more details, see the section <a class="reference internal" href="#add-components">add components</a> below.</p>
 </div>
-</div>
-<div class="section" id="add-molecules">
+</section>
+<section id="add-molecules">
 <h2>Add Molecules<a class="headerlink" href="#add-molecules" title="Permalink to this headline">¶</a></h2>
 <p><strong>molecule  element  bands  [ J=__  velspan=__ ]</strong></p>
 <blockquote>
 <div><p><em>element</em> refers to the molecule to be fitted, for now only CO and H2 are defined
 in the database.</p>
-<dl class="docutils">
-<dt><em>bands</em> designates a list of vibrational bands for the given molecule.</dt>
-<dd><p class="first">For CO: the A(ν) → X(0) bands for ν up to ν=11, the C(0) → X(0) band, the d(5) → X(0)
+<dl>
+<dt><em>bands</em> designates a list of vibrational bands for the given molecule.</dt><dd><p>For CO: the A(ν) → X(0) bands for ν up to ν=11, the C(0) → X(0) band, the d(5) → X(0)
 and e(1) → X(0). The bands are referred to as ‘AX(ν-0)’, ‘CX(0-0)’, ‘dX(5-0)’, and ‘eX(1-0)’.</p>
-<p class="last">For H<sub>2</sub>: the Lyman bands B(ν) → X(0) for ν up to ν=19 and Werner bands
+<p>For H<sub>2</sub>: the Lyman bands B(ν) → X(0) for ν up to ν=19 and Werner bands
 C(ν) → X(0) for ν up to ν=5. The Lyman and Werner bands are referred to as
 ‘BX(ν-0)’ and ‘CX(ν-0)’, respectively.</p>
 </dd>
@@ -360,17 +368,19 @@ span in km/s around each line to be defined as a fitting region.
 The default span is 500 km/s.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">H2</span>&#160; <span class="pre">BX(0-0)</span>&#160; <span class="pre">BX(1-0)</span>&#160; <span class="pre">BX(2-0)</span>&#160; <span class="pre">J=5</span></code></p>
 <blockquote>
-<div>This will define the rotational levels up to <em>J=5</em> for the three lowest vibrational
-Lyman bands of H<sub>2</sub>.</div></blockquote>
+<div><p>This will define the rotational levels up to <em>J=5</em> for the three lowest vibrational
+Lyman bands of H<sub>2</sub>.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">CO</span>&#160; <span class="pre">AX(0-0)</span>&#160; <span class="pre">AX(1-0)</span>&#160; <span class="pre">J=4</span>&#160; <span class="pre">velspan=120</span></code></p>
 <blockquote>
-<div>This will define the rotational levels up to <em>J=4</em> for the two lowest vibrational bands of CO.</div></blockquote>
+<div><p>This will define the rotational levels up to <em>J=4</em> for the two lowest vibrational bands of CO.</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="add-components">
+</section>
+<section id="add-components">
 <h2>Add Components<a class="headerlink" href="#add-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>component  ion  z  b  logN  [ var_z=True/False  var_b=True/False  var_N=True/False
 tie_z=__  tie_b=__  tie_N=__  velocity  thermal]</strong></p>
@@ -404,24 +414,27 @@ as a velocity offset relative to <em>z_sys</em>.</p>
 <a class="reference internal" href="#thermal-model">thermal broadening model</a>.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">1.957643</span>&#160; <span class="pre">7.0</span>&#160; <span class="pre">14.5</span>&#160; <span class="pre">var_z=False</span></code></p>
 <blockquote>
-<div>This will define a component for FeII at z=1.957643 with <em>b</em> = 7.0 km/s and a column density
-of 10<sup>14.5</sup> cm<sup>-2</sup>. The redshift will no be varied during the fit.</div></blockquote>
+<div><p>This will define a component for FeII at z=1.957643 with <em>b</em> = 7.0 km/s and a column density
+of 10<sup>14.5</sup> cm<sup>-2</sup>. The redshift will no be varied during the fit.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">SiII</span>&#160; <span class="pre">-109.5</span>&#160; <span class="pre">7.0</span>&#160; <span class="pre">16.0</span>&#160; <span class="pre">tie_b='b0_FeII'</span> <span class="pre">velocity</span></code></p>
 <blockquote>
-<div>This will define a component for SiII at a relative velocity of -109.5 km/s
+<div><p>This will define a component for SiII at a relative velocity of -109.5 km/s
 with <em>b</em> = 7.0 km/s and a column density 10<sup>16.0</sup>.
-The <em>b</em>-parameter will be tied to the first component defined for <em>FeII</em>.</div></blockquote>
+The <em>b</em>-parameter will be tied to the first component defined for <em>FeII</em>.</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="define-variables-new">
+</section>
+<section id="define-variables-new">
 <h2>Define Variables [<strong>New!</strong>]<a class="headerlink" href="#define-variables-new" title="Permalink to this headline">¶</a></h2>
 <p><strong>def  name  [ value=__  vary=__  min=__  max=__  expr=’__’ ]</strong></p>
 <blockquote>
-<div><em>name</em> is the variable name that will be used to refer to this value in algebraic
-constraints for component values.</div></blockquote>
+<div><p><em>name</em> is the variable name that will be used to refer to this value in algebraic
+constraints for component values.</p>
+</div></blockquote>
 <p>This statement allows the user to define new variables to include in the fit.
 This is a powerful way to define flexible constraints of all the parameters of VoigtFit.
 The variable <em>name</em> can be referenced in the constraints for <cite>lmfit.Parameter</cite> expressions,
@@ -439,7 +452,7 @@ during the optimization.</p>
 for more details about the limitations of the <em>expr</em> keyword.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>component FeII  0.0  5.  14.5  velocity
 component FeII 10.0  5.  14.2  velocity
 def dN value=+1
@@ -455,14 +468,15 @@ The relative velocities and b-values are here assumed to be well-known (e.g., fr
 are therefore fixed using the <code class="docutils literal notranslate"><span class="pre">fix-velocity</span></code> statement. Alternatively, the <em>b</em>- and <em>z</em>- values can
 be tied to those of FeII as well.</p>
 </div>
-</div>
-<div class="section" id="interactive-components">
+</section>
+<section id="interactive-components">
 <h2>Interactive Components<a class="headerlink" href="#interactive-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>interactive  line_tags</strong></p>
 <blockquote>
-<div><em>line_tags</em> can be a single line or multiple lines separated by blank spaces or commas.
+<div><p><em>line_tags</em> can be a single line or multiple lines separated by blank spaces or commas.
 The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526.
-The line tag must be defined in the dataset (using the <code class="docutils literal notranslate"><span class="pre">lines</span></code> statement).</div></blockquote>
+The line tag must be defined in the dataset (using the <code class="docutils literal notranslate"><span class="pre">lines</span></code> statement).</p>
+</div></blockquote>
 <p>This command will show an interactive window for defining components for the given lines.
 If the data are not normalized, the first step is to indicate the continuum level,
 in order to obtain representative initial guesses for the column densities.
@@ -474,12 +488,13 @@ you to acknowledge the defined components. In the terminal, type either ‘y’,
 to accept (case insensitive). Any other key will erase the defined components and start over.</p>
 <p><strong>interactive_view : velocity  [ or wavelength ]</strong></p>
 <blockquote>
-<div>The <em>interactive_view</em> keyword specifies how the data will be displayed in the interactive window.
+<div><p>The <em>interactive_view</em> keyword specifies how the data will be displayed in the interactive window.
 If <cite>velocity</cite> or <cite>vel</cite> is given, the data will be displayed in velocity space relative
 to the systemic redshift. Otherwise, if <cite>wavelength</cite> or <cite>wave</cite> is given, the data are
-displayed in observed wavelength space – this is the default view.</div></blockquote>
+displayed in observed wavelength space – this is the default view.</p>
+</div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p>The interactive definition of components will bring up the following graphic display:</p>
 <a class="reference internal image-reference" href="_images/comp1.png"><img alt="_images/comp1.png" src="_images/comp1.png" style="width: 48%;" /></a>
 <a class="reference internal image-reference" href="_images/comp2.png"><img alt="_images/comp2.png" src="_images/comp2.png" style="width: 48%;" /></a>
@@ -494,8 +509,8 @@ The positions you select will progressively show up as red crosses (right panel)
 When you have selected the number of components you want to fit, press <em>enter</em>
 and return to the terminal to save the components.</p>
 </div>
-</div>
-<div class="section" id="copy-components">
+</section>
+<section id="copy-components">
 <h2>Copy Components<a class="headerlink" href="#copy-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>copy components from ion1 to ion2  [ (scale  logN  ref_comp)  tie_z=True/False  tie_b=True/False ]</strong></p>
 <blockquote>
@@ -503,10 +518,10 @@ and return to the terminal to save the components.</p>
 Components must manually be defined for this ion.</p>
 <p><em>ion2</em> denotes the <em>ion</em> to which the components will be copied.
 Lines must be defined for this <em>ion</em> using a <code class="docutils literal notranslate"><span class="pre">lines</span></code> statement.</p>
-<dl class="docutils">
-<dt>Note – The order is not important. This is inferred from the position of the words <em>to</em> and <em>from</em>.</dt>
-<dd>If components are also defined using the regular <cite>component</cite> statement
-then both the copied components and the individual components are included in the fit!</dd>
+<dl class="simple">
+<dt>Note – The order is not important. This is inferred from the position of the words <em>to</em> and <em>from</em>.</dt><dd><p>If components are also defined using the regular <cite>component</cite> statement
+then both the copied components and the individual components are included in the fit!</p>
+</dd>
 </dl>
 </div></blockquote>
 <p>Optinal arguments:</p>
@@ -525,21 +540,21 @@ Default is <em>True</em>.</p>
 Default is <em>True</em>.</p>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
-<dl class="docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">from</span> <span class="pre">FeII</span> <span class="pre">to</span> <span class="pre">SiII</span>&#160; <span class="pre">scale</span> <span class="pre">15.3</span>&#160; <span class="pre">1</span></code></dt>
-<dd>This will copy the component structure defined for FeII to SiII
+<p class="topic-title">Example</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">from</span> <span class="pre">FeII</span> <span class="pre">to</span> <span class="pre">SiII</span>&#160; <span class="pre">scale</span> <span class="pre">15.3</span>&#160; <span class="pre">1</span></code></dt><dd><p>This will copy the component structure defined for FeII to SiII
 and the logarithm of the column density of the 2nd component will be set to 15.3
-while keeping the relative abundance pattern as defined for FeII.</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">to</span> <span class="pre">CII</span> <span class="pre">from</span> <span class="pre">FeII</span>&#160; <span class="pre">tie_b=False</span></code></dt>
-<dd>This will copy components already defined for FeII to CII,
+while keeping the relative abundance pattern as defined for FeII.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">copy</span> <span class="pre">components</span> <span class="pre">to</span> <span class="pre">CII</span> <span class="pre">from</span> <span class="pre">FeII</span>&#160; <span class="pre">tie_b=False</span></code></dt><dd><p>This will copy components already defined for FeII to CII,
 however, the broadening parameters are not fixed to those of FeII.
 The initial value for log(N) for CII will be set using the Solar
-relative abundance of carbon and iron.</dd>
+relative abundance of carbon and iron.</p>
+</dd>
 </dl>
 </div>
-</div>
-<div class="section" id="delete-components">
+</section>
+<section id="delete-components">
 <h2>Delete Components<a class="headerlink" href="#delete-components" title="Permalink to this headline">¶</a></h2>
 <p><strong>delete component  number  [from] ion</strong></p>
 <blockquote>
@@ -552,7 +567,7 @@ statement, if not all components for the new ion should be fitted.
 For components defined via the explicit component statement,
 a component can simply be commented out (using ‘#’) to delete it from the fit.</p>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p>Suppose that FeII has 5 components defined and the same component structure has been copied to
 ZnII; However, the zinc lines are much weaker and therefore only the 4 strongest components can be
 constrained for ZnII. This would be defined as follows:</p>
@@ -570,8 +585,8 @@ constrained for ZnII. This would be defined as follows:</p>
 </div>
 </div></blockquote>
 </div>
-</div>
-<div class="section" id="continuum-normalization">
+</section>
+<section id="continuum-normalization">
 <h2>Continuum Normalization<a class="headerlink" href="#continuum-normalization" title="Permalink to this headline">¶</a></h2>
 <p>Unless the input data have already been normalized (use the <em>norm</em> keyword in the <a class="reference internal" href="#data">data</a> statement),
 the user can use one of the following two methods to normalize the fitting regions before fitting.</p>
@@ -590,14 +605,16 @@ in order to create a continuum model.</p>
 </div></blockquote>
 <p><strong>norm_view : velocity  [ or wavelength ]</strong></p>
 <blockquote>
-<div>The <em>norm_view</em> keyword specifies how the data will be displayed in the interactive window.
+<div><p>The <em>norm_view</em> keyword specifies how the data will be displayed in the interactive window.
 If <cite>velocity</cite> or <cite>vel</cite> is given, the data will be displayed in velocity space relative
 to the systemic redshift. Otherwise, if <cite>wavelength</cite> or <cite>wave</cite> is given, the data are
-displayed in observed wavelength space – this is the default view.</div></blockquote>
+displayed in observed wavelength space – this is the default view.</p>
+</div></blockquote>
 <p><strong>C_order = order</strong></p>
 <blockquote>
-<div><em>order</em> is the highest order of <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> polynomials to include in the continuum model.
-All orders from 0 up to <em>order</em> will be included.</div></blockquote>
+<div><p><em>order</em> is the highest order of <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> polynomials to include in the continuum model.
+All orders from 0 up to <em>order</em> will be included.</p>
+</div></blockquote>
 <p>This statement indicates the maximum order of <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> polynomials to include
 for the continuum model. The continuum model is automatically optimized together with
 the line fitting.
@@ -605,7 +622,7 @@ By giving a negative order, the code will ask to manually normalize the fitting 
 using the specified <em>norm_method</em> (see above).</p>
 <p>The default is -1, i.e., no <a class="reference external" href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev</a> model is used.</p>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p>The interactive normalization selected through <em>norm_method</em> = ‘linear’ will open
 the following window prompting you to select a region on the left and right hand side
 of the absorption line. The continuum will then be fitted as a straight line.</p>
@@ -624,8 +641,8 @@ the interactive window (right panel). Then you have to acknowledge that the norm
 was done correctly by pressing <em>enter</em> in the terminal. If you want to redo the normalization,
 type <em>no</em> or <em>n</em> in the terminal and press <em>enter</em>. This will bring you back to the beginning.</p>
 </div>
-</div>
-<div class="section" id="mask">
+</section>
+<section id="mask">
 <h2>Mask<a class="headerlink" href="#mask" title="Permalink to this headline">¶</a></h2>
 <p><strong>mask  [ line_tags ]  [ force ]</strong></p>
 <p>Optional arguments:</p>
@@ -641,7 +658,7 @@ file (.hdf5) is deleted or reset using the <cite>-f</cite> option of <cite>Voigt
 <p>This statement allows the user to define mask interactively for all lines or individual lines.</p>
 <p>Note – The mask is an exclusion mask, so pixels that are defined in the mask, are <em>not</em> fitted.</p>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p>If you have included a <em>mask</em> statement in the parameter file (either for all lines or only for
 selected lines), the following window will pop up:</p>
 <a class="reference internal image-reference" href="_images/mask1.png"><img alt="_images/mask1.png" src="_images/mask1.png" style="width: 48%;" /></a>
@@ -657,8 +674,8 @@ When you are done, type <em>yes</em> or simply press <em>enter</em> in the termi
 you can clear the masks by typing <em>c</em> or <em>clear</em> in the terminal.</p>
 <blockquote>
 <div><div class="red admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">If an uneven number of points are selected, the masks will not be calculated and you
+<p class="admonition-title">Important</p>
+<p>If an uneven number of points are selected, the masks will not be calculated and you
 have to start over. So if you are defining many masks (e.g., in the Lyman-α forest),
 it is advised to define the masks in several turns.</p>
 </div>
@@ -666,25 +683,26 @@ it is advised to define the masks in several turns.</p>
 </div>
 <p><strong>mask_view : velocity  [ or wavelength ]</strong></p>
 <blockquote>
-<div>The <em>mask_view</em> keyword specifies how the data will be displayed in the interactive window.
+<div><p>The <em>mask_view</em> keyword specifies how the data will be displayed in the interactive window.
 If <cite>velocity</cite> or <cite>vel</cite> is given, the data will be displayed in velocity space relative
 to the systemic redshift. Otherwise, if <cite>wavelength</cite> or <cite>wave</cite> is given, the data are
-displayed in observed wavelength space – this is the default view.</div></blockquote>
+displayed in observed wavelength space – this is the default view.</p>
+</div></blockquote>
 <p>Note – The telluric template was obtained from ESOs <a class="reference external" href="http://www.eso.org/observing/etc/skycalc">skycalc</a>.</p>
-</div>
-<div class="section" id="clear-mask">
+</section>
+<section id="clear-mask">
 <h2>Clear mask<a class="headerlink" href="#clear-mask" title="Permalink to this headline">¶</a></h2>
 <p><strong>clear mask</strong></p>
 <p>If this statement is present in the parameter file, the masks for all fitting regions
 will be reset before eventually defining new masks.</p>
-</div>
-<div class="section" id="total-column-densities">
+</section>
+<section id="total-column-densities">
 <h2>Total Column Densities<a class="headerlink" href="#total-column-densities" title="Permalink to this headline">¶</a></h2>
 <p><strong>total</strong></p>
 <p>When this statement is present in the parameter file, the total abundances summed
 over all components for each ion will be printed to the terminal output.</p>
-</div>
-<div class="section" id="metallicity">
+</section>
+<section id="metallicity">
 <h2>Metallicity<a class="headerlink" href="#metallicity" title="Permalink to this headline">¶</a></h2>
 <p><strong>metallicity  logNHI  err_logNHI</strong></p>
 <blockquote>
@@ -696,14 +714,15 @@ for the defined ions in the dataset will be converted to metallicities for each 
 that is, the abundance ratios of the given ions to neutral hydrogen relative to Solar abundances
 from <a class="reference external" href="https://ui.adsabs.harvard.edu/#abs/2009ARA&amp;A..47..481A/abstract">Asplund et al. (2009)</a>
 are calculated.</p>
-</div>
-<div class="section" id="reset-fit-regions">
+</section>
+<section id="reset-fit-regions">
 <h2>Reset Fit Regions<a class="headerlink" href="#reset-fit-regions" title="Permalink to this headline">¶</a></h2>
 <p><strong>reset  [ line_tags ]</strong></p>
 <blockquote>
-<div>This statement is deprecated and is no longer parsed by VoigtFit!</div></blockquote>
-</div>
-<div class="section" id="resolution">
+<div><p>This statement is deprecated and is no longer parsed by VoigtFit!</p>
+</div></blockquote>
+</section>
+<section id="resolution">
 <h2>Resolution<a class="headerlink" href="#resolution" title="Permalink to this headline">¶</a></h2>
 <p><strong>resolution  res  [ line_tag ]</strong></p>
 <blockquote>
@@ -712,21 +731,23 @@ are calculated.</p>
 </div></blockquote>
 <p>Optional arguments:</p>
 <blockquote>
-<div><em>line_tag</em> : specifies the line in a fitting region whose resolution should be changed.
-Default is all.</div></blockquote>
+<div><p><em>line_tag</em> : specifies the line in a fitting region whose resolution should be changed.
+Default is all.</p>
+</div></blockquote>
 <div class="red admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">Changing the spectral resolution in the <a class="reference internal" href="#data">data</a> statement will not update the spectral
+<p class="admonition-title">Important</p>
+<p>Changing the spectral resolution in the <a class="reference internal" href="#data">data</a> statement will not update the spectral
 resolution in the fit, unless the dataset is deleted or overwritten (run <code class="docutils literal notranslate"><span class="pre">VoigtFit</span> <span class="pre">-f</span></code>).</p>
 </div>
-</div>
-<div class="section" id="change-systemic-redshift">
+</section>
+<section id="change-systemic-redshift">
 <h2>Change Systemic Redshift<a class="headerlink" href="#change-systemic-redshift" title="Permalink to this headline">¶</a></h2>
 <p><strong>systemic = value</strong></p>
 <p>This statement defines how to update the systemic redshift after fitting.
 Possible input for <em>value</em>:</p>
 <blockquote>
-<div>{ <em>auto</em>, <em>none</em> or  [ <em>num</em> <em>ion</em> ] }</div></blockquote>
+<div><p>{ <em>auto</em>, <em>none</em> or  [ <em>num</em> <em>ion</em> ] }</p>
+</div></blockquote>
 <p>Default behavior is <em>none</em>: The systemic redshift will not be updated after fitting
 and the redshift given through the <a class="reference internal" href="#z-sys">z_sys</a> statement will be used.</p>
 <p>If systemic is set to <em>auto</em> the systemic redshift will be set to the redshift
@@ -734,27 +755,31 @@ of the strongest component. The element used to identify the strongest component
 will be selected automatically, priority will be given to ions: ’SiII’ or ‘FeII’.
 If none of these is present, the first line in the dataset will be used.</p>
 <blockquote>
-<div><span class="red">Warning – This may result in unexpected behavior.</span></div></blockquote>
+<div><p><span class="red">Warning – This may result in unexpected behavior.</span></p>
+</div></blockquote>
 <p>By giving an integer number (<em>num</em>) and an <em>ion</em>, the user can force the systemic redshift
 to be set to the given component number of the given <em>ion</em> after the fit has converged.
 The order of the arguments <em>num</em> and <em>ion</em> is not important.
 Note that the components are 0-indexed, i.e., the first component is <em>num=0</em>.
 If <em>num</em> is set to -1 then the last component of the given <em>ion</em> is used.</p>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">2</span> <span class="pre">FeII</span></code></p>
 <blockquote>
-<div>this defines the systemic redshift as the 3rd component of FeII</div></blockquote>
+<div><p>this defines the systemic redshift as the 3rd component of FeII</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">CI</span> <span class="pre">-1</span></code></p>
 <blockquote>
-<div>this defines the systemic redshift as the last component of CI</div></blockquote>
+<div><p>this defines the systemic redshift as the last component of CI</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">systemic</span> <span class="pre">=</span> <span class="pre">auto</span></code></p>
 <blockquote>
-<div>If SiII is fitted, use strongest component of SiII, else if FeII is fitted use strongest FeII component.
-Lastly, if neither SiII nor FeII is used in the fit, use the first element defined in the dataset.</div></blockquote>
+<div><p>If SiII is fitted, use strongest component of SiII, else if FeII is fitted use strongest FeII component.
+Lastly, if neither SiII nor FeII is used in the fit, use the first element defined in the dataset.</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="thermal-model">
+</section>
+<section id="thermal-model">
 <h2>Thermal Model<a class="headerlink" href="#thermal-model" title="Permalink to this headline">¶</a></h2>
 <p><strong>thermal  ions   T=__  turb=__ [ fix-T  fix-turb ]</strong></p>
 <blockquote>
@@ -776,7 +801,7 @@ not be varied.</p>
 If the user only wants to use a certain subset of components, then the given components
 should be defined with the <em>thermal</em> keyword in the <a class="reference internal" href="#add-components">component</a> statement.</p>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">0.0</span>&#160; <span class="pre">5.</span>&#160; <span class="pre">14.5</span>&#160; <span class="pre">velocity</span> <span class="pre">thermal</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">component</span>&#160; <span class="pre">FeII</span>&#160; <span class="pre">10.</span>&#160; <span class="pre">9.</span>&#160; <span class="pre">15.2</span>&#160; <span class="pre">velocity</span></code></div>
@@ -792,8 +817,8 @@ and a turbulent broadening of 4.0 km/s.</p>
 <p>For more information, see the description of the <a class="reference internal" href="physical_model_results.html#physical-model-results"><span class="std std-ref">Results of Physical Model</span></a>.</p>
 </div></blockquote>
 </div>
-</div>
-<div class="section" id="fit-options">
+</section>
+<section id="fit-options">
 <h2>Fit-Options<a class="headerlink" href="#fit-options" title="Permalink to this headline">¶</a></h2>
 <p><strong>fit-options   keyword=value</strong></p>
 <blockquote>
@@ -808,17 +833,19 @@ are set: <code class="docutils literal notranslate"><span class="pre">ftol=0.01<
 </div></blockquote>
 </div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">fit-options</span>&#160; <span class="pre">rebin=2</span>&#160; <span class="pre">method='nelder'</span></code></p>
 <blockquote>
-<div>This will rebin the data by a factor of 2 and set the fitting method to Nelder–Mead optimization
-(instead of the default Levenberg–Marquardt).</div></blockquote>
+<div><p>This will rebin the data by a factor of 2 and set the fitting method to Nelder–Mead optimization
+(instead of the default Levenberg–Marquardt).</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">fit-option</span>&#160; <span class="pre">ftol=0.001</span> <span class="pre">rebin=2</span></code></p>
 <blockquote>
-<div>This will set the tolerance for the convergence to 0.001 instead of 0.01 and rebin the data by a factor of 2.</div></blockquote>
+<div><p>This will set the tolerance for the convergence to 0.001 instead of 0.01 and rebin the data by a factor of 2.</p>
+</div></blockquote>
 </div>
-</div>
-<div class="section" id="output">
+</section>
+<section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
 <p><strong>output  individual-regions  velocity  individual-components</strong></p>
 <p>The output statement takes two optional keywords:</p>
@@ -834,8 +861,8 @@ These are all saved as columns in a file with extension <cite>.components</cite>
 identified by its ion and the component number, e.g., <cite>FeII_0</cite> for the first component
 of singly ionized iron (FeII).</p>
 </div></blockquote>
-</div>
-<div class="section" id="load">
+</section>
+<section id="load">
 <h2>Load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h2>
 <p><strong>load  fit_pars_filename</strong></p>
 <blockquote>
@@ -845,38 +872,42 @@ current dataset.</p>
 <p>Note – This will overwrite any existing components. However, additional components
 can be added by using the <a class="reference internal" href="#add-components">component</a> statement.</p>
 </div></blockquote>
-</div>
-<div class="section" id="fix-velocity-structure">
+</section>
+<section id="fix-velocity-structure">
 <h2>Fix Velocity Structure<a class="headerlink" href="#fix-velocity-structure" title="Permalink to this headline">¶</a></h2>
 <p><strong>fix-velocity</strong></p>
 <blockquote>
-<div>If this keyword is present in the parameter file, then the velocity structure
+<div><p>If this keyword is present in the parameter file, then the velocity structure
 (i.e., the relative velocities and broadening parameters) of all elements
-is kept fixed.</div></blockquote>
-</div>
-<div class="section" id="check-lines">
+is kept fixed.</p>
+</div></blockquote>
+</section>
+<section id="check-lines">
 <h2>Check-Lines<a class="headerlink" href="#check-lines" title="Permalink to this headline">¶</a></h2>
 <p><strong>check-lines  [f_lower=0  f_upper=100  l_lower=0  l_upper=1.e4]  [ignore]</strong></p>
 <blockquote>
-<div>If the keyword <cite>ignore</cite> appears in the command this will turn off the <cite>check lines</cite> functionality
+<div><p>If the keyword <cite>ignore</cite> appears in the command this will turn off the <cite>check lines</cite> functionality
 which prompts the user if other transitions for defined ions are available in the spectral coverage
 of the data.
 The user can filter the lines that will be prompted by setting the upper and lower limits on
-oscillator strength (f) or rest-frame wavelength (l) in Angstrom.</div></blockquote>
+oscillator strength (f) or rest-frame wavelength (l) in Angstrom.</p>
+</div></blockquote>
 <div class="topic">
-<p class="topic-title first">Example</p>
+<p class="topic-title">Example</p>
 <p><code class="docutils literal notranslate"><span class="pre">check-lines</span>&#160; <span class="pre">ignore</span></code></p>
 <blockquote>
-<div>this turns off the check lines function. The user will not be warned if other lines of already
+<div><p>this turns off the check lines function. The user will not be warned if other lines of already
 defined ions are available within the spectral data. Use this with caution unless you are very
-familiar with the atomic line list.</div></blockquote>
+familiar with the atomic line list.</p>
+</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">check-lines</span>&#160; <span class="pre">f_lower=0.001</span>&#160; <span class="pre">l_lower=1200</span></code></p>
 <blockquote>
-<div>this will only prompt the user if the missing lines have an oscillator strength larger than 0.001
-and a rest-frame wavelength larger than 1200 Angstrom.</div></blockquote>
+<div><p>this will only prompt the user if the missing lines have an oscillator strength larger than 0.001
+and a rest-frame wavelength larger than 1200 Angstrom.</p>
+</div></blockquote>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -885,7 +916,7 @@ and a rest-frame wavelength larger than 1200 Angstrom.</div></blockquote>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
+<h3><a href="index.html">Table of Contents</a></h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 </ul>
@@ -929,17 +960,15 @@ and a rest-frame wavelength larger than 1200 Angstrom.</div></blockquote>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -948,8 +977,8 @@ and a rest-frame wavelength larger than 1200 Angstrom.</div></blockquote>
       &copy;2018, Jens-Kristian Krogager.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.8</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/documentation.rst.txt"

@@ -332,10 +332,9 @@ class DataSet(object):
                 print("Wrong dimensions of the Input Mask: got %i pixels, spectrum has %i pixels" % (len(mask_array), len(spec)))
 
         if use_mask:
-            self.add_data(wl, spec, res, err=err, normalized=normalized, mask=mask, nsub=nsub)
+            self.add_data(wl, spec, res, err=err, normalized=normalized, mask=mask, nsub=nsub, filename=filename)
         else:
-            self.add_data(wl, spec, res, err=err, normalized=normalized, nsub=nsub)
-        self.data_filenames.append(filename)
+            self.add_data(wl, spec, res, err=err, normalized=normalized, nsub=nsub, filename=filename)
 
     def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1, filename=''):
         """
@@ -1017,7 +1016,7 @@ class DataSet(object):
         ----------
         ion : str   [default = None]
             The ion for which to reset the components: e.g., 'FeII', 'HI', 'CIa', etc.
-            If `None`is given, *all* components for *all* ions will be reset.
+            If `None` is given, *all* components for *all* ions will be reset.
         """
 
         if ion:
@@ -2295,6 +2294,38 @@ class DataSet(object):
                                                                 comp.b, comp.logN))
 
     def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True, threshold=15):
+        """
+        Determine the equivalent width limit and corresponding limit on log(N).
+
+        Parameters
+        ----------
+        line_tag : str
+            The line ID of the absorption line for which the limit should be estimated.
+            (Must be a line in the line-list of VoigtFit. Ex.: FeII_1611, TiII_1910, etc.)
+
+        ref : str or `None`
+            The reference line used to determine the integration range in velocity space,
+            which contains 99.7% of the optical depth. By default, the strongest line of
+            the same ionization state (e.g., I, II, IV, etc.) in the dataset is used.
+            If the reference line has been fitted, the best-fit optical depth profile
+            will be used, otherwise the range is determined by the observed apparent
+            optical depth.
+
+        nofit : bool   [default = False]
+            If True, always use the observed apparent optical depth of the reference line
+            (`ref`, see above).
+
+        sigma : float   [default = 3]
+            The significance level of the inferred upper limit, by default 3 sigma (99.7%) is used.
+
+        verbose : bool   [default = True]
+            Print informative messages from the function?
+
+        threshold : float   [default = 15]
+            The continuum noise threshold used to infer the edge of the apparent optical depth
+            of the observed profile. The noise is estimated as the median noise per pixel
+
+        """
         line = self.lines[line_tag]
         verbose = self.verbose | verbose
         regs_of_line = self.find_line(line_tag)

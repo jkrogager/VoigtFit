@@ -84,6 +84,8 @@ def main():
     # -- Load DataSet if the file already exists
     if os.path.exists(name+'.hdf5') and not args.f:
         dataset = load_dataset(name+'.hdf5')
+        if verbose:
+            print("Loaded dataset: %s.hdf5" % name)
 
         all_spectra_defined = all([data_item[0] in dataset.data_filenames for data_item in parameters['data']])
         match_number_of_spectra = len(dataset.data) == len(parameters['data'])
@@ -607,12 +609,13 @@ def main():
         rebin = 1
     dataset.plot_fit(filename=filename, rebin=rebin)
     output.save_parameters_to_file(dataset, filename+'.fit')
-    output.save_cont_parameters_to_file(dataset, filename+'.cont')
+    if dataset.cheb_order >= 0:
+        output.save_cont_parameters_to_file(dataset, filename+'.cont')
     output.save_fit_regions(dataset, filename+'.reg',
                             individual=individual_regions)
     if individual_components:
         output.save_individual_components(dataset, filename+'.components')
-    print("  Done...\n")
+    print(" - Done...\n")
     plt.show(block=True)
 
 
