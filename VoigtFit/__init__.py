@@ -19,19 +19,19 @@ import matplotlib
 #     matplotlib.use('TkAgg')
 
 from .components import Component
-from . import dataset
+# from . import dataset
 from .dataset import DataSet
-from . import lines
+# from . import lines
 from .lines import Line, show_transitions
-from . import hdf5_save
+# from . import hdf5_save
 from .hdf5_save import load_dataset, save_dataset
-from . import line_complexes
-from . import limits
-from . import molecules
-from . import output
-from . import regions
+# from . import line_complexes
+# from . import limits
+# from . import molecules
+# from . import output
+# from . import regions
 from .regions import Region
-from . import voigt
+# from . import voigt
 
 code_dir = path.dirname(path.abspath(__file__))
 with open(path.join(code_dir, 'VERSION')) as version_file:
