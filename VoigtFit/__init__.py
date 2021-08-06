@@ -30,6 +30,7 @@ from . import limits
 from . import molecules
 from . import output
 from . import regions
+from .regions import Region
 from . import voigt
 
 code_dir = path.dirname(path.abspath(__file__))
