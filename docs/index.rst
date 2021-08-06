@@ -35,50 +35,53 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
-**New in version 0.13.1**:
+New in version 3.13.2:
+  Bugfix in masking and continuum normalization of lines used with the `limit` statement. Updated the input-parameter template to reflect the usage of `limit` and `def` introduced in versions 3.13 and 3.12.
+
+**New in version 3.13.1**:
   User-defined variables can now be defined in order to define flexible parameter constraints.
   For details, see the documentation on :ref:`documentation`. Small updates in measurement of equivalent width: do not use blended lines to determine the integration limits, unless fitted profile is used. Generate plots for limits.
 
-**New in version 0.12**:
+**New in version 3.12**:
   Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.
   For more details about how to use this, see the documentation on :ref:`documentation`.
   I want to thank Annalisa De Cia for the motivation to include this functionality in VoigtFit, for helpful discussions along the way, and for the financial support to keep developing VoigtFit!
 
-New in version 0.11.15:
+New in version 3.11.15:
   Updated oscillator strengths for NiII following Boissé & Bergeron (2019).
 
-New in version 0.11.14:
+New in version 3.11.14:
   Small bugfixes (numba deprecation warning, output formatting, etc) and it is now possible to load components
   from a fit with one set of ions and copy those to other ions even if the imported ions are not defined in the dataset.
   This is helpful when constraining different ions in different spectra and you don't want to fit them simultaneously.
 
-New in version 0.11.7:
+New in version 3.11.7:
 
   Critical update of the atomic data for the hydrogen Lyman series.
   Oscillator strengths for the Lyman series were incorrectly compiled into the master linelist.
 
-New in version 0.11.6.1:
+New in version 3.11.6.1:
 
   New data keyword `no-mask` allows the user to ignore any pixel mask present in the input data.
   VoigtFit will automatically try to identify pixel masks in the ASCII or FITS data, so if such
   automatically retrieved masks are not appropriate for the fitting, they can be ignored by setting
   this keyword in the `data` statement (see :ref:`documentation`).
 
-New in version 0.11.6:
+New in version 3.11.6:
 
   Improved FITS data import of a large variety of file formats, FITS Tables, Multi Extension FITS files,
   and IRAF format.
   Updated the `systemic` and `data` statements of the parameter file definitions (see :ref:`documentation`).
 
 
-New in version 0.11.5:
+New in version 3.11.5:
 
   New atomic data for lines of hydrogen Lyman series. New damping constants for missing levels (n > 6)
   have been calculated using data from Jitrik & Bunge (2004).
   Small bugs related to the Python 3 migration have been fixed.
 
 
-New in version 0.11.4:
+New in version 3.11.4:
 
   Python 3 is now supported! Solar values have been updated following the recommendations by
   Lodders et al. (2009) as to whether photospheric, meteoritic or their average value is used.
