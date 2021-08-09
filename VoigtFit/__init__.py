@@ -12,12 +12,12 @@ __author__ = 'Jens-Kristian Krogager'
 from os import path
 from sys import version_info
 
-import warnings
-import matplotlib
-# The native MacOSX backend doesn't work for all:
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    matplotlib.use('TkAgg')
+# import warnings
+# import matplotlib
+# # The native MacOSX backend doesn't work for all:
+# with warnings.catch_warnings():
+#     warnings.simplefilter("ignore")
+#     matplotlib.use('TkAgg')
 
 from VoigtFit.container.components import Component
 from VoigtFit.container.dataset import DataSet
