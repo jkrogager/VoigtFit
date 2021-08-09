@@ -37,17 +37,6 @@ dataset.add_line('ZnII_2026')
 dataset.add_line('MgI_2026')
 dataset.add_line('MgI_2852')
 
-### This command prepares the line regions:
-# First the data are interactively normalized
-# Then regions which should not be fitted are masked interactively too
-dataset.prepare_dataset()
-
-# Save the dataset after first run so you don't have to normalize and mask every time:
-# For the following runs, comment this line and uncomment below
-dataset.save('test.dataset')
-
-### The dataset which was defined above can be loaded like this:
-# dataset = VoigtFit.load_dataset('test.dataset')
 
 
 ### If a line has been defined, and you don't want to fit it
@@ -61,7 +50,7 @@ dataset.save('test.dataset')
 ### but not included in the fit. The line may still show up in the final figure.
 
 ### Define components to fit:
-dataset.reset_components()
+# dataset.reset_components()
 
 ### Add velocity components for each ion:
 #                      ion    z         b   logN
@@ -123,4 +112,7 @@ dataset.print_total()
 #logN_FeII = [dataset.best_fit['logN%i_FeII' % num].value for num in range(len(dataset.components['FeII']))]
 #logN_err_FeII = [dataset.best_fit['logN%i_FeII' % num].stderr for num in range(len(dataset.components['FeII']))]
 
-dataset.save('example_fit.dataset')
+dataset.save('example_fit.hdf5')
+
+### The dataset which was defined above can be loaded like this:
+# dataset = VoigtFit.load_dataset('example_fit.hdf5')
