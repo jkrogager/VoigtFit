@@ -189,6 +189,7 @@ def main():
                         if np.abs(reg.velspan - velspan) < 0.1:
                             if verbose:
                                 print(" Detected difference in velocity span: %s" % ground_state)
+                            dataset.verbose = False
                             dataset.remove_fine_lines(ground_state)
                             new_fine_lines.append([ground_state, levels, velspan])
 
@@ -365,7 +366,7 @@ def main():
         for num in comps_to_del:
             dataset.delete_component(ion, num)
 
-            # Also remove component from therma_model
+            # Also remove component from thermal_model
             if ion in thermal_model.keys():
                 if num in thermal_model[ion]:
                     thermal_model[ion].remove(num)

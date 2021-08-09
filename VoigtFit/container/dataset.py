@@ -690,12 +690,12 @@ class DataSet(object):
         line_tag : str
             Line tag of the transition that should be removed.
         """
-        if line_tag in self.all_lines and line_tag in [self.lines.keys()]:
+        if (line_tag in self.all_lines) and (line_tag in list(self.lines.keys())):
             self.all_lines.remove(line_tag)
             self.lines.pop(line_tag)
         else:
             in_all_lines = "" if line_tag in self.all_lines else "not "
-            in_lines = "" if line_tag in self.lines.keys() else "not "
+            in_lines = "" if line_tag in list(self.lines.keys()) else "not "
             print("")
             print(" [ERROR] - Problem detected in database.")
             print(" The line %s is %sdefined in `self.all_lines`." %
@@ -1468,7 +1468,7 @@ class DataSet(object):
                     continue
                 self.remove_line(fineline)
                 if self.verbose:
-                    print("Removing line: %s" % fineline)
+                    print(" Removing line: %s" % fineline)
         if levels is None:
             self.fine_lines.pop(line_tag)
 

@@ -107,7 +107,7 @@ def save_hdf_dataset(ds, fname, verbose=True):
         if hasattr(ds, 'fine_lines'):
             for ground_state, lines in ds.fine_lines.items():
                 # line_array = np.array(lines, dtype='str')
-                line_array = [s.encode("ascii", "ignore") for s in fine_lines]
+                line_array = [s.encode("ascii", "ignore") for s in lines]
                 fine_lines.create_dataset(str(ground_state), data=line_array)
 
         # .components:

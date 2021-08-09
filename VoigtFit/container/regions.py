@@ -459,7 +459,7 @@ class Region():
 
             plt.plot(x_T, abs_T*1.2*cont, color='crimson', alpha=0.7, lw=0.5)
             # -- Test if telluric template is defined in this region:
-            if len(flux_T) > 0:
+            if len(flux_T) > 0 and (flux_T.max() != 0):
                 plt.plot(x_T, (flux_T / flux_T.max() + 1.2)*cont,
                          color='orange', alpha=0.7, lw=0.5)
 
