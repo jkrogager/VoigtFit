@@ -3,6 +3,7 @@ from numpy import loadtxt
 from os.path import dirname, abspath
 
 root_path = dirname(abspath(__file__))
+root_path = '/'.join(root_path.split('/')[:-1])
 atomfile = root_path + '/static/linelist.dat'
 
 lineList = loadtxt(atomfile, dtype=[('trans', 'U13'),

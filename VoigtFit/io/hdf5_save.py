@@ -17,7 +17,7 @@ with warnings.catch_warnings():
     import h5py
 from lmfit import Parameters
 
-from . import regions
+from ..container import regions
 
 
 def dataset_to_hdf(fname):
@@ -154,8 +154,8 @@ def save_hdf_dataset(ds, fname, verbose=True):
 
 
 def load_dataset_from_hdf(fname):
-    from .lines import Line, lineList
-    from .dataset import DataSet
+    from ..container.lines import Line, lineList
+    from ..container.dataset import DataSet
     """Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class."""
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']

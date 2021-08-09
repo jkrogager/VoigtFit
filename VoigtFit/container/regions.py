@@ -10,9 +10,10 @@ from scipy.interpolate import UnivariateSpline as spline
 from scipy.interpolate import RectBivariateSpline as spline2d
 import os
 
-from .voigt import evaluate_profile
+from VoigtFit.funcs.voigt import evaluate_profile
 
 root_path = os.path.dirname(os.path.abspath(__file__))
+root_path = '/'.join(root_path.split('/')[:-1])
 datafile = root_path + '/static/telluric_em_abs.npz'
 
 telluric_data = np.load(datafile)
