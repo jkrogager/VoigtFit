@@ -19,6 +19,10 @@ res_VIS = 11800
 wl_uvb, spec_uvb, err_uvb = np.loadtxt(UVB_fname, unpack=True)
 wl_vis, spec_vis, err_vis = np.loadtxt(VIS_fname, unpack=True)
 
+# Alternatively, load a FITS spectrum (either a FITS table or array):
+# wl, flux, err, mask, header = VoigtFit.io.load_fits_spectrum(fname)
+
+
 dataset = VoigtFit.DataSet(z_DLA)
 dataset.add_data(wl_uvb, spec_uvb, 299792./res_UVB, err=err_uvb, normalized=False)
 dataset.add_data(wl_vis, spec_vis, 299792./res_VIS, err=err_vis, normalized=False)
@@ -56,6 +60,7 @@ dataset.save('test.dataset')
 ### A deactivated line is still present in the dataset,
 ### but not included in the fit. The line may still show up in the final figure.
 
+### Define components to fit:
 dataset.reset_components()
 
 ### Add velocity components for each ion:
@@ -78,7 +83,7 @@ dataset.add_component('FeII', 1.795121, 15, 14.5, var_z=1, var_b=1)
 # NOTE - the ion must be defined and the component index starts with 0
 #
 # The entire velocity structure can be copied from one ion to another:
-dataset.copy_components('ZnII', 'FeII', logN=12.9, ref_comp=1)
+dataset.copy_components(from_ion='FeII', to_ion='ZnII', logN=12.9, ref_comp=1)
 # This copies the five components defined for FeII to ZnII and keeps
 # the same pattern of initial guesses for column density.
 # By giving ref_comp and logN, this intial guess pattern is scaled such
@@ -93,8 +98,8 @@ dataset.copy_components('ZnII', 'FeII', logN=12.9, ref_comp=1)
 # NOTE - components should be deleted from last component to first component
 #        not the other way around as that messes up the component numbering.
 
-dataset.copy_components('CrII', 'FeII', logN=13.6, ref_comp=1)
-dataset.copy_components('MgI', 'FeII', logN=12.4, ref_comp=1)
+dataset.copy_components(to_ion='CrII', from_ion='FeII', logN=13.6, ref_comp=1)
+dataset.copy_components(to_ion='MgI', from_ion='FeII', logN=12.4, ref_comp=1)
 
 # Crucial step:
 dataset.prepare_dataset()
@@ -108,5 +113,14 @@ if logNHI:
     dataset.print_metallicity(*logNHI)
 dataset.print_total()
 
+### The best-fit parameters can be accessed from the .best_fit attribute:
+#logN0 = dataset.best_fit['logN0_FeII'].value
+#logN0_err = dataset.best_fit['logN0_FeII'].stderr
+#b1 = dataset.best_fit['b1_FeII'].value
+#b1_err = dataset.best_fit['b1_FeII'].stderr
+
+# Or you can create a list of all values:
+#logN_FeII = [dataset.best_fit['logN%i_FeII' % num].value for num in range(len(dataset.components['FeII']))]
+#logN_err_FeII = [dataset.best_fit['logN%i_FeII' % num].stderr for num in range(len(dataset.components['FeII']))]
 
 dataset.save('example_fit.dataset')

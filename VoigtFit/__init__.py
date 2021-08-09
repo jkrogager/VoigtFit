@@ -11,27 +11,23 @@ __author__ = 'Jens-Kristian Krogager'
 
 from os import path
 from sys import version_info
+
 import warnings
 import matplotlib
-# # The native MacOSX backend doesn't work for all:
-# with warnings.catch_warnings():
-#     warnings.simplefilter("ignore")
-#     matplotlib.use('TkAgg')
+# The native MacOSX backend doesn't work for all:
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    matplotlib.use('TkAgg')
 
-from .components import Component
-# from . import dataset
-from .dataset import DataSet
-# from . import lines
-from .lines import Line, show_transitions
-# from . import hdf5_save
-from .hdf5_save import load_dataset, save_dataset
-# from . import line_complexes
-# from . import limits
-# from . import molecules
-# from . import output
-# from . import regions
-from .regions import Region
-# from . import voigt
+from VoigtFit.container.components import Component
+from VoigtFit.container.dataset import DataSet
+from VoigtFit.container.lines import Line, show_transitions
+from VoigtFit.container.regions import Region
+from VoigtFit.funcs import voigt
+from VoigtFit.io.hdf5_save import load_dataset, save_dataset
+from VoigtFit.io import parse_input, output
+from VoigtFit.funcs import limits
+
 
 code_dir = path.dirname(path.abspath(__file__))
 with open(path.join(code_dir, 'VERSION')) as version_file:

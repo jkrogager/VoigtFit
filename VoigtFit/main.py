@@ -11,10 +11,8 @@ from matplotlib import pyplot as plt
 
 from argparse import ArgumentParser
 
-from .dataset import DataSet
-from .hdf5_save import load_dataset
-from . import output
-from .parse_input import parse_parameters
+from VoigtFit import container
+from VoigtFit import io
 
 
 warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
@@ -74,16 +72,16 @@ def main():
         print("  I have created a blank template for you to get started: 'vfit.pars'.")
         print("  Please edit this file and run VoigtFit again with this file as input.")
         print("")
-        output.create_blank_input()
+        io.output.create_blank_input()
         return
 
-    parameters = parse_parameters(parfile)
+    parameters = io.parse_input.parse_parameters(parfile)
     print(" Reading Parameters from file: " + parfile)
 
     name = parameters['name']
     # -- Load DataSet if the file already exists
     if os.path.exists(name+'.hdf5') and not args.f:
-        dataset = load_dataset(name+'.hdf5')
+        dataset = io.hdf5_save.load_dataset(name+'.hdf5')
         if verbose:
             print("Loaded dataset: %s.hdf5" % name)
 
@@ -241,7 +239,7 @@ def main():
 
     else:
         # --- Create a new DataSet
-        dataset = DataSet(parameters['z_sys'], parameters['name'])
+        dataset = container.dataset.DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
             dataset.velspan = parameters['velspan']
@@ -558,7 +556,7 @@ def main():
 
     if len(thermal_model.keys()) > 0:
         # print Thermal Model Parameters
-        output.print_T_model_pars(dataset, thermal_model)
+        io.output.print_T_model_pars(dataset, thermal_model)
 
     # print metallicity
     logNHI = parameters['logNHI']
@@ -586,10 +584,10 @@ def main():
                 EW = dataset.equivalent_width_limit(line_tag, verbose=True, **limit_options)
                 if EW is not None:
                     EW_limits.append(EW)
-                    print(output.format_EW(EW))
+                    print(io.output.format_EW(EW))
         print("")
         # Save to file:
-        output.save_EW(EW_limits, filename+'.limits')
+        io.output.save_EW(EW_limits, filename+'.limits')
 
     # Output:
     if 'individual-regions' in parameters['output_pars']:
@@ -608,13 +606,13 @@ def main():
     else:
         rebin = 1
     dataset.plot_fit(filename=filename, rebin=rebin)
-    output.save_parameters_to_file(dataset, filename+'.fit')
+    io.output.save_parameters_to_file(dataset, filename+'.fit')
     if dataset.cheb_order >= 0:
-        output.save_cont_parameters_to_file(dataset, filename+'.cont')
-    output.save_fit_regions(dataset, filename+'.reg',
-                            individual=individual_regions)
+        io.output.save_cont_parameters_to_file(dataset, filename+'.cont')
+    io.output.save_fit_regions(dataset, filename+'.reg',
+                               individual=individual_regions)
     if individual_components:
-        output.save_individual_components(dataset, filename+'.components')
+        io.output.save_individual_components(dataset, filename+'.components')
     print(" - Done...\n")
     plt.show(block=True)
 
