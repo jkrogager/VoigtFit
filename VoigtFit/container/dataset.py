@@ -2293,7 +2293,7 @@ class DataSet(object):
                 print("   %2i  %+8.1f  %.6f   %6.1f   %5.2f" % (num, vel, z,
                                                                 comp.b, comp.logN))
 
-    def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True, threshold=15):
+    def equivalent_width_limit(self, line_tag, ref=None, nofit=False, sigma=3., verbose=True, threshold=1.5):
         """
         Determine the equivalent width limit and corresponding limit on log(N).
 
@@ -2397,8 +2397,8 @@ class DataSet(object):
             _, flux, err, mask = reg_match.unpack()
             tau = -np.log(flux[mask])
             tau_err = err[mask] / flux[mask]
-            noise = np.median(tau_err) * threshold
-            vmin, vmax = tau_noise_range(vel_ref[mask], tau, noise)
+            vel_ref = vel_ref[mask]
+            vmin, vmax = tau_noise_range(vel_ref, tau, tau_err, threshold=threshold)
             if verbose:
                 print("\n [INFO] - Determining limit for %s, using the observed profile of %s as reference" % (line_tag, line_match.tag))
                 print(" [INFO] - Integrating from vel = %.1f to %.1f km/s\n" % (vmin, vmax))

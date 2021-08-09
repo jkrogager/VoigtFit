@@ -97,17 +97,20 @@ def tau_percentile(x, tau, a=0.997):
 
     return x_range
 
-
-def tau_noise_range(x, tau, noise):
+# vmin, vmax = tau_noise_range(vel_ref[mask], tau, tau_err, threshold=threshold)
+def tau_noise_range(x, tau, tau_err, threshold=1.5):
     """
     Determine the range of x for which the cumulative `tau` is significantly
-    above the noise-level, i.e., where the cdf crosses the values:
-        +noise  and  max(cdf)-noise
+    above the noise-level determined from the cumulative error.
     """
     y = np.cumsum(tau)
+    y_err = np.sqrt(np.cumsum(tau_err**2))
+    N_pix = len(tau)
 
-    y_low = noise
-    y_high = max(y) - noise
+    low_noise = np.median(y_err[:N_pix//2])
+    upper_noise = np.median(y_err[N_pix//2:])
+    y_low = threshold * low_noise
+    y_high = max(y) - threshold * upper_noise
 
     # For the upper range:
     imax = min((y > y_high).nonzero()[0])
