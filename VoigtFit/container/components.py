@@ -119,6 +119,10 @@ class Component(object):
         """Unpack the physical parameters [z, b, logN]"""
         return [self.z, self.b, self.logN]
 
+    def __repr__(self):
+        """String representation of the :class:`Component <VoigtFit.container.components.Component>` instance"""
+        line_string = "<Component: z=%.5f  b=%.1f  logN=%.1f>" % (self.z, self.b, self.logN)
+        return line_string
 
 
 def load_components_from_file(fname):

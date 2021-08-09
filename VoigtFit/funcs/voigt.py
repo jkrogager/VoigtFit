@@ -304,8 +304,11 @@ def evaluate_optical_depth(profile_wl, pars, lines, z_sys=None):
             ion = line.ion
             z_pars = []
             for parname in pars.keys():
-                if z_matcher.fullmatch(parname) and ion in parname:
-                    z_pars.append(parname)
+                parts = parname.split('_')
+                if len(parts) == 2:
+                    pid, p_ion = parts
+                    if 'z' in pid and p_ion == ion:
+                        z_pars.append(parname)
             components_per_ion[ion] = len(z_pars)
 
     for line in lines:
