@@ -34,7 +34,7 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
-New in version 0.13.3.1:
+New in version 0.13.3.2:
   Bugfixes: loading of fine-structure lines, plotting limits, counting number of components.
   I also restructured the code and cleaned up imports (for better automated docs). Note that this may break some import statements if you are using advanced Python scripting. In that case, check the source code to find the location of the right module.
 
