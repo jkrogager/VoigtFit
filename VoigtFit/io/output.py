@@ -162,10 +162,10 @@ def mad(x):
     return np.median(np.abs(x - np.median(x)))
 
 
-def chunks(l, n):
-    """Yield successive `n`-sized chunks from `l`."""
-    for i in range(0, len(l), n):
-        yield l[i:i+n]
+def chunks(x, n):
+    """Yield successive `n`-sized chunks from `x`."""
+    for i in range(0, len(x), n):
+        yield x[i:i+n]
 
 
 def rebin_spectrum(wl, spec, err, n, method='mean'):
@@ -1345,7 +1345,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
         min_wl = list()
         max_wl = list()
         for reg in dataset.regions:
-            molecules_in_region = [molecule in l.tag for l in reg.lines]
+            molecules_in_region = [molecule in ll.tag for ll in reg.lines]
             if np.any(molecules_in_region):
                 specIDs.append(reg.specID)
                 min_wl.append(reg.wl.min())
@@ -1370,7 +1370,7 @@ def plot_H2(dataset, n_rows=None, xmin=None, xmax=None,
         min_wl = list()
         max_wl = list()
         for reg in dataset.regions:
-            molecules_in_region = [molecule in l.tag for l in reg.lines]
+            molecules_in_region = [molecule in ll.tag for ll in reg.lines]
             if np.any(molecules_in_region):
                 min_wl.append(reg.wl.min())
                 max_wl.append(reg.wl.max())

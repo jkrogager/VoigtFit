@@ -902,9 +902,9 @@ class DataSet(object):
 
         return None
 
-    def find_ion(self, ion):
+    def lines_of_ion(self, ion):
         """Return a list of all line tags for a given ion."""
-        return [l.tag for l in self.lines.values() if l.ion == ion]
+        return [ll.tag for ll in self.lines.values() if ll.ion == ion]
 
     def has_line(self, line_tag, active_only=False):
         """Return True if the given line is defined."""
@@ -916,9 +916,9 @@ class DataSet(object):
     def has_ion(self, ion, active_only=False):
         """Return True if the dataset has lines defined for the given ion."""
         if active_only:
-            all_ions = list(set([l.ion for l in self.lines.values() if l.active]))
+            all_ions = list(set([ll.ion for ll in self.lines.values() if ll.active]))
         else:
-            all_ions = list(set([l.ion for l in self.lines.values()]))
+            all_ions = list(set([ll.ion for ll in self.lines.values()]))
         return ion in all_ions
 
     def activate_line(self, line_tag):
