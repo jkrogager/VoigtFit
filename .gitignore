@@ -1,5 +1,6 @@
 
 *.pyc
+*__pycache__*
 
 *.dataset
 *.hdf5
