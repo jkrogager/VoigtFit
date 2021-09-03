@@ -325,6 +325,9 @@ class Region():
                 return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
+            if left_bound >= right_bound:
+                print(" [ERROR] - Left and Right boundaries too small!\n")
+                return 0
             region1 = (x >= left_bound)*(x <= right_bound)
             fit_wl = x[region1]
             fit_flux = self.flux[region1]
@@ -338,10 +341,20 @@ class Region():
                 return 0
             left_bound = min(bounds[0][0], bounds[1][0])
             right_bound = max(bounds[0][0], bounds[1][0])
+            if left_bound >= right_bound:
+                print(" [ERROR] - Left and Right boundaries too small!\n")
+                return 0
             region2 = (x >= left_bound)*(x <= right_bound)
             fit_wl = np.concatenate([fit_wl, x[region2]])
             fit_flux = np.concatenate([fit_flux, self.flux[region2]])
 
+            if len(fit_wl) < 4 or len(fit_flux) < 4:
+                print(" [ERROR] - Not enough pixels were selected. Select larger regions...\n")
+                return 0
+            elif len(fit_wl) != len(fit_flux):
+                print(" [ERROR] - Something went wrong. The data arrays do not have the same shape!")
+                print("           Try again...\n")
+                return 0
             popt, pcov = curve_fit(linfunc, fit_wl, fit_flux)
 
             continuum = linfunc(x, *popt)
@@ -366,7 +379,7 @@ class Region():
             e_continuum = np.sqrt(np.median(self.err**2)/len(x_points))
 
         else:
-            return
+            return 0
 
 
         if plot:
@@ -488,8 +501,9 @@ class Region():
                     else:
                         plt.axvline(l0*(z+1), ls=':', color='r', lw=0.4)
 
-        plt.title("Mark left and right boundary of regions to mask")
-        print("\n\n  Mark left and right boundary of regions to mask")
+        plt.title("Mark left and right boundary of regions to mask\n[press ENTER when done]")
+        print("\n\n  Mark left and right boundary of regions to mask [press ENTER when done]")
+        plt.tight_layout()
         plt.draw()
 
         ok = 0
