@@ -62,6 +62,8 @@ def main():
                         help="Force new dataset to be created. This will overwrite existing data.")
     parser.add_argument("-v", action="store_true",
                         help="Verbose")
+    parser.add_argument("-V", "--version", action="store_true",
+                        help="Show version")
 
     args = parser.parse_args()
     parfile = args.input
@@ -73,6 +75,9 @@ def main():
         print("  Please edit this file and run VoigtFit again with this file as input.")
         print("")
         io.output.create_blank_input()
+        return
+
+    if args.version:
         return
 
     parameters = io.parse_input.parse_parameters(parfile)

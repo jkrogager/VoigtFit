@@ -1569,7 +1569,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
                 output_string = z_format % (z_val, z_std) + "      "
                 output_string += "%6.2f ± %6.2f      " % (b, b_err)
-                output_string += "%7.3f ± %7.3f" % (logN, logN_err)
+                output_string += "%7.4f ± %7.4f" % (logN, logN_err)
 
                 print(output_string)
 
@@ -1606,7 +1606,7 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
 
                 output_string = z_format % (z_val, z_std) + "      "
                 output_string += "%6.2f ± %6.2f      " % (b, b_err)
-                output_string += "%.3f ± %.3f" % (logN, logN_err)
+                output_string += "%.4f ± %.4f" % (logN, logN_err)
 
                 print(output_string)
 
@@ -1734,7 +1734,7 @@ def print_total(dataset, verbose=True):
             for par in params.keys():
                 if par.find('logN') >= 0 and par.split('_')[1] == ion:
                     N_tot.append(params[par].value)
-                    if params[par].stderr < 0.5:
+                    if params[par].stderr < 1.0:
                         logN.append(params[par].value)
                         logN_err.append(params[par].stderr)
 
@@ -1743,7 +1743,7 @@ def print_total(dataset, verbose=True):
                 logsum = np.log10(np.sum(10**np.array(ION), 0))
                 l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
                 std_err = np.std(logsum)
-                output.append("  logN(%s) = %.2f ± %.2f" % (ion, abundance, std_err))
+                output.append("  logN(%s) = %.3f ± %.3f" % (ion, abundance, std_err))
             else:
                 output.append("  logN(%s) = ---" % ion)
 

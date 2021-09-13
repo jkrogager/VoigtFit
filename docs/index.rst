@@ -34,6 +34,9 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.13.5:
+  One extra digit is shown for best-fit logN and total column density. New option to command line: `-V` or `--version`, will just show the welcome message with the version number and subsequently quit the program.
+
 New in version 3.13.4:
   Small stability update in interactive normalization plot.
 
