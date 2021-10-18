@@ -197,7 +197,7 @@ def main():
                     if velspan is None:
                         velspan = dataset.velspan
                     for reg in regions_of_line:
-                        if np.abs(reg.velspan - velspan) < 0.1:
+                        if reg.velspan != velspan:
                             if verbose:
                                 print(" Detected difference in velocity span: %s" % ground_state)
                             dataset.verbose = False
@@ -254,7 +254,7 @@ def main():
         dataset = container.dataset.DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
-            dataset.velspan = parameters['velspan']
+            dataset.set_velspan(parameters['velspan'])
 
         # Load data:
         for fname, res, norm, airORvac, nsub, ext, use_mask in parameters['data']:
