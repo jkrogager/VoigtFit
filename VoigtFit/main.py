@@ -80,8 +80,13 @@ def main():
     if args.version:
         return
 
-    parameters = io.parse_input.parse_parameters(parfile)
     print(" Reading Parameters from file: " + parfile)
+    try:
+        parameters = io.parse_input.parse_parameters(parfile)
+    except io.parse_input.InputParserError as err_msg:
+        print("An error happened during the parsing of the input file:")
+        print(err_msg)
+        return
 
     name = parameters['name']
     # -- Load DataSet if the file already exists
@@ -116,6 +121,7 @@ def main():
             print(list(dataset.lines.keys()))
             print(" - Lines in parameter file:")
             print(parameters['lines'])
+
         for tag, velspan in parameters['lines']:
             if tag not in dataset.all_lines:
                 new_lines.append([tag, velspan])

@@ -47,7 +47,14 @@ def save_hdf_dataset(ds, fname, verbose=True):
 
         # set main attributes:
         hdf.attrs['redshift'] = ds.redshift
-        hdf.attrs['velspan'] = ds.velspan
+        if hasattr(ds.velspan, '__iter__'):
+            vmin, vmax = ds.velspan
+            hdf.attrs['vmin'] = vmin
+            hdf.attrs['vmax'] = vmax
+        else:
+            hdf.attrs['vmin'] = -ds.velspan
+            hdf.attrs['vmax'] = ds.velspan
+
         if hasattr(ds, 'name'):
             hdf.attrs['name'] = ds.name
         else:
@@ -75,7 +82,13 @@ def save_hdf_dataset(ds, fname, verbose=True):
         hdf_regions = hdf.create_group('regions')
         for num, reg in enumerate(ds.regions):
             reg_group = hdf_regions.create_group('region%i' % (num+1))
-            reg_group.attrs['velspan'] = reg.velspan
+            if hasattr(reg.velspan, '__iter__'):
+                vmin, vmax = reg.velspan
+                reg_group.attrs['vmin'] = vmin
+                reg_group.attrs['vmax'] = vmax
+            else:
+                reg_group.attrs['vmin'] = -reg.velspan
+                reg_group.attrs['vmax'] = reg.velspan
             reg_group.attrs['res'] = reg.res
             reg_group.attrs['normalized'] = reg.normalized
             reg_group.attrs['cont_err'] = reg.cont_err
@@ -160,7 +173,13 @@ def load_dataset_from_hdf(fname):
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']
         ds = DataSet(z_sys)
-        ds.velspan = hdf.attrs['velspan']
+        if 'velspan' in hdf.attrs:
+            vspan = hdf.attrs['velspan']
+            ds.velspan = (-vspan, vspan)
+        else:
+            vmin = hdf.attrs['vmin']
+            vmax = hdf.attrs['vmax']
+            ds.velspan = (vmin, vmax)
         ds.verbose = hdf.attrs['verbose']
         if 'name' in hdf.attrs.keys():
             ds.set_name(hdf.attrs['name'])
@@ -214,12 +233,18 @@ def load_dataset_from_hdf(fname):
 
             # Instantiate the Region Class with the first Line:
             line_init = region_lines[0]
-            v = reg.attrs['velspan']
+            if 'velspan' in reg.attrs.keys():
+                vspan = reg.attrs['velspan']
+                vspan = (-vspan, vspan)
+            else:
+                vmin = reg.attrs['vmin']
+                vmax = reg.attrs['vmax']
+                vspan = (vmin, vmax)
             if 'specID' in reg.attrs.keys():
                 specID = reg.attrs['specID']
             else:
                 specID = 'sid_tmp'
-            Region = regions.Region(v, specID, line_init)
+            Region = regions.Region(vspan, specID, line_init)
             if len(region_lines) == 1:
                 # The first and only line has already been loaded
                 pass

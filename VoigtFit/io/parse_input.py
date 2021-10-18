@@ -2,18 +2,68 @@
 
 __author__ = 'Jens-Kristian Krogager'
 import re
+from collections import defaultdict
 
 line_pattern = re.compile('[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?_[0-9]+.?[0-9]*')
 
+class InputParserError(Exception):
+    def __init__(self, line_num, msg="Could not parse this line:"):
+        self.line_num = line_num
+        self.msg = msg
 
-def clean_line(line):
+    def __str__(self):
+        diagnostics = "Error in line %i of input file!" % (self.line_num)
+        return diagnostics + '\n' + self.msg
+
+
+def parse_velspan(line_num, line):
+    segments = line.split()
+    has_velspan = 'velspan' in line
+    has_vmin = 'vmin' in line
+    has_vmax = 'vmax' in line
+    if has_vmin and has_vmax:
+        if has_velspan:
+            raise InputParserError(line_num, "Cannot parse `vmin`/`vmax` together with `velspan`. Use one definition only.")
+        for num_min, item in enumerate(segments):
+            if 'vmin' in item:
+                break
+        vmin = segments.pop(num_min)
+        vmin = float(vmin.split('=')[1])
+        for num_max, item in enumerate(segments):
+            if 'vmax' in item:
+                break
+        vmax = segments.pop(num_max)
+        vmax = float(vmax.split('=')[1])
+        velspan = (vmin, vmax)
+
+    elif has_velspan:
+        if has_vmin or has_vmax:
+            raise InputParserError(line_num, "Cannot parse `vmin` or `vmax` together with `velspan`. Use one definition only.")
+        for num, item in enumerate(segments):
+            if 'velspan' in item:
+                break
+        velspan = segments.pop(num)
+        vspan = float(velspan.split('=')[1])
+        velspan = (-vspan, vspan)
+
+    elif (has_vmin and not has_vmax) or (has_vmax and not has_vmin):
+        raise InputParserError(line_num, "both keywords `vmin` and `vmax` must be given, otherwise use `velspan`")
+
+    else:
+        velspan = None
+    return (velspan, segments)
+
+
+def clean_line(line, comment_only=False):
     """Remove comments and parentheses from the input line."""
     # strip comments:
     comment_begin = line.find('#')
     line = line[:comment_begin]
-    # remove parentheses:
-    line = line.replace('[', '').replace(']', '')
-    line = line.replace('(', '').replace(')', '')
+    line = line.replace(',', '')
+    if not comment_only:
+        # remove parentheses:
+        line = line.replace('[', '').replace(']', '')
+        line = line.replace('(', '').replace(')', '')
     return line
 
 
@@ -43,7 +93,7 @@ def parse_parameters(fname):
     parameters['save'] = True
     parameters['show_total'] = False
     parameters['systemic'] = [None, 'none']
-    parameters['velspan'] = 500.
+    parameters['velspan'] = (-400., 400.)
     data = list()
     components = list()
     components_to_copy = list()
@@ -52,14 +102,14 @@ def parse_parameters(fname):
     lines = list()
     limits = list()
     fine_lines = list()
-    molecules = dict()
+    molecules = defaultdict(list)
     variables = dict()
     thermal_model = list()
 
     with open(fname) as par_file:
         all_lines = par_file.readlines()
 
-    for line in all_lines:
+    for line_num, line in enumerate(all_lines, 1):
         if line[0] == '#':
             continue
 
@@ -114,24 +164,15 @@ def parse_parameters(fname):
             data.append([filename, resolution, norm, airORvac, nsub, ext, use_mask])
 
         elif 'lines' in line and 'save' not in line and 'fine' not in line and 'check' not in line:
-            velspan = None
             # strip comments:
-            comment_begin = line.find('#')
-            line = line[:comment_begin].strip()
-            if 'velspan' in line:
-                idx = line.find('velspan')
-                value = line[idx:].split('=')[1]
-                velspan = float(value)
+            line = clean_line(line)
+            if 'add' in line:
+                line = line.replace('add', '')
+            line = line.replace('lines', '')
+            velspan, segments = parse_velspan(line_num, line)
 
-                linelist = line.split()
-                linelist = linelist[1:-1]
-                all_lines = [[l, velspan] for l in linelist]
-
-            else:
-                linelist = line.split()[1:]
-                all_lines = [[l, velspan] for l in linelist]
-
-            lines += all_lines
+            # All remaining segments should be line tags:
+            lines += [[line_tag, velspan] for line_tag in segments]
 
         elif 'limit' in line and 'save' not in line:
             line = clean_line(line)
@@ -161,67 +202,44 @@ def parse_parameters(fname):
             limits.append((line_tags, options))
 
         elif 'fine-lines' in line:
-            velspan = None
             line = clean_line(line)
-            if 'velspan' in line:
-                idx = line.find('velspan')
-                value = line[idx:].split('=')[1]
-                velspan = float(value)
-                line = line[:idx]
-
-            pars = line.split()
-            ground_state = pars[1]
-            if len(pars) > 2:
-                levels = pars[2:]
+            if 'add' in line:
+                line = line.replace('add', '')
+            line = line.replace('fine-lines', '')
+            velspan, segments = parse_velspan(line_num, line)
+            ground_state = segments[0]
+            if len(segments) > 1:
+                levels = pars[1:]
             else:
                 levels = None
-
             fine_lines.append([ground_state, levels, velspan])
 
         elif 'molecule' in line:
             velspan = None
             Jmax = 1
-            # Ex.  add molecule CO AX(1-0), AX(0-0) [J=1 velspan=150]
-            # strip comments:
-            comment_begin = line.find('#')
-            line = line[:comment_begin].strip()
-            for item in line.split():
-                if '=' in item:
-                    parname, parval = item.split('=')
-                    if parname.strip().upper() == 'J':
-                        Jmax = int(parval)
-                    elif 'velspan' in parname.lower():
-                        velspan = float(parval)
-                    idx = line.find(item)
-                    if idx > 0:
-                        line = line[:idx]
+            # Ex.  add molecule CO AX(1-0) AX(0-0) [J=1 velspan=150]
+            line = clean_line(line, comment_only=True)
+            if 'add' in line:
+                line = line.replace('add', '')
+            line = line.replace('molecule', '')
+            velspan, segments = parse_velspan(line_num, line)
 
-            if 'CO' in line:
-                CO_begin = line.find('CO')
-                band_string = line[CO_begin:].replace(',', '')
-                bands = band_string.split()[1:]
-                if 'CO' in molecules.keys():
-                    for band in bands:
-                        molecules['CO'] += [band, Jmax, velspan]
-                else:
-                    molecules['CO'] = list()
-                    for band in bands:
-                        molecules['CO'] += [band, Jmax, velspan]
+            # The molecule name should be the first element
+            element = segments.pop(0)
+            if 'J=' in line:
+                for num, item in enumerate(segments):
+                    if 'J=' in item:
+                        break
+                J_string = segments.pop(num)
+                parname, parval = J_string.split('=')
+                Jmax = int(parval)
 
-            elif 'H2' in line:
-                H2_begin = line.find('H2')
-                band_string = line[H2_begin:].replace(',', '')
-                bands = band_string.split()[1:]
-                if 'H2' in molecules.keys():
-                    for band in bands:
-                        molecules['H2'] += [band, Jmax, velspan]
-                else:
-                    molecules['H2'] = list()
-                    for band in bands:
-                        molecules['H2'] += [band, Jmax, velspan]
-
+            # The rest of the segments should be molecular bands:
+            if element in ['CO', 'H2']:
+                for band in segments:
+                    molecules[element].append([band, Jmax, velspan])
             else:
-                print("\n [ERROR] - Could not detect any molecular species to add!\n")
+                print("\n [WARNING] - Could not detect any molecular species to add!\n")
 
         elif 'component' in line and 'copy' not in line and 'delete' not in line and 'output' not in line:
             # strip comments:
@@ -501,13 +519,21 @@ def parse_parameters(fname):
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
+            line = line.replace("(", '')
+            line = line.replace(")", '')
+            line = line.replace(",", ' ')
             if '=' in line:
                 velspan = line.split('=')[1]
             elif ':' in line:
                 velspan = line.split(':')[1]
             else:
-                velspan = line.split()[1]
-            parameters['velspan'] = float(velspan)
+                raise InputParserError(line_num, "The correct syntax for 'velspan' is: velspan = `(number number)`")
+
+            if len(velspan.split()) == 2:
+                vspan = tuple(float(val) for val in velspan.split())
+            else:
+                vspan = (-float(velspan), float(velspan))
+            parameters['velspan'] = vspan
 
         elif 'c_order' in line.lower() and 'name' not in line and 'save' not in line.lower():
             # strip comments:

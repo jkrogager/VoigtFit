@@ -342,25 +342,28 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                     delta_lam = (l0*(dataset.redshift + 1) - l_ref)
                     delta_v = delta_lam / l_ref * 299792.458
 
+                    if hasattr(region.velspan, '__iter__'):
+                        vmin, vmax = region.velspan
+                    else:
+                        vspan = region.velspan
+                        vmin = -vspan
+                        vmax = vspan
 
                     if xmin:
                         if xunit == 'wl':
                             vmin = np.abs(xmin*(dataset.redshift + 1) - l_ref)/l_ref * 299792.458
                         else:
                             vmin = np.abs(xmin)
-                    else:
-                        vmin = region.velspan
 
                     if xmax:
                         if xunit == 'wl':
                             vmax = np.abs(xmax*(dataset.redshift + 1) - l_ref)/l_ref * 299792.458
                         else:
                             vmax = np.abs(xmax)
-                    else:
-                        vmax = region.velspan
-                    plot_span = (vmax + vmin) / 2.
-                    include_velspan = plot_span * 0.8
-                    if np.abs(delta_v) <= include_velspan:
+
+                    # plot_span = (vmax + vmin) / 2.
+                    # include_velspan = plot_span * 0.8
+                    if vmin*0.8 <= delta_v <= vmax*0.8:
                         included_lines.append(line.tag)
 
     # --- Pack keyword arguments for plot_single_line:
@@ -715,19 +718,24 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
+    if hasattr(region.velspan, '__iter__'):
+        vmin, vmax = region.velspan
+    else:
+        vspan = region.velspan
+        vmin = -vspan
+        vmax = vspan
+
     if not xmin:
         if xunit == 'vel':
-            xmin = -region.velspan
+            xmin = vmin
         else:
             xmin = x.min()
     if not xmax:
         if xunit == 'vel':
-            xmax = region.velspan
+            xmax = vmax
         else:
             xmax = x.max()
     ax.set_xlim(xmin, xmax)
-    # if np.abs(xmin) > 900 or np.abs(xmax) > 900:
-    #     ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
 
     if plot_fit and (isinstance(dataset.best_fit, dict) or
                      isinstance(dataset.pars, dict)):
@@ -1104,11 +1112,18 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
     vel = (x - l_ref) / l_ref * 299792.458
     y = y - profile
 
+    if hasattr(region.velspan, '__iter__'):
+        vmin, vmax = region.velspan
+    else:
+        vspan = region.velspan
+        vmin = -vspan
+        vmax = vspan
+
     if not xmin:
-        xmin = -region.velspan
+        xmin = vmin
 
     if not xmax:
-        xmax = region.velspan
+        xmax = vmax
     ax.set_xlim(xmin, xmax)
 
     view_part = (vel > xmin) * (vel < xmax)
