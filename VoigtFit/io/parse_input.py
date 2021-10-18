@@ -44,7 +44,6 @@ def parse_parameters(fname):
     parameters['show_total'] = False
     parameters['systemic'] = [None, 'none']
     parameters['velspan'] = 500.
-    par_file = open(fname)
     data = list()
     components = list()
     components_to_copy = list()
@@ -57,7 +56,10 @@ def parse_parameters(fname):
     variables = dict()
     thermal_model = list()
 
-    for line in par_file.readlines():
+    with open(fname) as par_file:
+        all_lines = par_file.readlines()
+
+    for line in all_lines:
         if line[0] == '#':
             continue
 
@@ -495,10 +497,6 @@ def parse_parameters(fname):
         elif 'total' in line and 'name' not in line and 'save' not in line:
             parameters['show_total'] = True
 
-        elif 'signal-to-noise' in line and 'name' not in line and 'save' not in line:
-            print(" [WARNING] - The signal-to-noise command is deprecated.")
-            print("             The user must provide an error array.")
-
         elif (('velspan' in line) and ('lines' not in line) and ('molecules' not in line) and ('save' not in line)):
             # strip comments:
             comment_begin = line.find('#')
@@ -671,7 +669,6 @@ def parse_parameters(fname):
         else:
             pass
 
-    par_file.close()
     parameters['data'] = data
     parameters['limits'] = limits
     parameters['lines'] = lines

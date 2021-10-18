@@ -12,6 +12,7 @@ from scipy.signal import fftconvolve, gaussian
 from scipy.ndimage import gaussian_filter1d
 from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
+import re
 
 from ..utils import Asplund
 from ..utils import molecules
@@ -1714,6 +1715,7 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     print("")
 
 
+logN_matcher = re.compile('logN[0-9]+_[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?')
 def print_total(dataset, verbose=True):
     """
     Print the total column densities of all species. This will sum *all*
@@ -1732,11 +1734,14 @@ def print_total(dataset, verbose=True):
             logN_err = []
             N_tot = []
             for par in params.keys():
-                if par.find('logN') >= 0 and par.split('_')[1] == ion:
-                    N_tot.append(params[par].value)
-                    if params[par].stderr < 1.0:
-                        logN.append(params[par].value)
-                        logN_err.append(params[par].stderr)
+                is_logN_par = logN_matcher.fullmatch(par)
+                if is_logN_par is not None:
+                    par_id, par_ion = par.split('_')
+                    if par_ion == ion:
+                        N_tot.append(params[par].value)
+                        if params[par].stderr < 1.0:
+                            logN.append(params[par].value)
+                            logN_err.append(params[par].stderr)
 
             if len(logN) > 0:
                 ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
