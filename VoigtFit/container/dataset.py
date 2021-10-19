@@ -197,7 +197,7 @@ class DataSet(object):
         self.components = dict()
 
         # Define default velocity span for fitting region
-        self.velspan = (-400., 400.)  # km/s
+        self._velspan = (-400., 400.)  # km/s
 
         self.ready2fit = False
         self.best_fit = None
@@ -212,15 +212,27 @@ class DataSet(object):
             if len(velspan) != 2:
                 raise ValueError("argument 'velspan' must have two values! not %i" % len(velspan))
         elif velspan is None:
-            velspan = self.velspan
+            velspan = self._velspan
         else:
             velspan = (-1.*np.abs(velspan), np.abs(velspan))
         return velspan
 
-    def set_velspan(self, velspan):
-        if velspan is None:
-            raise ValueError("Must be a number or a tuple of two numbers, not None!")
-        self.velspan = self.check_velspan(velspan)
+    @property
+    def velspan(self):
+        return self._velspan
+
+    @velspan.setter
+    def velspan(self, value):
+        if value is None:
+            print("`velspan` must be a number or a tuple of two numbers, not None!")
+            return
+        self._velspan = self.check_velspan(value)
+
+    def set_velspan(self, value):
+        if value is None:
+            print("`velspan` must be a number or a tuple of two numbers, not None!")
+            return
+        self._velspan = self.check_velspan(value)
 
     def set_name(self, name):
         """Set the name of the DataSet. This parameter is used when saving the dataset."""
