@@ -517,11 +517,7 @@ def parse_parameters(fname):
 
         elif (('velspan' in line) and ('lines' not in line) and ('molecules' not in line) and ('save' not in line)):
             # strip comments:
-            comment_begin = line.find('#')
-            line = line[:comment_begin].strip()
-            line = line.replace("(", '')
-            line = line.replace(")", '')
-            line = line.replace(",", ' ')
+            line = clean_line(line)
             if '=' in line:
                 velspan = line.split('=')[1]
             elif ':' in line:
