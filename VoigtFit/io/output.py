@@ -465,11 +465,11 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 # num += 1
                 # LIV is a shorthand for 'lines_in_view'
 
+        fig.set_tight_layout(True)
         if filename:
             pdf.savefig(fig)
 
     if len(pages) > 0:
-        fig.set_tight_layout(True)
         if filename:
             pdf.close()
             print(" - Saved the fitted lines to PDF file: %s" % filename)
