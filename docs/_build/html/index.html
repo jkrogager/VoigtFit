@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>VoigtFit &#8212; VoigtFit 0.13.3 documentation</title>
+    <title>VoigtFit &#8212; VoigtFit 0.13.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -57,7 +57,17 @@ the software and for their constructive feedback and ideas for new features.</p>
 <section id="recent-updates">
 <h2>Recent updates<a class="headerlink" href="#recent-updates" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
-<dt>New in version 3.13.2:</dt><dd><p>Bugfix in saving and loading datasets (.hdf5) and restoring masks and normalization.</p>
+<dt>New in version 3.13.6:</dt><dd><p>The spectral cutout for each line can now be defined as a velocity range (<cite>vmin</cite> and <cite>vmax</cite>) instead of a symmetric velocity span (<cite>velspan=</cite>). The new syntax can be used in the <cite>lines</cite>, <cite>fine-lines</cite>, <cite>molecule</cite> statements. The old syntax is still allowed. The velocity range can also be set globally using the <cite>velspan</cite> statement. See the full documentation on the <a class="reference internal" href="documentation.html#documentation"><span class="std std-ref">VoigtFit Parameter Language</span></a>.
+The Voigt profile has also been reformulated in terms of frequency (and not wavelength) following the suggestions by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2021MNRAS.tmp.2672W/abstract">Webb, Carswell and Lee (2021)</a>.</p>
+</dd>
+<dt>New in version 3.13.5:</dt><dd><p>One extra digit is shown for best-fit logN and total column density. New option to command line: <cite>-V</cite> or <cite>–version</cite>, will just show the welcome message with the version number and subsequently quit the program.</p>
+</dd>
+<dt>New in version 3.13.4:</dt><dd><p>Small stability update in interactive normalization plot.</p>
+</dd>
+<dt>New in version 3.13.3.2:</dt><dd><p>Bugfixes: loading of fine-structure lines, plotting limits, counting number of components.
+I also restructured the code and cleaned up imports (for better automated docs). Note that this may break some import statements if you are using advanced Python scripting. In that case, check the source code to find the location of the right module.</p>
+</dd>
+<dt>New in version 3.13.3:</dt><dd><p>Bugfix in saving and loading datasets (.hdf5) and restoring masks and normalization.</p>
 </dd>
 <dt>New in version 3.13.2:</dt><dd><p>Bugfix in masking and continuum normalization of lines used with the <cite>limit</cite> statement. Updated the input-parameter template to reflect the usage of <cite>limit</cite> and <cite>def</cite> introduced in versions 3.13 and 3.12.</p>
 </dd>
@@ -178,6 +188,7 @@ are now retained.</p>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#name">Name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#save">Save</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#z-sys">z_sys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#velocity-span">Velocity span</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#data">Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#lines">Lines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#limit-new">Limit  [<strong>New!</strong>]</a></li>

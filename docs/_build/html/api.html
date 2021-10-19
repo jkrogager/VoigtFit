@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>VoigtFit Interface &#8212; VoigtFit 0.13.3 documentation</title>
+    <title>VoigtFit Interface &#8212; VoigtFit 0.13.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -88,7 +88,7 @@ if Chebyshev polynomial fitting should not be used.</p>
 <dt>components<span class="classifier">dict</span></dt><dd><p>A dictionary of components for each <em>ion</em> defined:
 (<em>ion</em> : [z, b, logN, options]). See <a class="reference internal" href="#VoigtFit.DataSet.add_component" title="VoigtFit.DataSet.add_component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataSet.add_component</span></code></a>.</p>
 </dd>
-<dt>velspan<span class="classifier">float   [default = 500]</span></dt><dd><p>The default velocity range to use for the definition
+<dt>velspan<span class="classifier">float, Tuple(float, float)  [default = 400]</span></dt><dd><p>The default velocity range to use for the definition
 of fitting regions.</p>
 </dd>
 <dt>ready2fit<span class="classifier">bool   [default = False]</span></dt><dd><p>This attribute is checked before fitting the dataset. Only when
@@ -104,6 +104,13 @@ The parameters will be defined during the call to <a class="reference internal" 
 </dd>
 <dt>static_variables<span class="classifier"><a class="reference external" href="https://lmfit.github.io/lmfit-py/parameters.html">lmfit.Parameters</a></span></dt><dd><p>Parameter dictionary that holds fit variables other than those related to
 components of absorption lines and continuum parameters.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>velspan</strong></dt><dd></dd>
+</dl>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
@@ -179,38 +186,38 @@ components of absorption lines and continuum parameters.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.equivalent_width_limit" title="VoigtFit.DataSet.equivalent_width_limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">equivalent_width_limit</span></code></a>(line_tag[, ref, …])</p></td>
 <td><p>Determine the equivalent width limit and corresponding limit on log(N).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.find_ion" title="VoigtFit.DataSet.find_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_ion</span></code></a>(ion)</p></td>
-<td><p>Return a list of all line tags for a given ion.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.find_line" title="VoigtFit.DataSet.find_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_line</span></code></a>(line_tag)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.find_line" title="VoigtFit.DataSet.find_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_line</span></code></a>(line_tag)</p></td>
 <td><p>Look up the fitting <code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code> for a given <em>line tag</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.fit" title="VoigtFit.DataSet.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>([verbose])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.fit" title="VoigtFit.DataSet.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>([verbose])</p></td>
 <td><p>Fit the absorption lines using chi-square minimization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.fix_structure" title="VoigtFit.DataSet.fix_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_structure</span></code></a>([ion])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.fix_structure" title="VoigtFit.DataSet.fix_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_structure</span></code></a>([ion])</p></td>
 <td><p>Fix the velocity structure, that is, the redshifts and the b-parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.free_structure" title="VoigtFit.DataSet.free_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free_structure</span></code></a>([ion])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.free_structure" title="VoigtFit.DataSet.free_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free_structure</span></code></a>([ion])</p></td>
 <td><p>Free the velocity structure, that is, the redshifts and the b-parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_lines_for_ion" title="VoigtFit.DataSet.get_lines_for_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lines_for_ion</span></code></a>(ion)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_lines_for_ion" title="VoigtFit.DataSet.get_lines_for_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lines_for_ion</span></code></a>(ion)</p></td>
 <td><p>Return a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> objects corresponding to the given <em>ion</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_name" title="VoigtFit.DataSet.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_name" title="VoigtFit.DataSet.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>()</p></td>
 <td><p>Returns the name of the DataSet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_resolution" title="VoigtFit.DataSet.get_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resolution</span></code></a>(line_tag[, verbose])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.get_resolution" title="VoigtFit.DataSet.get_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resolution</span></code></a>(line_tag[, verbose])</p></td>
 <td><p>Return the spectral resolution for the fitting <code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code> where the line with the given <cite>line_tag</cite> is defined.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.has_ion" title="VoigtFit.DataSet.has_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_ion</span></code></a>(ion[, active_only])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.has_ion" title="VoigtFit.DataSet.has_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_ion</span></code></a>(ion[, active_only])</p></td>
 <td><p>Return True if the dataset has lines defined for the given ion.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.has_line" title="VoigtFit.DataSet.has_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_line</span></code></a>(line_tag[, active_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.has_line" title="VoigtFit.DataSet.has_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_line</span></code></a>(line_tag[, active_only])</p></td>
 <td><p>Return True if the given line is defined.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.interactive_components" title="VoigtFit.DataSet.interactive_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interactive_components</span></code></a>(line_tag[, velocity])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.interactive_components" title="VoigtFit.DataSet.interactive_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interactive_components</span></code></a>(line_tag[, velocity])</p></td>
 <td><p>Define components interactively for a given ion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VoigtFit.DataSet.lines_of_ion" title="VoigtFit.DataSet.lines_of_ion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lines_of_ion</span></code></a>(ion)</p></td>
+<td><p>Return a list of all line tags for a given ion.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#VoigtFit.DataSet.load_components_from_file" title="VoigtFit.DataSet.load_components_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_components_from_file</span></code></a>(fname[, fit_pars])</p></td>
 <td><p>Load best-fit parameters from an output file <cite>fname</cite>.</p></td>
@@ -307,13 +314,19 @@ components of absorption lines and continuum parameters.</p>
 <tr class="row-odd"><td><p><strong>add_variable</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>get_NHI</strong></p></td>
+<tr class="row-even"><td><p><strong>check_velspan</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>remove_all_lines</strong></p></td>
+<tr class="row-odd"><td><p><strong>get_NHI</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>reset_static_variables</strong></p></td>
+<tr class="row-even"><td><p><strong>remove_all_lines</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>reset_static_variables</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_velspan</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -477,9 +490,10 @@ mechanical description of the state.</p>
 <dt><strong>line_tag</strong><span class="classifier">str</span></dt><dd><p>The line tag for the transition which should be defined.
 Ex: “FeII_2374”</p>
 </dd>
-<dt><strong>velspan</strong><span class="classifier">float   [default = None]</span></dt><dd><p>The velocity span around the line center, which will be included
-in the fit. If <cite>None</cite> is given, use the default <cite>self.velspan</cite>
-defined (default = 500 km/s).</p>
+<dt><strong>velspan</strong><span class="classifier">tuple(float, float)   [default = None]</span></dt><dd><p>The velocity span around the line center, which will be included
+in the fit. Can either be given as a single number for a symmetric region,
+or as a range or (lower, upper).
+If <cite>None</cite> is given, use the default <cite>self.velspan</cite> (default = ±400 km/s).</p>
 </dd>
 <dt><strong>active</strong><span class="classifier">bool   [default = True]</span></dt><dd><p>Set the <code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code> as active
 (i.e., included in the fit).</p>
@@ -511,7 +525,7 @@ around the line center.</p>
 </dd>
 <dt><strong>velspan</strong><span class="classifier">float   [default = None]</span></dt><dd><p>The velocity span around the line center, which will be included
 in the fit. If <cite>None</cite> is given, use the default
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">velspan</span></code> defined (500 km/s).</p>
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">velspan</span></code> (±400 km/s).</p>
 </dd>
 </dl>
 </dd>
@@ -682,7 +696,7 @@ or <code class="xref py py-mod docutils literal notranslate"><span class="pre">V
 
 <dl class="py method">
 <dt class="sig sig-object py" id="VoigtFit.DataSet.equivalent_width_limit">
-<span class="sig-name descname"><span class="pre">equivalent_width_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nofit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/container/dataset.html#DataSet.equivalent_width_limit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.DataSet.equivalent_width_limit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">equivalent_width_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nofit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/container/dataset.html#DataSet.equivalent_width_limit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.DataSet.equivalent_width_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the equivalent width limit and corresponding limit on log(N).</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -710,12 +724,6 @@ of the observed profile. The noise is estimated as the median noise per pixel</p
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="VoigtFit.DataSet.find_ion">
-<span class="sig-name descname"><span class="pre">find_ion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/container/dataset.html#DataSet.find_ion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.DataSet.find_ion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of all line tags for a given ion.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -899,6 +907,12 @@ relative to the systemic redshift instead of in wavelength space.</p>
 The user can then click on the positions of the components which. At the end, the
 redshifts and estimated column densities are printed to terminal. The b-parameter
 is assumed to be unresolved, i.e., taken from the resolution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VoigtFit.DataSet.lines_of_ion">
+<span class="sig-name descname"><span class="pre">lines_of_ion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/container/dataset.html#DataSet.lines_of_ion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.DataSet.lines_of_ion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all line tags for a given ion.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1425,7 +1439,7 @@ and can include a <code class="xref py py-class docutils literal notranslate"><s
 belonging to the region.</p>
 <p class="rubric">Attributes</p>
 <dl>
-<dt>velspan<span class="classifier">float</span></dt><dd><p>The velocity range to used for the fitting region.</p>
+<dt>velspan<span class="classifier">Tuple(float, float)</span></dt><dd><p>The velocity ranges used for the fitting region. Given as a range by a tuple of (lower, upper).</p>
 </dd>
 <dt>lines<span class="classifier">list(<code class="xref py py-class docutils literal notranslate"><span class="pre">dataset.Line</span></code>)</span></dt><dd><p>A list of Lines defined in the region.</p>
 </dd>
@@ -1890,8 +1904,8 @@ R = lambda / dlambda, where dlambda is the FWHM</p>
 <span id="module-output"></span><h2>module <strong>output</strong><a class="headerlink" href="#module-VoigtFit.io.output" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="VoigtFit.io.output.chunks">
-<span class="sig-prename descclassname"><span class="pre">VoigtFit.io.output.</span></span><span class="sig-name descname"><span class="pre">chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/io/output.html#chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.io.output.chunks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Yield successive <cite>n</cite>-sized chunks from <cite>l</cite>.</p>
+<span class="sig-prename descclassname"><span class="pre">VoigtFit.io.output.</span></span><span class="sig-name descname"><span class="pre">chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VoigtFit/io/output.html#chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#VoigtFit.io.output.chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield successive <cite>n</cite>-sized chunks from <cite>x</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
