@@ -137,7 +137,7 @@ class DataSet(object):
             (*ion* : [z, b, logN, options]). See :meth:`DataSet.add_component
             <VoigtFit.DataSet.add_component>`.
 
-        velspan : float   [default = 500]
+        velspan : float, Tuple(float, float)  [default = 400]
             The default velocity range to use for the definition
             of fitting regions.
 
@@ -197,7 +197,7 @@ class DataSet(object):
         self.components = dict()
 
         # Define default velocity span for fitting region
-        self.velspan = 500.  # km/s
+        self._velspan = (-400., 400.)  # km/s
 
         self.ready2fit = False
         self.best_fit = None
@@ -205,6 +205,34 @@ class DataSet(object):
         self.pars = None
         self.static_variables = Parameters()
         self.name = name
+
+
+    def check_velspan(self, velspan):
+        if hasattr(velspan, '__iter__'):
+            if len(velspan) != 2:
+                raise ValueError("argument 'velspan' must have two values! not %i" % len(velspan))
+        elif velspan is None:
+            velspan = self._velspan
+        else:
+            velspan = (-1.*np.abs(velspan), np.abs(velspan))
+        return velspan
+
+    @property
+    def velspan(self):
+        return self._velspan
+
+    @velspan.setter
+    def velspan(self, value):
+        if value is None:
+            print("`velspan` must be a number or a tuple of two numbers, not None!")
+            return
+        self._velspan = self.check_velspan(value)
+
+    def set_velspan(self, value):
+        if value is None:
+            print("`velspan` must be a number or a tuple of two numbers, not None!")
+            return
+        self._velspan = self.check_velspan(value)
 
     def set_name(self, name):
         """Set the name of the DataSet. This parameter is used when saving the dataset."""
@@ -520,10 +548,11 @@ class DataSet(object):
             The line tag for the transition which should be defined.
             Ex: "FeII_2374"
 
-        velspan : float   [default = None]
+        velspan : tuple(float, float)   [default = None]
             The velocity span around the line center, which will be included
-            in the fit. If `None` is given, use the default `self.velspan`
-            defined (default = 500 km/s).
+            in the fit. Can either be given as a single number for a symmetric region,
+            or as a range or (lower, upper).
+            If `None` is given, use the default `self.velspan` (default = ±400 km/s).
 
         active : bool   [default = True]
             Set the :class:`Line <VoigtFit.DataSet.Line>` as active
@@ -551,8 +580,8 @@ class DataSet(object):
                       % line_tag)
             return False
 
-        if velspan is None:
-            velspan = self.velspan
+        velspan = self.check_velspan(velspan)
+        vmin, vmax = velspan
 
         if new_line.element not in self.components.keys():
             # Initiate component list if ion has not been defined before:
@@ -566,7 +595,7 @@ class DataSet(object):
                 if chunk['wl'].min() < l_center < chunk['wl'].max():
                     wl = chunk['wl']
                     vel = (wl-l_center)/l_center*299792.
-                    span = ((vel >= -velspan)*(vel <= velspan)).nonzero()[0]
+                    span = ((vel >= vmin)*(vel <= vmax)).nonzero()[0]
                     new_wavelength = wl[span]
 
                     # Initiate new Region:
@@ -660,19 +689,14 @@ class DataSet(object):
         velspan : float   [default = None]
             The velocity span around the line center, which will be included
             in the fit. If `None` is given, use the default
-            :attr:`velspan <VoigtFit.DataSet.velspan>` defined (500 km/s).
+            :attr:`velspan <VoigtFit.DataSet.velspan>` (±400 km/s).
         """
 
         self.ready2fit = False
-        if hasattr(velspan, '__iter__'):
-            for tag, v in zip(tags, velspan):
-                self.add_line(tag, v)
-        elif velspan is None:
-            for tag in tags:
-                self.add_line(tag, self.velspan)
-        else:
-            for tag in tags:
-                self.add_line(tag, velspan)
+        velspan = self.check_velspan(velspan)
+
+        for tag in tags:
+            self.add_line(tag, velspan)
 
     def add_lines(self, line_tags, velspan=None):
         """Alias for `self.add_many_lines`."""
@@ -1407,11 +1431,7 @@ class DataSet(object):
             mechanical description of the state.
         """
         self.fine_lines[line_tag] = list()
-
-        if velspan is None:
-            velspan = self.velspan
-        else:
-            velspan = float(velspan)
+        velspan = self.check_velspan(velspan)
 
         if hasattr(levels, '__iter__'):
             for fineline in fine_structure_complexes[line_tag]:

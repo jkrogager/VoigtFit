@@ -137,8 +137,8 @@ class Region():
 
         .. rubric:: Attributes
 
-        velspan : float
-            The velocity range to used for the fitting region.
+        velspan : Tuple(float, float)
+            The velocity ranges used for the fitting region. Given as a range by a tuple of (lower, upper).
 
         lines : list(:class:`dataset.Line`)
             A list of Lines defined in the region.
@@ -178,6 +178,13 @@ class Region():
             A spectral identifier to point back to the raw data chunk.
 
         """
+        if hasattr(velspan, '__iter__'):
+            if len(velspan) == 2:
+                pass
+            else:
+                raise ValueError("argument 'velspan' must have two values! not %i" % len(velspan))
+        else:
+            velspan = (-1.*np.abs(velspan), np.abs(velspan))
         self.velspan = velspan
         self.specID = specID
         if line:

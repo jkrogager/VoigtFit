@@ -109,10 +109,25 @@ Save
 z_sys
 -----
 
-**z_sys :  z_sys**
+**z_sys :  z_sys**  or  **z_sys = z_sys**
 
   *z_sys* gives the systemic redshift of the absorption system.
   Relative velocities are calculated with respect to this redshift.
+
+
+Velocity span
+-------------
+
+**velspan = vspan**
+or
+**velspan = vmin  vmax**
+
+  *vspan* : the value after the equal-sign is taken as the velocity
+  span in km/s around each line to be defined as a fitting region.
+  The default span is ±400 km/s.
+
+  *vmin* and *vmax*: the velocity extent used around each line as a fitting region.
+  If only one number is given, the region is assumed to be symmetric, see *vspan* above.
 
 
 Data
@@ -204,9 +219,9 @@ Optional arguments:
 Lines
 -----
 
-**lines  line_tags  [ velspan=__ ]**
+**lines  line_tags  [ velspan=__  vmin=__ vmax=__ ]**
 
-  *line_tags* can be a single line or multiple lines separated by blank spaces.
+  *line_tags* can be a single line or multiple lines **separated by blank spaces**.
   The line tag should match a line in the line-list, e.g., FeII_2374, SiII_1526,
   or HI_1215. For the Lyman series of hydrogen and deuterium, the following
   notation is also accepted: HI_1 for the Ly-alpha, HI_3 for Ly-gamma, and so on.
@@ -217,7 +232,10 @@ Optinal arguments:
 
   *velspan* : the value after the equal-sign is taken as the velocity
   span in km/s around each line to be defined as a fitting region.
-  The default span is 500 km/s.
+  The default span is ±400 km/s. This argument cannot be parsed together with `vmin` or `vmax`.
+
+  *vmin* and *vmax*: the velocity extent used around each line as a fitting region.
+  Both values must be given. These arguments cannot be parsed together with `velspan`.
 
 
 .. topic:: Example
@@ -225,11 +243,13 @@ Optinal arguments:
   ``lines  FeII_2260  FeII_2374  SiII_1808  HI_1215``
 
     This will define the two singly ionized iron transitions at 2260 and 2374Å
-    together with the singly ionized silicon transition at 1808Å and the Ly-alpha line.
+    together with the singly ionized silicon transition at 1808Å and the Ly-α
+    line using the default velocity span of 400 km/s.
 
-  ``lines FeII_2374  SiII_1808``
+  ``lines vmin=-200 vmax=350 FeII_2374  SiII_1808``
 
-    This will define the iron and silicon lines with default velocity spans.
+    This will define the two iron and silicon transitions within a fitting region from -200 to +350 km/s
+    relative to the systemic velocity.
 
   ``lines HI_1  HI_2  velspan=5000``
 
@@ -254,6 +274,9 @@ Limit  [**New!**]
   The output is printed to the terminal, and is also saved to a text file ('*.limits').
 
   Multiple *limit* statements can be defined in the parameter file.
+
+  The lines used for limits are defined in a region defined by the default `velspan` (±400 km/s).
+  This can be changed by using the global `velspan` statement.
 
 
 Optional arguments:
@@ -289,7 +312,7 @@ Optional arguments:
 Fine-structure Lines
 --------------------
 
-**fine-lines  ground_state  [ levels  velspan=__ ]**
+**fine-lines  ground_state  [ levels  velspan=__ vmin=__ vmax=__ ]**
 
   *ground_state* refers to the line identifier for the ground state transition
   of the line complex, e.g., 'CI_1656'.
@@ -309,7 +332,10 @@ Optional arguments:
 
   *velspan* : the value after the equal-sign is taken as the velocity
   span in km/s around each line to be defined as a fitting region.
-  The default span is 500 km/s.
+  The default span is ±400 km/s. This argument cannot be parsed together with `vmin` or `vmax`.
+
+  *vmin* and *vmax*: the velocity extent used around each line as a fitting region.
+  Both values must be given. These arguments cannot be parsed together with `velspan`.
 
 
 .. topic:: Example
@@ -343,7 +369,7 @@ Optional arguments:
 Add Molecules
 -------------
 
-**molecule  element  bands  [ J=__  velspan=__ ]**
+**molecule  element  bands  [ J=__  velspan=__  vmin=__ vmax=__ ]**
 
   *element* refers to the molecule to be fitted, for now only CO and H2 are defined
   in the database.
@@ -366,7 +392,10 @@ Optional arguments:
 
   *velspan* : the value after the equal-sign is taken as the velocity
   span in km/s around each line to be defined as a fitting region.
-  The default span is 500 km/s.
+  The default span is ±400 km/s. This argument cannot be parsed together with `vmin` or `vmax`.
+
+  *vmin* and *vmax*: the velocity extent used around each line as a fitting region.
+  Both values must be given. These arguments cannot be parsed together with `velspan`.
 
 .. topic:: Example
 

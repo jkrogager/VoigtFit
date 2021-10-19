@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.13.6:
+  The spectral cutout for each line can now be defined as a velocity range (`vmin` and `vmax`) instead of a symmetric velocity span (`velspan=`). The new syntax can be used in the `lines`, `fine-lines`, `molecule` statements. The old syntax is still allowed. The velocity range can also be set globally using the `velspan` statement. See the full documentation on the :ref:`documentation`.
+  The Voigt profile has also been reformulated in terms of frequency (and not wavelength) following the suggestions by `Webb, Carswell and Lee (2021) <https://ui.adsabs.harvard.edu/abs/2021MNRAS.tmp.2672W/abstract>`_.
+
 New in version 3.13.5:
   One extra digit is shown for best-fit logN and total column density. New option to command line: `-V` or `--version`, will just show the welcome message with the version number and subsequently quit the program.
 
