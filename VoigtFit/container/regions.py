@@ -116,6 +116,9 @@ def load_lsf(lsf_fname, wl, nsub=1):
 
     # The LSF data is the resulting table excluding the first line:
     lsf = lsf_tab[1:, :]
+    # Normalize the LSF:
+    lsf_norm = np.sum(lsf, axis=0)
+    lsf = lsf/lsf_norm
 
     # Make an array of pixel indeces:
     lsf_pix = np.arange(lsf.shape[0])

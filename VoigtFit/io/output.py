@@ -20,6 +20,7 @@ from ..container.lines import Line
 from ..funcs.voigt import evaluate_profile
 from ..utils import terminal_attributes as term
 from ..funcs import voigt
+from ..container.regions import load_lsf
 
 plt.rcParams['lines.linewidth'] = 1.0
 plt.rcParams['font.family'] = 'Arial'
@@ -2112,8 +2113,7 @@ def save_individual_components(dataset, filename, path=''):
                     if isinstance(chunk['res'], float):
                         kernel = chunk['res'] / pxs / 2.35482
                     else:
-                        print(" LSF kernel is not supported yet... skipping this data chunk!")
-                        continue
+                        kernel = load_lsf(chunk['res'], x, chunk['nsub'])
 
                     for line in lines:
                         l0, f, gam = line.get_properties()
@@ -2132,13 +2132,8 @@ def save_individual_components(dataset, filename, path=''):
                         profile_obs = np.interp(x, profile_wl, profile_broad)
 
                     else:
-                        print(" LSF kernel is not supported yet... skipping this data chunk!")
-                        # profile_broad = convolve_numba(profile, kernel)
-                        # if kernel_nsub > 1:
-                        #     # Interpolate onto the data grid:
-                        #     profile_obs = np.interp(x, profile_wl, profile_broad)
-                        # else:
-                        #     profile_obs = profile_broad
+                        profile_broad = voigt.convolve_numba(profile, kernel)
+                        profile_obs = np.interp(x, profile_wl, profile_broad)
                     component_wl.append(x)
                     component_profile.append(profile_obs)
 
