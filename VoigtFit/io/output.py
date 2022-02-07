@@ -2089,7 +2089,6 @@ def save_individual_components(dataset, filename, path=''):
 
     if dataset.best_fit:
         pars = dataset.best_fit
-        sampling = 3
         # Calculate profiles for each component of each ion:
         component_list = list()
         component_header = list()
@@ -2101,19 +2100,19 @@ def save_individual_components(dataset, filename, path=''):
                 component_profile = list()
                 for chunk in dataset.data:
                     x = chunk['wl']
-                    dx = np.mean(np.diff(x))
-                    xmin = np.log10(x.min() - 50*dx)
-                    xmax = np.log10(x.max() + 50*dx)
-                    N = sampling * len(x)
-                    profile_wl = np.logspace(xmin, xmax, N)
-                    tau = np.zeros_like(profile_wl)
-                    # Calculate actual pixel size in km/s:
-                    pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
-                    # Set Gaussian kernel width:
                     if isinstance(chunk['res'], float):
+                        dx = np.mean(np.diff(x))
+                        xmin = np.log10(x.min() - 50*dx)
+                        xmax = np.log10(x.max() + 50*dx)
+                        sampling = 3
+                        N = sampling * len(x)
+                        profile_wl = np.logspace(xmin, xmax, N)
+                        pxs = np.diff(profile_wl)[0] / profile_wl[0] * 299792.458
                         kernel = chunk['res'] / pxs / 2.35482
                     else:
                         kernel = load_lsf(chunk['res'], x, chunk['nsub'])
+                        profile_wl = np.linspace(x.min(), x.max(), chunk['nsub']*len(x))
+                    tau = np.zeros_like(profile_wl)
 
                     for line in lines:
                         l0, f, gam = line.get_properties()

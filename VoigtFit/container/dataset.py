@@ -9,6 +9,7 @@ import warnings
 import re
 
 from astropy.io import fits
+import astropy.units as u
 from lmfit import Parameters, Minimizer
 
 from VoigtFit.utils import Asplund
@@ -31,22 +32,45 @@ EquivalentWidth = namedtuple('EquivalentWidth', ['W_rest', 'W_err', 'logN', 'log
 
 myfloat = np.float64
 
-def air2vac(air):
+def air2vac(wavelength, unit='AA'):
     """
-    Air to vacuum conversion from Bengt Edlén 1953,
-    Journal of the Optical Society of America, Vol. 43, Issue 5, pp. 339-344.
+    Implements the air to vacuum wavelength conversion described in eqn 65 of
+    Griesen 2006
+
+    wavelength : array or float
+        Input wavelength in air.
+
+    unit : string   [default='AA']
+        Units of the input wavelengths, default is Angstrom (AA).
+
+    Returns
+    -------
+    The vacuum converted array of wavelength in the same units
     """
-    if np.min(air) < 2000.:
-        raise ValueError("Input wavelength below valid range!")
-    air = np.array(air)
-    ij = (np.array(air) >= 2000)
-    out = np.array(air).copy()
-    s2 = (1.e4/air)**2
-    fact = 1.0 + 6.4328e-5 + 2.94981e-2/(146.0 - s2) + 2.5540e-4/(41.0 - s2)
-    # Alternative solution from VALD:
-    # fact = 1 + 8.336624e-5 + 0.02408927 / (130.106592 - s2) + 1.599740895e-4 / (38.925688 - s2),
-    out[ij] = air[ij]*fact[ij]
-    return out
+    wl = wavelength*u.Unit(unit)
+    wlum = wl.to(u.um).value
+    n_a = 1. + 1e-6*(287.6155 + 1.62887/wlum**2 + 0.01360/wlum**4)
+    return n_a * wavelength
+
+def vac2air(wavelength, unit='AA'):
+    """
+    Implements the air to vacuum wavelength conversion described in eqn 65 of
+    Griesen 2006
+
+    wavelength : array or float
+        Input wavelength in vacuum.
+
+    unit : string   [default='AA']
+        Units of the input wavelengths, default is Angstrom (AA).
+
+    Returns
+    -------
+    The air converted array of wavelength in the same units
+    """
+    wl = wavelength*u.Unit(unit)
+    wlum = wl.to(u.um).value
+    n_a = 1. + 1e-6*(287.6155 + 1.62887/wlum**2 + 0.01360/wlum**4)
+    return wavelength / n_a
 
 
 def mask_vel(dataset, line_tag, v1, v2):

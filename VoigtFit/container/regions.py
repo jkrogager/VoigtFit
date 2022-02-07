@@ -92,7 +92,6 @@ def load_lsf(lsf_fname, wl, nsub=1):
 
     nsub : integer  [default = 1]
         Kernel subsampling factor relative to the data.
-        This is only used if the resolution is given as a LSF file.
 
     Returns
     -------
