@@ -617,7 +617,7 @@ def main():
         rebin = parameters['fit_options']['rebin']
     else:
         rebin = 1
-    dataset.plot_fit(filename=filename, rebin=rebin)
+    dataset.plot_fit(filename=filename, rebin=rebin, max_rows=3)
     io.output.save_parameters_to_file(dataset, filename+'.fit')
     if dataset.cheb_order >= 0:
         io.output.save_cont_parameters_to_file(dataset, filename+'.cont')
