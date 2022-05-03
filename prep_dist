@@ -1,9 +1,3 @@
-## Build Source Distribution:
-#python setup.py sdist
-#
-## Build wheel:
-#python setup.py bdist_wheel --python-tag py27
-
 # Build Python 3 wheel:
 python3 setup.py sdist
 python3 setup.py bdist_wheel --python-tag py37
