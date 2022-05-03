@@ -23,7 +23,7 @@ with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
     version = v_file.read().strip()
 
 # Load Requirements:
-fname = '/Users/krogager/coding/VoigtFit/requirements.txt', dtype=str)
+fname = path.join(mypackage_root_dir, 'requirements.txt')
 with open(fname) as req_file:
     reqs = req_file.readlines()
 requirements = [r.strip() for r in reqs]
@@ -107,7 +107,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=requirements.tolist(),
+    install_requires=requirements,
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
