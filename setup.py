@@ -22,6 +22,12 @@ mypackage_root_dir = path.dirname(path.abspath(__file__))
 with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
     version = v_file.read().strip()
 
+# Load Requirements:
+fname = path.join(mypackage_root_dir, 'requirements.txt')
+with open(fname) as req_file:
+    reqs = req_file.readlines()
+requirements = [r.strip() for r in reqs]
+
 if sys.version_info[0] < 3:
     python_version_requirement = '==2.7.*'
     programming_language = 'Programming Language :: Python :: 2.7'
@@ -38,6 +44,8 @@ def _post_install():
     print("\n Please let me know that you're using VoigtFit by filling in the following short form:")
     print(" https://forms.gle/exPEsrPoyfB4Us7w9")
     print(" Thanks for installing VoigtFit!")
+
+
 
 setup(
     name='VoigtFit',
@@ -99,8 +107,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['matplotlib', 'numpy<1.21', 'scipy', 'future',
-                      'lmfit', 'h5py>=2.1', 'astropy', 'numba>=0.51.2'],
+    install_requires=requirements,
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
