@@ -1,6 +1,6 @@
 # Build Python 3 wheel:
 python3 setup.py sdist
-python3 setup.py bdist_wheel --python-tag py37
+python3 setup.py bdist_wheel
 
 # Upload to PyPI:
 twine upload --skip-existing dist/*

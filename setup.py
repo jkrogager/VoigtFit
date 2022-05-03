@@ -23,7 +23,10 @@ with open(path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
     version = v_file.read().strip()
 
 # Load Requirements:
-requirements = np.loadtxt('/Users/krogager/coding/VoigtFit/requirements.txt', dtype=str)
+fname = '/Users/krogager/coding/VoigtFit/requirements.txt', dtype=str)
+with open(fname) as req_file:
+    reqs = req_file.readlines()
+requirements = [r.strip() for r in reqs]
 
 if sys.version_info[0] < 3:
     python_version_requirement = '==2.7.*'
