@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.14:
+  The plotting can now be controlled more detailed by using the *plot-options* statement in the parameter file.
+  See more details in the :ref:`documentation`.
+
 New in version 3.13.6:
   The spectral cutout for each line can now be defined as a velocity range (`vmin` and `vmax`) instead of a symmetric velocity span (`velspan=`). The new syntax can be used in the `lines`, `fine-lines`, `molecule` statements. The old syntax is still allowed. The velocity range can also be set globally using the `velspan` statement. See the full documentation on the :ref:`documentation`.
   The Voigt profile has also been reformulated in terms of frequency (and not wavelength) following the suggestions by `Webb, Carswell and Lee (2021) <https://ui.adsabs.harvard.edu/abs/2021MNRAS.tmp.2672W/abstract>`_.
@@ -56,11 +60,11 @@ New in version 3.13.3:
 New in version 3.13.2:
   Bugfix in masking and continuum normalization of lines used with the `limit` statement. Updated the input-parameter template to reflect the usage of `limit` and `def` introduced in versions 3.13 and 3.12.
 
-**New in version 3.13.1**:
+New in version 3.13.1:
   User-defined variables can now be defined in order to define flexible parameter constraints.
   For details, see the documentation on :ref:`documentation`. Small updates in measurement of equivalent width: do not use blended lines to determine the integration limits, unless fitted profile is used. Generate plots for limits.
 
-**New in version 3.12**:
+New in version 3.12:
   Determination of equivalent widths and upper limits is now possible using a new parameter statement `limit`.
   For more details about how to use this, see the documentation on :ref:`documentation`.
   I want to thank Annalisa De Cia for the motivation to include this functionality in VoigtFit, for helpful discussions along the way, and for the financial support to keep developing VoigtFit!

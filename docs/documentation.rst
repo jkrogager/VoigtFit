@@ -256,8 +256,8 @@ Optinal arguments:
     This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.
 
 
-Limit  [**New!**]
------------------
+Limit
+-----
 
 **limit  line_tags  [ ref=__  nofit=False  sigma=3 ]**
 
@@ -964,6 +964,65 @@ Fit-Options
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 
 .. _scipy.optimize.leastsq: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html#scipy.optimize.leastsq
+
+
+
+Plot-Options  [**New!**]
+------------------------
+
+**plot-options  keyword=value**
+
+  Set of *keyword* and *value* pairs that will be passed on to the plotting function
+  of VoigtFit (`VoigtFit.output.plot_single_line`). Note: no blank spaces are allowed around the `=` sign.
+
+  Valid keywords and their default values are:
+
+    individual=False:
+        Save each line region to individual figures and direct the files to a directory.
+        The output directory will be created following the `name` of the dataset: `name_figs`
+        By default, the figures are collected in a grid of panels on pages of a pdf file.
+        The grid has two columns and `max_rows` number of rows.
+
+    max_rows=4:
+        Number of rows per page if `individual=False`.
+
+    fontsize=12:
+        Font size of text labels.
+
+    xmin, xmax:
+        Use a fixed x-range for all plotting windows in units of `xunit`
+        (km/s for vel or Angstrom for wavelength).
+
+    xunit='vel':
+        Show the x-axis as relative velocity (`vel`) or wavelength (`wave`)
+
+    ymin, ymax:
+        Use a fixed y-range for all plotting windows.
+
+    subsample_profile=10:
+        Subsampling factor for the model profile. The best-fit profile will be
+        evaluated on a wavelength grid subsampled by this factor compared to the
+        input grid.
+
+    loc='left':
+        Location of the plotting `legend` showing the line identification.
+
+    residuals=True:
+        Show a sub-panel of the residuals above each fitted line.
+
+    norm_resid=False:
+        Show the residuals normalized by the uncertainties.
+
+    legend=True:
+        Show the legend with the line identification in all sub-panels.
+
+.. topic:: Example
+
+  ``plot-options  individual=True  ymin=0  ymax=1.2``
+
+    This will save all the fitted regions to individual figures in a directory
+    `name_figs` where `name` is the dataset name as defined in the parameter file.
+    The figures will all have the same y-limit from 0 to 1.2.
 
 
 Output

@@ -72,6 +72,8 @@ check_lines_defaults = dict(f_lower=0., f_upper=100.,
 
 fit_options_defaults = dict(rebin=1, method='leastsq')
 
+plot_options_defaults = dict(max_rows=4, individual=False)
+
 
 def parse_parameters(fname):
     """Parse parameters from input file."""
@@ -80,6 +82,7 @@ def parse_parameters(fname):
     parameters['check_lines'] = check_lines_defaults
     parameters['clear_mask'] = False
     parameters['fit_options'] = fit_options_defaults
+    parameters['plot_options'] = plot_options_defaults
     parameters['fix_velocity'] = False
     parameters['interactive_view'] = 'wave'
     parameters['logNHI'] = None
@@ -484,6 +487,30 @@ def parse_parameters(fname):
                 else:
                     fit_keywords[key] = int(val)
             parameters['fit_options'] = fit_keywords
+
+        elif 'plot-options' in line and 'name' not in line and 'save' not in line:
+            # Individual plotting options as `keyword=value`
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()[1:]
+            # here you can add keywords that will be passed to the fit and minimizer from lmfit.
+            # ex: rebin, ftol, xtol, method, etc.
+            fit_keywords = dict()
+            for item in items:
+                key, val = item.split('=')
+                if "'" in val or '"' in val:
+                    val = val.replace('"', '')
+                    val = val.replace("'", '')
+                    fit_keywords[key] = val
+                elif val.lower() == 'true':
+                    fit_keywords[key] = True
+                elif val.lower() == 'false':
+                    fit_keywords[key] = False
+                elif '.' in val:
+                    fit_keywords[key] = float(val)
+                else:
+                    fit_keywords[key] = int(val)
+            parameters['plot_options'] = fit_keywords
 
         elif 'output' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
