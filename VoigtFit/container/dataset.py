@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import copy
 import warnings
 import re
+from pathlib import Path
+import os
 
 from astropy.io import fits
 import astropy.units as u
@@ -2098,13 +2100,53 @@ class DataSet(object):
                  highlight_props=None, residuals=True, norm_resid=False,
                  default_props={}, element_props={}, legend=True,
                  label_all_ions=False, xunit='vel',
-                 line_props=None, hl_line_props=None):
+                 line_props=None, hl_line_props=None, individual=False):
         """
         Plot *all* the absorption lines and the best-fit profiles.
         For details, see :func:`VoigtFit.output.plot_all_lines`.
         """
+        if individual:
+            #Loop over plots:
+            plot_line_kwargs = dict(
+                            plot_fit=True, rebin=rebin,
+                            loc=loc, xmin=xmin, xmax=xmax,
+                            ymin=ymin, ymax=ymax,
+                            fontsize=fontsize,
+                            subsample_profile=subsample_profile,
+                            npad=npad, residuals=residuals,
+                            norm_resid=norm_resid,
+                            legend=legend, xunit=xunit,
+                            label_all_ions=label_all_ions,
+                            default_props=default_props,
+                            element_props=element_props,
+                            highlight_props=highlight_props,
+                            line_props=line_props, hl_line_props=hl_line_props,
+                            sort_f=False,
+                            )
+            for line in self.lines.values():
+                # If the line is not active, skip this line:
+                if not line.active:
+                    continue
 
-        output.plot_all_lines(self, plot_fit=True, rebin=rebin, fontsize=fontsize,
+                num_regions = len(self.find_line(line.tag))
+                for idx in range(num_regions):
+                    ax, _ = output.plot_single_line(self, line.tag, index=idx,
+                                              **plot_line_kwargs
+                                              )
+                    fig = ax.get_figure()
+                    if self.name:
+                        output_dir = Path(self.name + '_figs')
+                    else:
+                        output_dir = Path('vfit_figs')
+
+                    if not output_dir.exists():
+                        os.makedirs(str(output_dir))
+                    this_fname = output_dir / f'{line.tag}.pdf'
+                    fig.savefig(str(this_fname))
+
+        else:
+            output.plot_all_lines(
+                              self, plot_fit=True, rebin=rebin, fontsize=fontsize,
                               xmin=xmin, xmax=xmax, max_rows=max_rows,
                               ymin=ymin, ymax=ymax,
                               filename=filename, loc=loc,
@@ -2113,7 +2155,8 @@ class DataSet(object):
                               legend=legend, label_all_ions=label_all_ions,
                               default_props=default_props, element_props=element_props,
                               highlight_props=highlight_props, xunit=xunit,
-                              line_props=line_props, hl_line_props=hl_line_props)
+                              line_props=line_props, hl_line_props=hl_line_props,
+                              )
         plt.show()
 
     def velocity_plot(self, **kwargs):

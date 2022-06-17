@@ -617,7 +617,12 @@ def main():
         rebin = parameters['fit_options']['rebin']
     else:
         rebin = 1
-    dataset.plot_fit(filename=filename, rebin=rebin, max_rows=3)
+
+    # Remove possible duplicate options:
+    for keyword in ['filename', 'rebin']:
+        if keyword in parameters['plot_options']:
+            parameters['plot_options'].pop(keyword)
+    dataset.plot_fit(filename=filename, rebin=rebin, **parameters['plot_options'])
     io.output.save_parameters_to_file(dataset, filename+'.fit')
     if dataset.cheb_order >= 0:
         io.output.save_cont_parameters_to_file(dataset, filename+'.cont')

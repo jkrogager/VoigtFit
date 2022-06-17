@@ -398,23 +398,10 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
     for contents in pages:
         lines_in_figure = list()
         # --- Determine figure size:
-        if len(contents) > 1:
-            width = 8.5
-            columns = 2
-        else:
-            width = 8.5
-            columns = 2
-
-        heigth = (len(contents) + 2) / 2 * 7.5 / (max_rows)
-        rows = (len(contents) + 1) // 2
-        if len(contents) == 1:
-            heigth = 6
-            columns = 1
-            rows = 1
-        elif len(contents) == 2:
-            heigth = 3
-            columns = 2
-            rows = 1
+        width = 8.5
+        columns = 2
+        heigth = 7.5
+        rows = max_rows
 
         fig = plt.figure(figsize=(width, heigth))
         fig.subplots_adjust(left=0.10, right=0.98, top=0.98,
@@ -715,7 +702,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         ax = axis
     else:
         # plt.close('all')
-        fig = plt.figure(figsize=(6, 5))
+        fig = plt.figure(figsize=(6, 4))
         ax = fig.add_subplot(111)
         fig.subplots_adjust(bottom=0.15, right=0.97, top=0.98)
 
