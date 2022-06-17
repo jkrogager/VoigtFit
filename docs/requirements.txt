@@ -1,6 +1,6 @@
 # docs/requirements.txt
 numpydoc==1.1.0
-numpy==1.19.2
+numpy==1.21.0
 sphinx==4.1.2
 matplotlib==3.3.2
 lmfit==1.0.1
