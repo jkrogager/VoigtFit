@@ -13,8 +13,8 @@ import os
 from VoigtFit.funcs.voigt import evaluate_profile
 
 root_path = os.path.dirname(os.path.abspath(__file__))
-root_path = '/'.join(root_path.split('/')[:-1])
-datafile = root_path + '/static/telluric_em_abs.npz'
+root_path = os.sep.join(root_path.split(os.sep)[:-1])
+datafile = os.path.join(root_path, 'static', 'telluric_em_abs.npz')
 
 telluric_data = np.load(datafile)
 

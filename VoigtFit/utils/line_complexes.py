@@ -18,6 +18,7 @@ the Institute of Astronomy RAS in Moscow, and the University of Vienna."
         A&AS 112, 525 (1995) (VALD-1)
 """
 __author__ = 'Jens-Kristian Krogager'
+import os
 from os.path import dirname, abspath
 
 
@@ -46,9 +47,9 @@ def load_linecomplex(fname):
 
 
 root_path = dirname(abspath(__file__))
-root_path = '/'.join(root_path.split('/')[:-1])
-C_label_file = root_path + '/static/C_full_labels.txt'
-C_file = root_path + '/static/C_complexes.dat'
+root_path = os.sep.join(root_path.split(os.sep)[:-1])
+C_label_file = os.path.join(root_path, 'static', 'C_full_labels.txt')
+C_file = os.path.join(root_path, 'static', 'C_complexes.dat')
 
 fine_structure_complexes = dict()
 C_complex = load_linecomplex(C_file)
