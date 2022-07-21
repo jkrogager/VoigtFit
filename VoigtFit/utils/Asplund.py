@@ -7,10 +7,10 @@ import os
 
 root_path = os.path.dirname(os.path.abspath(__file__))
 root_path = '/'.join(root_path.split('/')[:-1])
-datafile = root_path + '/static/Asplund2009.dat'
+datafile = root_path + '/static/Asplund2021.dat'
 
 dt = [('element', 'U2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt(datafile, dtype=dt)
+data = np.loadtxt(datafile, usecols=(1, 2, 3, 4, 5), dtype=dt)
 
 fname = root_path + '/static/Lodders2009.dat'
 Lodders2009 = np.loadtxt(fname, usecols=(1, 2), dtype=str)
