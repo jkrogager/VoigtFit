@@ -15,7 +15,7 @@ from VoigtFit import container
 from VoigtFit import io
 
 
-warnings.filterwarnings("ignore", category=matplotlib.mplDeprecation)
+warnings.filterwarnings("ignore", category=matplotlib.MatplotlibDeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 plt.interactive(True)
