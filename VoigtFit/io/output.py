@@ -814,7 +814,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
             profile = fftconvolve(profile_int, LSF, 'same')
             profile_hl = fftconvolve(profile_int_hl, LSF, 'same')
         else:
-            profile = voigt.convolve_numba(profile_int, kernel)
+            profile = voigt.convolve(profile_int, kernel)
         vel_line = (wl_line - l_ref)/l_ref*299792.458
 
     vel = (x - l_ref) / l_ref * 299792.458
@@ -1093,7 +1093,7 @@ def plot_residual(dataset, line_tag, index=0, rebin=1, xmin=None, xmax=None, axi
             profile = profile_broad[npad:-npad]
             wl_line = wl_line[npad:-npad]
         else:
-            profile = voigt.convolve_numba(profile_int, kernel)
+            profile = voigt.convolve(profile_int, kernel)
             if rebin > 1:
                 _, profile, _ = rebin_spectrum(x_orig, profile, 0.1*profile, rebin)
 
@@ -2118,7 +2118,7 @@ def save_individual_components(dataset, filename, path=''):
                         profile_obs = np.interp(x, profile_wl, profile_broad)
 
                     else:
-                        profile_broad = voigt.convolve_numba(profile, kernel)
+                        profile_broad = voigt.convolve(profile, kernel)
                         profile_obs = np.interp(x, profile_wl, profile_broad)
                     component_wl.append(x)
                     component_profile.append(profile_obs)

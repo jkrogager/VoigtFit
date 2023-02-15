@@ -9,7 +9,6 @@ __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
 from scipy.signal import fftconvolve, gaussian
-from numba import jit
 
 import re
 
@@ -80,8 +79,7 @@ def Voigt(wl, l0, f, N, b, gam, z=0):
     return tau
 
 
-@jit(nopython=True)
-def convolve_numba(P, kernel):
+def convolve(P, kernel):
     """
     Define convolution function for a wavelength dependent kernel.
 
@@ -99,13 +97,6 @@ def convolve_numba(P, kernel):
     -------
     P_con : np.array, shape (N)
         Resulting profile after performing convolution with `kernel`.
-
-    Notes
-    -----
-    This function is decorated by the `jit` decorator from `numba`_ in order
-    to speed up the calculation.
-
-    .. _numba: http://numba.pydata.org/
     """
     N = kernel.shape[1]//2
     pad = np.ones(N)
@@ -251,7 +242,7 @@ def evaluate_profile(x, pars, lines, kernel, z_sys=None, sampling=3, kernel_nsub
         profile_obs = np.interp(x, profile_wl, profile_broad)
 
     else:
-        profile_broad = convolve_numba(profile, kernel)
+        profile_broad = convolve(profile, kernel)
         if kernel_nsub > 1:
             # Interpolate onto the data grid:
             profile_obs = np.interp(x, profile_wl, profile_broad)

@@ -3,6 +3,5 @@ future
 h5py>=2.1
 lmfit
 matplotlib
-numba
 numpy
 scipy
