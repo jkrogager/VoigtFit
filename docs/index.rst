@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.16:
+  Updated a bug in matplotlib deprecation warnings. Added depletion parameters for future implementation of dust corrections.
+  Numba is no longer supported. Using user-defined LSF files may therefore take much longer to fit now. I'm working on a work-around.
+
 New in version 3.14.1:
   Updated the Solar abundances from Asplund et al. (2009) to use the newer values by `Asplund et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021A&A...653A.141A>`_. 
 
