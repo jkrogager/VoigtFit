@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+
+New in version 3.17:
+  Updated the oscillator strength of the 1301 transition of P II to the value determined by Brown et al. 2018, f=0.0196.
+
 New in version 3.16:
   Updated a bug in matplotlib deprecation warnings. Added depletion parameters for future implementation of dust corrections.
   Numba is no longer supported. Using user-defined LSF files may therefore take much longer to fit now. I'm working on a work-around.
