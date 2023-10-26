@@ -35,6 +35,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 3.18:
+  Included new transitions of Fe II 2234 and 2367 using oscillator strengths of 1.29E-5 and 8.18E-5, respectively,
+  based on results from Welty et al. 1999 (ApJS, 124, 465) and Miller et al. 2007 (ApJ, 659, 441).
+
 New in version 3.17:
   Updated the oscillator strength of the 1301 transition of P II to the value determined by Brown et al. 2018, f=0.0196.
 
