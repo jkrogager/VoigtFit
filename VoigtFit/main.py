@@ -90,8 +90,8 @@ def main():
 
     name = parameters['name']
     # -- Load DataSet if the file already exists
-    if os.path.exists(name+'.hdf5') and not args.f:
-        dataset = io.hdf5_save.load_dataset(name+'.hdf5')
+    if os.path.exists(name + '.hdf5') and not args.f:
+        dataset = io.hdf5_save.load_dataset(name + '.hdf5')
         if verbose:
             print("Loaded dataset: %s.hdf5" % name)
 
@@ -468,8 +468,8 @@ def main():
                 m_ion = lines_for_ion[0].mass
                 T_num = dataset.pars['T_%i' % comp_num].value
                 turb_num = dataset.pars['turb_%i' % comp_num].value
-                b_eff = np.sqrt(turb_num**2 + K*T_num/m_ion)
-                mod_pars = (comp_num, K/m_ion, comp_num)
+                b_eff = np.sqrt(turb_num**2 + K * T_num / m_ion)
+                mod_pars = (comp_num, K / m_ion, comp_num)
                 model_constraint = 'sqrt((turb_%i)**2 + %.6f*T_%i)' % mod_pars
                 dataset.pars[par_name].set(expr=model_constraint, value=b_eff)
 
@@ -517,6 +517,10 @@ def main():
 
     print(" The fit has finished with the following exit message:")
     print("  " + popt.message)
+    print("")
+    print(" Best-fit solution has:")
+    print(f" Chi^2  = {chi2:.3f}")
+    print(f" N_free = {popt.nfree}")
     print("")
 
 
@@ -599,7 +603,7 @@ def main():
                     print(io.output.format_EW(EW))
         print("")
         # Save to file:
-        io.output.save_EW(EW_limits, filename+'.limits')
+        io.output.save_EW(EW_limits, filename + '.limits')
 
     # Output:
     if 'individual-regions' in parameters['output_pars']:
@@ -623,13 +627,13 @@ def main():
         if keyword in parameters['plot_options']:
             parameters['plot_options'].pop(keyword)
     dataset.plot_fit(filename=filename, rebin=rebin, **parameters['plot_options'])
-    io.output.save_parameters_to_file(dataset, filename+'.fit')
+    io.output.save_parameters_to_file(dataset, filename + '.fit')
     if dataset.cheb_order >= 0:
-        io.output.save_cont_parameters_to_file(dataset, filename+'.cont')
-    io.output.save_fit_regions(dataset, filename+'.reg',
+        io.output.save_cont_parameters_to_file(dataset, filename + '.cont')
+    io.output.save_fit_regions(dataset, filename + '.reg',
                                individual=individual_regions)
     if individual_components:
-        io.output.save_individual_components(dataset, filename+'.components')
+        io.output.save_individual_components(dataset, filename + '.components')
     print(" - Done...\n")
     plt.show(block=True)
 

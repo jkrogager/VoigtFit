@@ -1858,8 +1858,12 @@ def save_parameters_to_file(dataset, filename, path=''):
 
         # Write total column densities:
         logN_tot_str = print_total(dataset, verbose=False)
-        total_string = "\n".join(['#'+tmp for tmp in logN_tot_str])
+        total_string = "\n".join(['#' + tmp for tmp in logN_tot_str])
         output.write("\n\n" + total_string + "\n\n")
+
+        # Write statistics:
+        output.write(f"# Chi^2  = {dataset.chi2:.3f}")
+        output.write(f"# N_free = {dataset.minimzer.result.nfree}\n\n")
 
         # Write a python script friendly version to copy into script:
         output.write("# The commands below can be copied directly to the input file:\n")

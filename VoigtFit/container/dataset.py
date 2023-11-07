@@ -227,6 +227,7 @@ class DataSet(object):
 
         self.ready2fit = False
         self.best_fit = None
+        self.chi2 = None
         self.minimizer = None
         self.pars = None
         self.static_variables = Parameters()
@@ -2092,6 +2093,7 @@ class DataSet(object):
                 #     output.print_cont_parameters(self)
 
         chi2 = popt.chisqr
+        self.chi2 = chi2
         return popt, chi2
 
     def plot_fit(self, rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,

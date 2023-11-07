@@ -34,6 +34,8 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.19:
+  Printing the Chi2 value and number of degrees of freedom after the best-fit and also saving them to the output file.
 
 New in version 3.18:
   Included new transitions of Fe II 2234 and 2367 using oscillator strengths of 1.29E-5 and 8.18E-5, respectively,
