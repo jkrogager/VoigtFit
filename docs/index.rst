@@ -34,6 +34,20 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+[**New feature!**] since version 3.20
+  The new function `vfit-lines` can be run straight from terminal. For more information run `vfit-lines --help`.
+  An example: `vfit-lines FeI FeII` will show all the lines of FeI and FeII in the line list.
+  You choose to print only lines in a given wavelength range: `vfit-lines FeI FeII --lower 1200 --upper 2300`.
+  You can also filter on oscillator strength, to show only lines stronger than a given limit:
+  `vfit-lines FeII --flim 0.01`.
+
+
+New in version 3.20:
+  Added new line to the line list: OI 1355. New functionality to print the line list for a specific set of ions.
+  The new function `vfit-lines` can be run straight from terminal. For more information run `vfit-lines --help`.
+  New `overview` statement introduced in the parameter file. This statement allows you to create a fast overview
+  figure of all lines defined in the dataset and then exit the program. See more details in the :ref:`documentation`.
+
 New in version 3.19:
   Printing the Chi2 value and number of degrees of freedom after the best-fit and also saving them to the output file.
 

@@ -5,6 +5,5 @@ sphinx
 matplotlib
 lmfit
 scipy
-numba
 astropy
 h5py
