@@ -23,8 +23,8 @@ backup
 
 .input.pars.swp
 
-docs/_build
-docs/_static
+docs/_build/*
+docs/_static/*
 
 build
 
@@ -37,3 +37,7 @@ TODO
 VoigtFit3
 
 .pytest_cache
+.DS_Store
+.DS_Store
+*.doctree
+*.html

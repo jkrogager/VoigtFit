@@ -444,6 +444,17 @@ def main():
         print(prep_msg)
         return False
 
+    if 'overview' in parameters:
+        # plot a velocity plot and exit
+        if 'filename' not in parameters['overview']:
+            parameters['overview']['filename'] = 'lines_overview.pdf'
+        if not dataset.regions[0].normalized:
+            parameters['overview']['ylabel'] = 'Flux'
+        dataset.velocity_plot(verbose=False, **parameters['overview'])
+        print("Saved overview velocity plot to file: " + parameters['overview']['filename'])
+        print("")
+        return
+
     # Define thermal model
     if len(thermal_model.keys()) > 0:
         # Get all the indices of components that have thermal components

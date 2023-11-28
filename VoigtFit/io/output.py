@@ -264,8 +264,8 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                    subsample_profile=1, npad=50, residuals=True,
                    norm_resid=False, legend=True, loc='left', show=True,
                    default_props={}, element_props={}, highlight_props=None,
-                   label_all_ions=False, xunit='vel',
-                   line_props=None, hl_line_props=None):
+                   label_all_ions=False, xunit='vel', verbose=True,
+                   line_props=None, hl_line_props=None, ylabel="Normalized Flux"):
     """
     Plot all active absorption lines. This function is a wrapper of
     :func:`plot_single_line`. For a complete description of input parameters,
@@ -394,6 +394,7 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
 
     # --- Determine number of pages to create:
     pages = list(chunks(sorted(lines_to_plot), 2*max_rows))
+
     # lines_in_figure = list()
     for contents in pages:
         lines_in_figure = list()
@@ -434,7 +435,6 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                         num += 1
 
                 lines_in_figure += LIV
-                ax.tick_params(length=7, labelsize=fontsize)
                 if num <= len(contents) - (1-add_on):
                     # xtl = ax.get_xticklabels()
                     # print([ticklabel.get_text() for ticklabel in xtl])
@@ -443,23 +443,25 @@ def plot_all_lines(dataset, plot_fit=True, rebin=1, fontsize=12, xmin=None,
                 else:
                     if xunit == 'wl':
                         ax.set_xlabel(r"${\rm Wavelength\ \ (\AA)}$",
-                                      fontsize=12)
+                                      fontsize=fontsize)
+                        ax.tick_params(length=7, labelsize=fontsize-2)
                     else:
                         ax.set_xlabel(r"${\rm Rel. velocity\ \ (km\ s^{-1})}$",
-                                      fontsize=12)
+                                      fontsize=fontsize)
+                        ax.tick_params(length=7, labelsize=fontsize)
 
                 if num % 2 == 0:
-                    ax.set_ylabel("Normalized Flux", fontsize=12)
+                    ax.set_ylabel(ylabel, fontsize=12)
                 # num += 1
                 # LIV is a shorthand for 'lines_in_view'
 
         fig.set_tight_layout(True)
         if filename:
             pdf.savefig(fig)
+            pdf.close()
 
     if len(pages) > 0:
-        if filename:
-            pdf.close()
+        if filename and verbose:
             print(" - Saved the fitted lines to PDF file: %s" % filename)
 
         if show:
@@ -830,7 +832,10 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
     if ymin is None:
         ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
     if not ymax:
-        ymax = max(1. + 4*np.nanmedian(err[view_part]), 1.08)
+        if plot_fit:
+            ymax = np.nanmax(1. + 4*np.nanmedian(err[view_part]), 1.08)
+        else:
+            ymax = np.nanmax(y[view_part] + 3.5*np.nanmedian(err[view_part]))
     ax.set_ylim(ymin, ymax)
 
     # Expand mask by 1 pixel around each masked range

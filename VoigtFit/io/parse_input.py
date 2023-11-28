@@ -116,7 +116,7 @@ def parse_parameters(fname):
         if line[0] == '#':
             continue
 
-        elif 'data' in line and 'name' not in line and 'save' not in line:
+        elif line.startswith('data'):
             line = clean_line(line)
             pars = line.split()
             # get first two values:
@@ -166,7 +166,7 @@ def parse_parameters(fname):
             airORvac = 'air' if air else 'vac'
             data.append([filename, resolution, norm, airORvac, nsub, ext, use_mask])
 
-        elif 'lines' in line and 'save' not in line and 'fine' not in line and 'check' not in line:
+        elif line.startswith('lines'):
             # strip comments:
             line = clean_line(line)
             if 'add' in line:
@@ -244,7 +244,7 @@ def parse_parameters(fname):
             else:
                 print("\n [WARNING] - Could not detect any molecular species to add!\n")
 
-        elif 'component' in line and 'copy' not in line and 'delete' not in line and 'output' not in line:
+        elif line.startswith('component') and 'copy' not in line and 'delete' not in line and 'output' not in line:
             # strip comments:
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
@@ -395,7 +395,7 @@ def parse_parameters(fname):
             par_list = line.split()[1:]
             interactive_components += par_list
 
-        elif 'name' in line:
+        elif line.startswith('name'):
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             parameters['name'] = line.split(':')[-1].strip()
@@ -520,8 +520,34 @@ def parse_parameters(fname):
             # 'individual-regions' saves individual regions to separate files
             parameters['output_pars'] = items
 
+        elif line.startswith('overview'):
+            # Make a velocity plot and exit
+            # Individual options as `keyword=value`
+            # will be passed to :func:`VoigtFit.output.plot_all_lines`
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            items = line.split()[1:]
+            # here you can add keywords that will be passed to the fit and minimizer from lmfit.
+            # ex: rebin, ftol, xtol, method, etc.
+            command_keywords = dict()
+            for item in items:
+                key, val = item.split('=')
+                if "'" in val or '"' in val:
+                    val = val.replace('"', '')
+                    val = val.replace("'", '')
+                    command_keywords[key] = val
+                elif val.lower() == 'true':
+                    command_keywords[key] = True
+                elif val.lower() == 'false':
+                    command_keywords[key] = False
+                elif '.' in val:
+                    command_keywords[key] = float(val)
+                else:
+                    command_keywords[key] = int(val)
+            parameters['overview'] = command_keywords
+
         # The save statement is deprecated and will be removed shortly!
-        elif 'save' in line and 'name' not in line:
+        elif line.startswith('save'):
             parameters['save'] = True
             # strip comments:
             comment_begin = line.find('#')

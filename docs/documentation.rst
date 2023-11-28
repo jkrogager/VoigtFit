@@ -256,6 +256,51 @@ Optinal arguments:
     This will define the Ly-α and Ly-β lines with a larger 5000 km/s velocity span.
 
 
+Overview of Lines [**New!**]
+----------------------------
+
+**overview  [ filename=__  xunit=__  xmin=__  xmax=__  ymin=__  ymax=__ rebin=1 fontsize=12]**
+
+This statement allows the user to create an overview figure of the lines defined in the dataset.
+The overview is saved to a pdf file ('lines_overview.pdf' by default).
+**NOTE -- ** The fit will not be performed if this statement is active in the parameter file.
+
+
+Optional arguments:
+
+  No spaces are allowed around the '=' sign and the values.
+  Ex: use ``xmin=-450``, do **not** give ``xmin = 450``
+
+  *filename* : Determines the filename of the overview pdf.
+
+  *xunit* : either `vel` or `wave`, determines whether the x-axis is showed in wavelength or relative velocity.
+
+  *xmin* and *xmax* : Determines the plotting range of the x-axis of *all panels*, so this only makes
+  sense for `xunit=vel`, otherwise all panels will be set to the same wavelength range.
+  Automatically determined from the data by default.
+
+  *ymin* and *ymax* : Determines the plotting range of the y-axis of *all panels*. By default, this is determined
+  automatically from the data.
+
+  *rebin* : rebinning factor of the data. No rebinning by default.
+
+  *fontsize* : Font size in points of the text labels.
+
+
+.. topic:: Example
+
+  ``overview``
+
+    This will produce a pdf figure ('lines_overview.pdf') showing each cutout around all the lines
+    defined by the `lines` statements (see above). The lines will be shown in relative velocity space.
+
+  ``overview filename='low-ions_overview.pdf' xmin=-200 xmax=400``
+  
+    This will produce a pdf figure named 'low-ions_overview.pdf' of all lines defined in the dataset
+    but only in the relative velocity range from -200 km/s to 400 km/s.
+  
+
+
 Limit
 -----
 
@@ -469,8 +514,8 @@ Optional arguments:
     The *b*-parameter will be tied to the first component defined for *FeII*.
 
 
-Define Variables [**New!**]
----------------------------
+Define Variables
+----------------
 
 **def  name  [ value=__  vary=__  min=__  max=__  expr='__' ]**
 
