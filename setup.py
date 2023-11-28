@@ -144,6 +144,8 @@ setup(
     entry_points={
         'console_scripts': [
             'VoigtFit=VoigtFit.main:main',
+            'vfit=VoigtFit.main:main',
+            'vfit-lines=VoigtFit.__main__:print_linelist'
         ],
     },
 )
