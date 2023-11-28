@@ -833,7 +833,7 @@ def plot_single_line(dataset, line_tag, index=0, plot_fit=False,
         ymin = np.nanmin(y[view_part]) - 3.5*np.nanmedian(err[view_part])
     if not ymax:
         if plot_fit:
-            ymax = np.nanmax(1. + 4*np.nanmedian(err[view_part]), 1.08)
+            ymax = max(1. + 4*np.nanmedian(err[view_part]), 1.08)
         else:
             ymax = np.nanmax(y[view_part] + 3.5*np.nanmedian(err[view_part]))
     ax.set_ylim(ymin, ymax)
@@ -1868,7 +1868,7 @@ def save_parameters_to_file(dataset, filename, path=''):
 
         # Write statistics:
         output.write(f"# Chi^2  = {dataset.chi2:.3f}")
-        output.write(f"# N_free = {dataset.minimzer.result.nfree}\n\n")
+        output.write(f"# N_free = {dataset.minimizer.result.nfree}\n\n")
 
         # Write a python script friendly version to copy into script:
         output.write("# The commands below can be copied directly to the input file:\n")
