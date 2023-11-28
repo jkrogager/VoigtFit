@@ -39,3 +39,5 @@ VoigtFit3
 .pytest_cache
 .DS_Store
 .DS_Store
+*.doctree
+*.html
