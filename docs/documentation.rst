@@ -133,8 +133,8 @@ or
 Data **[New Feature!]**
 -----------------------
 
-**data  filename  resolution  [ norm   air  no-mask  nsub=1  ext=None  ...**
-**... offset_vel=0  offset_wl=0  fit_offset_vel=False  fit_offset_wl=False ]**
+**data  filename  resolution  [ norm   air  no-mask  nsub=1  ext=None **
+**offset_vel=0  offset_wl=0  fit_offset_vel=False  fit_offset_wl=False ]**
 
   *filename* specifies the path to the spectrum
   The file should be an ASCII table with up to four columns: wavelength, flux, error, mask
@@ -184,9 +184,10 @@ Optional arguments:
   in the input FITS file. This is only relevant for FITS Table data. The extension can be given as the integer
   index or the extension name.
 
+  The following are mostly useful when fitting multiple spectra simultaneously, but can be used to tweak
+  the wavelength calibration or offsets due to air-to-vacuum conversion etc:
+
   *offset_vel=0* : adds a constant velocity offset to the spectrum, in units of km/s.
-  This is mostly useful when fitting multiple spectra simultaneously, but can be used to tweak
-  the wavelength calibration or offsets due to air-to-vacuum conversion etc.
   
   *offset_wl=0* : adds a constant wavelength offset to the spectrum, in units of Å.
   
@@ -226,10 +227,14 @@ Optional arguments:
           4  B1-001145...  1 BinTableHDU    166   2528R x 8C   [E, E, E, J, E, E, E, E]
           5  B1-001145...  1 BinTableHDU    166   2530R x 8C   [E, E, E, J, E, E, E, E]
   
-  ``data 'spectrum1.fits'  1.5``
-  ``data 'spectrum2.fits'  2.5  offset_vel=5.3``
+  
+  **Fitting two spectra with a relative velocity offset:**
 
-  This will load two spectra and apply a relative velocity shift of 5.3 km/s to the second spectrum.
+    |  ``data 'spectrum1.fits'  1.5``
+    |  ``data 'spectrum2.fits'  2.5  offset_vel=5.3  fit_offset_vel=True``
+
+    This will load two spectra and apply a relative velocity shift of 5.3 km/s to the second spectrum
+    which will be optimized during the fit.
 
 
 Lines
