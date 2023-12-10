@@ -1624,6 +1624,8 @@ def print_results(dataset, params, elements='all', velocity=True, systemic=0):
             print("")
 
     for varname in dataset.static_variables.keys():
+        if 'sid_' in varname:
+            continue
         par = dataset.best_fit[varname]
         err = par.stderr
         if err is None:

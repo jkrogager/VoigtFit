@@ -2,6 +2,7 @@
 
 __author__ = 'Jens-Kristian Krogager'
 
+import hashlib
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
@@ -101,6 +102,12 @@ def verify_lsf(res, wl):
         err_msg = "The given LSF file does not cover the wavelength range!"
         raise ValueError(err_msg)
 
+
+def apply_wavelength_shift(wl, *, parameters, specid):
+    dlam = parameters[f'{specid}_dlam'].value
+    dvel = parameters[f'{specid}_dvel'].value
+    new_wl = dlam + (1 + dvel / 299792.458) * wl
+    return new_wl
 
 
 # --- Definition of main class *DataSet*:
@@ -269,7 +276,9 @@ class DataSet(object):
         """Returns the name of the DataSet."""
         return self.name
 
-    def add_spectrum(self, filename, res, airORvac='vac', normalized=False, mask_array=None, mask=None, use_mask=True, continuum=None, nsub=1, verbose=False, ext=None):
+    def add_spectrum(self, filename, res, airORvac='vac', normalized=False, mask_array=None, mask=None,
+                     use_mask=True, continuum=None, nsub=1, verbose=False, ext=None,
+                     offset_wl=0., offset_vel=0., fit_offset_vel=False, fit_offset_wl=False):
         """
         Add spectral data from ASCII file (three or four columns accepted).
         This is a wrapper of the method `add_data`.
@@ -319,6 +328,18 @@ class DataSet(object):
 
         ext : int or string
             Index or name of the extension in the HDU List. Only used if the input is a FITS file.
+
+        offset_vel : float   [default = 0]
+            Velocity offset to apply to the given spectrum in units of km/s
+
+        offset_wl : float   [default = 0]
+            Wavelength offset to apply to the given specturm in units of Angstrom
+
+        fit_offset_vel : bool   [default = False]
+            Fit the velocity offset as part of the line fitting?
+
+        fit_offset_wl : bool   [default = False]
+            Fit the wavelength offset as part of the line fitting?
         """
         if mask is not None:
             warnings.warn("The keyword mask is deprecated. Use 'mask_array' instead", DeprecationWarning)
@@ -386,12 +407,14 @@ class DataSet(object):
             else:
                 print("Wrong dimensions of the Input Mask: got %i pixels, spectrum has %i pixels" % (len(mask_array), len(spec)))
 
-        if use_mask:
-            self.add_data(wl, spec, res, err=err, normalized=normalized, mask=mask, nsub=nsub, filename=filename)
-        else:
-            self.add_data(wl, spec, res, err=err, normalized=normalized, nsub=nsub, filename=filename)
+        if not use_mask:
+            mask = None
+        self.add_data(wl, spec, res, err=err, normalized=normalized, mask=mask, nsub=nsub, filename=filename,
+                      offset_wl=offset_wl, offset_vel=offset_vel,
+                      fit_offset_vel=fit_offset_vel, fit_offset_wl=fit_offset_wl)
 
-    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1, filename=''):
+    def add_data(self, wl, flux, res, err=None, normalized=False, mask=None, nsub=1, filename='',
+                 offset_wl=0., offset_vel=0., fit_offset_vel=False, fit_offset_wl=False):
         """
         Add spectral data to the DataSet. This will be used to define fitting regions.
 
@@ -430,6 +453,18 @@ class DataSet(object):
             The filename from which the data originated. Optional but highly recommended.
             Alternatively, use the method :meth:`DataSet.add_spectrum
             <VoigtFit.DataSet.add_spectrum>`.
+
+        offset_vel : float   [default = 0]
+            Velocity offset to apply to the given spectrum in units of km/s
+
+        offset_wl : float   [default = 0]
+            Wavelength offset to apply to the given specturm in units of Angstrom
+
+        fit_offset_vel : bool   [default = False]
+            Fit the velocity offset as part of the line fitting?
+
+        fit_offset_wl : bool   [default = False]
+            Fit the wavelength offset as part of the line fitting?
         """
 
         mask_warning = """
@@ -443,10 +478,10 @@ class DataSet(object):
         reset = '\033[0m'
 
         # assign specid:
-        specid = "sid_%i" % len(self.data)
+        specid = "sid_" + hashlib.sha1(np.array([wl, flux])).hexdigest()[:6]
 
         if err is None:
-            err = np.ones_like(flux)
+            err = np.nanstd(flux) * np.ones_like(flux)
 
         if mask is None:
             mask = np.ones_like(flux, dtype=bool)
@@ -464,6 +499,9 @@ class DataSet(object):
                           'norm': normalized, 'specID': specid,
                           'mask': mask, 'nsub': nsub})
         self.data_filenames.append(filename)
+
+        self.add_variable(f'{specid}_dvel', value=offset_vel, vary=fit_offset_vel)
+        self.add_variable(f'{specid}_dlam', value=offset_wl, vary=fit_offset_wl)
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
@@ -669,8 +707,8 @@ class DataSet(object):
 
                     # Update the mask of the new region to include
                     # new mask definitions from the old region:
-                    # In the overlapping region, the mask from the existing
-                    # region will overwrite any pixel mask in the data chunk
+                    # In the overlapping region, the mask from the
+                    # existing region will overwrite any pixel mask in the data chunk
                     if merge >= 0:
                         old_mask_i = np.interp(new_region.wl, old_wl, old_mask,
                                                left=1, right=1)
@@ -826,8 +864,7 @@ class DataSet(object):
                 while go_on == 0:
                     go_on = region.normalize(norm_method=norm_method,
                                              z_sys=z_sys)
-                    # region.normalize returns 1 when continuum is fitted
-            # region.normalize(norm_method=norm_method, z_sys=z_sys)
+                    # note: region.normalize returns 1 when continuum is fitted
 
     def mask_line(self, line_tag, reset=True, mask=None, telluric=True, velocity=False):
         """
@@ -1799,7 +1836,7 @@ class DataSet(object):
                     while go_on == 0:
                         go_on = region.normalize(norm_method=self.norm_method,
                                                  z_sys=z_sys)
-                        # region.normalize returns 1 when continuum is fitted
+                        # note: region.normalize returns 1 when continuum is fitted
 
             if verbose and self.verbose:
                 print("")
@@ -1876,6 +1913,8 @@ class DataSet(object):
         for varname in var_names:
             regex = r'(^|[^a-z^A-Z^0-9_.])[+,-,*,\/]?(%s)[+,-,*,\/]?([^a-z^A-Z^0-9_.]|$)' % varname
             find_var = re.compile(regex)
+            if 'sid_' in varname:
+                continue
             if find_var.search(all_constraints) is None:
                 self.pars.pop(varname)
                 self.static_variables.pop(varname)
@@ -2029,6 +2068,7 @@ class DataSet(object):
             for reg_num, region in enumerate(self.regions):
                 if region.has_active_lines():
                     x, y, err, mask = region.unpack()
+                    x = apply_wavelength_shift(x, parameters=pars, specid=region.specID)
                     if rebin > 1:
                         x, y, err = output.rebin_spectrum(x, y, err, rebin)
                         mask = output.rebin_bool_array(mask, rebin)
@@ -2071,17 +2111,20 @@ class DataSet(object):
         popt = self.minimizer.minimize(**kwargs)
         self.best_fit = popt.params
 
-        if self.cheb_order >= 0:
-            # Normalize region data with best-fit polynomial:
-            for reg_num, region in enumerate(self.regions):
-                if not region.has_active_lines():
-                    continue
-                x, y, err, mask = region.unpack()
+        # Normalize region data with best-fit polynomial:
+        for reg_num, region in enumerate(self.regions):
+            if not region.has_active_lines():
+                continue
+            x, y, err, mask = region.unpack()
+            region.wl = apply_wavelength_shift(x, parameters=self.best_fit, specid=region.specID)
+
+            if self.cheb_order >= 0:
                 cont_model = evaluate_continuum(x, self.best_fit, reg_num)
                 region.flux /= cont_model
                 region.err /= cont_model
                 region.normalized = True
 
+        self.report_wavelength_offsets()
         if self.verbose and verbose:
             print("\n The fit has finished with the following exit message:")
             print("  " + popt.message)
@@ -2096,6 +2139,29 @@ class DataSet(object):
         self.chi2 = chi2
         return popt, chi2
 
+    def report_wavelength_offsets(self):
+        for num, chunk in enumerate(self.data, 1):
+            specid = chunk['specID']
+            all_lines = []
+            for reg in self.regions:
+                if not reg.specID == specid:
+                    continue
+                all_lines += reg.lines
+            active_lines = [line.tag for line in all_lines if line.active]
+            if len(active_lines) == 0:
+                continue
+
+            fitted_vel = self.best_fit[f'{specid}_dvel']
+            fitted_lam = self.best_fit[f'{specid}_dlam']
+            if fitted_vel.vary:
+                print("Fitted velocity offset to spectrum %i  : %.2f ± %.2f km/s" % (num, fitted_vel.value, fitted_vel.stderr))
+            if fitted_lam.vary:
+                print("Fitted wavelength offset to spectrum %i: %.2f ± %.2f Å" % (num, fitted_lam.value, fitted_lam.stderr))
+            if fitted_lam.vary or fitted_vel.vary:
+                print("Spectrum %i contains the following lines:" % num)
+                print(", ".join(active_lines))
+                print("")
+
     def plot_fit(self, rebin=1, fontsize=12, xmin=None, xmax=None, max_rows=4,
                  ymin=None, ymax=None, filename=None,
                  subsample_profile=10, npad=50, loc='left',
@@ -2108,7 +2174,7 @@ class DataSet(object):
         For details, see :func:`VoigtFit.output.plot_all_lines`.
         """
         if individual:
-            #Loop over plots:
+            # Loop over plots:
             plot_line_kwargs = dict(
                             plot_fit=True, rebin=rebin,
                             loc=loc, xmin=xmin, xmax=xmax,
@@ -2133,8 +2199,8 @@ class DataSet(object):
                 num_regions = len(self.find_line(line.tag))
                 for idx in range(num_regions):
                     ax, _ = output.plot_single_line(self, line.tag, index=idx,
-                                              **plot_line_kwargs
-                                              )
+                                                    **plot_line_kwargs
+                                                    )
                     fig = ax.get_figure()
                     if self.name:
                         output_dir = Path(self.name + '_figs')

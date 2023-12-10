@@ -34,6 +34,13 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+[**New feature!**] since version 3.21
+  You can now define relative offsets when fitting multiple spectra simultaneously. This can correct for systematics
+  in the wavelength calibrations or uncertainties in barycentri velocity corrections. The new parameters allows the user
+  to define a constant offset in wavelength and/or velocity, and each term can be set to variable or kept fixed during the fit.
+  The new parameters are added as keywords to the `data` statement. See more details in the :ref:`documentation`.
+
+
 [**New feature!**] since version 3.20
   The new function `vfit-lines` can be run straight from terminal. For more information run `vfit-lines --help`.
   An example: `vfit-lines FeI FeII` will show all the lines of FeI and FeII in the line list.

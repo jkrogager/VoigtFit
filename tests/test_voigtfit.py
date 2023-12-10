@@ -76,7 +76,7 @@ def test_dataset():
 
     assert N_regions == 4, "Incorrect number of fit regions!"
     assert N_active_regions == 3, "Incorrect number of active fit regions!"
-    assert N_pars == 21
+    assert N_pars == 23
 
     ds.delete_component('SiII', 0)
     ds.add_line('FeII_2374')
@@ -88,7 +88,7 @@ def test_dataset():
     assert len(ds.regions) == 6
     N_active_regions = len([reg for reg in ds.regions if reg.has_active_lines()])
     assert N_active_regions == 5
-    assert len(ds.pars.keys()) == 24
+    assert len(ds.pars.keys()) == 26
     N_lines = len(ds.all_lines)
     assert N_lines == 11, "Incorrect number of lines"
 
