@@ -103,11 +103,13 @@ def main():
             pass
         else:
             dataset.data = list()
-            for fname, res, norm, airORvac, nsub, ext, use_mask in parameters['data']:
+            for fname, res, norm, airORvac, nsub, ext, use_mask, offset_pars in parameters['data']:
                 if verbose:
                     print(" Loading data: " + fname)
 
-                dataset.add_spectrum(fname, res, airORvac, verbose=verbose, ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask)
+                dataset.add_spectrum(fname, res, airORvac, verbose=verbose,
+                                     ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask,
+                                     **offset_pars)
                 if verbose:
                     print(" Successfully added spectrum to dataset.\n")
             # Reset all the regions in the dataset to force-reload the data:
@@ -257,11 +259,13 @@ def main():
             dataset.set_velspan(parameters['velspan'])
 
         # Load data:
-        for fname, res, norm, airORvac, nsub, ext, use_mask in parameters['data']:
+        for fname, res, norm, airORvac, nsub, ext, use_mask, offset_pars in parameters['data']:
             if verbose:
                 print(" Loading data: " + fname)
 
-            dataset.add_spectrum(fname, res, airORvac, verbose=verbose, ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask)
+            dataset.add_spectrum(fname, res, airORvac, verbose=verbose,
+                                 ext=ext, normalized=norm, nsub=nsub, use_mask=use_mask,
+                                 **offset_pars)
 
         # Define lines:
         for tag, velspan in parameters['lines']:

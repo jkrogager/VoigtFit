@@ -160,11 +160,24 @@ def parse_parameters(fname):
             else:
                 use_mask = True
 
+            offset_pars = {'offset_vel': 0, 'offset_wl': 0,
+                           'fit_offset_vel': False, 'fit_offset_wl': False
+                           }
+            for item in line.split():
+                if item.startswith('offset_vel'):
+                    offset_pars['offset_vel'] = float(item.split('=')[1])
+                elif item.startswith('offset_wl'):
+                    offset_pars['offset_wl'] = float(item.split('=')[1])
+                elif item.startswith('fit_offset_wl'):
+                    offset_pars['fit_offset_wl'] = bool(item.split('=')[1])
+                elif item.startswith('fit_offset_vel'):
+                    offset_pars['fit_offset_vel'] = bool(item.split('=')[1])
+
             # search for 'norm' and 'air':
             norm = line.lower().find('norm') > 0
             air = line.lower().find('air') > 0
             airORvac = 'air' if air else 'vac'
-            data.append([filename, resolution, norm, airORvac, nsub, ext, use_mask])
+            data.append([filename, resolution, norm, airORvac, nsub, ext, use_mask, offset_pars])
 
         elif line.startswith('lines'):
             # strip comments:
@@ -488,7 +501,7 @@ def parse_parameters(fname):
                     fit_keywords[key] = int(val)
             parameters['fit_options'] = fit_keywords
 
-        elif 'plot-options' in line and 'name' not in line and 'save' not in line:
+        elif line.startswith('plot-options'):
             # Individual plotting options as `keyword=value`
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
