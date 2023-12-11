@@ -844,6 +844,39 @@ Note -- The mask is an exclusion mask, so pixels that are defined in the mask, a
 Note -- The telluric template was obtained from ESOs `skycalc <http://www.eso.org/observing/etc/skycalc>`_.
 
 
+Mask-range *[New!]*
+-------------------
+
+**mask-range  line_tags  vmin=__  vmax=__  [ idx=0 ]**
+
+  *line_tags* : a line tag or a set of line tags (separated by spaces) for which to apply the masking
+
+  *vmin* : the lower end of the masked range (remember, this is an exclusion mask,
+  so pixels within vmin and vmax will not be fitted)
+
+  *vmax* : ther upper end of the masked range.
+
+  *idx* : if the same line is defined in multiple spectra, define which spectrum to apply the mask to.
+  The index refers only to spectra that cover the wavelength range of the given line,
+  and otherwise follows the same order in which the `data` statements were specified (starting at 0).
+
+This statement allows the user to determine a fixed mask in velocity range for a given set of lines.
+Remember that the masking defines exclusion regions, i.e., pixels that should not be considered in the fit.
+
+.. topic:: Example
+
+  ``mask-range FeII_2374 FeII_2344 vmin=-17 vmax=-15``
+
+    This will exclude pixels in the velocity range from -17 km/s to -15 km/s
+    for both the 2374 and 2344 transitions of FeII.
+  
+  ``mask-range SiII_1808 vmin=5 vmax=15 idx=1``
+
+    This will exclude the range from +5 km/s to +15 km/s in the second spectrum which covers
+    the 1808 transition of SiII.
+
+
+
 Clear mask
 ----------
 

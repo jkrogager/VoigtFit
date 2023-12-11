@@ -34,11 +34,16 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
-[**New feature!**] since version 3.21
+[**New features!**] in version 3.21
   You can now define relative offsets when fitting multiple spectra simultaneously. This can correct for systematics
   in the wavelength calibrations or uncertainties in barycentri velocity corrections. The new parameters allows the user
   to define a constant offset in wavelength and/or velocity, and each term can be set to variable or kept fixed during the fit.
   The new parameters are added as keywords to the `data` statement. See more details in the :ref:`documentation`.
+  This version also includes a new `mask-range` statement, which allows you to define fixed masking ranges in velocity space
+  without using the interactive masking mode. Remember that masks in VoigtFit are *exclusion masks* and thus defines pixels
+  that should not be fitted. See more details in the :ref:`documentation`.
+  The best-fit output has also been renamed from *.fit* to *.out* in order to avoid confusion with FITS files that are sometimes
+  called *.fit* as well.
 
 
 [**New feature!**] since version 3.20
