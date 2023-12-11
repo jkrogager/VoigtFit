@@ -70,9 +70,7 @@ def Voigt(wl, l0, f, N, b, gam, z=0):
     C_a = np.sqrt(np.pi)*e**2*f*l0*1.e-8/m_e/c/b
     a = l0*1.e-8*gam/(4.*np.pi*b)
 
-    # dl_D = b/c*l0
     wl = wl/(z+1.)
-    # x = (wl - l0)/dl_D + 0.000001
     x = (c / b) * (1. - l0/wl)
 
     tau = np.float64(C_a) * N * H(a, x)

@@ -3,6 +3,7 @@
 __author__ = 'Jens-Kristian Krogager'
 import re
 from collections import defaultdict
+import sys
 
 line_pattern = re.compile('[A-Z][A-Z]?[0-9]?[a-z]?[I-Z]+[0-9]?[a-z]?_[0-9]+.?[0-9]*')
 
@@ -87,6 +88,7 @@ def parse_parameters(fname):
     parameters['interactive_view'] = 'wave'
     parameters['logNHI'] = None
     parameters['mask_view'] = 'wave'
+    parameters['mask_ranges'] = []
     parameters['norm_method'] = 'linear'
     parameters['norm_view'] = 'wave'
     parameters['options'] = list()
@@ -163,15 +165,23 @@ def parse_parameters(fname):
             offset_pars = {'offset_vel': 0, 'offset_wl': 0,
                            'fit_offset_vel': False, 'fit_offset_wl': False
                            }
-            for item in line.split():
+            for item in line.split()[3:]:
+                if '=' not in item:
+                    continue
                 if item.startswith('offset_vel'):
                     offset_pars['offset_vel'] = float(item.split('=')[1])
                 elif item.startswith('offset_wl'):
                     offset_pars['offset_wl'] = float(item.split('=')[1])
                 elif item.startswith('fit_offset_wl'):
-                    offset_pars['fit_offset_wl'] = bool(item.split('=')[1])
+                    val = item.split('=')[1]
+                    offset_pars['fit_offset_wl'] = True if val.lower() == 'true' else False
                 elif item.startswith('fit_offset_vel'):
-                    offset_pars['fit_offset_vel'] = bool(item.split('=')[1])
+                    val = item.split('=')[1]
+                    offset_pars['fit_offset_vel'] = True if val.lower() == 'true' else False
+                elif (item == 'no-mask') or ('ext=' in item) or ('nsub=' in item):
+                    pass
+                else:
+                    print(" ParserWarning - Unknown parameter: %r" % item)
 
             # search for 'norm' and 'air':
             norm = line.lower().find('norm') > 0
@@ -432,11 +442,7 @@ def parse_parameters(fname):
         elif 'clear mask' in line.lower():
             parameters['clear_mask'] = True
 
-        elif ('mask' in line
-              and 'name' not in line
-              and 'save' not in line
-              and 'nomask' not in line
-              and 'view' not in line):
+        elif line.startswith('mask '):
             comment_begin = line.find('#')
             line = line[:comment_begin].strip()
             line = line.replace(',', '')
@@ -455,6 +461,33 @@ def parse_parameters(fname):
             else:
                 parameters['mask'] = items
                 parameters['forced_mask'] = force_items
+
+        elif line.startswith('mask-range '):
+            comment_begin = line.find('#')
+            line = line[:comment_begin].strip()
+            line = line.replace(',', '')
+            items = line.split()[1:]
+            line_tags = []
+            idx = None
+            for item in items:
+                if 'vmin=' in item:
+                    vmin = float(item.split('=')[1])
+                elif 'vmax=' in item:
+                    vmax = float(item.split('=')[1])
+                elif 'idx=' in item:
+                    idx = int(item.split('=')[1])
+                else:
+                    line_tags.append(item)
+
+            if not ('vmin=' in line and 'vmax=' in line):
+                print("ParserWarning - missing keyword: vmin or vmax in mask-range")
+                sys.exit(1)
+
+            parameters['mask_ranges'].append({
+                'vmin': vmin, 'vmax': vmax,
+                'idx': idx,
+                'lines': line_tags,
+            })
 
         elif 'resolution' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')

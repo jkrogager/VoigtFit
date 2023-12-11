@@ -501,7 +501,7 @@ class DataSet(object):
         self.data_filenames.append(filename)
 
         self.add_variable(f'{specid}_dvel', value=offset_vel, vary=fit_offset_vel)
-        self.add_variable(f'{specid}_dlam', value=offset_wl, vary=fit_offset_wl)
+        self.add_variable(f'{specid}_dlam', value=offset_wl, vary=fit_offset_wl, min=-5, max=5)
 
     def reset_region(self, reg):
         """Reset the data in a given :class:`regions.Region` to use the raw input data."""
@@ -2154,9 +2154,17 @@ class DataSet(object):
             fitted_vel = self.best_fit[f'{specid}_dvel']
             fitted_lam = self.best_fit[f'{specid}_dlam']
             if fitted_vel.vary:
-                print("Fitted velocity offset to spectrum %i  : %.2f ± %.2f km/s" % (num, fitted_vel.value, fitted_vel.stderr))
+                if fitted_vel.stderr is not None:
+                    vel_err = fitted_vel.stderr
+                else:
+                    vel_err = -1
+                print("Fitted velocity offset to spectrum %i  : %.2f ± %.2f km/s" % (num, fitted_vel.value, vel_err))
             if fitted_lam.vary:
-                print("Fitted wavelength offset to spectrum %i: %.2f ± %.2f Å" % (num, fitted_lam.value, fitted_lam.stderr))
+                if fitted_lam.stderr is not None:
+                    lam_err = fitted_lam.stderr
+                else:
+                    lam_err = -1
+                print("Fitted wavelength offset to spectrum %i: %.2f ± %.2f Å" % (num, fitted_lam.value, lam_err))
             if fitted_lam.vary or fitted_vel.vary:
                 print("Spectrum %i contains the following lines:" % num)
                 print(", ".join(active_lines))

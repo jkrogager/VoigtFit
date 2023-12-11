@@ -502,6 +502,12 @@ def main():
     else:
         show_vel_mask = False
 
+    # Set fixed masking ranges:
+    for masking_range in parameters['mask_ranges']:
+        for line_tag in masking_range['lines']:
+            dataset.mask_range(line_tag, masking_range['vmin'], masking_range['vmax'],
+                               idx=masking_range['idx'])
+
     # Mask invidiual lines
     if 'mask' in parameters.keys():
         if verbose:
@@ -642,7 +648,7 @@ def main():
         if keyword in parameters['plot_options']:
             parameters['plot_options'].pop(keyword)
     dataset.plot_fit(filename=filename, rebin=rebin, **parameters['plot_options'])
-    io.output.save_parameters_to_file(dataset, filename + '.fit')
+    io.output.save_parameters_to_file(dataset, filename + '.out')
     if dataset.cheb_order >= 0:
         io.output.save_cont_parameters_to_file(dataset, filename + '.cont')
     io.output.save_fit_regions(dataset, filename + '.reg',
