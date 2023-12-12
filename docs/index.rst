@@ -34,6 +34,11 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.21.3
+  Small bugfixed in the fitting of relative offsets between spectra. Also updated the atomic data for CrII 2056.
+  Included an icon for the documentation website.
+
+
 [**New features!**] in version 3.21
   You can now define relative offsets when fitting multiple spectra simultaneously. This can correct for systematics
   in the wavelength calibrations or uncertainties in barycentri velocity corrections. The new parameters allows the user
