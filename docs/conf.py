@@ -102,6 +102,8 @@ html_theme = 'alabaster'
 # html_theme = "sphinx_rtd_theme"
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
+html_favicon = 'voigtfit.ico'
+
 # html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'], }
 html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'], }
 
