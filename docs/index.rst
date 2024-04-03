@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+
+New in version 3.21.4
+  Added SiII* 1265 line to the line list.
+
 New in version 3.21.3
   Small bugfixed in the fitting of relative offsets between spectra. Also updated the atomic data for CrII 2056.
   Included an icon for the documentation website.
