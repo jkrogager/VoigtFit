@@ -35,6 +35,9 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 Recent updates
 --------------
 
+New in version 3.21.5
+  Updated the scipy.signal function calls to remove deprecated `scipy.signal.gaussian`.
+
 New in version 3.21.4
   Added SiII* 1265 line to the line list.
 
