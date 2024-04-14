@@ -8,8 +8,7 @@ observed spectrum with the instrumental profile.
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
-from scipy.signal import fftconvolve, gaussian
-
+from scipy import signal
 import re
 
 # Regular Expression to match redshift parameter names:
@@ -233,9 +232,9 @@ def evaluate_profile(x, pars, lines, kernel, z_sys=None, sampling=3, kernel_nsub
     profile = np.exp(-tau)
 
     if isinstance(kernel, float):
-        LSF = gaussian(10*int(kernel) + 1, kernel)
+        LSF = signal.windows.gaussian(10*int(kernel) + 1, kernel)
         LSF = LSF/LSF.sum()
-        profile_broad = fftconvolve(profile, LSF, 'same')
+        profile_broad = signal.fftconvolve(profile, LSF, 'same')
         # Interpolate onto the data grid:
         profile_obs = np.interp(x, profile_wl, profile_broad)
 
@@ -397,12 +396,12 @@ def convolve_profile(profile, width):
     profile_obs : array, shape(N)
         The convolved version of `profile`.
     """
-    LSF = gaussian(10*int(width)+1, width)
+    LSF = signal.windows.gaussian(10*int(width)+1, width)
     LSF = LSF/LSF.sum()
     # Add padding to avoid edge effects of the convolution:
     pad = np.ones(5*int(width))
     P_padded = np.concatenate((pad, profile, pad))
-    profile_broad = fftconvolve(P_padded, LSF, 'same')
+    profile_broad = signal.fftconvolve(P_padded, LSF, 'same')
     # Remove padding:
     profile_obs = profile_broad[5*int(width):-5*int(width)]
     return profile_obs
