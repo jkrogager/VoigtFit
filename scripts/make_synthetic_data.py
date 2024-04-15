@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from VoigtFit.voigt import Voigt
+from VoigtFit.funcs.voigt import Voigt
 from VoigtFit import show_transitions
-from scipy.signal import fftconvolve, gaussian
+from scipy.signal import fftconvolve
+from scipy.signal.windows import gaussian
 
 # --- INPUT ---
 SNR = 60.
