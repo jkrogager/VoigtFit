@@ -8,7 +8,8 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.signal import fftconvolve, gaussian
+from scipy.signal import fftconvolve
+from scipy.signal.windows import gaussian
 from scipy.ndimage import gaussian_filter1d
 from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
