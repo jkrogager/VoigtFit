@@ -237,7 +237,7 @@ def main():
         if len(new_molecules.items()) > 0:
             for molecule, bands in new_molecules.items():
                 for band, Jmax, velspan in bands:
-                    dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
+                    dataset.add_molecule(molecule, band, Jmax=Jmax, velspan=velspan)
 
         # Remove old molecules which should not be fitted:
         defined_molecular_bands = list()
@@ -279,7 +279,7 @@ def main():
         if len(parameters['molecules'].items()) > 0:
             for molecule, bands in parameters['molecules'].items():
                 for band, Jmax, velspan in bands:
-                    dataset.add_molecule(molecule, Jmax=Jmax, velspan=velspan)
+                    dataset.add_molecule(molecule, band, Jmax=Jmax, velspan=velspan)
 
     # =========================================================================
     # Back to Common Work Flow for all datasets:

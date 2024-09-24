@@ -34,6 +34,9 @@ def print_linelist():
     for ion in args.ion:
         lines += show_transitions(ion=ion, lower=args.lower, upper=args.upper,
                                   fine_lines=args.fine, flim=args.flim)
+    if len(lines) == 0:
+        print(f"No lines found for ions: {', '.join(args.ion)}")
+        return
 
     tab = Table(rows=lines, names=['tag', 'ion', 'l0', 'f', 'gamma', 'mass'])
     tab['l0'].format = '%9.3f'
