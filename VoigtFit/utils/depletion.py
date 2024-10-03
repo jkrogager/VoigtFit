@@ -23,4 +23,3 @@ for row in data:
     A2[row['X']] = row['A2']
     B2[row['X']] = row['B2']
     coeffs[row['X']] = np.array([row['A2'], row['B2']])
-

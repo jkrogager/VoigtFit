@@ -66,6 +66,10 @@ def main():
                         help="Show version")
 
     args = parser.parse_args()
+    run_voigtfit(args)
+
+
+def run_voigtfit(args, testing=False):
     parfile = args.input
     verbose = args.v
     if parfile is None:
@@ -647,7 +651,7 @@ def main():
     for keyword in ['filename', 'rebin']:
         if keyword in parameters['plot_options']:
             parameters['plot_options'].pop(keyword)
-    dataset.plot_fit(filename=filename, rebin=rebin, **parameters['plot_options'])
+
     io.output.save_parameters_to_file(dataset, filename + '.out')
     if dataset.cheb_order >= 0:
         io.output.save_cont_parameters_to_file(dataset, filename + '.cont')
@@ -656,7 +660,11 @@ def main():
     if individual_components:
         io.output.save_individual_components(dataset, filename + '.components')
     print(" - Done...\n")
-    plt.show(block=True)
+    if testing:
+        return
+    else:
+        dataset.plot_fit(filename=filename, rebin=rebin, **parameters['plot_options'])
+        plt.show(block=True)
 
 
 if __name__ == '__main__':
