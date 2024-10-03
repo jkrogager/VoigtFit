@@ -27,6 +27,7 @@ from VoigtFit.funcs import voigt
 from VoigtFit.io.hdf5_save import load_dataset, save_dataset
 from VoigtFit.io import parse_input, output
 from VoigtFit.funcs import limits
+from VoigtFit.main import run_voigtfit
 
 
 code_dir = path.dirname(path.abspath(__file__))
