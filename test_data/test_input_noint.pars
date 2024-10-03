@@ -50,3 +50,6 @@ copy components from FeII to MgI and scale logN=12.4 of component 1
 # The default scale applied to logN when copying components is the Solar 
 # abundnace ratio. 
 
+total
+
+metallicity logNHI 21.3 ± 0.5
