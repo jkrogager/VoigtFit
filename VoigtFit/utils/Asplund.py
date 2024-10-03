@@ -3,14 +3,17 @@
 __author__ = 'Jens-Kristian Krogager'
 
 import numpy as np
+from astropy.table import Table
 import os
 
 root_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.sep.join(root_path.split(os.sep)[:-1])
 datafile = os.path.join(root_path, 'static', 'Asplund2021.dat')
 
-dt = [('element', 'U2'), ('N', 'f4'), ('N_err', 'f4'), ('N_m', 'f4'), ('N_m_err', 'f4')]
-data = np.loadtxt(datafile, usecols=(1, 2, 3, 4, 5), dtype=dt)
+data = Table.read(datafile,
+                  format='csv', delimiter='\t', comment='#',
+                  names=['A', 'element', 'N', 'N_err', 'N_m', 'N_m_err'], data_start=0)
+data.remove_column('A')
 
 fname = os.path.join(root_path, 'static', 'Lodders2009.dat')
 Lodders2009 = np.loadtxt(fname, usecols=(1, 2), dtype=str)
