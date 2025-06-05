@@ -46,8 +46,8 @@ component FeII 1.795121 15. 14.5
 copy components to ZnII from FeII scale logN=12.9 of comp 1
 copy components to CrII from FeII scale logN=13.6 of component 1
 copy components from FeII to MgI and scale logN=12.4 of component 1
-The default scale applied to logN when copying components is the Solar 
-abundnace ratio. 
+# The default scale applied to logN when copying components is the Solar 
+# abundnace ratio. 
 
 total
 

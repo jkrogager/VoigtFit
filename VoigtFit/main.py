@@ -563,8 +563,8 @@ def run_voigtfit(args, testing=False):
 
     elif isinstance(parameters['systemic'][0], int):
         num, ion = parameters['systemic']
-        if num == -1:
-            num = len(dataset.components[ion]) - 1
+        if num < 0:
+            num = len(dataset.components[ion]) + num
         new_z_sys = dataset.best_fit['z%i_%s' % (num, ion)].value
         dataset.set_systemic_redshift(new_z_sys)
 

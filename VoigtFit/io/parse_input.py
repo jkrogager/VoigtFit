@@ -666,15 +666,16 @@ def parse_parameters(fname):
                     parameters['systemic'] = [None, mode.lower()]
             elif len(subparts) == 2:
                 # num, ion mode:
-                if isinstance(subparts[0], int):
+                if subparts[0].replace('-', '').isnumeric():
                     num, ion = subparts
-                elif isinstance(subparts[1], int):
+                elif subparts[1].replace('-', '').isnumeric():
                     ion, num = subparts
                 else:
-                    print(" Error: Couldn't parse the command: {}".format(line))
+                    print(f" Error: Couldn't parse the command: {line}")
+                    print("Must be in the form of `systemic = num ion` or `systemic = ion num`")
                 parameters['systemic'] = [int(num), ion]
             else:
-                print(" Error: Couldn't parse the command: {}".format(line))
+                print(f" Error: Couldn't parse the command: {line}")
 
         elif 'reset' in line and 'name' not in line and 'save' not in line:
             comment_begin = line.find('#')
