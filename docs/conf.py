@@ -67,8 +67,10 @@ author = u'Jens-Kristian Krogager'
 #
 mypackage_docs_dir = os.path.dirname(os.path.abspath(__file__))
 mypackage_root_dir = '/'.join(mypackage_docs_dir.split('/')[:-1])
-with open(os.path.join(mypackage_root_dir, 'VoigtFit', 'VERSION')) as v_file:
-    version = v_file.read().strip()
+
+import importlib.metadata
+version = importlib.metadata.version("VoigtFit")
+
 # The short X.Y version.
 # version = u'0.9'
 # The full version, including alpha/beta/rc tags.
