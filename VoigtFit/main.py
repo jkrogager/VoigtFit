@@ -591,8 +591,10 @@ def run_voigtfit(args, testing=False):
         raise ValueError(systemic_err_msg)
 
     if 'velocity' in parameters['output_pars']:
+        output_velocity = True
         dataset.print_results(velocity=True)
     else:
+        output_velocity = False
         dataset.print_results(velocity=False)
 
     if len(thermal_model.keys()) > 0:
@@ -652,7 +654,7 @@ def run_voigtfit(args, testing=False):
         if keyword in parameters['plot_options']:
             parameters['plot_options'].pop(keyword)
 
-    io.output.save_parameters_to_file(dataset, filename + '.out')
+    io.output.save_parameters_to_file(dataset, filename + '.out', velocity=output_velocity)
     if dataset.cheb_order >= 0:
         io.output.save_cont_parameters_to_file(dataset, filename + '.cont')
     io.output.save_fit_regions(dataset, filename + '.reg',

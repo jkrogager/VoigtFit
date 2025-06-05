@@ -1381,6 +1381,7 @@ class DataSet(object):
         If `fit_pars` is True, then update the best_fit parameters."""
         components_to_add = list()
         all_ions_in_file = list()
+        velocity = False
         with open(fname) as parameters:
             for line in parameters.readlines():
                 line = line.strip()
@@ -1388,6 +1389,8 @@ class DataSet(object):
                 if len(line) == 0:
                     pass
                 elif line[0] == '#':
+                    if ' velocity ' in line.lower():
+                        velocity = True
                     pass
                 elif len(pars) == 8:
                     num = int(pars[0])
@@ -1417,7 +1420,11 @@ class DataSet(object):
 
         for comp_pars in components_to_add:
             (num, ion, z, b, logN, z_err, b_err, logN_err) = comp_pars
-            self.add_component(ion, z, b, logN)
+            if velocity:
+                # z is actually referring to velocity in this case
+                self.add_component_velocity(ion, z, b, logN)
+            else:
+                self.add_component(ion, z, b, logN)
             if fit_pars and self.best_fit:
                 parlist = [['z', z, z_err],
                            ['b', b, b_err],
@@ -2297,7 +2304,7 @@ class DataSet(object):
         """Print the total column densities of all components."""
         output.print_total(self)
 
-    def sum_components(self, ions, components=None):
+    def sum_components(self, ions, components=None, rejection=True):
         """
         Calculate the total column density for the given `components`
         of the given `ion`.
@@ -2312,6 +2319,11 @@ class DataSet(object):
             List of integers corresponding to the indeces of the components
             to sum over.
 
+        rejection : bool   [default = True]
+            If True, only components with a 1-sigma error smaller than 1.0
+            are included in the sum. If False, all components are included
+            in the sum.
+    
         Returns
         -------
         total_logN : dict()
@@ -2328,34 +2340,21 @@ class DataSet(object):
             print("           Make sure the fit has converged...")
             return {}, {}
 
-        if hasattr(ions, '__iter__'):
-            pass
-        else:
+        if isinstance(ions, str):
             ions = [ions]
+
         total_logN = dict()
         total_logN_err = dict()
         for ion in ions:
-            logN = list()
-            logN_err = list()
-            if not components:
-                N_comp = len(self.components[ion])
-                comp_nums = range(N_comp)
-            else:
-                comp_nums = components
-            for num in comp_nums:
-                parname = 'logN%i_%s' % (num, ion)
-                par = self.best_fit[parname]
-                logN.append(par.value)
-                logN_err.append(par.stderr)
-            logN_pdf = [np.random.normal(n, e, 10000)
-                        for n, e in zip(logN, logN_err)]
-            logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
-            total_logN[ion] = np.median(logsum)
-            total_logN_err[ion] = np.std(logsum)
+            logN, logN_err = output.sum_components(self, ion,
+                                                   components=components,
+                                                   rejection=rejection)
+            total_logN[ion] = logN
+            total_logN_err[ion] = logN_err
 
         return total_logN, total_logN_err
 
-    def save_parameters(self, filename):
+    def save_parameters(self, filename, velocity=False):
         """
         Save the best-fit parameters to ASCII table output.
 
@@ -2365,7 +2364,7 @@ class DataSet(object):
             Filename for the fit parameter file.
         """
         if self.best_fit:
-            output.save_parameters_to_file(self, filename)
+            output.save_parameters_to_file(self, filename, velocity=velocity)
         else:
             print("\n [ERROR] - No fit parameters are defined.")
 

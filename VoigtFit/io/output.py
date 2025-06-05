@@ -1176,19 +1176,23 @@ def plot_excitation(dataset, molecule):
     E = list()
     g_J = list()
     for num in range(Jmax + 1):
-        par_name = 'logN0_%sJ%i' % (molecule, num)
-        logN.append(pars[par_name].value)
-        err = pars[par_name].stderr if pars[par_name].stderr else 0.
-        logN_err.append(err)
+        ion = '%sJ%i' % (molecule, num)
+        logN_tot, err_tot = sum_components(dataset, ion)
+        if logN_tot == 0:
+            print(" No data for %s" % ion)
+            continue
+        logN.append(logN_tot)
+        logN_err.append(err_tot)
         E.append(molecules.energy_of_level(molecule, num))
         g_J.append(g(num))
 
     logN = np.array(logN)
     logN_err = np.array(logN_err)
+    logN_err[1:] = np.sqrt(logN_err[1:]**2 + logN_err[0]**2)
     g_J = np.array(g_J)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    y = np.log(10**(logN-logN[0]))+np.log(g_J[0]/g_J)
+    y = np.log(10**(logN-logN[0])) + np.log(g_J[0]/g_J)
     y_err = np.log(10.) * logN_err
     ax.errorbar(E, y, y_err, color='k', marker='s', ls='')
     ax.set_xlabel(r"Energy ${\rm E}_J-{\rm E}_0$ (K)", fontsize=14)
@@ -1206,6 +1210,11 @@ def plot_excitation(dataset, molecule):
             r"$T_{01} = %.0f_{%+.0f}^{%+.0f}$ K" % ((T_01,) + T_01_err),
             ha='right', va='top', transform=ax.transAxes,
             fontsize=14)
+    ymin, _ = ax.get_ylim()
+    for num, (xi, yi) in enumerate(zip(E, y)):
+        ax.text(xi, ymin+0.1*np.abs(ymin), f"– J = {num}", ha='center', va='bottom',
+                fontsize=10, color='0.4', rotation=90)
+    plt.grid(alpha=0.2)
     plt.tight_layout()
 
 
@@ -1702,23 +1711,11 @@ def print_metallicity(dataset, params, logNHI, err=0.1):
     logNHI = np.random.normal(logNHI, err, 10000)
     for ion in sorted(dataset.components.keys()):
         element = ion[:2] if ion[1].islower() else ion[0]
-        logN = []
-        logN_err = []
-        N_tot = []
-        for par in params.keys():
-            if par.find('logN') >= 0 and par.find(ion) >= 0:
-                N_tot.append(params[par].value)
-                if params[par].stderr < 0.8:
-                    logN.append(params[par].value)
-                    logN_err.append(params[par].stderr)
-
-        ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
-        log_sum = np.log10(np.sum(10**np.array(ION), 0))
-        l68, abundance, u68 = np.percentile(log_sum, [16, 50, 84])
-        std_err = np.std(np.log10(np.sum(10**np.array(ION), 0)))
-
-        logN_tot = np.random.normal(abundance, std_err, 10000)
+        if element not in Asplund.solar.keys():
+            continue
         N_solar, N_solar_err = Asplund.solar[element]
+        abundance, std_err = sum_components(dataset, ion)
+        logN_tot = np.random.normal(abundance, std_err, 10000)
         solar_abundance = np.random.normal(N_solar, N_solar_err, 10000)
 
         metal_array = logN_tot - logNHI - (solar_abundance - 12.)
@@ -1737,30 +1734,13 @@ def print_total(dataset, verbose=True):
     """
     output = list()
     if isinstance(dataset.best_fit, dict):
-        params = dataset.best_fit
         output.append("-------------------------")
         output.append("  Total Column Densities:")
         output.append("-------------------------\n")
         for ion in sorted(dataset.components.keys()):
-            # element = ion[:2] if ion[1].islower() else ion[0]
-            logN = []
-            logN_err = []
-            N_tot = []
-            for par in params.keys():
-                is_logN_par = logN_matcher.fullmatch(par)
-                if is_logN_par is not None:
-                    par_id, par_ion = par.split('_')
-                    if par_ion == ion:
-                        N_tot.append(params[par].value)
-                        if params[par].stderr < 1.0:
-                            logN.append(params[par].value)
-                            logN_err.append(params[par].stderr)
+            abundance, std_err = sum_components(dataset, ion)
 
-            if len(logN) > 0:
-                ION = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
-                logsum = np.log10(np.sum(10**np.array(ION), 0))
-                l68, abundance, u68 = np.percentile(logsum, [16, 50, 84])
-                std_err = np.std(logsum)
+            if abundance > 0:
                 output.append("  logN(%s) = %.3f ± %.3f" % (ion, abundance, std_err))
             else:
                 output.append("  logN(%s) = ---" % ion)
@@ -1802,7 +1782,7 @@ def print_T_model_pars(dataset, thermal_model, filename=None):
         out_file.close()
 
 
-def sum_components(dataset, ion, components):
+def sum_components(dataset, ion, components=None, rejection=True):
     """
     Calculate the total abundance for given `components` of the given `ion`.
 
@@ -1815,8 +1795,14 @@ def sum_components(dataset, ion, components):
     ion : str
         Ion for which to calculate the summed abundance.
 
-    components : list(int)
+    components : list(int) | None
         List of indeces of the components to sum over.
+        If None, all components are summed (by default).
+
+    rejection : bool   [default = True]
+        If True, only components with a 1-sigma error smaller than 1.0
+        are included in the sum. If False, all components are included
+        in the sum.
 
     Returns
     -------
@@ -1833,13 +1819,24 @@ def sum_components(dataset, ion, components):
         print("           Make sure the fit has converged...")
         return None
 
+    if components is None:
+        components = list(range(len(dataset.components[ion])))
+
     logN = list()
     logN_err = list()
     for num in components:
         parname = 'logN%i_%s' % (num, ion)
         par = dataset.best_fit[parname]
-        logN.append(par.value)
-        logN_err.append(par.stderr)
+        if par.stderr < 1.0 and rejection:
+            logN.append(par.value)
+            logN_err.append(par.stderr)
+        elif not rejection:
+            logN.append(par.value)
+            logN_err.append(par.stderr)
+
+    if len(logN) == 0:
+        # print(" [ERROR] - No components found for %s" % ion)
+        return 0, 0
 
     logN_pdf = [np.random.normal(n, e, 10000) for n, e in zip(logN, logN_err)]
     logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
@@ -1849,20 +1846,30 @@ def sum_components(dataset, ion, components):
     return total_logN, total_logN_err
 
 
-def save_parameters_to_file(dataset, filename, path=''):
+def save_parameters_to_file(dataset, filename, path='', velocity=False):
     """Save best-fit parameters to file."""
+    z_sys = dataset.redshift
     header = "#comp   ion   redshift               b (km/s)       log(N/cm^-2)"
+    if velocity:
+        header = "#comp   ion   velocity (km/s)    b (km/s)       log(N/cm^-2)"
     with open(path + filename, 'w') as output:
         output.write(header + "\n")
         for ion in sorted(dataset.components.keys()):
             for i in range(len(dataset.components[ion])):
                 z = dataset.best_fit['z%i_%s' % (i, ion)]
+                if velocity:
+                    vel_value = (z.value - z_sys) / (z_sys + 1) * 299792.458
+                    vel_error = z.stderr / (z_sys + 1) * 299792.458
+                    line_fmt = "%3i  %7s  %+.3f %.3f    %6.2f %6.2f    %.3f %.3f"
+                else:
+                    vel_value = z.value
+                    vel_error = z.stderr
+                    line_fmt = "%3i  %7s  %+.6f %.6f    %6.2f %6.2f    %.3f %.3f"
                 logN = dataset.best_fit['logN%i_%s' % (i, ion)]
                 b = dataset.best_fit['b%i_%s' % (i, ion)]
-                par_tuple = (i, ion, z.value, z.stderr,
+                par_tuple = (i, ion, vel_value, vel_error,
                              b.value, b.stderr,
                              logN.value, logN.stderr)
-                line_fmt = "%3i  %7s  %+.6f %.6f    %6.2f %6.2f    %.3f %.3f"
                 output.write(line_fmt % par_tuple + "\n")
             output.write("\n")
 
@@ -1877,7 +1884,6 @@ def save_parameters_to_file(dataset, filename, path=''):
 
         # Write a python script friendly version to copy into script:
         output.write("# The commands below can be copied directly to the input file:\n")
-        z_sys = dataset.redshift
         output.write("# z_sys : %.6f\n" % z_sys)
         for ion in dataset.components.keys():
             for i in range(len(dataset.components[ion])):
@@ -2125,9 +2131,9 @@ def save_individual_components(dataset, filename, path=''):
                     profile = np.exp(-tau)
 
                     if isinstance(kernel, float):
-                        LSF = voigt.gaussian(10*int(kernel) + 1, kernel)
+                        LSF = gaussian(10*int(kernel) + 1, kernel)
                         LSF = LSF/LSF.sum()
-                        profile_broad = voigt.fftconvolve(profile, LSF, 'same')
+                        profile_broad = fftconvolve(profile, LSF, 'same')
                         # Interpolate onto the data grid:
                         profile_obs = np.interp(x, profile_wl, profile_broad)
 
