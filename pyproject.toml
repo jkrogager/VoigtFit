@@ -1,0 +1,40 @@
+[project]
+name = "VoigtFit"
+version = "3.22"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Jens-Kristian Krogager", email = "jens-kristian.krogager@univ-lyon1.fr"},
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+]
+keywords = ["voigtfit", "absorption", "analysis", "voigt", "spectroscopy", "fitting"]
+description = 'Voigt Profile Fitting in Python'
+readme = "README.rst"
+
+dependencies = [
+    "astropy",
+    "future",
+    "h5py>=2.1",
+    "lmfit",
+    "matplotlib",
+    "numpy",
+    "scipy",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["VoigtFit*"]
+namespaces = true
+
+[project.scripts]
+VoigtFit = "VoigtFit.main:main"
+vfit = "VoigtFit.main:main"
+vfit-lines = "VoigtFit.__main__:print_linelist"

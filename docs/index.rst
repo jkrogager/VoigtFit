@@ -34,10 +34,11 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
-New in version 3.21.8
+New in version 3.22
   Best-fit components are now saved in velocity in the output file 
   if `output velocity` is included in the parameter file. Also fixes a bug in the 
   calculation of total column densities for molecular lines.
+  Moving to new packaging model using pyproject.toml
 
 New in version 3.21.5
   Updated the scipy.signal function calls to remove deprecated `scipy.signal.gaussian`.

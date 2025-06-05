@@ -9,9 +9,6 @@ Written by Jens-Kristian Krogager.
 
 __author__ = 'Jens-Kristian Krogager'
 
-from os import path
-from sys import version_info
-
 # import warnings
 # import matplotlib
 # # The native MacOSX backend doesn't work for all:
@@ -30,11 +27,5 @@ from VoigtFit.funcs import limits
 from VoigtFit.main import run_voigtfit
 
 
-code_dir = path.dirname(path.abspath(__file__))
-with open(path.join(code_dir, 'VERSION')) as version_file:
-    version = version_file.read().strip()
-    if version_info[0] >= 3:
-        v_items = version.split('.')
-        v_items[0] = '3'
-        version = '.'.join(v_items)
-    __version__ = version
+import importlib.metadata
+__version__ = importlib.metadata.version("VoigtFit")

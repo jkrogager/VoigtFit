@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib
 import warnings
 import os
-from sys import version_info
 from matplotlib import pyplot as plt
 
 from argparse import ArgumentParser
@@ -21,14 +20,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 plt.interactive(True)
 
 code_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(code_dir, 'VERSION')) as version_file:
-    version = version_file.read().strip()
-    if version_info[0] >= 3:
-        v_items = version.split('.')
-        v_items[0] = '3'
-        version = '.'.join(v_items)
-    __version__ = version
 
+import importlib.metadata
+__version__ = importlib.metadata.version("VoigtFit")
 
 
 def main():
