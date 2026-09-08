@@ -1,6 +1,6 @@
 
 from VoigtFit.main import main, __version__
-from VoigtFit.container.lines import show_transitions
+from VoigtFit.lines import show_transitions
 
 from astropy.table import Table
 from argparse import ArgumentParser
