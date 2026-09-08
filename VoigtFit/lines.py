@@ -4,7 +4,6 @@ import os
 from os.path import dirname, abspath
 
 root_path = dirname(abspath(__file__))
-root_path = os.sep.join(root_path.split(os.sep)[:-1])
 atomfile = os.path.join(root_path, 'static', 'linelist.dat')
 
 lineList = loadtxt(atomfile, dtype=[('trans', 'U13'),

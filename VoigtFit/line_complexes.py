@@ -47,7 +47,6 @@ def load_linecomplex(fname):
 
 
 root_path = dirname(abspath(__file__))
-root_path = os.sep.join(root_path.split(os.sep)[:-1])
 C_label_file = os.path.join(root_path, 'static', 'C_full_labels.txt')
 C_file = os.path.join(root_path, 'static', 'C_complexes.dat')
 

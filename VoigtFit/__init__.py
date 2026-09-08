@@ -16,14 +16,14 @@ __author__ = 'Jens-Kristian Krogager'
 #     warnings.simplefilter("ignore")
 #     matplotlib.use('TkAgg')
 
-from VoigtFit.container.components import Component
-from VoigtFit.container.dataset import DataSet
-from VoigtFit.container.lines import Line, show_transitions
-from VoigtFit.container.regions import Region
-from VoigtFit.funcs import voigt
-from VoigtFit.io.hdf5_save import load_dataset, save_dataset
-from VoigtFit.io import parse_input, output
-from VoigtFit.funcs import limits
+from VoigtFit.components import Component
+from VoigtFit.dataset import DataSet
+from VoigtFit.lines import Line, show_transitions
+from VoigtFit.regions import Region
+from VoigtFit import voigt
+from VoigtFit.hdf5_save import load_dataset, save_dataset
+from VoigtFit import parse_input, output
+from VoigtFit import limits
 from VoigtFit.main import run_voigtfit
 
 
