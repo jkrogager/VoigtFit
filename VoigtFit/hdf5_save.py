@@ -11,13 +11,10 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 from os.path import splitext, basename
 import pickle
-import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import h5py
+import h5py
 from lmfit import Parameters
 
-from ..container import regions
+from VoigtFit import regions
 
 
 def dataset_to_hdf(fname):
@@ -167,8 +164,8 @@ def save_hdf_dataset(ds, fname, verbose=True):
 
 
 def load_dataset_from_hdf(fname):
-    from ..container.lines import Line, lineList
-    from ..container.dataset import DataSet
+    from VoigtFit.lines import Line, lineList
+    from VoigtFit.dataset import DataSet
     """Load dataset from HDF5 file and instantiate a `VoigtFit.Dataset' class."""
     with h5py.File(fname, 'r') as hdf:
         z_sys = hdf.attrs['redshift']

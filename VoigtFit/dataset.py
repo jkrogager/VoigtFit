@@ -15,19 +15,19 @@ from astropy.io import fits
 import astropy.units as u
 from lmfit import Parameters, Minimizer
 
-from VoigtFit.utils import Asplund
-from VoigtFit.container.components import Component
-from VoigtFit.io.fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
-from VoigtFit.io import hdf5_save
-from VoigtFit.funcs.limits import match_ion_state, match_ion_state_all, tau_percentile, tau_noise_range, equivalent_width
-from VoigtFit.utils import line_complexes
-from VoigtFit.utils.line_complexes import fine_structure_complexes
-from VoigtFit.container.lines import Line, lineList
-from VoigtFit.utils import molecules
-from VoigtFit.io import output
-from VoigtFit.container.regions import Region, load_lsf
-from VoigtFit.utils import terminal_attributes as term
-from VoigtFit.funcs.voigt import evaluate_profile, evaluate_continuum
+from VoigtFit import Asplund
+from VoigtFit.components import Component
+from VoigtFit.fits_input import load_fits_spectrum, FormatError, MultipleSpectraWarning
+from VoigtFit import hdf5_save
+from VoigtFit.limits import match_ion_state, match_ion_state_all, tau_percentile, tau_noise_range, equivalent_width
+from VoigtFit import line_complexes
+from VoigtFit.line_complexes import fine_structure_complexes
+from VoigtFit.lines import Line, lineList
+from VoigtFit import molecules
+from VoigtFit import output
+from VoigtFit.regions import Region, load_lsf
+from VoigtFit import terminal_attributes as term
+from VoigtFit.voigt import evaluate_profile, evaluate_continuum
 
 from collections import namedtuple
 
