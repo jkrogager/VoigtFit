@@ -1218,7 +1218,7 @@ def plot_excitation(dataset, molecule):
     plt.tight_layout()
 
 
-def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
+def show_H2_bands(ax, z, bands, Jmax, color='blue', show_bands=True, yoff=0, short_labels=False):
     """
     Add molecular H2 band identifications to a given matplotlib axis.
 
@@ -1286,7 +1286,7 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
                 l0 = line.l0 * (z+1)
                 band_l0.append(l0)
                 label_x = (l0 - xmin)/(xmax - xmin)
-                ax.axvline(l0, y1+(y2-y1)/1.5, y2, color=color)
+                ax.axvline(l0, y1+(y2-y1)/1.5 + yoff, y2, color=color)
                 # Check overlap with other text labels:
                 for label in labels:
                     x_0, y_0 = label.get_position()
@@ -1299,7 +1299,7 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
                             label_x -= label_threshold/2.
                         label.set_position((x_new, y_0))
 
-                text = ax.text(label_x, y1, "%i" % j, fontsize=10, color=color,
+                text = ax.text(label_x, y1 + yoff, "%i" % j, fontsize=10, color=color,
                                ha='center', va=va, transform=ax.transAxes,
                                clip_on=True)
                 labels.append(text)
@@ -1314,8 +1314,9 @@ def show_H2_bands(ax, z, bands, Jmax, color='blue', short_labels=False):
             band_str = band_str % nu
         else:
             band_str = band
-        ax.text(band_x, (y2+0.02)*(ymax-ymin) + ymin, band_str, color=color,
-                clip_on=True, ha='center')
+        if show_bands:
+            ax.text(band_x, (y2+0.02)*(ymax-ymin) + ymin, band_str, color=color,
+                    clip_on=True, ha='center')
     plt.draw()
 
 

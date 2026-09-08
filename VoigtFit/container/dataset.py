@@ -2514,7 +2514,7 @@ class DataSet(object):
                 reg_match = reg_match_all[0]
                 if not reg_match.normalized:
                     reg_match.normalize(z_sys=self.redshift)
-                wl_ref = np.linspace(reg_match.wl.min(), reg_match.wl.max(), len(reg_match.wl)*10)
+                wl_ref = np.linspace(reg_match.wl.min(), reg_match.wl.max(), len(reg_match.wl))
                 lcen = line_match.l0 * (self.redshift + 1)
                 vel_ref = (wl_ref - lcen) / lcen * 299792.458
                 # vel_ref = reg_match.get_velocity(self.redshift, line_match.tag)
