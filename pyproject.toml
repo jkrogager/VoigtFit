@@ -39,3 +39,4 @@ namespaces = true
 VoigtFit = "VoigtFit.main:main"
 vfit = "VoigtFit.main:main"
 vfit-lines = "VoigtFit.__main__:print_linelist"
+vfit-group = "VoigtFit.__main__:run_grouping"

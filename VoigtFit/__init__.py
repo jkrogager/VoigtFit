@@ -26,6 +26,7 @@ from VoigtFit import parse_input, output
 from VoigtFit import limits
 from VoigtFit.main import run_voigtfit
 
+from VoigtFit import components, dataset, lines, regions, voigt, output
 
 import importlib.metadata
 __version__ = importlib.metadata.version("VoigtFit")

@@ -242,7 +242,6 @@ def create_blank_input():
     """Create a blank template input parameter file."""
     # Read file from static
     root_path = os.path.dirname(os.path.abspath(__file__))
-    root_path = os.sep.join(root_path.split(os.sep)[:-1])
     temp_filename = os.path.join(root_path, 'static', 'input_template.txt')
     with open(temp_filename) as template:
         parameter_lines = template.readlines()
