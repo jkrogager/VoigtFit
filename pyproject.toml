@@ -20,7 +20,7 @@ dependencies = [
     "h5py>=2.1",
     "lmfit",
     "matplotlib",
-    "numpy",
+    "numpy<2",
     "scipy",
 ]
 
