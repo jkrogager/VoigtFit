@@ -4,13 +4,14 @@ from astropy.table import Table
 from collections import defaultdict
 
 from VoigtFit import load_dataset
+from VoigtFit.lines import Line
 from VoigtFit.voigt import evaluate_optical_depth as calctau
 from VoigtFit.components import (find_peaks_in_tau,
                                  sum_logN_per_group,
                                  group_component_velocities)
 
 
-def group_components_from_file(dataset_filename, ions=None, plot=True):
+def group_components_from_file(dataset_filename, ions=None, p=0.01, plot=True):
     """
     Group components in velocity space based on a VoigtFit DataSet
     loaded from file. The column densities for each ion are summed
@@ -21,12 +22,14 @@ def group_components_from_file(dataset_filename, ions=None, plot=True):
     ds = load_dataset(dataset_filename)
     results = group_components(ds, ions=ions, plot=plot)
     output_filename = f"logN_grouped_{ds.name}.csv"
-    results.write(output_filename, overwrite=True)
+    results.round(4)
+    results.write(output_filename, overwrite=True, format='ascii.csv',
+                  comment='# ')
     print(f"Wrote results to table: {output_filename}")
     return results
 
 
-def group_components(ds, ions=None, plot=True):
+def group_components(ds, ions=None, p=0.01, plot=True):
     """
     Group components in velocity space based on a VoigtFit DataSet.
     The grouping is done based on peaks in the optical depth profile
@@ -108,18 +111,22 @@ def group_components(ds, ions=None, plot=True):
             reg, = ds.find_line(line_tag)
             v = reg.get_velocity(z_sys, line_tag)
             t = calctau(reg.wl, ds.best_fit, [line])
-            tau_all.append(np.interp(vel, v, t/line.f, left=0, right=0))
+            norm_tau = np.nansum(t)
+            if norm_tau == 0:
+                continue
+            t = t / norm_tau
+            tau_all.append(np.interp(vel, v, t, left=0, right=0))
 
     for ion in ions_to_remove:
         ions.remove(ion)
 
     tau = np.nanmedian(tau_all, axis=0)
-    peak_vel = find_peaks_in_tau(vel, tau)
+    peak_vel = find_peaks_in_tau(vel, tau, p=p)
 
     if plot:
         plt.plot(vel, tau, 'k', lw=1.0)
         plt.xlabel("Relative velocity (km/s)")
-        plt.ylabel("Optical depth, τ")
+        plt.ylabel("Normalized optical depth, $\\tau\\, / \\int \\tau {\\rm d}v$")
         for t in tau_all:
             plt.plot(vel, t, lw=0.5, alpha=0.5, color='0.7')
         plt.title(ds.name + f" : {ions}")
@@ -133,6 +140,7 @@ def group_components(ds, ions=None, plot=True):
     print("")
     print("Total column densities in groups:")
     print("---------------------------------")
+    update_groups = True
     for ion in ions:
         components = ds.components[ion]
         comp_vel = np.array([(comp.z - z_sys)/(z_sys + 1) * 299792 for comp in components])
@@ -146,7 +154,9 @@ def group_components(ds, ions=None, plot=True):
         total_str = ""
         for i, v0 in enumerate(peak_vel):
             total_str += "%+7.2f : %.3f +%.3f -%.3f\n" % (v0, logN_tot[i], u68[i], l68[i])
-            comp_color = plt.cm.rainbow(i / (len(peak_vel)-1))
+            if not update_groups:
+                continue
+            comp_color = plt.cm.gist_rainbow(i / (len(peak_vel)-1))
             for v_i in comp_vel[good][groups[i]]:
                 plt.axvline(v_i, color=comp_color, ls='-', lw=1.5)
                 grouped_velocities[f"{v0:+8.2f}"].append(f"{v_i:.2f}")
@@ -157,6 +167,12 @@ def group_components(ds, ions=None, plot=True):
         print(ion)
         print(total_str)
         print("")
+        update_groups = False
+
+    results.meta['comments'] = [
+            'Velocity in units of km/s',
+            'Column densities in units of 1/cm^2',
+    ]
 
     print("Velocity grouping (in km/s):")
     for num, (key, vals) in enumerate(grouped_velocities.items(), 1):

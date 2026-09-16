@@ -1,0 +1,20 @@
+name: test_dataset
+z_sys: 1.7941
+data  '../Q1313+1441/1313_VIS_1d.spec' 25.4
+data  '../Q1313+1441/1313_UVB_1d.spec' 37.0
+lines  FeII_2374, FeII_2260
+# lines CrII_2026 ZnII_2026
+# # lines CrII_2062 ZnII_2062
+# lines CrII_2056 CrII_2066
+# lines MgI_2852 MgI_2026
+component FeII -54.0  27.7  12.2  velocity
+component FeII  -5.0  15.9  13.0  velocity
+component FeII  30.0  14.0  12.2  velocity
+component FeII  72.0   9.7  11.6  velocity
+component FeII 115.0  20.0  11.6  velocity
+C_order = 1
+
+# copy components from FeII to ZnII
+# copy components from FeII to CrII
+# copy components from FeII to MgI
+

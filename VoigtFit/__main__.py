@@ -59,15 +59,15 @@ def run_grouping():
                         help="Filename of the .hdf5 DataSet from VoigtFit")
     parser.add_argument("ions", type=str, nargs='*',
                         help="List of ions to include in the grouping, ex: FeII SiII ZnII")
-    parser.add_argument("--plot", action="store_true",
-                        help="Plot the optical depth profile?")
+    parser.add_argument("-p", "--prominence", type=float, default=0.01,
+                        help="Threshold value in relative prominence compared to peak optical depth.")
 
     args = parser.parse_args()
     if len(args.ions) == 0:
         ions = None
     else:
         ions = args.ions
-    group_components_from_file(args.filename, ions=ions, plot=args.plot)
+    group_components_from_file(args.filename, ions=ions, plot=True, p=args.prominence)
 
 
 if __name__ == '__main__':
