@@ -15,13 +15,13 @@ from scipy.interpolate import RectBivariateSpline as spline2d
 import numpy as np
 import re
 
-from ..utils import Asplund
-from ..utils import molecules
-from ..container.lines import Line
-from ..funcs.voigt import evaluate_profile
-from ..utils import terminal_attributes as term
-from ..funcs import voigt
-from ..container.regions import load_lsf
+from VoigtFit import Asplund
+from VoigtFit import molecules
+from VoigtFit.lines import Line
+from VoigtFit.voigt import evaluate_profile
+from VoigtFit import terminal_attributes as term
+from VoigtFit import voigt
+from VoigtFit.regions import load_lsf
 
 plt.rcParams['lines.linewidth'] = 1.0
 plt.rcParams['font.family'] = 'Arial'
@@ -242,7 +242,6 @@ def create_blank_input():
     """Create a blank template input parameter file."""
     # Read file from static
     root_path = os.path.dirname(os.path.abspath(__file__))
-    root_path = os.sep.join(root_path.split(os.sep)[:-1])
     temp_filename = os.path.join(root_path, 'static', 'input_template.txt')
     with open(temp_filename) as template:
         parameter_lines = template.readlines()

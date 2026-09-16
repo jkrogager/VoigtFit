@@ -10,8 +10,8 @@ from matplotlib import pyplot as plt
 
 from argparse import ArgumentParser
 
-from VoigtFit import container
-from VoigtFit import io
+from VoigtFit.dataset import DataSet
+from VoigtFit import output, hdf5_save, parse_input
 
 
 warnings.filterwarnings("ignore", category=matplotlib.MatplotlibDeprecationWarning)
@@ -72,7 +72,7 @@ def run_voigtfit(args, testing=False):
         print("  I have created a blank template for you to get started: 'vfit.pars'.")
         print("  Please edit this file and run VoigtFit again with this file as input.")
         print("")
-        io.output.create_blank_input()
+        output.create_blank_input()
         return
 
     if args.version:
@@ -80,8 +80,8 @@ def run_voigtfit(args, testing=False):
 
     print(" Reading Parameters from file: " + parfile)
     try:
-        parameters = io.parse_input.parse_parameters(parfile)
-    except io.parse_input.InputParserError as err_msg:
+        parameters = parse_input.parse_parameters(parfile)
+    except parse_input.InputParserError as err_msg:
         print("An error happened during the parsing of the input file:")
         print(err_msg)
         return
@@ -89,7 +89,7 @@ def run_voigtfit(args, testing=False):
     name = parameters['name']
     # -- Load DataSet if the file already exists
     if os.path.exists(name + '.hdf5') and not args.f:
-        dataset = io.hdf5_save.load_dataset(name + '.hdf5')
+        dataset = hdf5_save.load_dataset(name + '.hdf5')
         if verbose:
             print("Loaded dataset: %s.hdf5" % name)
 
@@ -251,7 +251,7 @@ def run_voigtfit(args, testing=False):
 
     else:
         # --- Create a new DataSet
-        dataset = container.dataset.DataSet(parameters['z_sys'], parameters['name'])
+        dataset = DataSet(parameters['z_sys'], parameters['name'])
 
         if 'velspan' in parameters.keys():
             dataset.set_velspan(parameters['velspan'])
@@ -593,7 +593,7 @@ def run_voigtfit(args, testing=False):
 
     if len(thermal_model.keys()) > 0:
         # print Thermal Model Parameters
-        io.output.print_T_model_pars(dataset, thermal_model)
+        output.print_T_model_pars(dataset, thermal_model)
 
     # print metallicity
     logNHI = parameters['logNHI']
@@ -621,10 +621,10 @@ def run_voigtfit(args, testing=False):
                 EW = dataset.equivalent_width_limit(line_tag, verbose=True, **limit_options)
                 if EW is not None:
                     EW_limits.append(EW)
-                    print(io.output.format_EW(EW))
+                    print(output.format_EW(EW))
         print("")
         # Save to file:
-        io.output.save_EW(EW_limits, filename + '.limits')
+        output.save_EW(EW_limits, filename + '.limits')
 
     # Output:
     if 'individual-regions' in parameters['output_pars']:
@@ -648,13 +648,13 @@ def run_voigtfit(args, testing=False):
         if keyword in parameters['plot_options']:
             parameters['plot_options'].pop(keyword)
 
-    io.output.save_parameters_to_file(dataset, filename + '.out', velocity=output_velocity)
+    output.save_parameters_to_file(dataset, filename + '.out', velocity=output_velocity)
     if dataset.cheb_order >= 0:
-        io.output.save_cont_parameters_to_file(dataset, filename + '.cont')
-    io.output.save_fit_regions(dataset, filename + '.reg',
-                               individual=individual_regions)
+        output.save_cont_parameters_to_file(dataset, filename + '.cont')
+    output.save_fit_regions(dataset, filename + '.reg',
+                            individual=individual_regions)
     if individual_components:
-        io.output.save_individual_components(dataset, filename + '.components')
+        output.save_individual_components(dataset, filename + '.components')
     print(" - Done...\n")
     if testing:
         return

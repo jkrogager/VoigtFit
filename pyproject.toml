@@ -1,6 +1,6 @@
 [project]
 name = "VoigtFit"
-version = "3.22"
+version = "3.23"
 requires-python = ">=3.8"
 license = "MIT"
 license-files = ["LICENSE*"]
@@ -20,7 +20,7 @@ dependencies = [
     "h5py>=2.1",
     "lmfit",
     "matplotlib",
-    "numpy",
+    "numpy<2",
     "scipy",
 ]
 
@@ -39,3 +39,4 @@ namespaces = true
 VoigtFit = "VoigtFit.main:main"
 vfit = "VoigtFit.main:main"
 vfit-lines = "VoigtFit.__main__:print_linelist"
+vfit-group = "VoigtFit.__main__:run_grouping"

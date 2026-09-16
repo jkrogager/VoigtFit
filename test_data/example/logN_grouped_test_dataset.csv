@@ -1,0 +1,7 @@
+# Velocity in units of km/s
+# Column densities in units of 1/cm^2
+velocity,logN_FeII,logN_FeII_l68,logN_FeII_u68
+-57.7778,14.3584,0.0237,0.0227
+-4.4444,15.266,0.0325,0.0351
+75.5556,13.9148,0.0903,0.0922
+115.5556,14.5568,0.009,0.0087

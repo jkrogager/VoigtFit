@@ -1,20 +1,25 @@
 
 from VoigtFit.main import main, __version__
-from VoigtFit.container.lines import show_transitions
+from VoigtFit.lines import show_transitions
+from VoigtFit.grouping import group_components_from_file
 
 from astropy.table import Table
 from argparse import ArgumentParser
 
 
-def print_linelist():
+def print_credits():
     print(r"")
-    print(r"       VoigtFit Line List %s           " % __version__)
-    print(r"")
+    print(r"       VoigtFit  %s                    " % __version__)
+    print(r"      JK Krogager 2018                 ")
     print(r"  ____  _           ___________________")
     print(r"      \/ \  _/\    /                   ")
     print(r"          \/   \  / oigtFit            ")
     print(r"                \/                     ")
     print(r"")
+
+
+def print_linelist():
+    print_credits()
 
     parser = ArgumentParser(description="VoigtFit Line List Tool.")
     parser.add_argument("ion", type=str, nargs='+',
@@ -44,6 +49,25 @@ def print_linelist():
     tab['gamma'].format = '%.3e'
     tab.remove_column('ion')
     tab.pprint(max_lines=-1)
+
+
+def run_grouping():
+    print_credits()
+
+    parser = ArgumentParser(description="VoigtFit Component Grouping Tool")
+    parser.add_argument("filename", type=str,
+                        help="Filename of the .hdf5 DataSet from VoigtFit")
+    parser.add_argument("ions", type=str, nargs='*',
+                        help="List of ions to include in the grouping, ex: FeII SiII ZnII")
+    parser.add_argument("-p", "--prominence", type=float, default=0.01,
+                        help="Threshold value in relative prominence compared to peak optical depth.")
+
+    args = parser.parse_args()
+    if len(args.ions) == 0:
+        ions = None
+    else:
+        ions = args.ions
+    group_components_from_file(args.filename, ions=ions, plot=True, p=args.prominence)
 
 
 if __name__ == '__main__':

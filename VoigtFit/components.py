@@ -4,6 +4,8 @@ Module for the Component class used to define individual velocity components
 for the overall line profile for the ions.
 """
 
+import numpy as np
+from scipy.signal import find_peaks
 from numpy import abs
 from lmfit import Parameters
 
@@ -195,3 +197,110 @@ def components_from_array(ion, *, z, b, logN):
         pars.add(b_name, value=vals[1])
         pars.add(N_name, value=vals[2])
     return pars
+
+
+def find_peaks_in_tau(vel, tau, p=0.01):
+    """
+    Find peaks in optical depth for a given threshold in peak prominence
+    See the documentation for `scipy.signal.find_peaks`:
+    docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html
+
+    Parameters
+    ----------
+    vel : np.ndarray
+        Array of line-of-sight velocity for the optical depth model
+    tau: np.ndarray
+        Array of optical depth for each pixel, corresponding to `vel`
+    p : float
+        Prominence threshold for peak detection. See scipy documentation
+
+    Returns
+    -------
+    np.ndarray
+        Array of velocity centroid for each peak in optical depth.
+    """
+    prominence = np.nanmax(tau)*p
+    peaks, _ = find_peaks(tau, prominence=prominence)
+    return vel[peaks]
+
+
+def group_component_velocities(component_vel, group_vel):
+    """
+    Assign components into groups based on component velocity.
+
+    Parameters
+    ----------
+    component_vel : np.ndarray
+        The relative line-of-sight velocities of each component.
+
+    group_vel : np.ndarray
+        The group central velocity, must be same units as component_vel.
+
+    Returns
+    -------
+    groups : list[list[int]]
+        A list of lists, where each sub-list holds the indeces of the
+        components that belong to a given group defined by the entries
+        in `group_vel`.
+    """
+    groups = []
+    for _ in group_vel:
+        groups.append([])
+
+    for num, v0 in enumerate(component_vel):
+        index = np.argmin(np.abs(group_vel - v0))
+        groups[index].append(num)
+    
+    if any([len(group) == 0 for group in groups]):
+        print("WARNING - some groups have no components!")
+
+    return groups
+
+
+def sum_logN_per_group(logN, logN_err, groups):
+    """
+    Add column densities for components belonging to a group
+
+    Parameters
+    ----------
+    logN : np.ndarray
+        Array of log10 of column densities of all fit components.
+
+    logN_err : np.ndarray
+        Array of uncertainties on log10 of column densities
+
+    groups : list[list[int]]
+        Grouping of component indeces as a list of lists of integers.
+        Each sublist holds the indeces corresponding to components of the fit.
+        Example:
+            groups = [[0, 1], [2, 3, 4], [5], [6]]
+        This means that the first two components are grouped together,
+        the following three components are grouped together, and the last
+        two components are individual groups.
+
+    Returns
+    -------
+    logN_tot : np.ndarray
+        The log10 of the total column density for each group.
+    l68 : np.ndarray
+        The lower 1-sigma uncertainty on logN_tot
+    u68 : np.ndarray
+        The uppwer 1-sigma uncertainty on logN_tot
+    """
+    logN_tot = []
+    l68 = []
+    u68 = []
+    for group in groups:
+        if len(group) == 0:
+            logN_tot.append(np.nan)
+            l68.append(np.nan)
+            u68.append(np.nan)
+            continue
+        logN_pdf = [np.random.normal(n, e, 10000)
+                    for n, e in zip(logN[group], logN_err[group])]
+        logsum = np.log10(np.sum(10**np.array(logN_pdf), 0))
+        lower, total_logN, upper = np.percentile(logsum, [16, 50, 84])
+        logN_tot.append(total_logN)
+        l68.append(np.abs(total_logN - lower))
+        u68.append(np.abs(total_logN - upper))
+    return np.array(logN_tot), np.array(l68), np.array(u68)

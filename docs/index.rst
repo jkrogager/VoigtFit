@@ -34,6 +34,10 @@ If you use VoigtFit, please cite the description paper on `arXiv (Krogager 2018)
 
 Recent updates
 --------------
+New in version 3.23
+  New component grouping in velocity space. Use the command line tool ``vfit-group``, see the documentation
+  under :ref:`examples`.
+
 New in version 3.22
   Best-fit components are now saved in velocity in the output file 
   if `output velocity` is included in the parameter file. Also fixes a bug in the 
@@ -265,3 +269,5 @@ Examples
    :maxdepth: 2
 
    physical_model_results.rst
+   
+   examples.rst

@@ -11,7 +11,6 @@ import numpy as np
 import os
 
 root_path = os.path.dirname(os.path.abspath(__file__))
-root_path = os.sep.join(root_path.split(os.sep)[:-1])
 datafile = os.path.join(root_path, 'static', 'Konstantopoulou2022.dat')
 
 data = Table.read(datafile, format='csv', comment='#')
