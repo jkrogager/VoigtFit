@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 from collections import defaultdict
 
-from VoigtFit import load_dataset
+from VoigtFit.hdf5_save import load_dataset
 from VoigtFit.lines import Line
 from VoigtFit.voigt import evaluate_optical_depth as calctau
 from VoigtFit.components import (find_peaks_in_tau,
