@@ -20,7 +20,7 @@ def group_components_from_file(dataset_filename, ions=None, p=0.01, plot=True):
     For more information, see :func:`VoigtFit.grouping.group_components`
     """
     ds = load_dataset(dataset_filename)
-    results = group_components(ds, ions=ions, plot=plot)
+    results = group_components(ds, ions=ions, plot=plot, p=p)
     output_filename = f"logN_grouped_{ds.name}.csv"
     results.round(4)
     results.write(output_filename, overwrite=True, format='ascii.csv',
@@ -73,7 +73,7 @@ def group_components(ds, ions=None, p=0.01, plot=True):
     vmax = np.max([reg.velspan for reg in ds.regions])
     N = np.mean([len(reg.wl) for reg in ds.regions])
 
-    vel = np.linspace(vmin, vmax, int(N*2))
+    vel = np.linspace(vmin, vmax, int(N*5))
 
     # Create mean optical depth profile:
     tau_all = []
@@ -140,7 +140,7 @@ def group_components(ds, ions=None, p=0.01, plot=True):
     print("")
     print("Total column densities in groups:")
     print("---------------------------------")
-    update_groups = True
+    ions = list(ds.components.keys())
     for ion in ions:
         components = ds.components[ion]
         comp_vel = np.array([(comp.z - z_sys)/(z_sys + 1) * 299792 for comp in components])
@@ -152,11 +152,11 @@ def group_components(ds, ions=None, p=0.01, plot=True):
         groups = group_component_velocities(comp_vel[good], peak_vel)
         logN_tot, l68, u68 = sum_logN_per_group(logN[good], logN_err[good], groups)
         total_str = ""
+        for v_i in comp_vel:
+            plt.axvline(v_i, color='0.7', lw=1.0, ls='--', alpha=0.5)
         for i, v0 in enumerate(peak_vel):
             total_str += "%+7.2f : %.3f +%.3f -%.3f\n" % (v0, logN_tot[i], u68[i], l68[i])
-            if not update_groups:
-                continue
-            comp_color = plt.cm.gist_rainbow(i / (len(peak_vel)-1))
+            comp_color = plt.cm.gist_rainbow(i / len(peak_vel))
             for v_i in comp_vel[good][groups[i]]:
                 plt.axvline(v_i, color=comp_color, ls='-', lw=1.5)
                 grouped_velocities[f"{v0:+8.2f}"].append(f"{v_i:.2f}")
@@ -167,7 +167,6 @@ def group_components(ds, ions=None, p=0.01, plot=True):
         print(ion)
         print(total_str)
         print("")
-        update_groups = False
 
     results.meta['comments'] = [
             'Velocity in units of km/s',
